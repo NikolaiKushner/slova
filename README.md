@@ -1,192 +1,54 @@
 # Slova
 
-A full-stack Nuxt app template: Vue 3 SSR frontend and a Nitro (Nuxt's server
-engine) backend in one project, no separate API service. Ships as a tiny
-Quizlet-style example — user accounts, flashcard sets, cards, and a study
-mode — to demonstrate the pattern end to end.
+**Paste a word list. Start learning.**
 
-Studying uses spaced repetition (a simplified SM-2 scheduler, as in Anki):
-every answer is rated and the card's next review is scheduled further out the
-better you know it. Four study modes — flip cards with self-rating, multiple
-choice, typed answers with typo tolerance, and match-the-pairs — all feed the
-same scheduler. The dashboard tracks due cards, a study-day streak, and
-per-set progress.
+You got a sheet from your tutor, a CSV from class, or a messy note with words and translations. Slova turns that into something you can study in minutes — then quietly brings words back when it’s time to review.
 
-Quality-of-life extras: CSV/text import and export of sets, curated
-English-Russian starter packs grouped by CEFR level (A1/A2/B1) with a level
-picker at registration so matching packs are suggested first, a daily-reviews
-chart on the dashboard, word pronunciation via the browser's Web Speech API,
-a dark theme, and a PWA manifest + service worker so the app installs to a
-phone's home screen.
+Not another deck manager. The job is simple: get words in, learn them, come back.
 
-## Stack
+## How it works
 
-- **Nuxt 4** (Vue 3, TypeScript, SSR)
-- **Nitro server routes** (`server/api/**`) as the backend — no separate
-  FastAPI/Express/etc. service
-- **Drizzle ORM** + **SQLite** (`better-sqlite3`), migrations via `drizzle-kit`
-- **nuxt-auth-utils** for sessions (sealed cookies) and password hashing
+1. **Paste a list** — lines like `hello — привет`, tabs, or commas. Preview, import, done.
+2. **Study** — flip a card, tap *Know it* or *Again*.
+3. **Come back** — due words show up on your home screen. Short sessions beat long ones.
 
-## Why Nuxt-only
+That’s the whole loop for now.
 
-Nitro's server routes are a real backend: typed request handlers, a database,
-sessions/auth, all deployed as a single Node process. For an app of this size
-(flashcard sets, CRUD, auth) that's enough — you skip a second service, CORS,
-and a second deploy. If the app later needs heavy background jobs (AI
-generation, cron, queues) or a Python-specific ecosystem, that's the point to
-consider splitting a dedicated backend back out.
+## Who it’s for
 
-## Project layout
+Anyone learning vocabulary from real materials — tutors, courses, travel lists — who doesn’t want to rebuild every set by hand in a heavy flashcard app.
 
-```
-app/                 Vue app (pages, layouts, middleware, components)
-  pages/index.vue     Public landing page (logged-in users go to /dashboard)
-  pages/dashboard.vue Dashboard — sets with due counts, streak, reviews today
-  pages/sets/[id].vue Edit cards + study setup (mode, direction, queue)
-  pages/login.vue, register.vue
-  components/StudySession.vue   Runs a study session, posts reviews
-  components/StudyFlashcard.vue Flip card with again/hard/good self-rating
-  components/StudyChoice.vue    Multiple-choice question
-  components/StudyTyping.vue    Typed answer with typo tolerance
-  middleware/auth.ts   Redirects to /login if not authenticated
-  middleware/guest.ts  Redirects to / if already authenticated
-server/
-  api/auth/            register, login, logout
-  api/sets/, api/cards/ CRUD, scoped to the logged-in user
-  api/cards/[id]/review.post.ts  Rate a card, reschedule it (SM-2)
-  api/stats.get.ts     Study-day streak, reviews today, cards due
-  database/schema.ts    Drizzle schema (users, sets, cards, progress, log)
-  database/migrations/  Generated SQL migrations
-  utils/db.ts           Drizzle + better-sqlite3 client
-  utils/srs.ts          Simplified SM-2 spaced-repetition scheduler
-  utils/ownership.ts     Ownership check shared by set/card routes
-  utils/rateLimit.ts     In-memory rate limiter for the auth endpoints
-  plugins/migrate.ts     Runs migrations automatically on server start
-```
+## What’s next
 
-## Quickstart
+The core is “list → study → review.” Later we may grow into:
+
+- a **daily micro-habit** (a few minutes, not a marathon)
+- words from **life** (chat, article, trip) — not only tutor packs
+- light **challenges** on top of the same cards
+- a **dictionary-diary** with your own notes and examples
+
+## Try it locally
 
 ```bash
-make dev
-```
-
-First run creates `.env` from `.env.example` (with a generated
-`NUXT_SESSION_PASSWORD`), installs dependencies, and starts the dev server.
-Or do the same by hand:
-
-```bash
+cp .env.example .env
 npm install
-cp .env.example .env   # sets NUXT_SESSION_PASSWORD and DATABASE_URL
+npx prisma migrate dev
+npm run db:seed   # demo@slova.app / demo1234
 npm run dev
 ```
 
-Open http://localhost:3000 — register an account, create a set, add a few
-term/definition cards, and try the study mode. Or skip registration: three
-test accounts (superadmin, a user with pre-filled study data, an empty user)
-are seeded on startup and printed to the console — see
-[TEST_USERS.md](TEST_USERS.md).
+Open [http://localhost:3000](http://localhost:3000).
 
-Migrations run automatically on server startup (see `server/plugins/migrate.ts`).
-After changing `server/database/schema.ts`, generate a new migration:
+## For contributors
 
-```bash
-npm run db:generate
-```
+Stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, Auth.js, Prisma, SQLite.
 
-Inspect the database with Drizzle Studio:
+| Script | What |
+|--------|------|
+| `npm run dev` | Dev server |
+| `npm test` | Unit tests |
+| `npm run build` | Production build |
+| `npm run db:migrate` | Migrations |
+| `npm run db:seed` | Demo user |
 
-```bash
-npm run db:studio
-```
-
-## Tests
-
-```bash
-npm test          # unit tests (vitest): SRS scheduler, utilities
-npm run build     # e2e runs against the production build
-npm run test:e2e  # smoke tests (Playwright): register, study, undo, limits
-```
-
-CI (`.github/workflows/ci.yml`) runs the same three steps on every push to
-`main` and on pull requests.
-
-## Docker
-
-```bash
-make docker       # production image (same stages Fly.io builds), DB in ./data
-make docker-dev   # hot-reload dev server inside Docker instead of natively
-make docker-down  # stop and remove the containers
-```
-
-Or without the Makefile:
-
-```bash
-docker build -t slova .
-docker run -p 3000:3000 --env-file .env -v $(pwd)/data:/app/data slova
-```
-
-## Deploy (Fly.io)
-
-The repo ships a `fly.toml`; deploying is four commands with the
-[Fly CLI](https://fly.io/docs/flyctl/):
-
-```bash
-fly launch --copy-config --no-deploy   # create the app from fly.toml
-fly volumes create data --size 1       # persistent disk for the SQLite file
-fly secrets set NUXT_SESSION_PASSWORD=$(openssl rand -hex 32)
-fly deploy
-```
-
-The app scales to zero when idle and wakes on the first request. Keep it at
-a single machine — SQLite lives on one volume and can't be shared across
-instances. Optional: set `SMTP_*` secrets to enable password-reset emails.
-
-## What's included
-
-- Public marketing landing page — sticky anchor nav, interactive flip-card
-  demo, product screenshots, testimonials, FAQ — while the app itself lives
-  behind login at `/dashboard`
-- Email/password auth (register, login, logout) with hashed passwords,
-  session cookies, and rate-limited login/register endpoints
-- Password reset via emailed single-use links (SMTP when configured via
-  `SMTP_*` env vars; in development the link is printed to the server
-  console)
-- Flashcard sets: create, list, delete, per-user
-- Set sharing: a public read-only link per set (`/s/<slug>`), with one-click
-  "copy to my sets" for logged-in visitors
-- Cards within a set: add, edit, delete
-- Spaced repetition: every answer (again/hard/good) reschedules the card via
-  a simplified SM-2 algorithm; the study queue shows only cards that are due
-- Daily new-card limit: at most 20 never-reviewed cards per set join the due
-  queue each day, so adding a big pack doesn't flood the review queue
-- Undo: the last answer in a session can be taken back — the card's previous
-  scheduling state is restored server-side
-- Three study modes: flip cards with self-rating, multiple choice with
-  distractors from the same set, and typed answers with typo tolerance —
-  in either direction (term → definition or definition → term)
-- Progress & motivation: per-set learned/learning/new progress bar, "tricky
-  words" list, due-count badges, reviews-today counter, a study-day streak,
-  a reviews-per-day chart, a GitHub-style activity heatmap for the last six
-  months, and a 14-day forecast of upcoming reviews
-- AI card generation (optional — set `ANTHROPIC_API_KEY`): generate a set
-  from a topic or pasted text with a reviewable preview, plus term
-  translation when adding cards — automatic once you finish typing an
-  English term (guarded by a client-side completeness check, a server-side
-  translation cache, and per-IP rate limits so quota isn't wasted), or via
-  the ✨ button. Uses the Claude API (`claude-haiku-4-5` by default,
-  `ANTHROPIC_MODEL` to override); the UI stays hidden when no key is
-  configured
-- Onboarding: an optional CEFR level picker (A1/A2/B1) at registration;
-  starter packs for the chosen level are recommended first on the dashboard
-- Installable PWA: web app manifest, icons, and a minimal service worker
-  (network-first, never caches `/api/`) so it can be added to a phone's home
-  screen and launched standalone
-
-## Next steps
-
-- Swap SQLite for Postgres (`DATABASE_URL` + a different Drizzle driver) if
-  you outgrow a single file.
-- Add set sharing, audio pronunciation, or AI-generated example sentences.
-- Move heavy/background work (AI-generated cards, scheduled review reminders)
-  to a queue or separate service if Nitro's request/response model stops
-  fitting.
+UI changes: read [DESIGN.md](DESIGN.md) first. Agent notes: [CLAUDE.md](CLAUDE.md). Demo accounts: [TEST_USERS.md](TEST_USERS.md).
