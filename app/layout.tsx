@@ -28,8 +28,10 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${dmSans.variable} ${fraunces.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans">
+      {/* suppressHydrationWarning: password managers / extensions inject attrs on body */}
+      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>
