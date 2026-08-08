@@ -15,10 +15,10 @@ export default async function ImportPage() {
         <Link href="/home" className="text-sm text-muted-foreground hover:text-foreground">
           ← Home
         </Link>
-        <h1 className="font-display text-4xl tracking-tight">Paste a list</h1>
+        <h1 className="font-display text-4xl tracking-tight">Add words</h1>
         <p className="text-muted-foreground">
-          Copy words from a tutor doc, spreadsheet, or notes. We’ll turn them into
-          cards you can study right away.
+          Paste a tutor list or type words. Fill translations yourself, or
+          auto-translate the empty ones — then review and import.
         </p>
       </div>
       <ImportForm />

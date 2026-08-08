@@ -54,7 +54,7 @@ export default async function HomePage() {
             href="/import"
             className="inline-flex h-10 items-center rounded-lg border border-border bg-white px-5 text-sm font-medium transition hover:bg-white/80"
           >
-            Paste a list
+            Add words
           </Link>
         </div>
       </section>
