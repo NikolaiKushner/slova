@@ -15,6 +15,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -41,6 +43,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-teal-ink: var(--teal-ink);
+  --color-brand-soft: var(--brand-soft);
   --color-mist: var(--mist);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -70,6 +73,8 @@
   --input: #d5dee6;
   --ring: #115e59;
   --teal-ink: #115e59;
+  /* Soft sage — TODAY labels, section eyebrows (not CTA green) */
+  --brand-soft: #5c8680;
   --mist: #eef2f4;
   --chart-1: #115e59;
   --chart-2: #3d7a74;
@@ -81,8 +86,11 @@
   --sidebar-foreground: #15202b;
   --sidebar-primary: #115e59;
   --sidebar-primary-foreground: #f4faf9;
+  /* Soft teal wash kept for accents; nav states are gray like Claude */
   --sidebar-accent: #d7ece8;
   --sidebar-accent-foreground: #0f3d3a;
+  --sidebar-hover: #f0f2f4;
+  --sidebar-active: #e4e8ec;
   --sidebar-border: #d5dee6;
   --sidebar-ring: #115e59;
 }
