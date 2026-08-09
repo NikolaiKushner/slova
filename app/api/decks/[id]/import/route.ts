@@ -6,10 +6,21 @@ import { parseImportText } from "@/lib/parse-import";
 
 type Params = { params: Promise<{ id: string }> };
 
-const schema = z.object({
-  text: z.string().min(1),
-  source: z.string().max(200).optional(),
+const cardSchema = z.object({
+  front: z.string().min(1).max(500),
+  back: z.string().min(1).max(2000),
 });
+
+const schema = z.union([
+  z.object({
+    text: z.string().min(1),
+    source: z.string().max(200).optional(),
+  }),
+  z.object({
+    cards: z.array(cardSchema).min(1).max(500),
+    source: z.string().max(200).optional(),
+  }),
+]);
 
 export async function POST(request: Request, { params }: Params) {
   const session = await auth();
@@ -28,13 +39,29 @@ export async function POST(request: Request, { params }: Params) {
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Text is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Provide text or cards with front and back" },
+      { status: 400 },
+    );
   }
 
-  const { cards, skipped } = parseImportText(parsed.data.text);
+  let cards: { front: string; back: string }[];
+  let skipped = 0;
+
+  if ("cards" in parsed.data) {
+    cards = parsed.data.cards.map((c) => ({
+      front: c.front.trim(),
+      back: c.back.trim(),
+    }));
+  } else {
+    const result = parseImportText(parsed.data.text);
+    cards = result.cards.filter((c) => c.front && c.back);
+    skipped = result.skipped + (result.cards.length - cards.length);
+  }
+
   if (cards.length === 0) {
     return NextResponse.json(
-      { error: "No cards found. Use lines like: word — translation" },
+      { error: "No complete cards. Each word needs a translation." },
       { status: 400 },
     );
   }

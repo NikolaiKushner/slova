@@ -93,7 +93,7 @@ export function StudySession({ deckId }: Props) {
         onClick={() => setFlipped((f) => !f)}
         className="study-card group relative flex min-h-56 w-full flex-col items-center justify-center rounded-2xl border border-border bg-white px-8 py-10 text-center shadow-sm transition duration-300 hover:shadow-md"
       >
-        <span className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-teal-800/70">
+        <span className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
           {flipped ? "Translation" : "Word"}
         </span>
         <span

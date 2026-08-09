@@ -18,11 +18,23 @@ describe("parseImportText", () => {
     expect(cards[1]).toEqual({ front: "dog", back: "собака" });
   });
 
-  it("skips header and bad lines", () => {
+  it("skips header and keeps single words for later translate", () => {
     const { cards, skipped } = parseImportText(
       "front,back\nonlyone\ngood - хорошо",
     );
-    expect(cards).toEqual([{ front: "good", back: "хорошо" }]);
-    expect(skipped).toBe(1);
+    expect(cards).toEqual([
+      { front: "onlyone", back: "" },
+      { front: "good", back: "хорошо" },
+    ]);
+    expect(skipped).toBe(0);
+  });
+
+  it("parses a list of words without translations", () => {
+    const { cards } = parseImportText("apple\nbanana\ncherry");
+    expect(cards).toEqual([
+      { front: "apple", back: "" },
+      { front: "banana", back: "" },
+      { front: "cherry", back: "" },
+    ]);
   });
 });

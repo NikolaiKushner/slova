@@ -20,7 +20,8 @@ function splitPair(line: string): [string, string] | null {
   return null;
 }
 
-/** Parse tutor-style word lists into flashcards. */
+/** Parse tutor-style word lists into flashcards.
+ *  Supports pairs (`word — translation`) and single words (back empty). */
 export function parseImportText(text: string): {
   cards: { front: string; back: string }[];
   skipped: number;
@@ -36,11 +37,16 @@ export function parseImportText(text: string): {
       continue;
     }
     const pair = splitPair(line);
-    if (!pair) {
-      skipped += 1;
+    if (pair) {
+      cards.push({ front: pair[0], back: pair[1] });
       continue;
     }
-    cards.push({ front: pair[0], back: pair[1] });
+    // Single word / phrase → front only (translation filled later)
+    if (line.length > 0) {
+      cards.push({ front: line, back: "" });
+      continue;
+    }
+    skipped += 1;
   }
 
   return { cards, skipped };
