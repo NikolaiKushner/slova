@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String?
-  createdAt    DateTime @default(now())
-  decks        Deck[]
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String?
+  dailyNewLimit  Int      @default(20)
+  createdAt      DateTime @default(now())
+  decks          Deck[]
 }
 
 model Deck {
@@ -39,12 +40,14 @@ model Card {
   dueAt        DateTime    @default(now())
   intervalDays Float       @default(0)
   ease         Float       @default(2.5)
+  introducedAt DateTime?
   createdAt    DateTime    @default(now())
   deck         Deck        @relation(fields: [deckId], references: [id], onDelete: Cascade)
   reviews      ReviewLog[]
 
   @@index([deckId])
   @@index([dueAt])
+  @@index([introducedAt])
 }
 
 model ReviewLog {
