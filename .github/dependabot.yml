@@ -11,6 +11,12 @@ updates:
       minor-and-patch:
         applies-to: version-updates
         update-types: ["minor", "patch"]
+    # Majors are deliberate work, not a PR to rubber-stamp: TypeScript 7 and
+    # ESLint 10 each want a migration pass. Security advisories still open a PR
+    # regardless of this ignore rule, which is the part worth keeping.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
 
   - package-ecosystem: github-actions

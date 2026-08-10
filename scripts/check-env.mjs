@@ -28,6 +28,44 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+// AUTH_URL becomes the OAuth redirect_uri. A stray character here is invisible
+// until Google answers redirect_uri_mismatch, so check the shape here instead.
+const authUrl = process.env.AUTH_URL;
+if (authUrl) {
+  let parsed;
+  try {
+    parsed = new URL(authUrl);
+  } catch {
+    console.error(`\nAUTH_URL is not a URL: "${authUrl}"\n`);
+    process.exit(1);
+  }
+
+  const problems = [];
+  if (parsed.hostname.endsWith(".")) {
+    problems.push(
+      "the hostname ends in a dot — a trailing '.' pasted from prose makes Google reject the callback as redirect_uri_mismatch",
+    );
+  }
+  if (parsed.pathname !== "/") {
+    problems.push("it has a path; AUTH_URL is an origin, not a page");
+  }
+  if (parsed.protocol !== "https:" && parsed.hostname !== "localhost") {
+    problems.push("it is not https, and Google only accepts https off localhost");
+  }
+
+  if (problems.length > 0) {
+    console.error(`\nAUTH_URL is malformed ("${authUrl}"):\n`);
+    for (const problem of problems) console.error(`  - ${problem}`);
+    const fixed = `${parsed.protocol}//${parsed.hostname.replace(/\.+$/, "")}${
+      parsed.port ? `:${parsed.port}` : ""
+    }`;
+    console.error(
+      `\nAUTH_URL should read ${fixed}, and Google must have\n${fixed}/api/auth/callback/google as an authorised redirect URI.\n`,
+    );
+    process.exit(1);
+  }
+}
+
 if (!/^postgres(ql)?:\/\//.test(process.env.DATABASE_URL)) {
   console.error(
     `\nDATABASE_URL is not a Postgres URL (got "${process.env.DATABASE_URL.slice(

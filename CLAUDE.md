@@ -2,17 +2,19 @@
 
 Guidance for AI agents (and humans) contributing to this repo.
 
-## Change flow: commit to `main`
+## Change flow: branch, accumulate, then merge
 
-This is a solo project. Work lands on `main` directly — no feature branches,
-no integration branches, no PRs for ordinary work.
+`main` auto-deploys, so **every push to `main` is a release**. Work does not go
+there directly.
 
-- Commit to `main` and `git push`. That is the whole flow.
-- `main` still refuses deletion and force-pushes. Nothing else blocks a push,
-  so nothing is waiting on a review that is never coming.
-- Branch and open a PR only when the change genuinely wants a second look
-  before it deploys — a risky migration, a spike, something you want to sit on.
-  Then merge it yourself; no approval is required and none should be waited for.
+- Create a branch, and keep committing to it across several changes — it is a
+  staging area for a batch of work, not one commit per branch.
+- Verify locally before merging: `npm test`, and a production build if anything
+  touched the build, schema or environment.
+- Merge to `main` when the batch is genuinely ready to ship, and ask first
+  unless the maintainer already said to go.
+- Branches do not get preview deploys (`vercel.json` allows only `main`), so a
+  branch costs nothing to sit on.
 - Keep tests in `tests/unit` in step with code changes.
 
 ## Verification
