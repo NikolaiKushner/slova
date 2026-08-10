@@ -53,6 +53,11 @@ export async function POST(request: Request) {
       data: {
         cardId: card.id,
         rating: parsed.data.rating,
+        // Snapshot for undo — a misclick should be one tap to take back.
+        prevIntervalDays: card.intervalDays,
+        prevEase: card.ease,
+        prevDueAt: card.dueAt,
+        prevIntroducedAt: card.introducedAt,
       },
     }),
     prisma.deck.update({

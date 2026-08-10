@@ -57,5 +57,13 @@ model ReviewLog {
   createdAt DateTime @default(now())
   card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
+  // Card state just before this rating, so a misclick can be taken back.
+  // Null on rows written before undo existed — those cannot be restored.
+  prevIntervalDays Float?
+  prevEase         Float?
+  prevDueAt        DateTime?
+  prevIntroducedAt DateTime?
+
   @@index([cardId])
+  @@index([cardId, createdAt])
 }

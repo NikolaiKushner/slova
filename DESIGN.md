@@ -60,6 +60,15 @@ Use tokens / Tailwind theme classes — do not hardcode new hex in components un
 - Soft background blurs on landing for atmosphere
 - Prefer opacity/transform; no glow stacks
 
+## Study session
+
+One card, two answers, no chrome above it. Below the answer buttons sits a
+quiet row: **Undo** on the left (ghost, disabled until something was rated),
+the shortcut hint on the right (hidden on small screens, where there is no
+keyboard). Shortcuts: **Space** flips, **1** again, **2** know it, **Z**
+undo. Rating keys only work once the card is flipped — the answer should be
+seen before it is judged.
+
 ## Import / add words
 
 Hybrid flow (not a dense spreadsheet app):
