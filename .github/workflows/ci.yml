@@ -22,15 +22,13 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Prepare database
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: file:./dev.db
-          AUTH_SECRET: ci-test-secret-at-least-32-characters-long
-
+      # No database is reachable here, and none is needed: the build only
+      # constructs the Prisma client, which connects lazily on first query.
       - name: Build
         run: npm run build
         env:
-          DATABASE_URL: file:./dev.db
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
           AUTH_SECRET: ci-test-secret-at-least-32-characters-long
           AUTH_URL: http://localhost:3000
+          AUTH_GOOGLE_ID: ci-client-id
+          AUTH_GOOGLE_SECRET: ci-client-secret

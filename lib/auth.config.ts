@@ -11,8 +11,7 @@ export const authConfig = {
       const { pathname } = request.nextUrl;
       const isLoggedIn = !!auth?.user;
 
-      const isAuthPage =
-        pathname.startsWith("/login") || pathname.startsWith("/register");
+      const isAuthPage = pathname.startsWith("/login");
       const isProtected =
         pathname.startsWith("/home") ||
         pathname.startsWith("/decks") ||

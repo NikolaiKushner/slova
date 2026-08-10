@@ -6,5 +6,6 @@
       "**": false,
       "main": true
     }
-  }
+  },
+  "buildCommand": "npx prisma migrate deploy && npm run build"
 }

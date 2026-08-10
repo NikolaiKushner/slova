@@ -1,17 +1,15 @@
-import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
 
 async function main() {
-  const email = "demo@slova.app";
-  const password = "demo1234";
-  const passwordHash = await bcrypt.hash(password, 10);
+  // Sign-in is Google-only, so this seeds data shape, not a way in: use the
+  // email of the Google account you sign in with to see the starter deck.
+  const email = process.env.SEED_EMAIL ?? "demo@slova.app";
 
   const user = await prisma.user.upsert({
     where: { email },
     update: {},
     create: {
       email,
-      passwordHash,
       name: "Demo",
     },
   });
@@ -37,7 +35,7 @@ async function main() {
     console.log("Created starter deck:", deck.id);
   }
 
-  console.log("Seeded user:", email, "/", password);
+  console.log("Seeded user:", email);
 }
 
 main()

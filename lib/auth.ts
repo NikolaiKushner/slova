@@ -1,39 +1,35 @@
 import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
+import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
 
-const credentialsSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  providers: [
-    Credentials({
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      authorize: async (credentials) => {
-        const parsed = credentialsSchema.safeParse(credentials);
-        if (!parsed.success) return null;
+  providers: [Google],
+  callbacks: {
+    ...authConfig.callbacks,
+    /**
+     * Sessions are JWTs, so there is no adapter writing users for us. On the
+     * first callback of a sign-in (`user` is only set then) we upsert the
+     * Google account into our own User table and put that row's id — not
+     * Google's — in the token, because every deck hangs off it.
+     */
+    async jwt({ token, user }) {
+      if (!user?.email) return token;
 
-        const email = parsed.data.email.toLowerCase();
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) return null;
+      const dbUser = await prisma.user.upsert({
+        where: { email: user.email.toLowerCase() },
+        update: { name: user.name, image: user.image },
+        create: {
+          email: user.email.toLowerCase(),
+          name: user.name,
+          image: user.image,
+        },
+      });
 
-        const valid = await bcrypt.compare(
-          parsed.data.password,
-          user.passwordHash,
-        );
-        if (!valid) return null;
-
-        return { id: user.id, email: user.email, name: user.name };
-      },
-    }),
-  ],
+      token.sub = dbUser.id;
+      token.picture = dbUser.image;
+      return token;
+    },
+  },
 });

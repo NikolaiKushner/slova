@@ -34,18 +34,22 @@ The core is “list → study → review.” Later we may grow into:
 ## Try it locally
 
 ```bash
-cp .env.example .env
+cp .env.example .env      # fill DATABASE_URL and the two AUTH_GOOGLE_* values
 npm install
-npx prisma migrate dev
-npm run db:seed   # demo@slova.app / demo1234
+npx prisma migrate deploy
+npm run db:seed           # optional starter deck
 npm run dev
 ```
+
+Sign-in is Google only — see [TEST_USERS.md](TEST_USERS.md) for the redirect
+URI the OAuth client needs. There is no local database file: point
+`DATABASE_URL` at a Neon branch (the free tier is plenty) for development too.
 
 Open [http://localhost:3000](http://localhost:3000).
 
 ## For contributors
 
-Stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, Auth.js, Prisma, SQLite.
+Stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, Auth.js (Google), Prisma, Postgres (Neon).
 
 On Vercel: page analytics via `@vercel/analytics`, Web Vitals via `@vercel/speed-insights` (enabled in production automatically).
 

@@ -10,6 +10,5 @@ export const config = {
     "/import/:path*",
     "/study/:path*",
     "/login",
-    "/register",
   ],
 };
