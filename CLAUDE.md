@@ -2,25 +2,32 @@
 
 Guidance for AI agents (and humans) contributing to this repo.
 
-## Verification happens on GitHub, not locally
+## Change flow: commit to `main`
 
-- **Do not run the dev server, unit tests, e2e tests, or browsers in agent
-  sessions.** Write the code and push; GitHub Actions is the single
-  verification gate.
-- CI (`.github/workflows/ci.yml`) runs on every PR and push to `main`:
-  unit tests (vitest) → Prisma generate → production build.
-- After pushing, check the PR's checks; if CI is red, read the failing job's
-  log and fix from there.
+This is a solo project. Work lands on `main` directly — no feature branches,
+no integration branches, no PRs for ordinary work.
 
-## Change flow
+- Commit to `main` and `git push`. That is the whole flow.
+- `main` still refuses deletion and force-pushes. Nothing else blocks a push,
+  so nothing is waiting on a review that is never coming.
+- Branch and open a PR only when the change genuinely wants a second look
+  before it deploys — a risky migration, a spike, something you want to sit on.
+  Then merge it yourself; no approval is required and none should be waited for.
+- Keep tests in `tests/unit` in step with code changes.
 
-- `main` is protected: changes land only through PRs; merge commits only;
-  branches auto-delete after merge.
-- Develop on the branch designated for the session and push with
-  `git push -u origin <branch>`.
-- **Never merge a PR yourself** — open it, report, and wait for the
-  maintainer's explicit go-ahead.
-- Keep tests in `tests/unit` in step with code changes so CI stays green.
+## Verification
+
+`main` auto-deploys to Vercel, and nothing gates the push any more. So the
+cheap check moved locally, and the slow ones stayed in CI:
+
+- **Run `npm test` before pushing to `main`.** It is vitest over `tests/unit`
+  and takes seconds. This is the one local check that is worth its cost, and it
+  is now the only thing standing between a typo and production.
+- **Still do not run the dev server, e2e tests, or browsers in agent sessions.**
+  Those are slow, flaky, and CI does them better.
+- CI (`.github/workflows/ci.yml`) runs on every push to `main`: unit tests →
+  Prisma generate → production build. It no longer blocks anything — treat it
+  as a smoke alarm. If it goes red, fix forward with another commit.
 
 ## Design system
 
