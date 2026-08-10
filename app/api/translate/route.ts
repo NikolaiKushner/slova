@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import type { LangCode } from "@/lib/languages";
+import { langCodeSchema, type LangCode } from "@/lib/languages";
 import { translateText } from "@/lib/translate";
-
-const langSchema = z.enum(["en", "ru", "de", "es", "fr", "it", "pt", "pl"]);
 
 const schema = z.object({
   text: z.string().min(1).max(500),
-  from: langSchema,
-  to: langSchema,
+  from: langCodeSchema,
+  to: langCodeSchema,
 });
 
 const batchSchema = z.object({
   texts: z.array(z.string().min(1).max(500)).min(1).max(40),
-  from: langSchema,
-  to: langSchema,
+  from: langCodeSchema,
+  to: langCodeSchema,
 });
 
 export async function POST(request: Request) {

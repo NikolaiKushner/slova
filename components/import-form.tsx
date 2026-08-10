@@ -7,7 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { parseImportText } from "@/lib/parse-import";
-import { LANG_OPTIONS, type LangCode } from "@/lib/languages";
+import {
+  DEFAULT_SOURCE_LANG,
+  DEFAULT_TARGET_LANG,
+  LANG_OPTIONS,
+  type LangCode,
+} from "@/lib/languages";
 
 type Row = {
   id: string;
@@ -19,6 +24,9 @@ type Row = {
 
 type Props = {
   deckId?: string;
+  /** Languages of the list being added to; seeds the translate direction. */
+  sourceLang?: LangCode;
+  targetLang?: LangCode;
 };
 
 function newId() {
@@ -37,14 +45,16 @@ function ensureTrailingEmpty(rows: Row[]): Row[] {
   return rows;
 }
 
-export function ImportForm({ deckId }: Props) {
+export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [paste, setPaste] = useState("");
   const [showPaste, setShowPaste] = useState(true);
   const [rows, setRows] = useState<Row[]>([emptyRow()]);
-  const [from, setFrom] = useState<LangCode>("en");
-  const [to, setTo] = useState<LangCode>("ru");
+  const [from, setFrom] = useState<LangCode>(
+    sourceLang ?? DEFAULT_SOURCE_LANG,
+  );
+  const [to, setTo] = useState<LangCode>(targetLang ?? DEFAULT_TARGET_LANG);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -214,7 +224,11 @@ export function ImportForm({ deckId }: Props) {
         const createRes = await fetch("/api/decks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: title.trim() }),
+          body: JSON.stringify({
+            title: title.trim(),
+            sourceLang: from,
+            targetLang: to,
+          }),
         });
         if (!createRes.ok) {
           const data = await createRes.json().catch(() => null);
