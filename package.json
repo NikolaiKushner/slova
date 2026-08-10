@@ -12,7 +12,9 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "check:env": "node scripts/check-env.mjs",
+    "vercel:preflight": "npm run check:env && npm test && prisma migrate deploy"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

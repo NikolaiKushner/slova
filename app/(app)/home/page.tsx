@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
@@ -17,17 +17,17 @@ export default async function HomePage() {
   const userId = session.user.id;
 
   const [decks, dueByDeck, unseenByDeck, summary, progress] = await Promise.all([
-    prisma.deck.findMany({
+    getPrisma().deck.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
       include: { _count: { select: { cards: true } } },
     }),
-    prisma.card.groupBy({
+    getPrisma().card.groupBy({
       by: ["deckId"],
       where: { deck: { userId }, introducedAt: { not: null }, dueAt: { lte: now } },
       _count: true,
     }),
-    prisma.card.groupBy({
+    getPrisma().card.groupBy({
       by: ["deckId"],
       where: { deck: { userId }, introducedAt: null },
       _count: true,

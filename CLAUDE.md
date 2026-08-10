@@ -28,6 +28,11 @@ cheap check moved locally, and the slow ones stayed in CI:
 - CI (`.github/workflows/ci.yml`) runs on every push to `main`: unit tests →
   Prisma generate → production build. It no longer blocks anything — treat it
   as a smoke alarm. If it goes red, fix forward with another commit.
+- **Vercel does gate.** `buildCommand` runs `npm run vercel:preflight` first —
+  environment check, unit tests, then `prisma migrate deploy`. Any of the three
+  failing fails the build, and a failed build never replaces the live
+  deployment. Tests catch code; `scripts/check-env.mjs` catches the missing
+  variable that otherwise shows up as an opaque Prisma or NextAuth error.
 
 ## Design system
 

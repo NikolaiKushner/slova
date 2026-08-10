@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -17,7 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (!user?.email) return token;
 
-      const dbUser = await prisma.user.upsert({
+      const dbUser = await getPrisma().user.upsert({
         where: { email: user.email.toLowerCase() },
         update: { name: user.name, image: user.image },
         create: {

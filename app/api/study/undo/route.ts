@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { restoreFromSnapshot } from "@/lib/srs";
 
 const schema = z.object({
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid undo" }, { status: 400 });
   }
 
-  const card = await prisma.card.findFirst({
+  const card = await getPrisma().card.findFirst({
     where: { id: parsed.data.cardId, deck: { userId: session.user.id } },
     select: { id: true },
   });
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const last = await prisma.reviewLog.findFirst({
+  const last = await getPrisma().reviewLog.findFirst({
     where: { cardId: card.id },
     orderBy: { createdAt: "desc" },
   });
@@ -45,12 +45,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const [restored] = await prisma.$transaction([
-    prisma.card.update({
+  const [restored] = await getPrisma().$transaction([
+    getPrisma().card.update({
       where: { id: card.id },
       data: previous,
     }),
-    prisma.reviewLog.delete({ where: { id: last.id } }),
+    getPrisma().reviewLog.delete({ where: { id: last.id } }),
   ]);
 
   return NextResponse.json({ card: restored });

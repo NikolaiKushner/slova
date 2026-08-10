@@ -18,23 +18,19 @@ function createPrismaClient() {
   return new PrismaClient({ adapter: new PrismaNeon({ connectionString }) });
 }
 
-function getClient(): PrismaClient {
+/**
+ * Built on first call, not on import: a module that re-exports a pure helper
+ * must not demand a database, which is what a build with no DATABASE_URL and
+ * the unit tests both do.
+ *
+ * A plain function, deliberately — wrapping the client in a Proxy also defers
+ * construction, but Auth.js inspects a client it is handed (checking methods,
+ * iterating properties) and a Proxy answers those probes wrongly, which hangs
+ * the request with no error to read.
+ */
+export function getPrisma(): PrismaClient {
   if (!globalForPrisma.prisma) {
     globalForPrisma.prisma = createPrismaClient();
   }
   return globalForPrisma.prisma;
 }
-
-/**
- * Built on first use, not on import. Importing a module that merely re-exports
- * a pure helper must not demand a database — that is what a build with no
- * DATABASE_URL does, and what the unit tests do.
- */
-export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, property) {
-    const client = getClient() as unknown as Record<string | symbol, unknown>;
-    const value = client[property];
-    // $transaction and friends need their receiver.
-    return typeof value === "function" ? value.bind(client) : value;
-  },
-});

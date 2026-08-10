@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 /** Unseen words a user may meet per day before the queue holds the rest back. */
 export const DEFAULT_DAILY_NEW_LIMIT = 20;
@@ -56,11 +56,11 @@ const CARD_FIELDS = {
 /** How many unseen words this user may still be shown today. */
 export async function getNewAllowance(userId: string, now: Date) {
   const [user, introducedToday] = await Promise.all([
-    prisma.user.findUnique({
+    getPrisma().user.findUnique({
       where: { id: userId },
       select: { dailyNewLimit: true },
     }),
-    prisma.card.count({
+    getPrisma().card.count({
       where: {
         deck: { userId },
         introducedAt: { gte: startOfDay(now) },
@@ -86,7 +86,7 @@ export async function buildStudyQueue(
 
   const [allowance, reviews] = await Promise.all([
     getNewAllowance(userId, now),
-    prisma.card.findMany({
+    getPrisma().card.findMany({
       where: { deck, introducedAt: { not: null }, dueAt: { lte: now } },
       orderBy: { dueAt: "asc" },
       take: REVIEW_BATCH_LIMIT,
@@ -96,7 +96,7 @@ export async function buildStudyQueue(
 
   const fresh =
     allowance > 0
-      ? await prisma.card.findMany({
+      ? await getPrisma().card.findMany({
           where: { deck, introducedAt: null },
           orderBy: { createdAt: "asc" },
           take: allowance,
@@ -111,14 +111,14 @@ export async function buildStudyQueue(
 export async function getStudySummary(userId: string, now: Date) {
   const [allowance, dueReviews, unseen] = await Promise.all([
     getNewAllowance(userId, now),
-    prisma.card.count({
+    getPrisma().card.count({
       where: {
         deck: { userId },
         introducedAt: { not: null },
         dueAt: { lte: now },
       },
     }),
-    prisma.card.count({
+    getPrisma().card.count({
       where: { deck: { userId }, introducedAt: null },
     }),
   ]);
