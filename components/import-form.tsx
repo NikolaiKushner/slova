@@ -2,12 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { WORD_GRID, WordTable } from "@/components/word-table";
+import { cn } from "@/lib/utils";
 import { parseImportText } from "@/lib/parse-import";
-import { LANG_OPTIONS, type LangCode } from "@/lib/languages";
+import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 
 type Row = {
   id: string;
@@ -43,8 +46,6 @@ export function ImportForm({ deckId }: Props) {
   const [paste, setPaste] = useState("");
   const [showPaste, setShowPaste] = useState(true);
   const [rows, setRows] = useState<Row[]>([emptyRow()]);
-  const [from, setFrom] = useState<LangCode>("en");
-  const [to, setTo] = useState<LangCode>("ru");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -118,8 +119,8 @@ export function ImportForm({ deckId }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           texts: targets.map((t) => t.front.trim()),
-          from,
-          to,
+          from: STUDY_SOURCE_LANG,
+          to: STUDY_TARGET_LANG,
         }),
       });
       const data = await res.json().catch(() => null);
@@ -175,7 +176,11 @@ export function ImportForm({ deckId }: Props) {
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: row.front.trim(), from, to }),
+        body: JSON.stringify({
+          text: row.front.trim(),
+          from: STUDY_SOURCE_LANG,
+          to: STUDY_TARGET_LANG,
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error ?? "Translate failed");
@@ -214,7 +219,11 @@ export function ImportForm({ deckId }: Props) {
         const createRes = await fetch("/api/decks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: title.trim() }),
+          body: JSON.stringify({
+            title: title.trim(),
+            sourceLang: STUDY_SOURCE_LANG,
+            targetLang: STUDY_TARGET_LANG,
+          }),
         });
         if (!createRes.ok) {
           const data = await createRes.json().catch(() => null);
@@ -258,60 +267,18 @@ export function ImportForm({ deckId }: Props) {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="from">From</Label>
-          <select
-            id="from"
-            className="flex h-9 rounded-lg border border-border bg-white px-3 text-sm"
-            value={from}
-            onChange={(e) => setFrom(e.target.value as LangCode)}
-          >
-            {LANG_OPTIONS.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="button"
-          className="mb-0.5 text-sm text-teal-800 hover:underline"
-          onClick={() => {
-            setFrom(to);
-            setTo(from);
-          }}
-        >
-          ↔ swap
-        </button>
-        <div className="space-y-2">
-          <Label htmlFor="to">To</Label>
-          <select
-            id="to"
-            className="flex h-9 rounded-lg border border-border bg-white px-3 text-sm"
-            value={to}
-            onChange={(e) => setTo(e.target.value as LangCode)}
-          >
-            {LANG_OPTIONS.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       {showPaste ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="paste">Paste a list</Label>
-            <button
+            <Button
               type="button"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              variant="ghost"
+              size="sm"
               onClick={() => setShowPaste(false)}
             >
               Type in table instead
-            </button>
+            </Button>
           </div>
           <Textarea
             id="paste"
@@ -321,8 +288,8 @@ export function ImportForm({ deckId }: Props) {
             onChange={(e) => setPaste(e.target.value)}
           />
           <p className="text-sm text-muted-foreground">
-            One word per line, or pairs with <code>—</code> / tab / comma.
-            Words without a translation can be auto-filled.
+            One English word per line, or a pair split by <code>—</code>, tab
+            or comma. Missing Russian can be auto-filled.
           </p>
           <Button
             type="button"
@@ -334,54 +301,45 @@ export function ImportForm({ deckId }: Props) {
           </Button>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
-          className="text-sm text-teal-800 hover:underline"
+          variant="ghost"
+          size="sm"
           onClick={() => setShowPaste(true)}
         >
-          + Paste a list
-        </button>
+          <Plus />
+          Paste a list
+        </Button>
       )}
 
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium">Words</p>
-            <p className="text-sm text-muted-foreground">
-              {completeCards.length} ready
-              {emptyBackCount ? ` · ${emptyBackCount} need translation` : ""}
-            </p>
-          </div>
+        <div className="flex min-h-8 items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
+            {completeCards.length} ready
+            {emptyBackCount ? ` · ${emptyBackCount} need translation` : ""}
+          </p>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            disabled={translating || emptyBackCount === 0 || from === to}
+            disabled={translating || emptyBackCount === 0}
             onClick={translateEmpty}
           >
             {translating ? "Translating…" : "Translate empty"}
           </Button>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-border bg-white/80">
-          <div className="grid grid-cols-[1fr_1fr_auto] gap-2 border-b border-border bg-muted/50 px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            <span>Word</span>
-            <span>Translation</span>
-            <span className="w-16 text-right"> </span>
-          </div>
+        <WordTable>
           <ul className="divide-y divide-border">
             {rows.map((row, index) => {
               const isLast = index === rows.length - 1;
               const canRemove =
                 !isLast || row.front.trim() || row.back.trim() || rows.length > 1;
               return (
-                <li
-                  key={row.id}
-                  className="grid grid-cols-[1fr_1fr_auto] items-start gap-2 px-2 py-2"
-                >
+                <li key={row.id} className={cn(WORD_GRID, "px-3 py-2")}>
                   <Input
-                    aria-label={`Word ${index + 1}`}
-                    placeholder={isLast ? "Type or paste…" : "Word"}
+                    aria-label={`English word ${index + 1}`}
+                    placeholder={isLast ? "Type or paste…" : "English"}
                     value={row.front}
                     onChange={(e) =>
                       updateRow(row.id, { front: e.target.value, status: "idle" })
@@ -390,8 +348,8 @@ export function ImportForm({ deckId }: Props) {
                   />
                   <div className="space-y-1">
                     <Input
-                      aria-label={`Translation ${index + 1}`}
-                      placeholder="Translation"
+                      aria-label={`Russian translation ${index + 1}`}
+                      placeholder="Russian"
                       value={row.back}
                       onChange={(e) =>
                         updateRow(row.id, { back: e.target.value, status: "idle" })
@@ -402,33 +360,36 @@ export function ImportForm({ deckId }: Props) {
                       <p className="px-1 text-xs text-destructive">{row.error}</p>
                     ) : null}
                   </div>
-                  <div className="flex w-16 flex-col items-end gap-1 pt-0.5">
+                  <div className="flex justify-end gap-1">
                     {row.front.trim() && !row.back.trim() ? (
-                      <button
+                      <Button
                         type="button"
-                        className="text-xs text-teal-800 hover:underline disabled:opacity-50"
-                        disabled={row.status === "loading" || from === to}
+                        variant="ghost"
+                        size="xs"
+                        disabled={row.status === "loading"}
                         onClick={() => translateOne(row)}
                       >
                         {row.status === "loading" ? "…" : "Fill"}
-                      </button>
+                      </Button>
                     ) : null}
                     {canRemove && (row.front || row.back || !isLast) ? (
-                      <button
+                      <Button
                         type="button"
-                        className="text-xs text-muted-foreground hover:text-destructive"
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-muted-foreground hover:text-destructive"
                         onClick={() => removeRow(row.id)}
                         aria-label="Remove row"
                       >
-                        ✕
-                      </button>
+                        <X />
+                      </Button>
                     ) : null}
                   </div>
                 </li>
               );
             })}
           </ul>
-        </div>
+        </WordTable>
         <p className="text-xs text-muted-foreground">
           Auto-translate uses MyMemory (free). Always review before importing.
         </p>

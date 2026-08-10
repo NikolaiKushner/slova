@@ -6,6 +6,44 @@ export type SrsCardState = {
   dueAt: Date;
 };
 
+/** Card state stored on a review log so the rating can be taken back. */
+export type ReviewSnapshot = {
+  prevIntervalDays: number | null;
+  prevEase: number | null;
+  prevDueAt: Date | null;
+  prevIntroducedAt: Date | null;
+};
+
+export type RestoredCardState = {
+  intervalDays: number;
+  ease: number;
+  dueAt: Date;
+  introducedAt: Date | null;
+};
+
+/**
+ * Card state to write back when undoing a rating, or null when the log has no
+ * snapshot — rows written before undo existed cannot be restored.
+ */
+export function restoreFromSnapshot(
+  log: ReviewSnapshot,
+): RestoredCardState | null {
+  if (
+    log.prevIntervalDays === null ||
+    log.prevEase === null ||
+    log.prevDueAt === null
+  ) {
+    return null;
+  }
+
+  return {
+    intervalDays: log.prevIntervalDays,
+    ease: log.prevEase,
+    dueAt: log.prevDueAt,
+    introducedAt: log.prevIntroducedAt,
+  };
+}
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /** Simple spaced repetition: again → due now; good → 1 day, then grow by ease. */

@@ -32,6 +32,9 @@ cheap check moved locally, and the slow ones stayed in CI:
 ## Design system
 
 - Read `DESIGN.md` before any UI change.
+- Build UI from shadcn/ui components — never hand-roll a control in raw HTML
+  and never write custom CSS to fake one. Missing primitive? Install it with
+  `npx shadcn@latest add <name>`.
 - Colors and radii go through design tokens / Tailwind theme — hardcoded hex
   in components is forbidden unless documented in `DESIGN.md` first.
 - Prefer light, calm layouts: paste → study → due, not dense dashboards.
@@ -39,6 +42,12 @@ cheap check moved locally, and the slow ones stayed in CI:
 ## Project notes
 
 - Next.js App Router + Route Handlers + Prisma/SQLite; see README.md.
+- **npm is the package manager.** `package-lock.json` is the only lockfile —
+  CI runs `npm ci` and Vercel infers npm from it. Never commit a second
+  lockfile: Vercel prefers `pnpm-lock.yaml` when present, which silently
+  installs a different dependency set from CI.
+- Vercel deploys **only `main`** (`vercel.json` → `git.deploymentEnabled`).
+  Branches get CI, not preview deployments.
 - Demo user from `npm run db:seed`: `demo@slova.app` / `demo1234`.
 - After editing `prisma/schema.prisma`, run `npx prisma migrate dev` and
   commit the migration.

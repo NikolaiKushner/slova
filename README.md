@@ -12,6 +12,10 @@ Not another deck manager. The job is simple: get words in, learn them, come back
 2. **Study** — flip a card, tap *Know it* or *Again*.
 3. **Come back** — due words show up on your home screen. Short sessions beat long ones.
 
+Paste 200 words and you won't get 200 cards on day one: Slova introduces up to
+20 unseen words a day and holds the rest back, so a big import still starts as
+a short session.
+
 That’s the whole loop for now.
 
 ## Who it’s for
@@ -42,6 +46,8 @@ Open [http://localhost:3000](http://localhost:3000).
 ## For contributors
 
 Stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, Auth.js, Prisma, SQLite.
+
+On Vercel: page analytics via `@vercel/analytics`, Web Vitals via `@vercel/speed-insights` (enabled in production automatically).
 
 | Script | What |
 |--------|------|

@@ -8,18 +8,23 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String?
-  createdAt    DateTime @default(now())
-  decks        Deck[]
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String?
+  dailyNewLimit  Int      @default(20)
+  createdAt      DateTime @default(now())
+  decks          Deck[]
 }
 
 model Deck {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String
+  id         String  @id @default(cuid())
+  userId     String
+  title      String
+  // What the list translates between; seeds auto-translate and, later, speech.
+  sourceLang String  @default("en")
+  targetLang String  @default("ru")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -39,12 +44,14 @@ model Card {
   dueAt        DateTime    @default(now())
   intervalDays Float       @default(0)
   ease         Float       @default(2.5)
+  introducedAt DateTime?
   createdAt    DateTime    @default(now())
   deck         Deck        @relation(fields: [deckId], references: [id], onDelete: Cascade)
   reviews      ReviewLog[]
 
   @@index([deckId])
   @@index([dueAt])
+  @@index([introducedAt])
 }
 
 model ReviewLog {
@@ -54,5 +61,13 @@ model ReviewLog {
   createdAt DateTime @default(now())
   card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
+  // Card state just before this rating, so a misclick can be taken back.
+  // Null on rows written before undo existed — those cannot be restored.
+  prevIntervalDays Float?
+  prevEase         Float?
+  prevDueAt        DateTime?
+  prevIntroducedAt DateTime?
+
   @@index([cardId])
+  @@index([cardId, createdAt])
 }

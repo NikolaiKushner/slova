@@ -3,6 +3,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
+import { Section } from "@/components/section";
+import { deckSummary, getStudySummary } from "@/lib/study-queue";
+import { getProgress, progressLine } from "@/lib/progress";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,27 +14,49 @@ export default async function HomePage() {
   if (!session?.user?.id) redirect("/login");
 
   const now = new Date();
-  const decks = await prisma.deck.findMany({
-    where: { userId: session.user.id },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      _count: { select: { cards: true } },
-      cards: {
-        where: { dueAt: { lte: now } },
-        select: { id: true },
-      },
-    },
-  });
+  const userId = session.user.id;
 
-  const dueTotal = decks.reduce((sum, d) => sum + d.cards.length, 0);
+  const [decks, dueByDeck, unseenByDeck, summary, progress] = await Promise.all([
+    prisma.deck.findMany({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+      include: { _count: { select: { cards: true } } },
+    }),
+    prisma.card.groupBy({
+      by: ["deckId"],
+      where: { deck: { userId }, introducedAt: { not: null }, dueAt: { lte: now } },
+      _count: true,
+    }),
+    prisma.card.groupBy({
+      by: ["deckId"],
+      where: { deck: { userId }, introducedAt: null },
+      _count: true,
+    }),
+    getStudySummary(userId, now),
+    getProgress(userId, now),
+  ]);
+
+  const progressText = progressLine(progress.today, progress.streak);
+
+  const dueCounts = new Map(dueByDeck.map((r) => [r.deckId, r._count]));
+  const unseenCounts = new Map(unseenByDeck.map((r) => [r.deckId, r._count]));
+
   const title =
-    dueTotal === 0
+    summary.total === 0
       ? "Nothing due"
-      : `${dueTotal} word${dueTotal === 1 ? "" : "s"} ready`;
-  const description =
-    dueTotal === 0
-      ? "Paste a list from your tutor, or open a set and review later."
-      : "A short session now keeps them sticky.";
+      : `${summary.total} word${summary.total === 1 ? "" : "s"} ready`;
+
+  let description: string;
+  if (summary.total === 0) {
+    description =
+      summary.unseen > 0
+        ? "Today's new words are done. The rest are waiting for tomorrow."
+        : "Paste a list from your tutor, or open a set and review later.";
+  } else if (summary.unseen > summary.allowance) {
+    description = "A short session now keeps them sticky. The rest keeps.";
+  } else {
+    description = "A short session now keeps them sticky.";
+  }
 
   return (
     <>
@@ -41,7 +66,7 @@ export default async function HomePage() {
         description={description}
         actions={
           <>
-            {dueTotal > 0 ? (
+            {summary.total > 0 ? (
               <Link
                 href="/study"
                 className={cn(
@@ -62,14 +87,25 @@ export default async function HomePage() {
         }
       />
 
-      <section id="lists" className="scroll-mt-8 space-y-4">
-        <div className="flex items-end justify-between gap-4">
-          <h2 className="text-lg font-semibold tracking-tight">Your lists</h2>
-          <Link href="/import" className="text-sm text-teal-800 hover:underline">
+      {progressText ? (
+        <p className="-mt-4 mb-8 text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
+          {progressText}
+        </p>
+      ) : null}
+
+      <Section
+        id="lists"
+        title="Your lists"
+        action={
+          <Link
+            href="/import"
+            className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+          >
             New list
           </Link>
-        </div>
-
+        }
+        className="scroll-mt-8"
+      >
         {decks.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border bg-white/50 px-5 py-8 text-muted-foreground">
             No lists yet. Paste words from a tutor doc to begin.
@@ -85,10 +121,11 @@ export default async function HomePage() {
                   <div>
                     <p className="font-medium text-foreground">{deck.title}</p>
                     <p className="text-sm text-muted-foreground">
-                      {deck._count.cards} words
-                      {deck.cards.length
-                        ? ` · ${deck.cards.length} due`
-                        : ""}
+                      {deckSummary(
+                        deck._count.cards,
+                        dueCounts.get(deck.id) ?? 0,
+                        unseenCounts.get(deck.id) ?? 0,
+                      )}
                     </p>
                   </div>
                   <span className="text-sm text-teal-800">Open</span>
@@ -97,7 +134,7 @@ export default async function HomePage() {
             ))}
           </ul>
         )}
-      </section>
+      </Section>
     </>
   );
 }

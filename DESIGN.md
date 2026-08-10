@@ -4,6 +4,12 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
 
 ## Principles
 
+- Components come from **shadcn/ui**, always. No native `<select>`, `<button>`
+  or `<input>` dressed up with utility classes, and no bespoke CSS to imitate a
+  component — if the primitive is missing, install it
+  (`npx shadcn@latest add <name>`). Hand-written markup is for layout only.
+  These are built on **@base-ui/react** (not Radix); `components.json` style is
+  `base-nova`.
 - Brand first: **Slova** is the hero signal on the landing page; in the app shell it’s the sidebar wordmark (Fraunces).
 - One job per screen: home = due; import = add words; study = one card.
 - Prefer whitespace and typography over cards/chrome.
@@ -22,6 +28,18 @@ Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 ## Page headers
 
 Every app page uses `PageHeader`: optional **eyebrow** + Fraunces **title** + muted **description**. Optional actions on the right.
+
+Header actions share **one size** (`lg`). A page has at most one filled button
+— the thing you came to do; everything beside it is `ghost`. Destructive
+actions are muted until hover (`text-muted-foreground hover:text-destructive`),
+never red at rest next to a primary button.
+
+## Sections
+
+Inside a page, every section uses `Section`: soft sage micro-label, optional
+count, optional action on the right. There is no second heading size — a bold
+`text-lg` heading next to an uppercase micro-label was what made pages read as
+two designs stitched together. Sections are separated by `space-y-10`.
 
 ## Brand greens (keep both)
 
@@ -60,7 +78,29 @@ Use tokens / Tailwind theme classes — do not hardcode new hex in components un
 - Soft background blurs on landing for atmosphere
 - Prefer opacity/transform; no glow stacks
 
+## Progress on Today
+
+One line under the Home header, soft sage, same micro-label treatment as the
+eyebrow: `12 REVIEWED TODAY · 5-DAY STREAK`. It is hidden entirely before the
+first review — a zero streak is discouraging, not informative. A day not yet
+studied keeps the streak visible rather than resetting it at midnight. No
+charts, no tiles; the dense stats dashboard stays out of scope.
+
+## Study session
+
+One card, two answers, no chrome above it. Below the answer buttons sits a
+quiet row: **Undo** on the left (ghost, disabled until something was rated),
+the shortcut hint on the right (hidden on small screens, where there is no
+keyboard). Shortcuts: **Space** flips, **1** again, **2** know it, **Z**
+undo. Rating keys only work once the card is flipped — the answer should be
+seen before it is judged.
+
 ## Import / add words
+
+One direction only: **English word, Russian translation opposite it.** There is
+no language picker — the columns are labelled English / Russian and the page
+carries no choice the user has to make twice. `/api/translate` still accepts
+other pairs; only the UI is pinned.
 
 Hybrid flow (not a dense spreadsheet app):
 
@@ -70,6 +110,19 @@ Hybrid flow (not a dense spreadsheet app):
 4. User reviews, then imports only complete rows.
 
 Avoid stacked “group inputs” for long lists — the table scales better. Avoid raw textarea-only once auto-translate exists (no place to edit machine output).
+
+## Word tables
+
+Saved words and import rows are the **same object**, so they share `WordTable`:
+one container, one `English | Russian | actions` grid (`WORD_GRID`), one header.
+Translations sit in their own column rather than pushed to the right edge — the
+whole point is reading a pair across.
+
+Rows stay quiet. Edit and delete are **ghost icon buttons** that fade in on
+hover (and on focus, for keyboard) — on touch widths they stay visible, since
+there is no hover there. Editing swaps the two cells for inputs without
+changing the row height: save and cancel are icon buttons in the actions
+column, Enter saves, Escape cancels. No modal, no per-row toolbar.
 
 ## Out of scope (for now)
 

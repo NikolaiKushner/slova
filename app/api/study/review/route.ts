@@ -31,9 +31,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const now = new Date();
   const next = scheduleReview(
     { intervalDays: card.intervalDays, ease: card.ease },
     parsed.data.rating as ReviewRating,
+    now,
   );
 
   const [updated] = await prisma.$transaction([
@@ -43,17 +45,24 @@ export async function POST(request: Request) {
         intervalDays: next.intervalDays,
         ease: next.ease,
         dueAt: next.dueAt,
+        // First rating spends one of today's new-word slots.
+        introducedAt: card.introducedAt ?? now,
       },
     }),
     prisma.reviewLog.create({
       data: {
         cardId: card.id,
         rating: parsed.data.rating,
+        // Snapshot for undo — a misclick should be one tap to take back.
+        prevIntervalDays: card.intervalDays,
+        prevEase: card.ease,
+        prevDueAt: card.dueAt,
+        prevIntroducedAt: card.introducedAt,
       },
     }),
     prisma.deck.update({
       where: { id: card.deckId },
-      data: { updatedAt: new Date() },
+      data: { updatedAt: now },
     }),
   ]);
 
