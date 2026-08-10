@@ -20,8 +20,8 @@ export function DeleteDeckButton({ deckId }: { deckId: string }) {
     <Button
       type="button"
       variant="ghost"
-      size="sm"
-      className="text-destructive"
+      size="lg"
+      className="text-muted-foreground hover:text-destructive"
       disabled={loading}
       onClick={onDelete}
     >

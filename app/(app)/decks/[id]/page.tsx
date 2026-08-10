@@ -6,6 +6,7 @@ import { DeckWords } from "@/components/deck-words";
 import { DeleteDeckButton } from "@/components/delete-deck-button";
 import { ImportForm } from "@/components/import-form";
 import { PageHeader } from "@/components/page-header";
+import { Section } from "@/components/section";
 import { deckSummary, getNewAllowance } from "@/lib/study-queue";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -43,10 +44,7 @@ export default async function DeckPage({ params }: Props) {
             {studiable > 0 ? (
               <Link
                 href={`/study/${deck.id}`}
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "bg-teal-800 text-white hover:bg-teal-900",
-                )}
+                className={cn(buttonVariants({ size: "lg" }))}
               >
                 Study due
               </Link>
@@ -56,29 +54,27 @@ export default async function DeckPage({ params }: Props) {
         }
       />
 
-      {deck.cards.length > 0 ? (
-        <section className="mb-12">
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Words
-          </h2>
-          <DeckWords
-            words={deck.cards.map((card) => ({
-              id: card.id,
-              front: card.front,
-              back: card.back,
-            }))}
-          />
-        </section>
-      ) : (
-        <p className="mb-12 rounded-2xl border border-dashed border-border bg-white/50 px-5 py-8 text-muted-foreground">
-          This list is empty. Add words below.
-        </p>
-      )}
+      <div className="space-y-10">
+        <Section title="Words" hint={`${deck.cards.length} saved`}>
+          {deck.cards.length > 0 ? (
+            <DeckWords
+              words={deck.cards.map((card) => ({
+                id: card.id,
+                front: card.front,
+                back: card.back,
+              }))}
+            />
+          ) : (
+            <p className="rounded-2xl border border-dashed border-border bg-white/50 px-3 py-8 text-center text-sm text-muted-foreground">
+              This list is empty. Add words below.
+            </p>
+          )}
+        </Section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold tracking-tight">Add more words</h2>
-        <ImportForm deckId={deck.id} />
-      </section>
+        <Section title="Add more words">
+          <ImportForm deckId={deck.id} />
+        </Section>
+      </div>
     </>
   );
 }

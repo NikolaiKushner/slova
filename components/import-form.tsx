@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { WORD_GRID, WordTable } from "@/components/word-table";
+import { cn } from "@/lib/utils";
 import { parseImportText } from "@/lib/parse-import";
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 
@@ -311,14 +313,11 @@ export function ImportForm({ deckId }: Props) {
       )}
 
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium">Words</p>
-            <p className="text-sm text-muted-foreground">
-              {completeCards.length} ready
-              {emptyBackCount ? ` · ${emptyBackCount} need translation` : ""}
-            </p>
-          </div>
+        <div className="flex min-h-8 items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
+            {completeCards.length} ready
+            {emptyBackCount ? ` · ${emptyBackCount} need translation` : ""}
+          </p>
           <Button
             type="button"
             variant="outline"
@@ -330,22 +329,14 @@ export function ImportForm({ deckId }: Props) {
           </Button>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-border bg-white/80">
-          <div className="grid grid-cols-[1fr_1fr_auto] gap-2 border-b border-border bg-muted/50 px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            <span>English</span>
-            <span>Russian</span>
-            <span className="w-16 text-right"> </span>
-          </div>
+        <WordTable>
           <ul className="divide-y divide-border">
             {rows.map((row, index) => {
               const isLast = index === rows.length - 1;
               const canRemove =
                 !isLast || row.front.trim() || row.back.trim() || rows.length > 1;
               return (
-                <li
-                  key={row.id}
-                  className="grid grid-cols-[1fr_1fr_auto] items-start gap-2 px-2 py-2"
-                >
+                <li key={row.id} className={cn(WORD_GRID, "px-3 py-2")}>
                   <Input
                     aria-label={`English word ${index + 1}`}
                     placeholder={isLast ? "Type or paste…" : "English"}
@@ -369,7 +360,7 @@ export function ImportForm({ deckId }: Props) {
                       <p className="px-1 text-xs text-destructive">{row.error}</p>
                     ) : null}
                   </div>
-                  <div className="flex w-16 flex-col items-end gap-1 pt-0.5">
+                  <div className="flex justify-end gap-1">
                     {row.front.trim() && !row.back.trim() ? (
                       <Button
                         type="button"
@@ -398,7 +389,7 @@ export function ImportForm({ deckId }: Props) {
               );
             })}
           </ul>
-        </div>
+        </WordTable>
         <p className="text-xs text-muted-foreground">
           Auto-translate uses MyMemory (free). Always review before importing.
         </p>

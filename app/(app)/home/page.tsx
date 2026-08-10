@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
+import { Section } from "@/components/section";
 import { deckSummary, getStudySummary } from "@/lib/study-queue";
 import { getProgress, progressLine } from "@/lib/progress";
 import { buttonVariants } from "@/components/ui/button";
@@ -92,14 +93,19 @@ export default async function HomePage() {
         </p>
       ) : null}
 
-      <section id="lists" className="scroll-mt-8 space-y-4">
-        <div className="flex items-end justify-between gap-4">
-          <h2 className="text-lg font-semibold tracking-tight">Your lists</h2>
-          <Link href="/import" className="text-sm text-teal-800 hover:underline">
+      <Section
+        id="lists"
+        title="Your lists"
+        action={
+          <Link
+            href="/import"
+            className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+          >
             New list
           </Link>
-        </div>
-
+        }
+        className="scroll-mt-8"
+      >
         {decks.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border bg-white/50 px-5 py-8 text-muted-foreground">
             No lists yet. Paste words from a tutor doc to begin.
@@ -128,7 +134,7 @@ export default async function HomePage() {
             ))}
           </ul>
         )}
-      </section>
+      </Section>
     </>
   );
 }

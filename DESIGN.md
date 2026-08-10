@@ -29,6 +29,18 @@ Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 
 Every app page uses `PageHeader`: optional **eyebrow** + Fraunces **title** + muted **description**. Optional actions on the right.
 
+Header actions share **one size** (`lg`). A page has at most one filled button
+— the thing you came to do; everything beside it is `ghost`. Destructive
+actions are muted until hover (`text-muted-foreground hover:text-destructive`),
+never red at rest next to a primary button.
+
+## Sections
+
+Inside a page, every section uses `Section`: soft sage micro-label, optional
+count, optional action on the right. There is no second heading size — a bold
+`text-lg` heading next to an uppercase micro-label was what made pages read as
+two designs stitched together. Sections are separated by `space-y-10`.
+
 ## Brand greens (keep both)
 
 | Role | Token / class | Value | Use |
@@ -99,12 +111,18 @@ Hybrid flow (not a dense spreadsheet app):
 
 Avoid stacked “group inputs” for long lists — the table scales better. Avoid raw textarea-only once auto-translate exists (no place to edit machine output).
 
-## Word list (deck page)
+## Word tables
 
-Rows stay quiet: word left, translation right. Edit and delete are **ghost icon
-buttons** that fade in on hover (and on focus, for keyboard) — on touch widths
-they stay visible, since there is no hover there. Editing swaps the row for two
-inputs in place; Enter saves, Escape cancels. No modal, no per-row toolbar.
+Saved words and import rows are the **same object**, so they share `WordTable`:
+one container, one `English | Russian | actions` grid (`WORD_GRID`), one header.
+Translations sit in their own column rather than pushed to the right edge — the
+whole point is reading a pair across.
+
+Rows stay quiet. Edit and delete are **ghost icon buttons** that fade in on
+hover (and on focus, for keyboard) — on touch widths they stay visible, since
+there is no hover there. Editing swaps the two cells for inputs without
+changing the row height: save and cancel are icon buttons in the actions
+column, Enter saves, Escape cancels. No modal, no per-row toolbar.
 
 ## Out of scope (for now)
 
