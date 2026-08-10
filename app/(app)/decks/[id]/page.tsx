@@ -6,11 +6,6 @@ import { DeckWords } from "@/components/deck-words";
 import { DeleteDeckButton } from "@/components/delete-deck-button";
 import { ImportForm } from "@/components/import-form";
 import { PageHeader } from "@/components/page-header";
-import {
-  DEFAULT_SOURCE_LANG,
-  DEFAULT_TARGET_LANG,
-  toLangCode,
-} from "@/lib/languages";
 import { deckSummary, getNewAllowance } from "@/lib/study-queue";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -82,11 +77,7 @@ export default async function DeckPage({ params }: Props) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold tracking-tight">Add more words</h2>
-        <ImportForm
-          deckId={deck.id}
-          sourceLang={toLangCode(deck.sourceLang, DEFAULT_SOURCE_LANG)}
-          targetLang={toLangCode(deck.targetLang, DEFAULT_TARGET_LANG)}
-        />
+        <ImportForm deckId={deck.id} />
       </section>
     </>
   );

@@ -85,6 +85,11 @@ seen before it is judged.
 
 ## Import / add words
 
+One direction only: **English word, Russian translation opposite it.** There is
+no language picker — the columns are labelled English / Russian and the page
+carries no choice the user has to make twice. `/api/translate` still accepts
+other pairs; only the UI is pinned.
+
 Hybrid flow (not a dense spreadsheet app):
 
 1. Optional **paste** seeds the table (pairs or single words).

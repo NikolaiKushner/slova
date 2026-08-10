@@ -7,7 +7,7 @@ export default function ImportPage() {
       <PageHeader
         eyebrow="Tools"
         title="Add words"
-        description="Paste a tutor list or type words. Fill translations yourself, or auto-translate the empty ones — then review and import."
+        description="English on the left, Russian on the right. Paste a tutor list or type the words — blank translations can be auto-filled before you import."
       />
       <ImportForm />
     </>

@@ -3,8 +3,8 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
-  DEFAULT_SOURCE_LANG,
-  DEFAULT_TARGET_LANG,
+  STUDY_SOURCE_LANG,
+  STUDY_TARGET_LANG,
   langCodeSchema,
 } from "@/lib/languages";
 
@@ -62,8 +62,8 @@ export async function POST(request: Request) {
   const deck = await prisma.deck.create({
     data: {
       title: parsed.data.title.trim(),
-      sourceLang: parsed.data.sourceLang ?? DEFAULT_SOURCE_LANG,
-      targetLang: parsed.data.targetLang ?? DEFAULT_TARGET_LANG,
+      sourceLang: parsed.data.sourceLang ?? STUDY_SOURCE_LANG,
+      targetLang: parsed.data.targetLang ?? STUDY_TARGET_LANG,
       userId: session.user.id,
     },
   });

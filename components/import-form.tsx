@@ -2,18 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftRight, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LanguageSelect } from "@/components/language-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { parseImportText } from "@/lib/parse-import";
-import {
-  DEFAULT_SOURCE_LANG,
-  DEFAULT_TARGET_LANG,
-  type LangCode,
-} from "@/lib/languages";
+import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 
 type Row = {
   id: string;
@@ -25,9 +20,6 @@ type Row = {
 
 type Props = {
   deckId?: string;
-  /** Languages of the list being added to; seeds the translate direction. */
-  sourceLang?: LangCode;
-  targetLang?: LangCode;
 };
 
 function newId() {
@@ -46,16 +38,12 @@ function ensureTrailingEmpty(rows: Row[]): Row[] {
   return rows;
 }
 
-export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
+export function ImportForm({ deckId }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [paste, setPaste] = useState("");
   const [showPaste, setShowPaste] = useState(true);
   const [rows, setRows] = useState<Row[]>([emptyRow()]);
-  const [from, setFrom] = useState<LangCode>(
-    sourceLang ?? DEFAULT_SOURCE_LANG,
-  );
-  const [to, setTo] = useState<LangCode>(targetLang ?? DEFAULT_TARGET_LANG);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -129,8 +117,8 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           texts: targets.map((t) => t.front.trim()),
-          from,
-          to,
+          from: STUDY_SOURCE_LANG,
+          to: STUDY_TARGET_LANG,
         }),
       });
       const data = await res.json().catch(() => null);
@@ -186,7 +174,11 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: row.front.trim(), from, to }),
+        body: JSON.stringify({
+          text: row.front.trim(),
+          from: STUDY_SOURCE_LANG,
+          to: STUDY_TARGET_LANG,
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error ?? "Translate failed");
@@ -227,8 +219,8 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             title: title.trim(),
-            sourceLang: from,
-            targetLang: to,
+            sourceLang: STUDY_SOURCE_LANG,
+            targetLang: STUDY_TARGET_LANG,
           }),
         });
         if (!createRes.ok) {
@@ -273,24 +265,6 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-end gap-3">
-        <LanguageSelect id="from" label="From" value={from} onChange={setFrom} />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          aria-label="Swap languages"
-          onClick={() => {
-            setFrom(to);
-            setTo(from);
-          }}
-        >
-          <ArrowLeftRight />
-          Swap
-        </Button>
-        <LanguageSelect id="to" label="To" value={to} onChange={setTo} />
-      </div>
-
       {showPaste ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
@@ -312,8 +286,8 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
             onChange={(e) => setPaste(e.target.value)}
           />
           <p className="text-sm text-muted-foreground">
-            One word per line, or pairs with <code>—</code> / tab / comma.
-            Words without a translation can be auto-filled.
+            One English word per line, or a pair split by <code>—</code>, tab
+            or comma. Missing Russian can be auto-filled.
           </p>
           <Button
             type="button"
@@ -349,7 +323,7 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
             type="button"
             variant="outline"
             size="sm"
-            disabled={translating || emptyBackCount === 0 || from === to}
+            disabled={translating || emptyBackCount === 0}
             onClick={translateEmpty}
           >
             {translating ? "Translating…" : "Translate empty"}
@@ -358,8 +332,8 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
 
         <div className="overflow-hidden rounded-2xl border border-border bg-white/80">
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2 border-b border-border bg-muted/50 px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            <span>Word</span>
-            <span>Translation</span>
+            <span>English</span>
+            <span>Russian</span>
             <span className="w-16 text-right"> </span>
           </div>
           <ul className="divide-y divide-border">
@@ -373,8 +347,8 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
                   className="grid grid-cols-[1fr_1fr_auto] items-start gap-2 px-2 py-2"
                 >
                   <Input
-                    aria-label={`Word ${index + 1}`}
-                    placeholder={isLast ? "Type or paste…" : "Word"}
+                    aria-label={`English word ${index + 1}`}
+                    placeholder={isLast ? "Type or paste…" : "English"}
                     value={row.front}
                     onChange={(e) =>
                       updateRow(row.id, { front: e.target.value, status: "idle" })
@@ -383,8 +357,8 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
                   />
                   <div className="space-y-1">
                     <Input
-                      aria-label={`Translation ${index + 1}`}
-                      placeholder="Translation"
+                      aria-label={`Russian translation ${index + 1}`}
+                      placeholder="Russian"
                       value={row.back}
                       onChange={(e) =>
                         updateRow(row.id, { back: e.target.value, status: "idle" })
@@ -401,7 +375,7 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
                         type="button"
                         variant="ghost"
                         size="xs"
-                        disabled={row.status === "loading" || from === to}
+                        disabled={row.status === "loading"}
                         onClick={() => translateOne(row)}
                       >
                         {row.status === "loading" ? "…" : "Fill"}

@@ -1,26 +1,24 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_SOURCE_LANG,
-  DEFAULT_TARGET_LANG,
   LANG_CODES,
-  LANG_OPTIONS,
+  STUDY_SOURCE_LANG,
+  STUDY_TARGET_LANG,
   langCodeSchema,
   toLangCode,
 } from "@/lib/languages";
 
-describe("language options", () => {
-  it("offers a label for every code", () => {
-    expect(LANG_OPTIONS.map((o) => o.code)).toEqual([...LANG_CODES]);
-  });
-
-  it("has no duplicate codes", () => {
+describe("language codes", () => {
+  it("has no duplicates", () => {
     expect(new Set(LANG_CODES).size).toBe(LANG_CODES.length);
   });
 
-  it("can offer both defaults", () => {
-    const codes = LANG_OPTIONS.map((o) => o.code);
-    expect(codes).toContain(DEFAULT_SOURCE_LANG);
-    expect(codes).toContain(DEFAULT_TARGET_LANG);
+  it("covers the direction the app teaches", () => {
+    expect(LANG_CODES).toContain(STUDY_SOURCE_LANG);
+    expect(LANG_CODES).toContain(STUDY_TARGET_LANG);
+  });
+
+  it("teaches two different languages", () => {
+    expect(STUDY_SOURCE_LANG).not.toBe(STUDY_TARGET_LANG);
   });
 });
 

@@ -13,20 +13,13 @@ export const LANG_CODES = [
 
 export type LangCode = (typeof LANG_CODES)[number];
 
-export const LANG_OPTIONS: { code: LangCode; label: string }[] = [
-  { code: "en", label: "English" },
-  { code: "ru", label: "Russian" },
-  { code: "de", label: "German" },
-  { code: "es", label: "Spanish" },
-  { code: "fr", label: "French" },
-  { code: "it", label: "Italian" },
-  { code: "pt", label: "Portuguese" },
-  { code: "pl", label: "Polish" },
-];
-
-/** Used when a list does not say what it is translating between. */
-export const DEFAULT_SOURCE_LANG: LangCode = "en";
-export const DEFAULT_TARGET_LANG: LangCode = "ru";
+/**
+ * Slova teaches one direction for now: English words, Russian translations.
+ * LANG_CODES stays wider than this because /api/translate still accepts any
+ * supported pair — only the UI is pinned.
+ */
+export const STUDY_SOURCE_LANG: LangCode = "en";
+export const STUDY_TARGET_LANG: LangCode = "ru";
 
 export const langCodeSchema = z.enum(LANG_CODES);
 
