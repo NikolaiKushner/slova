@@ -4,6 +4,12 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
 
 ## Principles
 
+- Components come from **shadcn/ui**, always. No native `<select>`, `<button>`
+  or `<input>` dressed up with utility classes, and no bespoke CSS to imitate a
+  component — if the primitive is missing, install it
+  (`npx shadcn@latest add <name>`). Hand-written markup is for layout only.
+  These are built on **@base-ui/react** (not Radix); `components.json` style is
+  `base-nova`.
 - Brand first: **Slova** is the hero signal on the landing page; in the app shell it’s the sidebar wordmark (Fraunces).
 - One job per screen: home = due; import = add words; study = one card.
 - Prefer whitespace and typography over cards/chrome.

@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeftRight, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LanguageSelect } from "@/components/language-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +12,6 @@ import { parseImportText } from "@/lib/parse-import";
 import {
   DEFAULT_SOURCE_LANG,
   DEFAULT_TARGET_LANG,
-  LANG_OPTIONS,
   type LangCode,
 } from "@/lib/languages";
 
@@ -273,59 +274,35 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
       ) : null}
 
       <div className="flex flex-wrap items-end gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="from">From</Label>
-          <select
-            id="from"
-            className="flex h-9 rounded-lg border border-border bg-white px-3 text-sm"
-            value={from}
-            onChange={(e) => setFrom(e.target.value as LangCode)}
-          >
-            {LANG_OPTIONS.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
+        <LanguageSelect id="from" label="From" value={from} onChange={setFrom} />
+        <Button
           type="button"
-          className="mb-0.5 text-sm text-teal-800 hover:underline"
+          variant="ghost"
+          size="sm"
+          aria-label="Swap languages"
           onClick={() => {
             setFrom(to);
             setTo(from);
           }}
         >
-          ↔ swap
-        </button>
-        <div className="space-y-2">
-          <Label htmlFor="to">To</Label>
-          <select
-            id="to"
-            className="flex h-9 rounded-lg border border-border bg-white px-3 text-sm"
-            value={to}
-            onChange={(e) => setTo(e.target.value as LangCode)}
-          >
-            {LANG_OPTIONS.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          <ArrowLeftRight />
+          Swap
+        </Button>
+        <LanguageSelect id="to" label="To" value={to} onChange={setTo} />
       </div>
 
       {showPaste ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="paste">Paste a list</Label>
-            <button
+            <Button
               type="button"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              variant="ghost"
+              size="sm"
               onClick={() => setShowPaste(false)}
             >
               Type in table instead
-            </button>
+            </Button>
           </div>
           <Textarea
             id="paste"
@@ -348,13 +325,15 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
           </Button>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
-          className="text-sm text-teal-800 hover:underline"
+          variant="ghost"
+          size="sm"
           onClick={() => setShowPaste(true)}
         >
-          + Paste a list
-        </button>
+          <Plus />
+          Paste a list
+        </Button>
       )}
 
       <div className="space-y-3">
@@ -418,24 +397,27 @@ export function ImportForm({ deckId, sourceLang, targetLang }: Props) {
                   </div>
                   <div className="flex w-16 flex-col items-end gap-1 pt-0.5">
                     {row.front.trim() && !row.back.trim() ? (
-                      <button
+                      <Button
                         type="button"
-                        className="text-xs text-teal-800 hover:underline disabled:opacity-50"
+                        variant="ghost"
+                        size="xs"
                         disabled={row.status === "loading" || from === to}
                         onClick={() => translateOne(row)}
                       >
                         {row.status === "loading" ? "…" : "Fill"}
-                      </button>
+                      </Button>
                     ) : null}
                     {canRemove && (row.front || row.back || !isLast) ? (
-                      <button
+                      <Button
                         type="button"
-                        className="text-xs text-muted-foreground hover:text-destructive"
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-muted-foreground hover:text-destructive"
                         onClick={() => removeRow(row.id)}
                         aria-label="Remove row"
                       >
-                        ✕
-                      </button>
+                        <X />
+                      </Button>
                     ) : null}
                   </div>
                 </li>

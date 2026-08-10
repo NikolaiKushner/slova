@@ -25,6 +25,9 @@ Guidance for AI agents (and humans) contributing to this repo.
 ## Design system
 
 - Read `DESIGN.md` before any UI change.
+- Build UI from shadcn/ui components — never hand-roll a control in raw HTML
+  and never write custom CSS to fake one. Missing primitive? Install it with
+  `npx shadcn@latest add <name>`.
 - Colors and radii go through design tokens / Tailwind theme — hardcoded hex
   in components is forbidden unless documented in `DESIGN.md` first.
 - Prefer light, calm layouts: paste → study → due, not dense dashboards.
