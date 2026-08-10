@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -33,6 +35,8 @@ export default function RootLayout({
       {/* suppressHydrationWarning: password managers / extensions inject attrs on body */}
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <Providers>{children}</Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
