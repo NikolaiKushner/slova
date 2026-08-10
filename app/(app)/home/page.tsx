@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { deckSummary, getStudySummary } from "@/lib/study-queue";
+import { getProgress, progressLine } from "@/lib/progress";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +15,7 @@ export default async function HomePage() {
   const now = new Date();
   const userId = session.user.id;
 
-  const [decks, dueByDeck, unseenByDeck, summary] = await Promise.all([
+  const [decks, dueByDeck, unseenByDeck, summary, progress] = await Promise.all([
     prisma.deck.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
@@ -31,7 +32,10 @@ export default async function HomePage() {
       _count: true,
     }),
     getStudySummary(userId, now),
+    getProgress(userId, now),
   ]);
+
+  const progressText = progressLine(progress.today, progress.streak);
 
   const dueCounts = new Map(dueByDeck.map((r) => [r.deckId, r._count]));
   const unseenCounts = new Map(unseenByDeck.map((r) => [r.deckId, r._count]));
@@ -81,6 +85,12 @@ export default async function HomePage() {
           </>
         }
       />
+
+      {progressText ? (
+        <p className="-mt-4 mb-8 text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
+          {progressText}
+        </p>
+      ) : null}
 
       <section id="lists" className="scroll-mt-8 space-y-4">
         <div className="flex items-end justify-between gap-4">

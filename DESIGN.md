@@ -60,6 +60,14 @@ Use tokens / Tailwind theme classes — do not hardcode new hex in components un
 - Soft background blurs on landing for atmosphere
 - Prefer opacity/transform; no glow stacks
 
+## Progress on Today
+
+One line under the Home header, soft sage, same micro-label treatment as the
+eyebrow: `12 REVIEWED TODAY · 5-DAY STREAK`. It is hidden entirely before the
+first review — a zero streak is discouraging, not informative. A day not yet
+studied keeps the streak visible rather than resetting it at midnight. No
+charts, no tiles; the dense stats dashboard stays out of scope.
+
 ## Study session
 
 One card, two answers, no chrome above it. Below the answer buttons sits a
