@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { DeckWords } from "@/components/deck-words";
 import { DeleteDeckButton } from "@/components/delete-deck-button";
@@ -18,7 +18,7 @@ export default async function DeckPage({ params }: Props) {
   if (!session?.user?.id) redirect("/login");
 
   const { id } = await params;
-  const deck = await prisma.deck.findFirst({
+  const deck = await getPrisma().deck.findFirst({
     where: { id, userId: session.user.id },
     include: { cards: { orderBy: { createdAt: "asc" } } },
   });

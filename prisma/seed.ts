@@ -1,11 +1,11 @@
-import { prisma } from "../lib/prisma";
+import { getPrisma } from "../lib/prisma";
 
 async function main() {
   // Sign-in is Google-only, so this seeds data shape, not a way in: use the
   // email of the Google account you sign in with to see the starter deck.
   const email = process.env.SEED_EMAIL ?? "demo@slova.app";
 
-  const user = await prisma.user.upsert({
+  const user = await getPrisma().user.upsert({
     where: { email },
     update: {},
     create: {
@@ -14,12 +14,12 @@ async function main() {
     },
   });
 
-  const existing = await prisma.deck.findFirst({
+  const existing = await getPrisma().deck.findFirst({
     where: { userId: user.id, title: "Starter words" },
   });
 
   if (!existing) {
-    const deck = await prisma.deck.create({
+    const deck = await getPrisma().deck.create({
       data: {
         title: "Starter words",
         userId: user.id,
@@ -44,5 +44,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await getPrisma().$disconnect();
   });

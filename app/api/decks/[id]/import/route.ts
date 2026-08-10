@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { parseImportText } from "@/lib/parse-import";
 
 type Params = { params: Promise<{ id: string }> };
@@ -29,7 +29,7 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const deck = await prisma.deck.findFirst({
+  const deck = await getPrisma().deck.findFirst({
     where: { id, userId: session.user.id },
   });
   if (!deck) {
@@ -67,7 +67,7 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const now = new Date();
-  await prisma.card.createMany({
+  await getPrisma().card.createMany({
     data: cards.map((card) => ({
       deckId: deck.id,
       front: card.front,
@@ -77,7 +77,7 @@ export async function POST(request: Request, { params }: Params) {
     })),
   });
 
-  await prisma.deck.update({
+  await getPrisma().deck.update({
     where: { id: deck.id },
     data: { updatedAt: now },
   });

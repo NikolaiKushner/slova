@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   }
 
   const [decks, cards] = await Promise.all([
-    prisma.deck.findMany({
+    getPrisma().deck.findMany({
       where: {
         userId: session.user.id,
         title: { contains: q },
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
         _count: { select: { cards: true } },
       },
     }),
-    prisma.card.findMany({
+    getPrisma().card.findMany({
       where: {
         deck: { userId: session.user.id },
         OR: [{ front: { contains: q } }, { back: { contains: q } }],

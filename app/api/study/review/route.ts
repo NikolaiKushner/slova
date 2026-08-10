@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { scheduleReview, type ReviewRating } from "@/lib/srs";
 
 const schema = z.object({
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid review" }, { status: 400 });
   }
 
-  const card = await prisma.card.findFirst({
+  const card = await getPrisma().card.findFirst({
     where: {
       id: parsed.data.cardId,
       deck: { userId: session.user.id },
@@ -38,8 +38,8 @@ export async function POST(request: Request) {
     now,
   );
 
-  const [updated] = await prisma.$transaction([
-    prisma.card.update({
+  const [updated] = await getPrisma().$transaction([
+    getPrisma().card.update({
       where: { id: card.id },
       data: {
         intervalDays: next.intervalDays,
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         introducedAt: card.introducedAt ?? now,
       },
     }),
-    prisma.reviewLog.create({
+    getPrisma().reviewLog.create({
       data: {
         cardId: card.id,
         rating: parsed.data.rating,
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         prevIntroducedAt: card.introducedAt,
       },
     }),
-    prisma.deck.update({
+    getPrisma().deck.update({
       where: { id: card.deckId },
       data: { updatedAt: now },
     }),

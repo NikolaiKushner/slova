@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { startOfDay } from "@/lib/study-queue";
 
 /** How far back the streak is allowed to reach. */
@@ -48,7 +48,7 @@ export async function getProgress(userId: string, now: Date) {
   const since = startOfDay(now);
   since.setDate(since.getDate() - STREAK_WINDOW_DAYS);
 
-  const logs = await prisma.reviewLog.findMany({
+  const logs = await getPrisma().reviewLog.findMany({
     where: { card: { deck: { userId } }, createdAt: { gte: since } },
     select: { createdAt: true },
   });

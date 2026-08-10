@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import {
   STUDY_SOURCE_LANG,
   STUDY_TARGET_LANG,
@@ -15,7 +15,7 @@ export async function GET() {
   }
 
   const now = new Date();
-  const decks = await prisma.deck.findMany({
+  const decks = await getPrisma().deck.findMany({
     where: { userId: session.user.id },
     orderBy: { updatedAt: "desc" },
     include: {
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
 
-  const deck = await prisma.deck.create({
+  const deck = await getPrisma().deck.create({
     data: {
       title: parsed.data.title.trim(),
       sourceLang: parsed.data.sourceLang ?? STUDY_SOURCE_LANG,

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { cardUpdateSchema, toCardUpdateData } from "@/lib/cards";
 
 type Params = { params: Promise<{ id: string }> };
 
 async function findOwnedCard(cardId: string, userId: string) {
-  return prisma.card.findFirst({
+  return getPrisma().card.findFirst({
     where: { id: cardId, deck: { userId } },
     select: { id: true, deckId: true },
   });
@@ -33,12 +33,12 @@ export async function PATCH(request: Request, { params }: Params) {
     );
   }
 
-  const card = await prisma.card.update({
+  const card = await getPrisma().card.update({
     where: { id },
     data: toCardUpdateData(parsed.data),
   });
 
-  await prisma.deck.update({
+  await getPrisma().deck.update({
     where: { id: existing.deckId },
     data: { updatedAt: new Date() },
   });
@@ -58,9 +58,9 @@ export async function DELETE(_request: Request, { params }: Params) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await prisma.card.delete({ where: { id } });
+  await getPrisma().card.delete({ where: { id } });
 
-  await prisma.deck.update({
+  await getPrisma().deck.update({
     where: { id: existing.deckId },
     data: { updatedAt: new Date() },
   });
