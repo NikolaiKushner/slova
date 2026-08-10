@@ -71,6 +71,13 @@ Hybrid flow (not a dense spreadsheet app):
 
 Avoid stacked “group inputs” for long lists — the table scales better. Avoid raw textarea-only once auto-translate exists (no place to edit machine output).
 
+## Word list (deck page)
+
+Rows stay quiet: word left, translation right. Edit and delete are **ghost icon
+buttons** that fade in on hover (and on focus, for keyboard) — on touch widths
+they stay visible, since there is no hover there. Editing swaps the row for two
+inputs in place; Enter saves, Escape cancels. No modal, no per-row toolbar.
+
 ## Out of scope (for now)
 
 Dark theme, mascot, dense stats dashboards.
