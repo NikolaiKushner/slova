@@ -4,6 +4,12 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
 
 ## Principles
 
+- Components come from **shadcn/ui**, always. No native `<select>`, `<button>`
+  or `<input>` dressed up with utility classes, and no bespoke CSS to imitate a
+  component — if the primitive is missing, install it
+  (`npx shadcn@latest add <name>`). Hand-written markup is for layout only.
+  These are built on **@base-ui/react** (not Radix); `components.json` style is
+  `base-nova`.
 - Brand first: **Slova** is the hero signal on the landing page; in the app shell it’s the sidebar wordmark (Fraunces).
 - One job per screen: home = due; import = add words; study = one card.
 - Prefer whitespace and typography over cards/chrome.
@@ -59,6 +65,23 @@ Use tokens / Tailwind theme classes — do not hardcode new hex in components un
 - Study card enter: `rise-in` ~320ms
 - Soft background blurs on landing for atmosphere
 - Prefer opacity/transform; no glow stacks
+
+## Progress on Today
+
+One line under the Home header, soft sage, same micro-label treatment as the
+eyebrow: `12 REVIEWED TODAY · 5-DAY STREAK`. It is hidden entirely before the
+first review — a zero streak is discouraging, not informative. A day not yet
+studied keeps the streak visible rather than resetting it at midnight. No
+charts, no tiles; the dense stats dashboard stays out of scope.
+
+## Study session
+
+One card, two answers, no chrome above it. Below the answer buttons sits a
+quiet row: **Undo** on the left (ghost, disabled until something was rated),
+the shortcut hint on the right (hidden on small screens, where there is no
+keyboard). Shortcuts: **Space** flips, **1** again, **2** know it, **Z**
+undo. Rating keys only work once the card is flipped — the answer should be
+seen before it is judged.
 
 ## Import / add words
 

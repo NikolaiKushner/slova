@@ -5,6 +5,12 @@ import { notFound, redirect } from "next/navigation";
 import { DeleteDeckButton } from "@/components/delete-deck-button";
 import { ImportForm } from "@/components/import-form";
 import { PageHeader } from "@/components/page-header";
+import {
+  DEFAULT_SOURCE_LANG,
+  DEFAULT_TARGET_LANG,
+  toLangCode,
+} from "@/lib/languages";
+import { deckSummary, getNewAllowance } from "@/lib/study-queue";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -22,11 +28,13 @@ export default async function DeckPage({ params }: Props) {
   if (!deck) notFound();
 
   const now = new Date();
-  const dueCount = deck.cards.filter((c) => c.dueAt <= now).length;
-  const description = [
-    `${deck.cards.length} word${deck.cards.length === 1 ? "" : "s"}`,
-    dueCount ? `${dueCount} due` : "nothing due",
-  ].join(" · ");
+  const dueCount = deck.cards.filter(
+    (c) => c.introducedAt !== null && c.dueAt <= now,
+  ).length;
+  const unseenCount = deck.cards.filter((c) => c.introducedAt === null).length;
+  const allowance = await getNewAllowance(session.user.id, now);
+  const studiable = dueCount + Math.min(unseenCount, allowance);
+  const description = deckSummary(deck.cards.length, dueCount, unseenCount);
 
   return (
     <>
@@ -36,7 +44,7 @@ export default async function DeckPage({ params }: Props) {
         description={description}
         actions={
           <>
-            {dueCount > 0 ? (
+            {studiable > 0 ? (
               <Link
                 href={`/study/${deck.id}`}
                 className={cn(
@@ -77,7 +85,11 @@ export default async function DeckPage({ params }: Props) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold tracking-tight">Add more words</h2>
-        <ImportForm deckId={deck.id} />
+        <ImportForm
+          deckId={deck.id}
+          sourceLang={toLangCode(deck.sourceLang, DEFAULT_SOURCE_LANG)}
+          targetLang={toLangCode(deck.targetLang, DEFAULT_TARGET_LANG)}
+        />
       </section>
     </>
   );

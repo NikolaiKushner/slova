@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type StudyCard = {
@@ -24,6 +25,8 @@ export function StudySession({ deckId }: Props) {
   const [done, setDone] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   const [busy, setBusy] = useState(false);
+  /** Indexes of cards rated this session, most recent last. */
+  const [history, setHistory] = useState<number[]>([]);
 
   useEffect(() => {
     const qs = deckId ? `?deckId=${encodeURIComponent(deckId)}` : "";
@@ -39,24 +42,93 @@ export function StudySession({ deckId }: Props) {
 
   const card = cards[index];
 
-  async function rate(rating: "again" | "good") {
-    if (!card || busy) return;
+  const rate = useCallback(
+    async (rating: "again" | "good") => {
+      const current = cards[index];
+      if (!current || busy) return;
+
+      setBusy(true);
+      await fetch("/api/study/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cardId: current.id, rating }),
+      });
+      setReviewed((n) => n + 1);
+      setHistory((h) => [...h, index]);
+      setFlipped(false);
+      setBusy(false);
+
+      if (index + 1 >= cards.length) {
+        setDone(true);
+      } else {
+        setIndex((i) => i + 1);
+      }
+    },
+    [busy, cards, index],
+  );
+
+  /** Step back onto the last rated card and restore what the rating changed. */
+  const undo = useCallback(async () => {
+    const previous = history[history.length - 1];
+    if (previous === undefined || busy) return;
+
+    const target = cards[previous];
+    if (!target) return;
+
     setBusy(true);
-    await fetch("/api/study/review", {
+    const res = await fetch("/api/study/undo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cardId: card.id, rating }),
+      body: JSON.stringify({ cardId: target.id }),
     });
-    setReviewed((n) => n + 1);
-    setFlipped(false);
     setBusy(false);
+    if (!res.ok) return;
 
-    if (index + 1 >= cards.length) {
-      setDone(true);
-    } else {
-      setIndex((i) => i + 1);
+    setHistory((h) => h.slice(0, -1));
+    setReviewed((n) => Math.max(0, n - 1));
+    setIndex(previous);
+    setFlipped(true);
+    setDone(false);
+  }, [busy, cards, history]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.metaKey || event.altKey) return;
+
+      const target = event.target as HTMLElement | null;
+      if (target?.isContentEditable) return;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+
+      const key = event.key.toLowerCase();
+
+      if (key === "z" || event.key === "Backspace") {
+        event.preventDefault();
+        void undo();
+        return;
+      }
+
+      if (done || !cards[index]) return;
+
+      if (event.key === " " || event.key === "Enter") {
+        event.preventDefault();
+        setFlipped((f) => !f);
+        return;
+      }
+
+      if (!flipped) return;
+
+      if (key === "1") {
+        event.preventDefault();
+        void rate("again");
+      } else if (key === "2") {
+        event.preventDefault();
+        void rate("good");
+      }
     }
-  }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [cards, done, flipped, index, rate, undo]);
 
   if (loading) {
     return <p className="text-muted-foreground">Loading cards…</p>;
@@ -69,12 +141,26 @@ export function StudySession({ deckId }: Props) {
         <p className="text-muted-foreground">
           Reviewed {reviewed} {reviewed === 1 ? "word" : "words"} this session.
         </p>
-        <Link
-          href="/home"
-          className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
-        >
-          Back home
-        </Link>
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href="/home"
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
+          >
+            Back home
+          </Link>
+          {history.length > 0 ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              disabled={busy}
+              onClick={undo}
+            >
+              <Undo2 />
+              Undo last
+            </Button>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -96,11 +182,7 @@ export function StudySession({ deckId }: Props) {
         <span className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
           {flipped ? "Translation" : "Word"}
         </span>
-        <span
-          className={`font-display text-4xl leading-tight tracking-tight text-foreground transition duration-300 sm:text-5xl ${
-            flipped ? "opacity-100" : "opacity-100"
-          }`}
-        >
+        <span className="font-display text-4xl leading-tight tracking-tight text-foreground transition duration-300 sm:text-5xl">
           {flipped ? card.back : card.front}
         </span>
         {flipped && card.example ? (
@@ -130,6 +212,22 @@ export function StudySession({ deckId }: Props) {
         >
           Know it
         </Button>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={busy || history.length === 0}
+          onClick={undo}
+        >
+          <Undo2 />
+          Undo
+        </Button>
+        <span className="hidden sm:block">
+          Space to flip · 1 again · 2 know it · Z undo
+        </span>
       </div>
     </div>
   );
