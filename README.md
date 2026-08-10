@@ -47,6 +47,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, Auth.js, Prisma, SQLite.
 
+On Vercel: page analytics via `@vercel/analytics`, Web Vitals via `@vercel/speed-insights` (enabled in production automatically).
+
 | Script | What |
 |--------|------|
 | `npm run dev` | Dev server |
