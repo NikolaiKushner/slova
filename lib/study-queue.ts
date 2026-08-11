@@ -31,8 +31,8 @@ export function sessionTotal(
   return dueReviews + Math.min(unseen, allowance);
 }
 
-/** One-line state of a deck: size, what came back, what has never been seen. */
-export function deckSummary(
+/** One-line state of a set: size, what came back, what has never been seen. */
+export function setSummary(
   total: number,
   dueReviews: number,
   unseen: number,
@@ -44,14 +44,23 @@ export function deckSummary(
   return parts.join(" · ");
 }
 
-const CARD_FIELDS = {
+const WORD_FIELDS = {
   id: true,
   front: true,
   back: true,
   note: true,
   example: true,
-  deckId: true,
 } as const;
+
+/**
+ * Words belonging to this user, optionally narrowed to one set. Membership is
+ * a join now, so "the words in this set" is a filter rather than ownership.
+ */
+function scopeOf(userId: string, setId?: string) {
+  return setId
+    ? { userId, sets: { some: { setId } } }
+    : { userId };
+}
 
 /** How many unseen words this user may still be shown today. */
 export async function getNewAllowance(userId: string, now: Date) {
@@ -60,11 +69,8 @@ export async function getNewAllowance(userId: string, now: Date) {
       where: { id: userId },
       select: { dailyNewLimit: true },
     }),
-    getPrisma().card.count({
-      where: {
-        deck: { userId },
-        introducedAt: { gte: startOfDay(now) },
-      },
+    getPrisma().userWord.count({
+      where: { userId, introducedAt: { gte: startOfDay(now) } },
     }),
   ]);
 
@@ -73,54 +79,48 @@ export async function getNewAllowance(userId: string, now: Date) {
 }
 
 /**
- * Cards for one sitting: due reviews first (they decay fastest), then as many
+ * Words for one sitting: due reviews first (they decay fastest), then as many
  * unseen words as today's allowance leaves. The allowance is counted across
- * every deck even when studying one, so a limit means a limit.
+ * every set even when studying one, so a limit means a limit.
  */
 export async function buildStudyQueue(
   userId: string,
-  options: { deckId?: string; now?: Date } = {},
+  options: { setId?: string; now?: Date } = {},
 ) {
   const now = options.now ?? new Date();
-  const deck = { userId, ...(options.deckId ? { id: options.deckId } : {}) };
+  const scope = scopeOf(userId, options.setId);
 
   const [allowance, reviews] = await Promise.all([
     getNewAllowance(userId, now),
-    getPrisma().card.findMany({
-      where: { deck, introducedAt: { not: null }, dueAt: { lte: now } },
+    getPrisma().userWord.findMany({
+      where: { ...scope, introducedAt: { not: null }, dueAt: { lte: now } },
       orderBy: { dueAt: "asc" },
       take: REVIEW_BATCH_LIMIT,
-      select: CARD_FIELDS,
+      select: WORD_FIELDS,
     }),
   ]);
 
   const fresh =
     allowance > 0
-      ? await getPrisma().card.findMany({
-          where: { deck, introducedAt: null },
+      ? await getPrisma().userWord.findMany({
+          where: { ...scope, introducedAt: null },
           orderBy: { createdAt: "asc" },
           take: allowance,
-          select: CARD_FIELDS,
+          select: WORD_FIELDS,
         })
       : [];
 
-  return { cards: [...reviews, ...fresh], reviewCount: reviews.length };
+  return { words: [...reviews, ...fresh], reviewCount: reviews.length };
 }
 
 /** Counts behind the Today headline: reviews back, unseen words, allowance. */
 export async function getStudySummary(userId: string, now: Date) {
   const [allowance, dueReviews, unseen] = await Promise.all([
     getNewAllowance(userId, now),
-    getPrisma().card.count({
-      where: {
-        deck: { userId },
-        introducedAt: { not: null },
-        dueAt: { lte: now },
-      },
+    getPrisma().userWord.count({
+      where: { userId, introducedAt: { not: null }, dueAt: { lte: now } },
     }),
-    getPrisma().card.count({
-      where: { deck: { userId }, introducedAt: null },
-    }),
+    getPrisma().userWord.count({ where: { userId, introducedAt: null } }),
   ]);
 
   return {

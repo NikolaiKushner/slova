@@ -15,28 +15,28 @@ export async function GET() {
   }
 
   const now = new Date();
-  const decks = await getPrisma().deck.findMany({
+  const sets = await getPrisma().wordSet.findMany({
     where: { userId: session.user.id },
     orderBy: { updatedAt: "desc" },
     include: {
-      _count: { select: { cards: true } },
-      cards: {
-        where: { dueAt: { lte: now } },
-        select: { id: true },
+      _count: { select: { items: true } },
+      items: {
+        where: { word: { dueAt: { lte: now } } },
+        select: { wordId: true },
       },
     },
   });
 
   return NextResponse.json({
-    decks: decks.map((deck) => ({
-      id: deck.id,
-      title: deck.title,
-      sourceLang: deck.sourceLang,
-      targetLang: deck.targetLang,
-      createdAt: deck.createdAt,
-      updatedAt: deck.updatedAt,
-      cardCount: deck._count.cards,
-      dueCount: deck.cards.length,
+    sets: sets.map((set) => ({
+      id: set.id,
+      title: set.title,
+      sourceLang: set.sourceLang,
+      targetLang: set.targetLang,
+      createdAt: set.createdAt,
+      updatedAt: set.updatedAt,
+      wordCount: set._count.items,
+      dueCount: set.items.length,
     })),
   });
 }
@@ -59,14 +59,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
 
-  const deck = await getPrisma().deck.create({
+  const set = await getPrisma().wordSet.create({
     data: {
-      title: parsed.data.title.trim(),
+      userId: session.user.id,
+      title: parsed.data.title,
       sourceLang: parsed.data.sourceLang ?? STUDY_SOURCE_LANG,
       targetLang: parsed.data.targetLang ?? STUDY_TARGET_LANG,
-      userId: session.user.id,
     },
   });
 
-  return NextResponse.json({ deck }, { status: 201 });
+  return NextResponse.json({ set }, { status: 201 });
 }

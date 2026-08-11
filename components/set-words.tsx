@@ -8,13 +8,13 @@ import { Input } from "@/components/ui/input";
 import { WORD_GRID, WordTable } from "@/components/word-table";
 import { cn } from "@/lib/utils";
 
-export type DeckWord = {
+export type SetWord = {
   id: string;
   front: string;
   back: string;
 };
 
-export function DeckWords({ words }: { words: DeckWord[] }) {
+export function SetWords({ words }: { words: SetWord[] }) {
   return (
     <WordTable>
       <ul className="divide-y divide-border">
@@ -26,7 +26,7 @@ export function DeckWords({ words }: { words: DeckWord[] }) {
   );
 }
 
-function WordRow({ word }: { word: DeckWord }) {
+function WordRow({ word }: { word: SetWord }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [front, setFront] = useState(word.front);
@@ -54,7 +54,7 @@ function WordRow({ word }: { word: DeckWord }) {
 
     setBusy(true);
     setError(null);
-    const res = await fetch(`/api/cards/${word.id}`, {
+    const res = await fetch(`/api/words/${word.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ front, back }),
@@ -73,11 +73,11 @@ function WordRow({ word }: { word: DeckWord }) {
 
   async function remove() {
     if (busy) return;
-    if (!confirm(`Delete “${word.front}” from this list?`)) return;
+    if (!confirm(`Delete “${word.front}” from your dictionary?`)) return;
 
     setBusy(true);
     setError(null);
-    const res = await fetch(`/api/cards/${word.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/words/${word.id}`, { method: "DELETE" });
     setBusy(false);
 
     if (!res.ok) {

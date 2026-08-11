@@ -1,21 +1,20 @@
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 
-export async function getOwnedDeck(deckId: string) {
+export async function getOwnedSet(setId: string) {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  return getPrisma().deck.findFirst({
-    where: { id: deckId, userId: session.user.id },
+  return getPrisma().wordSet.findFirst({
+    where: { id: setId, userId: session.user.id },
   });
 }
 
-export async function getOwnedCard(cardId: string) {
+export async function getOwnedWord(wordId: string) {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  return getPrisma().card.findFirst({
-    where: { id: cardId, deck: { userId: session.user.id } },
-    include: { deck: true },
+  return getPrisma().userWord.findFirst({
+    where: { id: wordId, userId: session.user.id },
   });
 }

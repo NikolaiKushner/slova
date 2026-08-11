@@ -14,7 +14,6 @@ const PROTECTED_PREFIXES = [
   "/courses",
   "/dictionary",
   "/study",
-  "/decks",
   "/home",
   "/import",
 ] as const;

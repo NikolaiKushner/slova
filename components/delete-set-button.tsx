@@ -4,14 +4,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export function DeleteDeckButton({ deckId }: { deckId: string }) {
+export function DeleteSetButton({ setId }: { setId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function onDelete() {
-    if (!confirm("Delete this list and all its words?")) return;
+    if (!confirm("Delete this set? The words stay in your dictionary.")) return;
     setLoading(true);
-    await fetch(`/api/decks/${deckId}`, { method: "DELETE" });
+    await fetch(`/api/sets/${setId}`, { method: "DELETE" });
     router.push("/dictionary/sets");
     router.refresh();
   }

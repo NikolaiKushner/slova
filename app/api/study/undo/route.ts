@@ -5,11 +5,11 @@ import { getPrisma } from "@/lib/prisma";
 import { restoreFromSnapshot } from "@/lib/srs";
 
 const schema = z.object({
-  cardId: z.string().min(1),
+  wordId: z.string().min(1),
 });
 
 /**
- * Take back the most recent rating of a card: restore the state saved on the
+ * Take back the most recent rating of a word: restore the state saved on the
  * review log and drop the log, so the mistake leaves no trace in history.
  */
 export async function POST(request: Request) {
@@ -24,16 +24,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid undo" }, { status: 400 });
   }
 
-  const card = await getPrisma().card.findFirst({
-    where: { id: parsed.data.cardId, deck: { userId: session.user.id } },
+  const word = await getPrisma().userWord.findFirst({
+    where: { id: parsed.data.wordId, userId: session.user.id },
     select: { id: true },
   });
-  if (!card) {
+  if (!word) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   const last = await getPrisma().reviewLog.findFirst({
-    where: { cardId: card.id },
+    where: { wordId: word.id },
     orderBy: { createdAt: "desc" },
   });
 
@@ -46,12 +46,12 @@ export async function POST(request: Request) {
   }
 
   const [restored] = await getPrisma().$transaction([
-    getPrisma().card.update({
-      where: { id: card.id },
+    getPrisma().userWord.update({
+      where: { id: word.id },
       data: previous,
     }),
     getPrisma().reviewLog.delete({ where: { id: last.id } }),
   ]);
 
-  return NextResponse.json({ card: restored });
+  return NextResponse.json({ word: restored });
 }

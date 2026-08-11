@@ -33,7 +33,6 @@ describe("activeNavHref", () => {
   it("routes legacy paths to where their page moved", () => {
     expect(activeNavHref("/home")).toBe("/tasks/today");
     expect(activeNavHref("/import")).toBe("/dictionary/add");
-    expect(activeNavHref("/decks/abc123")).toBe("/dictionary/sets");
   });
 
   it("only matches on a segment boundary", () => {

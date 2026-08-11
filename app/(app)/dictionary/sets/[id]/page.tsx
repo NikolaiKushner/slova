@@ -2,78 +2,80 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
-import { DeckWords } from "@/components/deck-words";
-import { DeleteDeckButton } from "@/components/delete-deck-button";
+import { SetWords } from "@/components/set-words";
+import { DeleteSetButton } from "@/components/delete-set-button";
 import { ImportForm } from "@/components/import-form";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
-import { deckSummary, getNewAllowance } from "@/lib/study-queue";
+import { getNewAllowance, setSummary } from "@/lib/study-queue";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ id: string }> };
 
-export default async function DeckPage({ params }: Props) {
+export default async function SetPage({ params }: Props) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const { id } = await params;
-  const deck = await getPrisma().deck.findFirst({
+  const set = await getPrisma().wordSet.findFirst({
     where: { id, userId: session.user.id },
-    include: { cards: { orderBy: { createdAt: "asc" } } },
+    include: {
+      items: { orderBy: { addedAt: "asc" }, include: { word: true } },
+    },
   });
-  if (!deck) notFound();
+  if (!set) notFound();
 
+  const words = set.items.map((item) => item.word);
   const now = new Date();
-  const dueCount = deck.cards.filter(
-    (c) => c.introducedAt !== null && c.dueAt <= now,
+  const dueCount = words.filter(
+    (word) => word.introducedAt !== null && word.dueAt <= now,
   ).length;
-  const unseenCount = deck.cards.filter((c) => c.introducedAt === null).length;
+  const unseenCount = words.filter((word) => word.introducedAt === null).length;
   const allowance = await getNewAllowance(session.user.id, now);
   const studiable = dueCount + Math.min(unseenCount, allowance);
-  const description = deckSummary(deck.cards.length, dueCount, unseenCount);
 
   return (
     <Page>
       <PageHeader
-        eyebrow="List"
-        title={deck.title}
-        description={description}
+        eyebrow="Set"
+        title={set.title}
+        description={setSummary(words.length, dueCount, unseenCount)}
         actions={
           <>
             {studiable > 0 ? (
               <Link
-                href={`/study/${deck.id}`}
+                href={`/study/${set.id}`}
                 className={cn(buttonVariants({ size: "lg" }))}
               >
                 Study due
               </Link>
             ) : null}
-            <DeleteDeckButton deckId={deck.id} />
+            <DeleteSetButton setId={set.id} />
           </>
         }
       />
 
       <div className="space-y-10">
-        <Section title="Words" hint={`${deck.cards.length} saved`}>
-          {deck.cards.length > 0 ? (
-            <DeckWords
-              words={deck.cards.map((card) => ({
-                id: card.id,
-                front: card.front,
-                back: card.back,
+        <Section title="Words" hint={`${words.length} saved`}>
+          {words.length > 0 ? (
+            <SetWords
+              words={words.map((word) => ({
+                id: word.id,
+                front: word.front,
+                back: word.back,
               }))}
             />
           ) : (
             <p className="rounded-2xl border border-dashed border-border bg-white/50 px-3 py-8 text-center text-sm text-muted-foreground">
-              This list is empty. Add words below.
+              This set is empty. Add words below.
             </p>
           )}
         </Section>
 
         <Section title="Add more words">
-          <ImportForm deckId={deck.id} />
+          <ImportForm setId={set.id} />
         </Section>
       </div>
     </Page>

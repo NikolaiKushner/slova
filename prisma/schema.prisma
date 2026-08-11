@@ -14,61 +14,164 @@ model User {
   image         String?
   // Sign-in is Google-only; no local passwords are stored.
   dailyNewLimit Int     @default(20)
+
   createdAt DateTime @default(now())
-  decks     Deck[]
+
+  words UserWord[]
+  sets  WordSet[]
 }
 
-model Deck {
-  id         String  @id @default(cuid())
-  userId     String
-  title      String
-  // What the list translates between; seeds auto-translate and, later, speech.
-  sourceLang String  @default("en")
-  targetLang String  @default("ru")
+/// A word as this user keeps it: their spelling, their translation, their
+/// progress. One row per word per user, however many sets it belongs to —
+/// which is the whole point of splitting sets out into WordSetItem.
+model UserWord {
+  id     String @id @default(cuid())
+  userId String
+
+  /// normalizeKey(front). The dedup key: importing a word already present
+  /// updates that row instead of creating a second one with its own schedule.
+  key   String
+  front String
+  back  String
+
+  note    String?
+  example String?
+  /// Where it came from — a column heading off a pasted lesson, a catalog set.
+  source  String?
+
+  /// Link into the shared base, deliberately without a foreign key. Nothing in
+  /// Postgres ties user data to the lexicon, so the lexicon can be dumped,
+  /// rebuilt, or moved to its own project without touching anything here.
+  /// Integrity is lib/lexicon's job.
+  lexemeId String?
+
+  dueAt        DateTime  @default(now())
+  intervalDays Float     @default(0)
+  ease         Float     @default(2.5)
+  introducedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cards     Card[]
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sets    WordSetItem[]
+  reviews ReviewLog[]
+
+  @@unique([userId, key])
+  @@index([userId, dueAt])
+  @@index([userId, introducedAt])
+  @@index([lexemeId])
+}
+
+/// A named group of words. Closer to a tag than a folder: removing a word from
+/// a set does not delete the word.
+model WordSet {
+  id     String @id @default(cuid())
+  userId String
+  title  String
+
+  // What the set translates between; seeds auto-translate and, later, speech.
+  sourceLang String @default("en")
+  targetLang String @default("ru")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WordSetItem[]
 
   @@index([userId])
 }
 
-model Card {
-  id           String      @id @default(cuid())
-  deckId       String
-  front        String
-  back         String
-  note         String?
-  source       String?
-  example      String?
-  dueAt        DateTime    @default(now())
-  intervalDays Float       @default(0)
-  ease         Float       @default(2.5)
-  introducedAt DateTime?
-  createdAt    DateTime    @default(now())
-  deck         Deck        @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  reviews      ReviewLog[]
+model WordSetItem {
+  wordId  String
+  setId   String
+  addedAt DateTime @default(now())
 
-  @@index([deckId])
-  @@index([dueAt])
-  @@index([introducedAt])
+  word UserWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  set  WordSet  @relation(fields: [setId], references: [id], onDelete: Cascade)
+
+  @@id([wordId, setId])
+  @@index([setId])
 }
 
 model ReviewLog {
   id        String   @id @default(cuid())
-  cardId    String
+  wordId    String
   rating    String
   createdAt DateTime @default(now())
-  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
-  // Card state just before this rating, so a misclick can be taken back.
-  // Null on rows written before undo existed — those cannot be restored.
+  word UserWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  // Word state just before this rating, so a misclick can be taken back.
   prevIntervalDays Float?
   prevEase         Float?
   prevDueAt        DateTime?
   prevIntroducedAt DateTime?
 
-  @@index([cardId])
-  @@index([cardId, createdAt])
+  @@index([wordId])
+  @@index([wordId, createdAt])
+}
+
+/// The shared base, one row per distinct word or phrase. A cache in front of
+/// the translator — never the authority. A user editing their own translation
+/// changes their UserWord and nothing here.
+model Lexeme {
+  id   String @id @default(cuid())
+  lang String
+  /// normalizeKey(text) — what lookups match on.
+  key  String
+  text String
+  /// "word" | "phrase"
+  kind String @default("word")
+
+  /// "seed" | "llm" | "import" | "curated". Kept on the lexeme as well as on
+  /// each translation so a seeding run can be re-applied or rolled back
+  /// without disturbing what real use has accumulated.
+  source String
+
+  transcription String?
+  partOfSpeech  String?
+
+  imageUrl    String?
+  imageSource String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  translations LexemeTranslation[]
+
+  @@unique([lang, key])
+  @@index([source])
+}
+
+model LexemeTranslation {
+  id         String @id @default(cuid())
+  lexemeId   String
+  targetLang String
+  text       String
+
+  /// "seed" | "llm" | "import" | "curated" — also the precedence order for
+  /// picking the primary, curated highest.
+  source String
+  /// Which model produced it, when source is "llm".
+  model  String?
+  /// Bumped in code to retire a generation: older rows stop counting as a hit
+  /// and get re-asked for, without deleting anything.
+  version Int @default(1)
+
+  /// How many independent sources produced exactly this text. A translation a
+  /// person typed starts at 0 and stays private to them until something else
+  /// agrees, so one bad paste cannot spread.
+  confirmations Int     @default(0)
+  isGlobal      Boolean @default(false)
+  isPrimary     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lexeme Lexeme @relation(fields: [lexemeId], references: [id], onDelete: Cascade)
+
+  @@unique([lexemeId, targetLang, text])
+  @@index([lexemeId, targetLang, isGlobal, isPrimary])
 }

@@ -13,21 +13,35 @@ export async function GET(_request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const deck = await getPrisma().deck.findFirst({
+  const set = await getPrisma().wordSet.findFirst({
     where: { id, userId: session.user.id },
     include: {
-      cards: { orderBy: { createdAt: "asc" } },
+      items: {
+        orderBy: { addedAt: "asc" },
+        include: { word: true },
+      },
     },
   });
 
-  if (!deck) {
+  if (!set) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   const now = new Date();
-  const dueCount = deck.cards.filter((c) => c.dueAt <= now).length;
+  const words = set.items.map((item) => item.word);
 
-  return NextResponse.json({ deck: { ...deck, dueCount } });
+  return NextResponse.json({
+    set: {
+      id: set.id,
+      title: set.title,
+      sourceLang: set.sourceLang,
+      targetLang: set.targetLang,
+      createdAt: set.createdAt,
+      updatedAt: set.updatedAt,
+      words,
+      dueCount: words.filter((word) => word.dueAt <= now).length,
+    },
+  });
 }
 
 const updateSchema = z
@@ -50,24 +64,29 @@ export async function PATCH(request: Request, { params }: Params) {
   const body = await request.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid list" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid set" }, { status: 400 });
   }
 
-  const existing = await getPrisma().deck.findFirst({
+  const existing = await getPrisma().wordSet.findFirst({
     where: { id, userId: session.user.id },
+    select: { id: true },
   });
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const deck = await getPrisma().deck.update({
+  const set = await getPrisma().wordSet.update({
     where: { id },
     data: parsed.data,
   });
 
-  return NextResponse.json({ deck });
+  return NextResponse.json({ set });
 }
 
+/**
+ * Deleting a set deletes the set, not the words in it. A word can sit in
+ * several sets and keeps one schedule, so membership is all that goes.
+ */
 export async function DELETE(_request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -75,13 +94,14 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   const { id } = await params;
-  const existing = await getPrisma().deck.findFirst({
+  const existing = await getPrisma().wordSet.findFirst({
     where: { id, userId: session.user.id },
+    select: { id: true },
   });
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await getPrisma().deck.delete({ where: { id } });
+  await getPrisma().wordSet.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

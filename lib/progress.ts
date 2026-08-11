@@ -49,7 +49,7 @@ export async function getProgress(userId: string, now: Date) {
   since.setDate(since.getDate() - STREAK_WINDOW_DAYS);
 
   const logs = await getPrisma().reviewLog.findMany({
-    where: { card: { deck: { userId } }, createdAt: { gte: since } },
+    where: { word: { userId }, createdAt: { gte: since } },
     select: { createdAt: true },
   });
 

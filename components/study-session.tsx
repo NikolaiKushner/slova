@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type StudyCard = {
+type StudyWord = {
   id: string;
   front: string;
   back: string;
@@ -14,57 +14,57 @@ type StudyCard = {
 };
 
 type Props = {
-  deckId?: string;
+  setId?: string;
 };
 
-export function StudySession({ deckId }: Props) {
-  const [cards, setCards] = useState<StudyCard[]>([]);
+export function StudySession({ setId }: Props) {
+  const [words, setWords] = useState<StudyWord[]>([]);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   const [busy, setBusy] = useState(false);
-  /** Indexes of cards rated this session, most recent last. */
+  /** Indexes of words rated this session, most recent last. */
   const [history, setHistory] = useState<number[]>([]);
 
   useEffect(() => {
-    const qs = deckId ? `?deckId=${encodeURIComponent(deckId)}` : "";
+    const qs = setId ? `?setId=${encodeURIComponent(setId)}` : "";
     fetch(`/api/study/queue${qs}`)
       .then((r) => r.json())
       .then((data) => {
-        setCards(data.cards ?? []);
+        setWords(data.words ?? []);
         setLoading(false);
-        if (!data.cards?.length) setDone(true);
+        if (!data.words?.length) setDone(true);
       })
       .catch(() => setLoading(false));
-  }, [deckId]);
+  }, [setId]);
 
-  const card = cards[index];
+  const word = words[index];
 
   const rate = useCallback(
     async (rating: "again" | "good") => {
-      const current = cards[index];
+      const current = words[index];
       if (!current || busy) return;
 
       setBusy(true);
       await fetch("/api/study/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId: current.id, rating }),
+        body: JSON.stringify({ wordId: current.id, rating }),
       });
       setReviewed((n) => n + 1);
       setHistory((h) => [...h, index]);
       setFlipped(false);
       setBusy(false);
 
-      if (index + 1 >= cards.length) {
+      if (index + 1 >= words.length) {
         setDone(true);
       } else {
         setIndex((i) => i + 1);
       }
     },
-    [busy, cards, index],
+    [busy, words, index],
   );
 
   /** Step back onto the last rated card and restore what the rating changed. */
@@ -72,14 +72,14 @@ export function StudySession({ deckId }: Props) {
     const previous = history[history.length - 1];
     if (previous === undefined || busy) return;
 
-    const target = cards[previous];
+    const target = words[previous];
     if (!target) return;
 
     setBusy(true);
     const res = await fetch("/api/study/undo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cardId: target.id }),
+      body: JSON.stringify({ wordId: target.id }),
     });
     setBusy(false);
     if (!res.ok) return;
@@ -89,7 +89,7 @@ export function StudySession({ deckId }: Props) {
     setIndex(previous);
     setFlipped(true);
     setDone(false);
-  }, [busy, cards, history]);
+  }, [busy, words, history]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -107,7 +107,7 @@ export function StudySession({ deckId }: Props) {
         return;
       }
 
-      if (done || !cards[index]) return;
+      if (done || !words[index]) return;
 
       if (event.key === " " || event.key === "Enter") {
         event.preventDefault();
@@ -128,13 +128,13 @@ export function StudySession({ deckId }: Props) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [cards, done, flipped, index, rate, undo]);
+  }, [words, done, flipped, index, rate, undo]);
 
   if (loading) {
-    return <p className="text-muted-foreground">Loading cards…</p>;
+    return <p className="text-muted-foreground">Loading words…</p>;
   }
 
-  if (done || !card) {
+  if (done || !word) {
     return (
       <div className="space-y-4 text-center">
         <h2 className="font-display text-3xl tracking-tight">Nice work</h2>
@@ -169,7 +169,7 @@ export function StudySession({ deckId }: Props) {
     <div className="mx-auto w-full max-w-lg space-y-6">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          {index + 1} / {cards.length}
+          {index + 1} / {words.length}
         </span>
         <span>{reviewed} done</span>
       </div>
@@ -183,10 +183,10 @@ export function StudySession({ deckId }: Props) {
           {flipped ? "Translation" : "Word"}
         </span>
         <span className="font-display text-4xl leading-tight tracking-tight text-foreground transition duration-300 sm:text-5xl">
-          {flipped ? card.back : card.front}
+          {flipped ? word.back : word.front}
         </span>
-        {flipped && card.example ? (
-          <p className="mt-4 text-sm text-muted-foreground">{card.example}</p>
+        {flipped && word.example ? (
+          <p className="mt-4 text-sm text-muted-foreground">{word.example}</p>
         ) : null}
         <span className="mt-6 text-xs text-muted-foreground">
           Tap to {flipped ? "hide" : "reveal"}

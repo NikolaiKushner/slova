@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 /**
- * Partial card edit. Every field is optional so a caller can touch just one
+ * Partial word edit. Every field is optional so a caller can touch just one
  * (the word row edits front/back; study may later add a note). Strings are
  * trimmed before validation, so whitespace-only front/back is rejected.
  */
-export const cardUpdateSchema = z
+export const wordUpdateSchema = z
   .object({
     front: z.string().trim().min(1).max(500).optional(),
     back: z.string().trim().min(1).max(2000).optional(),
@@ -16,9 +16,9 @@ export const cardUpdateSchema = z
     message: "Nothing to update",
   });
 
-export type CardUpdate = z.infer<typeof cardUpdateSchema>;
+export type WordUpdate = z.infer<typeof wordUpdateSchema>;
 
-export type CardUpdateData = {
+export type WordUpdateData = {
   front?: string;
   back?: string;
   note?: string | null;
@@ -26,8 +26,8 @@ export type CardUpdateData = {
 };
 
 /** Drop untouched fields; a cleared note or example becomes null, not "". */
-export function toCardUpdateData(input: CardUpdate): CardUpdateData {
-  const data: CardUpdateData = {};
+export function toWordUpdateData(input: WordUpdate): WordUpdateData {
+  const data: WordUpdateData = {};
   if (input.front !== undefined) data.front = input.front;
   if (input.back !== undefined) data.back = input.back;
   if (input.note !== undefined) data.note = input.note || null;
