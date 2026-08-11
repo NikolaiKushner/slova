@@ -1,14 +1,43 @@
--- CreateTable
-CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "name" TEXT,
-    "image" TEXT,
-    "dailyNewLimit" INTEGER NOT NULL DEFAULT 20,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+/*
+  Warnings:
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
+  - You are about to drop the column `cardId` on the `ReviewLog` table. All the data in the column will be lost.
+  - You are about to drop the `Card` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Deck` table. If the table is not empty, all the data it contains will be lost.
+  - Added the required column `wordId` to the `ReviewLog` table without a default value. This is not possible if the table is not empty.
+
+*/
+
+-- Every review log points at a card this migration deletes, so the history is
+-- about words that no longer exist. Empty the table rather than invent a word
+-- for each row: ReviewLog.wordId lands NOT NULL with no default, which fails
+-- outright on a table that still has rows. Prisma's own warning above says so.
+DELETE FROM "ReviewLog";
+
+-- DropForeignKey
+ALTER TABLE "Card" DROP CONSTRAINT "Card_deckId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "Deck" DROP CONSTRAINT "Deck_userId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "ReviewLog" DROP CONSTRAINT "ReviewLog_cardId_fkey";
+
+-- DropIndex
+DROP INDEX "ReviewLog_cardId_createdAt_idx";
+
+-- DropIndex
+DROP INDEX "ReviewLog_cardId_idx";
+
+-- AlterTable
+ALTER TABLE "ReviewLog" DROP COLUMN "cardId",
+ADD COLUMN     "wordId" TEXT NOT NULL;
+
+-- DropTable
+DROP TABLE "Card";
+
+-- DropTable
+DROP TABLE "Deck";
 
 -- CreateTable
 CREATE TABLE "UserWord" (
@@ -54,20 +83,6 @@ CREATE TABLE "WordSetItem" (
 );
 
 -- CreateTable
-CREATE TABLE "ReviewLog" (
-    "id" TEXT NOT NULL,
-    "wordId" TEXT NOT NULL,
-    "rating" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "prevIntervalDays" DOUBLE PRECISION,
-    "prevEase" DOUBLE PRECISION,
-    "prevDueAt" TIMESTAMP(3),
-    "prevIntroducedAt" TIMESTAMP(3),
-
-    CONSTRAINT "ReviewLog_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Lexeme" (
     "id" TEXT NOT NULL,
     "lang" TEXT NOT NULL,
@@ -104,9 +119,6 @@ CREATE TABLE "LexemeTranslation" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
 CREATE INDEX "UserWord_userId_dueAt_idx" ON "UserWord"("userId", "dueAt");
 
 -- CreateIndex
@@ -125,12 +137,6 @@ CREATE INDEX "WordSet_userId_idx" ON "WordSet"("userId");
 CREATE INDEX "WordSetItem_setId_idx" ON "WordSetItem"("setId");
 
 -- CreateIndex
-CREATE INDEX "ReviewLog_wordId_idx" ON "ReviewLog"("wordId");
-
--- CreateIndex
-CREATE INDEX "ReviewLog_wordId_createdAt_idx" ON "ReviewLog"("wordId", "createdAt");
-
--- CreateIndex
 CREATE INDEX "Lexeme_source_idx" ON "Lexeme"("source");
 
 -- CreateIndex
@@ -141,6 +147,12 @@ CREATE INDEX "LexemeTranslation_lexemeId_targetLang_isGlobal_isPrimary_idx" ON "
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LexemeTranslation_lexemeId_targetLang_text_key" ON "LexemeTranslation"("lexemeId", "targetLang", "text");
+
+-- CreateIndex
+CREATE INDEX "ReviewLog_wordId_idx" ON "ReviewLog"("wordId");
+
+-- CreateIndex
+CREATE INDEX "ReviewLog_wordId_createdAt_idx" ON "ReviewLog"("wordId", "createdAt");
 
 -- AddForeignKey
 ALTER TABLE "UserWord" ADD CONSTRAINT "UserWord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
