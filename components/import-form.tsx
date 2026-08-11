@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { WORD_GRID, WordTable } from "@/components/word-table";
 import { cn } from "@/lib/utils";
 import { parseImportText } from "@/lib/parse-import";
+import { looksTransliterated, matchCase, normalizeRow } from "@/lib/normalize";
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 
 type Row = {
@@ -87,12 +88,15 @@ export function ImportForm({ deckId }: Props) {
     setError(null);
     setRows(
       ensureTrailingEmpty(
-        cards.map((c) => ({
-          id: newId(),
-          front: c.front,
-          back: c.back,
-          status: "idle" as const,
-        })),
+        cards.map((c) => {
+          const clean = normalizeRow(c.front, c.back);
+          return {
+            id: newId(),
+            front: clean.front,
+            back: clean.back,
+            status: "idle" as const,
+          };
+        }),
       ),
     );
     setShowPaste(false);
@@ -148,9 +152,23 @@ export function ImportForm({ deckId }: Props) {
                 error: hit?.error ?? "Failed",
               };
             }
+            const back = matchCase(
+              row.front.trim(),
+              normalizeRow(row.front, hit.translation).back,
+            );
+            if (looksTransliterated(back)) {
+              // A transliteration reads like an answer and teaches nothing —
+              // leave the cell empty rather than import it.
+              return {
+                ...row,
+                back: "",
+                status: "error",
+                error: "Came back transliterated — type it yourself",
+              };
+            }
             return {
               ...row,
-              back: hit.translation,
+              back,
               status: "idle",
               error: undefined,
             };
@@ -184,11 +202,18 @@ export function ImportForm({ deckId }: Props) {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error ?? "Translate failed");
-      updateRow(row.id, {
-        back: data.translation,
-        status: "idle",
-        error: undefined,
-      });
+      const back = matchCase(
+        row.front.trim(),
+        normalizeRow(row.front, data.translation).back,
+      );
+      if (looksTransliterated(back)) {
+        updateRow(row.id, {
+          status: "error",
+          error: "Came back transliterated — type it yourself",
+        });
+        return;
+      }
+      updateRow(row.id, { back, status: "idle", error: undefined });
     } catch (err) {
       updateRow(row.id, {
         status: "error",
