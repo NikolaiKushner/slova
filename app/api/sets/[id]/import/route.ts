@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
-import { normalizeKey } from "@/lib/lexicon/key";
 import { parseImportText } from "@/lib/parse-import";
+import { addWords } from "@/lib/words/add";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -68,66 +68,25 @@ export async function POST(request: Request, { params }: Params) {
     skipped = result.skipped + (result.cards.length - incoming.length);
   }
 
-  // One paste often repeats a word. Collapse before touching the database, so
-  // "skipped" counts it here rather than the unique index swallowing it later.
-  const byKey = new Map<string, { front: string; back: string }>();
-  for (const word of incoming) {
-    const key = normalizeKey(word.front);
-    if (!key) {
-      skipped += 1;
-      continue;
-    }
-    if (byKey.has(key)) {
-      skipped += 1;
-      continue;
-    }
-    byKey.set(key, word);
-  }
+  const result = await addWords({
+    userId,
+    words: incoming,
+    setId: set.id,
+    source: parsed.data.source ?? null,
+  });
+  skipped += result.skipped;
 
-  if (byKey.size === 0) {
+  if (result.added === 0 && result.alreadyKnown === 0) {
     return NextResponse.json(
       { error: "No complete words. Each word needs a translation." },
       { status: 400 },
     );
   }
 
-  const now = new Date();
-  const prisma = getPrisma();
-  const source = parsed.data.source ?? null;
-
-  // Three statements rather than one round trip per word: a 500-word paste
-  // would otherwise be 500 sequential queries against a serverless database.
-  const created = await prisma.userWord.createMany({
-    data: [...byKey].map(([key, word]) => ({
-      userId,
-      key,
-      front: word.front,
-      back: word.back,
-      source,
-      dueAt: now,
-    })),
-    skipDuplicates: true,
-  });
-
-  const words = await prisma.userWord.findMany({
-    where: { userId, key: { in: [...byKey.keys()] } },
-    select: { id: true },
-  });
-
-  await prisma.wordSetItem.createMany({
-    data: words.map((word) => ({ wordId: word.id, setId: set.id })),
-    skipDuplicates: true,
-  });
-
-  await prisma.wordSet.update({
-    where: { id: set.id },
-    data: { updatedAt: now },
-  });
-
   return NextResponse.json({
-    imported: created.count,
-    alreadyKnown: words.length - created.count,
-    linked: words.length,
+    imported: result.added,
+    alreadyKnown: result.alreadyKnown,
+    linked: result.linked,
     skipped,
   });
 }
