@@ -32,7 +32,7 @@ describe("activeNavHref", () => {
 
   it("routes legacy paths to where their page moved", () => {
     expect(activeNavHref("/home")).toBe("/tasks/today");
-    expect(activeNavHref("/import")).toBe("/dictionary/add");
+    expect(activeNavHref("/import")).toBe("/dictionary");
   });
 
   it("only matches on a segment boundary", () => {

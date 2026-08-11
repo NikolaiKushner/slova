@@ -105,21 +105,38 @@ keyboard). Shortcuts: **Space** flips, **1** again, **2** know it, **Z**
 undo. Rating keys only work once the card is flipped — the answer should be
 seen before it is judged.
 
-## Import / add words
+## Dictionary — add and list on one screen
 
 One direction only: **English word, Russian translation opposite it.** There is
 no language picker — the columns are labelled English / Russian and the page
-carries no choice the user has to make twice. `/api/translate` still accepts
-other pairs; only the UI is pinned.
+carries no choice the user has to make twice.
 
-Hybrid flow (not a dense spreadsheet app):
+`/dictionary` is the whole of it. Adding words is not its own screen any more:
+the box sits on top of the list it fills, so a word added is visible the moment
+it is added, and `/dictionary/add` redirects here.
 
-1. Optional **paste** seeds the table (pairs or single words).
-2. Editable **Word | Translation** table with a trailing empty row that grows as you type.
-3. **Translate empty** fills blanks via the server (MyMemory); per-row **Fill** for one word.
-4. User reviews, then imports only complete rows.
+1. **One field**, full width. Type a word and press Enter for one row; paste a
+   list and get one row per line. Same field, two behaviours by size of input —
+   picking a mode first would be describing what you are about to do before
+   doing it.
+2. **Translations arrive on their own**: instantly for anything the shared base
+   knows, then row by row as the model answers the rest. Each stays editable —
+   machine output is a draft, and nothing is saved until the button.
+3. The draft table shows **ten rows** and scrolls past that, rather than pushing
+   the set picker and the button off the screen.
+4. Under it, the **set picker** — an existing set, a new one named there, or
+   none. "No set" is a real answer: a word belongs to the dictionary, and sets
+   are tags on top of it.
+5. Under everything, **All words**: 25 a page, paged in the database, columns
+   English / Russian / Set / Learned.
 
-Avoid stacked “group inputs” for long lists — the table scales better. Avoid raw textarea-only once auto-translate exists (no place to edit machine output).
+**Learned** is five dots in soft sage, not a number or a bar: the scale has five
+steps and no units, and a table row is read at a glance. It is derived from the
+schedule rather than stored — see `lib/word-rating.ts`.
+
+Avoid stacked "group inputs" for long lists — the table scales better. Avoid a
+raw textarea now that translations arrive automatically: there would be nowhere
+to correct machine output.
 
 ## Word tables
 

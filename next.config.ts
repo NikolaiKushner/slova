@@ -8,7 +8,10 @@ const nextConfig: NextConfig = {
       // rather than as redirect-only page files: no render, no bundle, and the
       // whole set of moved URLs is readable in one place.
       { source: "/home", destination: "/tasks/today", permanent: true },
-      { source: "/import", destination: "/dictionary/add", permanent: true },
+      { source: "/import", destination: "/dictionary", permanent: true },
+      // Adding words stopped being its own screen: the box sits on top of the
+      // list it fills, so the word you add is visible the moment it is added.
+      { source: "/dictionary/add", destination: "/dictionary", permanent: false },
 
       // Section roots that are only a heading in the sidebar — send them to
       // the first page inside. /tasks and /dictionary are real pages, so they
