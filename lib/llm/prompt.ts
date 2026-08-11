@@ -1,4 +1,4 @@
-import type { MessageCreateParams } from "@anthropic-ai/sdk/resources/messages";
+import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
 
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 import { activeModel, capabilitiesOf } from "@/lib/llm/models";
@@ -99,9 +99,13 @@ export function untranslated(rows: readonly TranslationRow[]): string[] {
   return out;
 }
 
-export function buildUserMessage(words: readonly string[]): string {
+export function buildUserMessage(
+  words: readonly string[],
+  note?: string,
+): string {
   return [
     `Translate each ${SOURCE} word into ${TARGET}.`,
+    ...(note ? [note] : []),
     "",
     ...words.map((word) => `- ${word}`),
   ].join("\n");
@@ -110,6 +114,13 @@ export function buildUserMessage(words: readonly string[]): string {
 type BuildOptions = {
   model?: string;
   maxTokens?: number;
+  /**
+   * One line about what this list is. The system prompt tells the model to read
+   * the domain off the other words, which is right for a pasted lesson and
+   * wrong for a slice of a frequency list — there the neighbours mean nothing,
+   * and saying so stops the model from inventing a theme to fit them.
+   */
+  note?: string;
 };
 
 /**
@@ -127,15 +138,15 @@ const MAX_TOKENS = 8000;
 export function buildTranslationRequest(
   rows: readonly TranslationRow[],
   options: BuildOptions = {},
-): MessageCreateParams {
+): MessageCreateParamsNonStreaming {
   const model = options.model ?? activeModel();
   const words = untranslated(rows);
 
-  const request: MessageCreateParams = {
+  const request: MessageCreateParamsNonStreaming = {
     model,
     max_tokens: options.maxTokens ?? MAX_TOKENS,
     system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: buildUserMessage(words) }],
+    messages: [{ role: "user", content: buildUserMessage(words, options.note) }],
     output_config: {
       format: { type: "json_schema", schema: TRANSLATION_SCHEMA },
     },
