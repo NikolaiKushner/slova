@@ -22,6 +22,11 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      # Three set-state-in-effect errors got in while nothing was linting, and
+      # one of them was hiding a race. Cheap to run, so it runs on every push.
+      - name: Lint
+        run: npm run lint
+
       # No database is reachable here, and none is needed: the build only
       # constructs the Prisma client, which connects lazily on first query.
       - name: Build
