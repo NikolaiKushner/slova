@@ -40,6 +40,11 @@ export function SetPicker({
   onNewTitleChange: (title: string) => void;
   disabled?: boolean;
 }) {
+  const selectedLabel =
+    value === NEW_SET
+      ? "New set…"
+      : (sets.find((set) => set.id === value)?.title ?? "No set");
+
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <Select
@@ -48,7 +53,10 @@ export function SetPicker({
         disabled={disabled}
       >
         <SelectTrigger className="sm:w-64" aria-label="Set">
-          <SelectValue placeholder="No set" />
+          {/* The label is chosen here rather than left to the primitive: the
+              "new set" option carries a sentinel for a value, and the trigger
+              was rendering that sentinel at the user. */}
+          <SelectValue placeholder="No set">{selectedLabel}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value={NO_SET}>No set</SelectItem>

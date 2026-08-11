@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { ratingOf } from "@/lib/word-rating";
+import { recordTranslations } from "@/lib/lexicon/write";
 import { addWords } from "@/lib/words/add";
 import {
   pageCount,
@@ -71,6 +72,12 @@ export async function GET(request: Request) {
 const wordSchema = z.object({
   front: z.string().min(1).max(500),
   back: z.string().min(1).max(2000),
+  /**
+   * True when a person typed this translation rather than the model filling it
+   * in. Those are offered to the shared base as candidates: one person's
+   * shorthand must not become everyone's answer on sight.
+   */
+  typed: z.boolean().optional(),
 });
 
 const schema = z.object({
@@ -145,6 +152,22 @@ export async function POST(request: Request) {
     setId: targetSetId,
     source: source ?? null,
   });
+
+  // Words the model translated are already in the shared base — the batch
+  // route wrote them as it answered. What is left is what a person typed, and
+  // that goes in as a candidate: private until a second, independent source
+  // produces the same text. Failing here must not fail the add; the words are
+  // saved either way, and the base is a cache.
+  const typed = words.filter((word) => word.typed);
+  if (typed.length > 0) {
+    await recordTranslations(
+      typed.map((word) => ({
+        text: word.front,
+        translation: word.back,
+        source: "import" as const,
+      })),
+    ).catch(() => {});
+  }
 
   if (result.added === 0 && result.alreadyKnown === 0) {
     return NextResponse.json(

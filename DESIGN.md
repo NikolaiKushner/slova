@@ -115,18 +115,23 @@ carries no choice the user has to make twice.
 the box sits on top of the list it fills, so a word added is visible the moment
 it is added, and `/dictionary/add` redirects here.
 
-1. **One field**, full width. Type a word and press Enter for one row; paste a
-   list and get one row per line. Same field, two behaviours by size of input —
-   picking a mode first would be describing what you are about to do before
-   doing it.
-2. **Translations arrive on their own**: instantly for anything the shared base
-   knows, then row by row as the model answers the rest. Each stays editable —
-   machine output is a draft, and nothing is saved until the button.
-3. The draft table shows **ten rows** and scrolls past that, rather than pushing
-   the set picker and the button off the screen.
-4. Under it, the **set picker** — an existing set, a new one named there, or
-   none. "No set" is a real answer: a word belongs to the dictionary, and sets
-   are tags on top of it.
+Both tables sit on `bg-card` (white) against the mist page wash — a table is a
+surface you work on, and it should read as one.
+
+1. **A table with one empty row.** Type in it and another appears underneath,
+   so it grows the way a list does. A multi-line paste expands into a row each.
+2. **The second column is yours to fill, or to leave.** Typing and waiting are
+   separate states: nothing is translated while someone is still adding rows.
+   An earlier version translated as you typed and it read as a hang — every row
+   said "translating…" at the exact moment the person wanted to look at what
+   they had written, and it spent budget on rows about to be deleted.
+3. Under the table, the **set picker** — an existing set, a new one named there,
+   or none. "No set" is a real answer: a word belongs to the dictionary, and
+   sets are tags on top of it.
+4. **Add words** does everything, in one order: translate the blanks, then save.
+   Rows fill in as the answers arrive — the shared base answers for the whole
+   list at once, the model streams the rest. A machine-filled cell is muted
+   until it is touched, because it is a suggestion.
 5. Under everything, **All words**: 25 a page, paged in the database, columns
    English / Russian / Set / Learned.
 
@@ -134,9 +139,9 @@ it is added, and `/dictionary/add` redirects here.
 steps and no units, and a table row is read at a glance. It is derived from the
 schedule rather than stored — see `lib/word-rating.ts`.
 
-Avoid stacked "group inputs" for long lists — the table scales better. Avoid a
-raw textarea now that translations arrive automatically: there would be nowhere
-to correct machine output.
+Everything a person types also goes to the shared base as a *candidate*, so the
+next list that contains the word need not be translated again — but a typed
+translation stays private until a second independent source agrees with it.
 
 ## Word tables
 
