@@ -8,7 +8,7 @@ export const SIGNED_IN_HOME = "/tasks/today";
  * into it. Matched on a segment boundary, so `/tasks-archive` would not
  * accidentally inherit `/tasks`'s protection.
  */
-const PROTECTED_PREFIXES = [
+export const PROTECTED_PREFIXES = [
   "/tasks",
   "/practice",
   "/courses",
