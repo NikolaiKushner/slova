@@ -113,6 +113,41 @@ model ReviewLog {
   @@index([wordId, createdAt])
 }
 
+/// What one user spent, and got, in one UTC day.
+///
+/// Two jobs in one row. The counters on the left are a spending cap: sign-in is
+/// Google-only with no allow-list, so anyone with a Google account can reach
+/// the translate route, and without a ceiling the first bored visitor spends
+/// our key. The counters on the right are the only measurement that says
+/// whether the shared base is working at all — hits divided by hits plus
+/// misses. Both are per user per day, so both fit the same row.
+///
+/// No foreign key to User, deliberately: this table is disposable. Dropping it
+/// costs a migration and nothing else, and rows for a deleted account are dead
+/// weight rather than a broken reference.
+model LlmUsage {
+  id     String @id @default(cuid())
+  userId String
+  /// The UTC calendar day as YYYY-MM-DD. A string, not a DateTime, because the
+  /// only question ever asked of it is "same day?" — and a date with a time on
+  /// it answers that wrongly at every boundary.
+  day    String
+
+  requests     Int @default(0)
+  inputTokens  Int @default(0)
+  outputTokens Int @default(0)
+
+  /// Words answered from the lexicon, and words that had to go to the model.
+  lexiconHits Int @default(0)
+  llmMisses   Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, day])
+  @@index([day])
+}
+
 /// The shared base, one row per distinct word or phrase. A cache in front of
 /// the translator — never the authority. A user editing their own translation
 /// changes their UserWord and nothing here.

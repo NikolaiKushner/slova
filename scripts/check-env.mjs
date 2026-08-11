@@ -11,6 +11,8 @@ const REQUIRED = {
   AUTH_SECRET: "openssl rand -base64 32",
   AUTH_GOOGLE_ID: "Google Cloud Console → Credentials → OAuth client (Web).",
   AUTH_GOOGLE_SECRET: "Same OAuth client as AUTH_GOOGLE_ID.",
+  ANTHROPIC_API_KEY:
+    "console.anthropic.com → API keys. Without it the translate route fails per request, at the one moment a user is watching.",
 };
 
 const missing = Object.keys(REQUIRED).filter((key) => !process.env[key]);
