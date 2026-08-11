@@ -28,7 +28,7 @@ function PreviewCard() {
 
 export default async function LandingPage() {
   const session = await auth();
-  if (session?.user) redirect("/home");
+  if (session?.user) redirect("/tasks/today");
 
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden">

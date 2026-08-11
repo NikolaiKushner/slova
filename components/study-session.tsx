@@ -143,7 +143,7 @@ export function StudySession({ deckId }: Props) {
         </p>
         <div className="flex items-center justify-center gap-3">
           <Link
-            href="/home"
+            href="/tasks/today"
             className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
           >
             Back home

@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { DeckWords } from "@/components/deck-words";
 import { DeleteDeckButton } from "@/components/delete-deck-button";
 import { ImportForm } from "@/components/import-form";
+import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import { deckSummary, getNewAllowance } from "@/lib/study-queue";
@@ -34,7 +35,7 @@ export default async function DeckPage({ params }: Props) {
   const description = deckSummary(deck.cards.length, dueCount, unseenCount);
 
   return (
-    <>
+    <Page>
       <PageHeader
         eyebrow="List"
         title={deck.title}
@@ -75,6 +76,6 @@ export default async function DeckPage({ params }: Props) {
           <ImportForm deckId={deck.id} />
         </Section>
       </div>
-    </>
+    </Page>
   );
 }

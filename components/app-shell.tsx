@@ -17,8 +17,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <SidebarTrigger className="-ml-1" />
           <p className="font-display text-xl tracking-tight">Slova</p>
         </header>
+        {/* Width is the page's call, not the shell's — see components/page.tsx */}
         <div className="flex flex-1 flex-col px-4 pb-16 pt-2 md:px-8 md:pt-6">
-          <div className="mx-auto w-full max-w-2xl">{children}</div>
+          {children}
         </div>
       </SidebarInset>
     </SidebarProvider>

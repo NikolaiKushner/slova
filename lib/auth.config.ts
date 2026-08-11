@@ -1,5 +1,24 @@
 import type { NextAuthConfig } from "next-auth";
 
+/** Where a signed-in person lands. Everything else in the app hangs off here. */
+export const SIGNED_IN_HOME = "/tasks/today";
+
+/**
+ * Every top-level segment under `app/(app)`, plus the routes that redirect
+ * into it. Matched on a segment boundary, so `/tasks-archive` would not
+ * accidentally inherit `/tasks`'s protection.
+ */
+const PROTECTED_PREFIXES = [
+  "/tasks",
+  "/practice",
+  "/courses",
+  "/dictionary",
+  "/study",
+  "/decks",
+  "/home",
+  "/import",
+] as const;
+
 export const authConfig = {
   session: { strategy: "jwt" },
   pages: {
@@ -12,15 +31,13 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user;
 
       const isAuthPage = pathname.startsWith("/login");
-      const isProtected =
-        pathname.startsWith("/home") ||
-        pathname.startsWith("/decks") ||
-        pathname.startsWith("/import") ||
-        pathname.startsWith("/study");
+      const isProtected = PROTECTED_PREFIXES.some(
+        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+      );
 
       if (isProtected) return isLoggedIn;
       if (isAuthPage && isLoggedIn) {
-        return Response.redirect(new URL("/home", request.nextUrl));
+        return Response.redirect(new URL(SIGNED_IN_HOME, request.nextUrl));
       }
       return true;
     },

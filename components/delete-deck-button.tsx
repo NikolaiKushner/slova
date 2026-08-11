@@ -12,7 +12,7 @@ export function DeleteDeckButton({ deckId }: { deckId: string }) {
     if (!confirm("Delete this list and all its words?")) return;
     setLoading(true);
     await fetch(`/api/decks/${deckId}`, { method: "DELETE" });
-    router.push("/home");
+    router.push("/dictionary/sets");
     router.refresh();
   }
 

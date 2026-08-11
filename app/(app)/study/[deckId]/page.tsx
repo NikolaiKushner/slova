@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getOwnedDeck } from "@/lib/ownership";
 import { notFound } from "next/navigation";
 import { StudySession } from "@/components/study-session";
+import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 
 type Props = { params: Promise<{ deckId: string }> };
@@ -12,7 +13,7 @@ export default async function StudyDeckPage({ params }: Props) {
   if (!deck) notFound();
 
   return (
-    <>
+    <Page>
       <PageHeader
         eyebrow="Study"
         title={deck.title}
@@ -27,6 +28,6 @@ export default async function StudyDeckPage({ params }: Props) {
         }
       />
       <StudySession deckId={deck.id} />
-    </>
+    </Page>
   );
 }
