@@ -1,5 +1,5 @@
 import { normalizeKey } from "@/lib/lexicon/key";
-import { cleanCell, matchCase } from "@/lib/normalize";
+import { cleanCell, looksTransliterated, matchCase } from "@/lib/normalize";
 
 /**
  * Reading the seed file.
@@ -88,6 +88,19 @@ export function parseDataset(text: string): ParseResult {
       warnings.push({
         line: lineNumber,
         reason: "no translation — the model declined this word",
+        content: raw,
+      });
+      continue;
+    }
+
+    // A Russian translation is written in Russian. Four entries in the first
+    // generated set came back in Chinese and one was the English word copied
+    // back — a rate of 0.05%, and permanent if stored. The same check already
+    // guards the MyMemory path against transliteration.
+    if (looksTransliterated(translation)) {
+      warnings.push({
+        line: lineNumber,
+        reason: "translation is not in the target script",
         content: raw,
       });
       continue;

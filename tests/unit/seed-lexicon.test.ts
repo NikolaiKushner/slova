@@ -62,6 +62,26 @@ describe("parseDataset", () => {
     expect(warnings[0].reason).toContain("declined");
   });
 
+  it("rejects a translation that is not in the target script", () => {
+    // All three happened in the first generated set: Chinese instead of
+    // Russian, and the English word handed straight back.
+    const { entries, warnings } = parseDataset(
+      [
+        line("estimated", "估计"),
+        line("shareware", "shareware"),
+        line("cat", "кот"),
+      ].join("\n"),
+    );
+    expect(entries.map((e) => e.key)).toEqual(["cat"]);
+    expect(warnings).toHaveLength(2);
+    expect(warnings[0].reason).toContain("target script");
+  });
+
+  it("keeps a translation that merely contains a Latin acronym", () => {
+    const { entries } = parseDataset(line("dna test", "тест ДНК"));
+    expect(entries).toHaveLength(1);
+  });
+
   it("keys by the same rules the runtime looks up by", () => {
     const { entries } = parseDataset(line('  "Medical Records."  ', "истории болезни"));
     expect(entries[0].key).toBe(normalizeKey("medical records"));
