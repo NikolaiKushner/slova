@@ -11,7 +11,7 @@ export async function GET() {
 
   const summary = await getStudySummary(session.user.id, new Date());
 
-  const deckCount = await getPrisma().deck.count({
+  const setCount = await getPrisma().wordSet.count({
     where: { userId: session.user.id },
   });
 
@@ -20,6 +20,6 @@ export async function GET() {
     dueReviews: summary.dueReviews,
     newToday: Math.min(summary.unseen, summary.allowance),
     unseen: summary.unseen,
-    deckCount,
+    setCount,
   });
 }

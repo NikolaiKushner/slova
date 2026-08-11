@@ -22,7 +22,7 @@ type Row = {
 };
 
 type Props = {
-  deckId?: string;
+  setId?: string;
 };
 
 function newId() {
@@ -41,7 +41,7 @@ function ensureTrailingEmpty(rows: Row[]): Row[] {
   return rows;
 }
 
-export function ImportForm({ deckId }: Props) {
+export function ImportForm({ setId }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [paste, setPaste] = useState("");
@@ -233,15 +233,15 @@ export function ImportForm({ deckId }: Props) {
     setError(null);
 
     try {
-      let targetDeckId = deckId;
+      let targetSetId = setId;
 
-      if (!targetDeckId) {
+      if (!targetSetId) {
         if (!title.trim()) {
-          setError("Give the list a title");
+          setError("Give the set a title");
           setLoading(false);
           return;
         }
-        const createRes = await fetch("/api/decks", {
+        const createRes = await fetch("/api/sets", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -252,16 +252,16 @@ export function ImportForm({ deckId }: Props) {
         });
         if (!createRes.ok) {
           const data = await createRes.json().catch(() => null);
-          throw new Error(data?.error ?? "Could not create deck");
+          throw new Error(data?.error ?? "Could not create set");
         }
-        const { deck } = await createRes.json();
-        targetDeckId = deck.id;
+        const { set } = await createRes.json();
+        targetSetId = set.id;
       }
 
-      const importRes = await fetch(`/api/decks/${targetDeckId}/import`, {
+      const importRes = await fetch(`/api/sets/${targetSetId}/import`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cards: completeCards, source: "import" }),
+        body: JSON.stringify({ words: completeCards, source: "import" }),
       });
 
       if (!importRes.ok) {
@@ -269,7 +269,7 @@ export function ImportForm({ deckId }: Props) {
         throw new Error(data?.error ?? "Import failed");
       }
 
-      router.push(`/decks/${targetDeckId}`);
+      router.push(`/dictionary/sets/${targetSetId}`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Import failed");
@@ -279,7 +279,7 @@ export function ImportForm({ deckId }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      {!deckId ? (
+      {!setId ? (
         <div className="space-y-2">
           <Label htmlFor="title">List title</Label>
           <Input

@@ -2,15 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import {
+  Bookmark,
   BookOpen,
+  BookText,
+  CalendarCheck,
   ChevronsUpDown,
   ClipboardPlus,
-  LayoutDashboard,
+  Headphones,
+  Heart,
+  Layers,
   Library,
   LogOut,
+  Map as MapIcon,
+  PenLine,
+  Sparkles,
+  SpellCheck,
+  TrendingUp,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 import {
@@ -40,15 +50,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const learnItems = [
-  { title: "Today", href: "/home", icon: LayoutDashboard },
-  { title: "Study", href: "/study", icon: BookOpen },
-  { title: "Lists", href: "/home#lists", icon: Library },
-] as const;
+import { NAV_SECTIONS, isNavItemActive } from "@/lib/nav";
 
-const toolItems = [
-  { title: "Add words", href: "/import", icon: ClipboardPlus },
-] as const;
+/**
+ * Icons are keyed by href instead of living in `lib/nav.ts`, so the nav model
+ * stays free of `lucide-react` and can be tested in a plain node env.
+ */
+const NAV_ICONS: Record<string, LucideIcon> = {
+  "/tasks": MapIcon,
+  "/tasks/today": CalendarCheck,
+  "/tasks/progress": TrendingUp,
+  "/practice/vocabulary": BookOpen,
+  "/practice/grammar": SpellCheck,
+  "/practice/listening": Headphones,
+  "/practice/reading": BookText,
+  "/courses/grammar": PenLine,
+  "/courses/topics": Layers,
+  "/courses/my": Heart,
+  "/dictionary": Library,
+  "/dictionary/sets": Bookmark,
+  "/dictionary/catalog": Sparkles,
+  "/dictionary/add": ClipboardPlus,
+};
 
 function userInitials(name?: string | null, email?: string | null) {
   const source = name?.trim() || email?.trim() || "?";
@@ -64,7 +87,7 @@ function SidebarBrandHeader() {
     <SidebarHeader className="h-14 justify-center px-3">
       <div className="flex h-9 items-center gap-1.5">
         <Link
-          href="/home"
+          href="/tasks/today"
           className="min-w-0 flex-1 font-display text-2xl tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden"
         >
           <span className="truncate">Slova</span>
@@ -133,82 +156,38 @@ function SidebarUserMenu() {
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const [hash, setHash] = useState("");
-
-  useEffect(() => {
-    const sync = () => setHash(window.location.hash);
-    sync();
-    window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
-  }, [pathname]);
-
-  function itemActive(href: string) {
-    if (href === "/home#lists") {
-      return (
-        (pathname === "/home" && hash === "#lists") ||
-        pathname.startsWith("/decks/")
-      );
-    }
-    if (href === "/home") {
-      return pathname === "/home" && hash !== "#lists";
-    }
-    if (href === "/study") {
-      return pathname === "/study" || pathname.startsWith("/study/");
-    }
-    if (href === "/import") {
-      return pathname === "/import";
-    }
-    return pathname === href || pathname.startsWith(`${href}/`);
-  }
 
   return (
     <Sidebar collapsible="icon" className="border-sidebar-border">
       <SidebarBrandHeader />
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[0.7rem] tracking-[0.14em] text-brand-soft">
-            Learn
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-1">
-              {learnItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    render={<Link href={item.href} />}
-                    isActive={itemActive(item.href)}
-                    tooltip={item.title}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[0.7rem] tracking-[0.14em] text-brand-soft">
-            Tools
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-1">
-              {toolItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    render={<Link href={item.href} />}
-                    isActive={itemActive(item.href)}
-                    tooltip={item.title}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {NAV_SECTIONS.map((section) => (
+          <SidebarGroup key={section.title}>
+            <SidebarGroupLabel className="text-[0.7rem] tracking-[0.14em] text-brand-soft">
+              {section.title}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-1">
+                {section.items.map((item) => {
+                  const Icon = NAV_ICONS[item.href];
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        render={<Link href={item.href} />}
+                        isActive={isNavItemActive(pathname, item.href)}
+                        tooltip={`${section.title} \u00b7 ${item.title}`}
+                      >
+                        {Icon ? <Icon /> : null}
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="gap-2 px-3 pb-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">

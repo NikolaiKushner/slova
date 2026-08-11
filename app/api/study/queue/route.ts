@@ -9,11 +9,11 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const deckId = searchParams.get("deckId") ?? undefined;
+  const setId = searchParams.get("setId") ?? undefined;
 
-  const { cards, reviewCount } = await buildStudyQueue(session.user.id, {
-    deckId,
+  const { words, reviewCount } = await buildStudyQueue(session.user.id, {
+    setId,
   });
 
-  return NextResponse.json({ cards, reviewCount });
+  return NextResponse.json({ words, reviewCount });
 }

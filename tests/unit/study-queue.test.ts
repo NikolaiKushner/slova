@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  deckSummary,
+  setSummary,
   newAllowance,
   sessionTotal,
   startOfDay,
@@ -59,25 +59,25 @@ describe("sessionTotal", () => {
   });
 });
 
-describe("deckSummary", () => {
+describe("setSummary", () => {
   it("singularises a one-word list", () => {
-    expect(deckSummary(1, 0, 1)).toBe("1 word · 1 new");
+    expect(setSummary(1, 0, 1)).toBe("1 word · 1 new");
   });
 
   it("names due and new separately", () => {
-    expect(deckSummary(120, 12, 108)).toBe("120 words · 12 due · 108 new");
+    expect(setSummary(120, 12, 108)).toBe("120 words · 12 due · 108 new");
   });
 
   it("omits parts that are zero", () => {
-    expect(deckSummary(120, 12, 0)).toBe("120 words · 12 due");
-    expect(deckSummary(120, 0, 108)).toBe("120 words · 108 new");
+    expect(setSummary(120, 12, 0)).toBe("120 words · 12 due");
+    expect(setSummary(120, 0, 108)).toBe("120 words · 108 new");
   });
 
   it("says so when a list is fully caught up", () => {
-    expect(deckSummary(120, 0, 0)).toBe("120 words · all caught up");
+    expect(setSummary(120, 0, 0)).toBe("120 words · all caught up");
   });
 
   it("stays quiet for an empty list", () => {
-    expect(deckSummary(0, 0, 0)).toBe("0 words");
+    expect(setSummary(0, 0, 0)).toBe("0 words");
   });
 });

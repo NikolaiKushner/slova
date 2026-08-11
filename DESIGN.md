@@ -20,10 +20,20 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
 Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 
 - Width **287.5px**; search + collapse sit opposite the Fraunces wordmark (logo hides when collapsed). Search: ⌘K / Ctrl+K.
-- Groups: **Learn** (Today, Study, Lists) and **Tools** (Add words — more later).
+- Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active.
 - Nav states: `--sidebar-hover` (lighter) vs `--sidebar-active` (slightly darker) — not the same color.
 - Footer: avatar + name, dropdown opens **up** with Log out.
-- Main column stays narrow (`max-w-2xl`).
+
+## Page width
+
+The shell no longer picks a width — the page does, via `components/page.tsx`:
+
+- `<Page>` — `max-w-2xl`. The default, and what every reading screen uses.
+- `<PageWide>` — `max-w-5xl`. Table-shaped screens only (the dictionary list). Reach for it when a screen is a grid of records, not a thing to read.
+
+## Placeholders
+
+A page that isn't built yet uses `ComingSoon` — one component, not a dozen hand-written empty states, so the four sections keep reading as one app. It takes the section name as eyebrow and a short list of what will live there; concrete beats "coming soon". It is built from `PageHeader` + `Section`, so the frame doesn't shift when the page gets real content.
 
 ## Page headers
 

@@ -44,7 +44,7 @@ export function LoginForm() {
         disabled={loading}
         onClick={() => {
           setLoading(true);
-          signIn("google", { redirectTo: "/home" });
+          signIn("google", { redirectTo: "/tasks/today" });
         }}
       >
         <GoogleIcon className="size-4 rounded-sm bg-white p-0.5" />

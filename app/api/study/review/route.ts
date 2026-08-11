@@ -5,7 +5,7 @@ import { getPrisma } from "@/lib/prisma";
 import { scheduleReview, type ReviewRating } from "@/lib/srs";
 
 const schema = z.object({
-  cardId: z.string().min(1),
+  wordId: z.string().min(1),
   rating: z.enum(["again", "good"]),
 });
 
@@ -21,50 +21,43 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid review" }, { status: 400 });
   }
 
-  const card = await getPrisma().card.findFirst({
-    where: {
-      id: parsed.data.cardId,
-      deck: { userId: session.user.id },
-    },
+  const word = await getPrisma().userWord.findFirst({
+    where: { id: parsed.data.wordId, userId: session.user.id },
   });
-  if (!card) {
+  if (!word) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   const now = new Date();
   const next = scheduleReview(
-    { intervalDays: card.intervalDays, ease: card.ease },
+    { intervalDays: word.intervalDays, ease: word.ease },
     parsed.data.rating as ReviewRating,
     now,
   );
 
   const [updated] = await getPrisma().$transaction([
-    getPrisma().card.update({
-      where: { id: card.id },
+    getPrisma().userWord.update({
+      where: { id: word.id },
       data: {
         intervalDays: next.intervalDays,
         ease: next.ease,
         dueAt: next.dueAt,
         // First rating spends one of today's new-word slots.
-        introducedAt: card.introducedAt ?? now,
+        introducedAt: word.introducedAt ?? now,
       },
     }),
     getPrisma().reviewLog.create({
       data: {
-        cardId: card.id,
+        wordId: word.id,
         rating: parsed.data.rating,
         // Snapshot for undo — a misclick should be one tap to take back.
-        prevIntervalDays: card.intervalDays,
-        prevEase: card.ease,
-        prevDueAt: card.dueAt,
-        prevIntroducedAt: card.introducedAt,
+        prevIntervalDays: word.intervalDays,
+        prevEase: word.ease,
+        prevDueAt: word.dueAt,
+        prevIntroducedAt: word.introducedAt,
       },
-    }),
-    getPrisma().deck.update({
-      where: { id: card.deckId },
-      data: { updatedAt: now },
     }),
   ]);
 
-  return NextResponse.json({ card: updated });
+  return NextResponse.json({ word: updated });
 }
