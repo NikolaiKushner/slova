@@ -42,49 +42,59 @@ export function AppSearch({ className }: { className?: string }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (!open) {
+  /** Closing throws the search away, so reopening never flashes the last one. */
+  const onOpenChange = useCallback((next: boolean) => {
+    setOpen(next);
+    if (!next) {
       setQuery("");
       setDecks([]);
       setCards([]);
+      setLoading(false);
     }
-  }, [open]);
+  }, []);
 
   useEffect(() => {
-    if (!open) return;
     const q = query.trim();
-    if (!q) {
-      setDecks([]);
-      setCards([]);
-      return;
-    }
+    if (!open || !q) return;
+
+    // A slow response for "wor" must not land after a fast one for "word".
+    let ignore = false;
 
     const handle = window.setTimeout(async () => {
       setLoading(true);
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
         const data = await res.json().catch(() => null);
-        if (res.ok) {
+        if (!ignore && res.ok) {
           setDecks(data.decks ?? []);
           setCards(data.cards ?? []);
         }
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     }, 200);
 
-    return () => window.clearTimeout(handle);
+    return () => {
+      ignore = true;
+      window.clearTimeout(handle);
+    };
   }, [query, open]);
 
   const go = useCallback(
     (href: string) => {
-      setOpen(false);
+      onOpenChange(false);
       router.push(href);
     },
-    [router],
+    [onOpenChange, router],
   );
 
-  const empty = !loading && query.trim() && decks.length === 0 && cards.length === 0;
+  // Derived rather than cleared in an effect: an empty box shows nothing on the
+  // same render the box is emptied, instead of one render later.
+  const trimmed = query.trim();
+  const shownDecks = trimmed ? decks : [];
+  const shownCards = trimmed ? cards : [];
+  const empty =
+    !loading && trimmed && shownDecks.length === 0 && shownCards.length === 0;
 
   return (
     <>
@@ -96,14 +106,14 @@ export function AppSearch({ className }: { className?: string }) {
           "size-8 shrink-0 text-sidebar-foreground hover:bg-sidebar-hover hover:text-sidebar-foreground [&_svg]:size-4 [&_svg]:stroke-[2]",
           className,
         )}
-        onClick={() => setOpen(true)}
+        onClick={() => onOpenChange(true)}
         aria-label="Search"
         title="Search (⌘K)"
       >
         <Search />
       </Button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           showCloseButton={false}
           className="gap-0 overflow-hidden p-0 sm:max-w-lg"
@@ -123,7 +133,7 @@ export function AppSearch({ className }: { className?: string }) {
           </DialogHeader>
 
           <div className="max-h-80 overflow-y-auto p-2">
-            {!query.trim() ? (
+            {!trimmed ? (
               <p className="px-2 py-6 text-center text-sm text-muted-foreground">
                 Type to find a list or word
                 <span className="mt-1 block text-xs">⌘K anytime</span>
@@ -142,13 +152,13 @@ export function AppSearch({ className }: { className?: string }) {
               </p>
             ) : null}
 
-            {decks.length > 0 ? (
+            {shownDecks.length > 0 ? (
               <div className="mb-2">
                 <p className="px-2 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
                   Lists
                 </p>
                 <ul className="space-y-0.5">
-                  {decks.map((deck) => (
+                  {shownDecks.map((deck) => (
                     <li key={deck.id}>
                       <button
                         type="button"
@@ -169,13 +179,13 @@ export function AppSearch({ className }: { className?: string }) {
               </div>
             ) : null}
 
-            {cards.length > 0 ? (
+            {shownCards.length > 0 ? (
               <div>
                 <p className="px-2 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
                   Words
                 </p>
                 <ul className="space-y-0.5">
-                  {cards.map((card) => (
+                  {shownCards.map((card) => (
                     <li key={card.id}>
                       <button
                         type="button"
