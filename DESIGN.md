@@ -96,6 +96,17 @@ first review — a zero streak is discouraging, not informative. A day not yet
 studied keeps the streak visible rather than resetting it at midnight. No
 charts, no tiles; the dense stats dashboard stays out of scope.
 
+Under it, **Your words**: one stacked proportion bar (learned / learning / not
+started), a legend, and the share of translations that came from the shared
+base. The bar is the only picture on the screen, because three proportions are
+easier to see than to read.
+
+The page ends with its two actions — **Study now** and **Add words** — in the
+flow of the content, not in `PageHeader.actions`. A header action needs a
+header wide enough to hold it; here it left the buttons stranded in empty
+space beside a narrow title. **Study now** opens the trainings list rather than
+a session: choosing the format is part of studying now that there are seven.
+
 ## Study session
 
 One card, two answers, no chrome above it. Below the answer buttons sits a

@@ -46,27 +46,6 @@ export default async function TodayPage() {
         eyebrow="Today"
         title={title}
         description={description}
-        actions={
-          <>
-            {summary.total > 0 ? (
-              <Link
-                href="/study"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "bg-teal-800 text-white hover:bg-teal-900",
-                )}
-              >
-                Study now
-              </Link>
-            ) : null}
-            <Link
-              href="/dictionary"
-              className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-            >
-              Add words
-            </Link>
-          </>
-        }
       />
 
       {progressText ? (
@@ -77,6 +56,36 @@ export default async function TodayPage() {
 
       <div className="mt-10">
         <OverviewStats overview={overview} />
+      </div>
+
+      {/*
+       * The two things to do next, at the end of what the page has to say
+       * rather than floated beside the title. Up there they sat in the empty
+       * half of the header with nothing to belong to; here they read as the
+       * answer to the numbers directly above them.
+       *
+       * "Study" goes to the trainings list, not straight into a session —
+       * there are seven ways to be asked a word now, and picking one is part
+       * of studying rather than a detour on the way to it.
+       */}
+      <div className="mt-10 flex flex-wrap gap-3">
+        {summary.total > 0 ? (
+          <Link
+            href="/practice"
+            className={cn(
+              buttonVariants({ size: "lg" }),
+              "bg-teal-800 text-white hover:bg-teal-900",
+            )}
+          >
+            Study now
+          </Link>
+        ) : null}
+        <Link
+          href="/dictionary"
+          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+        >
+          Add words
+        </Link>
       </div>
     </Page>
   );
