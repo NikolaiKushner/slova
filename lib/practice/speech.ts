@@ -6,27 +6,49 @@
  * there is recorded audio worth using, a URL on the shared lexeme will take
  * precedence here and nothing else will need to change.
  *
- * The rest of this file is defensive for reasons that are not obvious, and all
- * of them were reached the hard way:
+ * Everything below is defensive, and each guard is here because the Web Speech
+ * API fails silently in a different way:
  *
- * - **A browser will not talk unprompted.** Speech started from a page load
- *   rather than from a click is blocked, silently, with no exception thrown.
- *   On iOS it is blocked *every* time, not just the first. So `speak` reports
- *   whether it actually started, and the caller has to have an answer for no.
- * - **`cancel()` immediately followed by `speak()` can wedge the queue** in
- *   Chrome: the new utterance never fires and nothing plays again until the
- *   page is reloaded. Cancelling only when something is actually speaking, and
- *   letting the cancel land before queueing, avoids it.
- * - **The queue can be left paused** by a background tab or a lost focus.
- *   `resume()` is a no-op when it is not, so it is always worth calling.
- * - **Voices load asynchronously**, and speaking before they arrive gets
- *   silence on some browsers rather than a default voice.
+ * - **A dropped utterance stops speaking.** The browser does not hold a strong
+ *   reference to an utterance it is speaking, so one that only exists inside a
+ *   closure can be collected mid-sentence — or before it starts. The symptom
+ *   is silence with no error and no events at all, which is the hardest kind
+ *   of bug to see. A module-level reference is the documented fix.
+ * - **A browser will not speak unprompted.** Speech from a page load rather
+ *   than a click is refused, silently; on iOS every utterance needs a gesture,
+ *   not just the first. So `speak` reports whether it truly began and the
+ *   caller has to have an answer for no.
+ * - **`cancel()` immediately followed by `speak()` can wedge Chrome's queue**,
+ *   after which nothing plays until the page reloads. Cancel only when
+ *   something is actually speaking, and let it land first.
+ * - **The queue can be left paused** by a background tab. `resume()` is a
+ *   no-op otherwise, so it is always worth calling.
+ * - **Voices load asynchronously**, and some engines are silent if asked
+ *   before the list arrives.
  */
 
 const LANG = "en-US";
 
-/** How long to wait for the utterance to actually begin before giving up. */
-const START_TIMEOUT_MS = 1200;
+/**
+ * How long to wait for speech to actually begin. Generous, because a voice
+ * that is fetched rather than installed can take a second to get going, and
+ * calling that a failure would blame the browser for being slow.
+ */
+const START_TIMEOUT_MS = 3000;
+
+/** Checked early: `speaking` flips before `onstart` fires on some engines. */
+const START_POLL_MS = 300;
+
+/**
+ * Utterances the browser is still working on.
+ *
+ * Their only job is to be referenced from here. Without a live reference the
+ * browser may collect one mid-sentence and fall silent, so this set is the
+ * anchor — it is written to before speaking and cleared when the utterance is
+ * done. It looks like a variable nobody reads, and deleting it on those
+ * grounds is how the silence comes back.
+ */
+const inFlight = new Set<SpeechSynthesisUtterance>();
 
 export function speechAvailable(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window;
@@ -37,7 +59,7 @@ function pickVoice(): SpeechSynthesisVoice | null {
   const english = voices.filter((voice) => voice.lang.startsWith("en"));
   if (english.length === 0) return null;
 
-  // Local voices start instantly; a network voice adds a pause before every
+  // Installed voices start instantly; a fetched one adds a pause before every
   // question, which stops it feeling like a drill.
   return (
     english.find((voice) => voice.lang === LANG && voice.localService) ??
@@ -71,18 +93,38 @@ export function speak(text: string): Promise<boolean> {
       const settle = (started: boolean) => {
         if (settled) return;
         settled = true;
-        clearTimeout(timer);
+        clearTimeout(timeout);
+        clearInterval(poll);
         resolve(started);
       };
 
-      utterance.onstart = () => settle(true);
-      utterance.onerror = (event) => {
-        // Cancelling on purpose is not a failure to report.
-        settle(event.error === "canceled" || event.error === "interrupted");
+      const release = () => {
+        inFlight.delete(utterance);
       };
-      // Nothing fired at all — the usual shape of a blocked autoplay.
-      const timer = setTimeout(() => settle(false), START_TIMEOUT_MS);
 
+      utterance.onstart = () => settle(true);
+      utterance.onend = () => {
+        settle(true);
+        release();
+      };
+      utterance.onerror = (event) => {
+        // Cancelling on purpose is not a failure worth reporting.
+        settle(event.error === "canceled" || event.error === "interrupted");
+        release();
+      };
+
+      // Second opinion: some engines set `speaking` without ever firing
+      // `onstart`, and treating those as failures would hide working audio
+      // behind an apology.
+      const poll = setInterval(() => {
+        if (synth.speaking) settle(true);
+      }, START_POLL_MS);
+
+      // Nothing at all — the shape of a refused autoplay, or of an engine
+      // that has quietly stopped working.
+      const timeout = setTimeout(() => settle(false), START_TIMEOUT_MS);
+
+      inFlight.add(utterance);
       synth.speak(utterance);
     });
 
@@ -113,4 +155,26 @@ export function whenVoiceReady(): Promise<boolean> {
     const timer = setTimeout(done, 1500);
     synth.addEventListener("voiceschanged", done);
   });
+}
+
+/**
+ * What the browser will admit to. Not used by the app — this is here for the
+ * one question that cannot be answered from the outside: when a device is
+ * silent, is it refusing, broken, or simply voiceless?
+ */
+export function speechDiagnostics(): Record<string, unknown> {
+  if (!speechAvailable()) return { available: false };
+
+  const synth = window.speechSynthesis;
+  const voices = synth.getVoices();
+  return {
+    available: true,
+    speaking: synth.speaking,
+    pending: synth.pending,
+    paused: synth.paused,
+    voices: voices.length,
+    english: voices.filter((v) => v.lang.startsWith("en")).length,
+    chosen: pickVoice()?.name ?? null,
+    local: pickVoice()?.localService ?? null,
+  };
 }
