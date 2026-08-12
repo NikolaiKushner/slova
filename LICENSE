@@ -19,25 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## The word list is not covered by the above
-
-`content/lexicon/en-frequency.txt` is not mine to relicense. It derives from
-the Google Web Trillion Word Corpus (LDC2006T13) by way of Peter Norvig's
-subsets and Josh Kaufman's `google-10000-english`, and it reaches you under
-those terms rather than under the MIT licence above: educational and
-personal/research use is permitted, and commercial use is not recommended
-without licensing the corpus from the Linguistic Data Consortium.
-
-The full chain of provenance, the exact wording of that permission, and the
-filtering applied to the list are recorded in `content/lexicon/SOURCE.md`.
-Read it before shipping anything commercial that keeps this file — the rest of
-the pipeline does not depend on it, and rebuilding the word ordering from a
-public-domain frequency list would put the whole repository under the MIT
-licence with nothing carved out.
-
-`content/lexicon/en-ru-frequency.jsonl` is a different matter: it is the output
-of running the word list through this project's own prompt, no third-party
-translation set is involved, and it carries no obligation from anyone else.

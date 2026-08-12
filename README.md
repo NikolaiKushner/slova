@@ -92,7 +92,7 @@ Cloudflare R2 for the audio files. Deployed on Vercel from `main`.
 MIT, with one carve-out: `content/lexicon/en-frequency.txt` comes from a corpus
 that is not mine to relicense, and reaches you under its own terms — personal
 and educational use, commercial use not recommended without licensing it from
-the LDC. `LICENSE` states the exception; `content/lexicon/SOURCE.md` explains
+the LDC. `NOTICE` states the exception; `content/lexicon/SOURCE.md` explains
 where the file came from and how to replace it if that matters to you.
 
 ## If you are going to change something
