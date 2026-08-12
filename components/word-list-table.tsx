@@ -161,7 +161,7 @@ export function WordListTable() {
     update({ page: String(page) });
   }
 
-  const fileInto = (setId: string, mode: "add" | "move") =>
+  const fileInto = (setId: string, mode: "add" | "move" | "remove") =>
     act(() =>
       fetch("/api/words", {
         method: "PATCH",
@@ -184,22 +184,27 @@ export function WordListTable() {
 
   return (
     <div className="space-y-4">
-      <WordListFilters
-        query={query}
-        set={set}
-        sets={sets}
-        onQueryChange={(value) => update({ q: value })}
-        onSetChange={(value) => update({ set: value })}
-      />
-
-      <WordBulkActions
-        count={selected.length}
-        sets={sets}
-        onFile={fileInto}
-        onDelete={removeSelected}
-        onClear={() => setSelected([])}
-        busy={working}
-      />
+      {/* One row either way: filters when nothing is ticked, actions when
+          something is. Stacking them would move the table under the cursor at
+          the moment a tick goes in. */}
+      {selected.length === 0 ? (
+        <WordListFilters
+          query={query}
+          set={set}
+          sets={sets}
+          onQueryChange={(value) => update({ q: value })}
+          onSetChange={(value) => update({ set: value })}
+        />
+      ) : (
+        <WordBulkActions
+          count={selected.length}
+          sets={sets}
+          onFile={fileInto}
+          onDelete={removeSelected}
+          onClear={() => setSelected([])}
+          busy={working}
+        />
+      )}
 
       {loading && !data ? (
         <div className="space-y-2">

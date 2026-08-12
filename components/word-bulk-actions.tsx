@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FolderInput, Trash2 } from "lucide-react";
+import { FolderInput, FolderMinus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +32,7 @@ export function WordBulkActions({
 }: {
   count: number;
   sets: SetOption[];
-  onFile: (setId: string, mode: "add" | "move") => void;
+  onFile: (setId: string, mode: "add" | "move" | "remove") => void;
   onDelete: () => void;
   onClear: () => void;
   busy?: boolean;
@@ -42,12 +42,14 @@ export function WordBulkActions({
   if (count === 0) return null;
 
   return (
-    <div className="bg-accent/40 flex flex-col gap-3 rounded-lg border px-3 py-2 sm:flex-row sm:items-center">
-      <span className="text-sm">
-        {count} {count === 1 ? "word" : "words"} selected
+    // One row, the same height as the filters it replaces, so the table below
+    // does not jump when a tick goes in.
+    <div className="flex h-9 items-center gap-2">
+      <span className="text-sm whitespace-nowrap">
+        {count} selected
       </span>
 
-      <div className="flex flex-1 flex-wrap items-center gap-2">
+      <div className="flex flex-1 items-center gap-2">
         {sets.length > 0 && (
           <>
             <Select
@@ -55,7 +57,7 @@ export function WordBulkActions({
               onValueChange={(next) => setSetId(next ?? "")}
               disabled={busy}
             >
-              <SelectTrigger className="w-44" aria-label="Set to file into">
+              <SelectTrigger size="sm" className="w-40" aria-label="Set">
                 <SelectValue placeholder="Choose a set">
                   {sets.find((set) => set.id === setId)?.title ?? "Choose a set"}
                 </SelectValue>
@@ -74,25 +76,35 @@ export function WordBulkActions({
               variant="outline"
               size="sm"
               disabled={!setId || busy}
-              onClick={() => onFile(setId, "add")}
+              onClick={() => onFile(setId, "move")}
             >
               <FolderInput className="size-4" />
-              Add to set
+              Move here
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="sm"
               disabled={!setId || busy}
-              onClick={() => onFile(setId, "move")}
+              onClick={() => onFile(setId, "add")}
             >
-              Move here
+              Also add
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={!setId || busy}
+              onClick={() => onFile(setId, "remove")}
+            >
+              <FolderMinus className="size-4" />
+              Take out
             </Button>
           </>
         )}
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1">
         <Button
           type="button"
           variant="ghost"

@@ -137,13 +137,16 @@ surface you work on, and it should read as one.
    page size (10 / 25 / 50) on the right — one control for where you are, one
    for how much you see.
 
-Rows tick. The bar of actions appears **only when something is selected** and
-says how many; a row of disabled buttons over an untouched table is furniture.
-Filing offers **Add to set** and **Move here** separately, because a word can
-belong to three lists and guessing which was meant would be wrong half the
-time. Deleting asks first — it is the one action nothing undoes. A tick you
-cannot see is a tick you did not mean, so changing page, filter or sort clears
-the selection.
+Rows tick, and the actions **take the place of the filters** on the same row
+rather than appearing above them — a bar that pushes the table down moves it
+out from under the cursor at the exact moment a tick goes in.
+
+Filing is three separate verbs, because they are three intentions and guessing
+between them would be wrong: **Move here** (this set and no other, the usual
+one), **Also add** (a word can belong to several lists), **Take out** (leave
+this set, stay in the rest). Deleting asks first — it is the one action nothing
+undoes. A tick you cannot see is a tick you did not mean, so changing page,
+filter or sort clears the selection.
 
 **Learned** is five dots in soft sage, not a number or a bar: the scale has five
 steps and no units, and a table row is read at a glance. It is derived from the

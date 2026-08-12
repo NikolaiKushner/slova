@@ -211,10 +211,11 @@ export async function DELETE(request: Request) {
 const filingSchema = bulkSchema.extend({
   setId: z.string().min(1),
   /**
-   * `add` files them under one more set; `move` makes it their only set. Both
-   * are wanted often enough that guessing would be wrong half the time.
+   * `move` makes this set their only one, `add` files them under one more, and
+   * `remove` takes them out of this one and leaves the rest. All three are
+   * wanted often enough that guessing between them would be wrong.
    */
-  mode: z.enum(["add", "move"]).default("add"),
+  mode: z.enum(["add", "move", "remove"]).default("move"),
 });
 
 /** File several words into a set, or move them there from wherever they were. */
@@ -249,15 +250,20 @@ export async function PATCH(request: Request) {
 
   const ids = words.map((word) => word.id);
 
-  if (parsed.data.mode === "move") {
-    // Moving means this set and no other; adding leaves the rest alone.
-    await prisma.wordSetItem.deleteMany({ where: { wordId: { in: ids } } });
+  if (parsed.data.mode === "remove") {
+    await prisma.wordSetItem.deleteMany({
+      where: { wordId: { in: ids }, setId: set.id },
+    });
+  } else {
+    if (parsed.data.mode === "move") {
+      // Moving means this set and no other; adding leaves the rest alone.
+      await prisma.wordSetItem.deleteMany({ where: { wordId: { in: ids } } });
+    }
+    await prisma.wordSetItem.createMany({
+      data: ids.map((wordId) => ({ wordId, setId: set.id })),
+      skipDuplicates: true,
+    });
   }
-
-  await prisma.wordSetItem.createMany({
-    data: ids.map((wordId) => ({ wordId, setId: set.id })),
-    skipDuplicates: true,
-  });
   await prisma.wordSet.update({
     where: { id: set.id },
     data: { updatedAt: new Date() },
