@@ -1,0 +1,12 @@
+-- AlterTable
+ALTER TABLE "ReviewLog" ADD COLUMN     "prevCard" JSONB;
+
+-- AlterTable
+ALTER TABLE "UserWord" ADD COLUMN     "difficulty" DOUBLE PRECISION,
+ADD COLUMN     "lapses" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "lastReviewAt" TIMESTAMP(3),
+ADD COLUMN     "learningSteps" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "reps" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "srsState" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "stability" DOUBLE PRECISION;
+

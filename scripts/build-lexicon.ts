@@ -16,7 +16,7 @@
  * unless told otherwise.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { config } from "dotenv";
 
 import { llm } from "@/lib/llm/client";
@@ -39,6 +39,20 @@ const CHUNK = 100;
 const NOTE =
   "This is a slice of a general frequency list, not a themed lesson: the words are unrelated, so translate each in its most common everyday sense. If an entry is a proper noun, an abbreviation, or not a translatable word, return an empty string for it.";
 
+/**
+ * The second pass, over what the first one refused.
+ *
+ * Nearly two thousand of the most frequent words came back empty, and almost
+ * all of them are function words — articles, prepositions, auxiliaries. The
+ * model was right that `the` has no Russian equivalent, and wrong to conclude
+ * there is nothing to say about it: a learner meeting `the` in a pasted list
+ * wants "определённый артикль", not a blank. The instruction has to allow a
+ * gloss where a translation does not exist, while still refusing the brands
+ * and abbreviations that a web-crawled frequency list is full of.
+ */
+const MISSING_NOTE =
+  "These are very common English words that an earlier pass declined to translate. Most are function words — articles, prepositions, auxiliaries, pronouns — which have no single dictionary equivalent in Russian. Translate them anyway: give the closest Russian equivalent, or a short gloss naming the grammatical role, for example 'the' as 'определённый артикль' or 'of' as 'предлог родительного падежа'. Return an empty string only for a proper noun, a brand name, or an abbreviation.";
+
 function chunk<T>(items: readonly T[], size: number): T[][] {
   const out: T[][] = [];
   for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
@@ -49,17 +63,36 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
 // where top-level await is a syntax error. One wrapper, and it runs.
 async function main(): Promise<void> {
   const force = process.argv.includes("--force");
-  if (existsSync(OUTPUT) && !force) {
+  // Fill the gaps rather than rebuild: a second pass over what came back empty
+  // costs a fifth of the run and leaves everything already answered alone.
+  const fillMissing = process.argv.includes("--missing");
+
+  if (existsSync(OUTPUT) && !force && !fillMissing) {
     console.error(
-      `${OUTPUT} already exists. Rebuilding costs another batch run — pass --force if that is what you want.`,
+      `${OUTPUT} already exists. Rebuilding costs another batch run — pass --force to redo it, or --missing to fill the gaps.`,
     );
     process.exit(1);
   }
 
-  const words = readFileSync(INPUT, "utf8")
+  const all = readFileSync(INPUT, "utf8")
     .split("\n")
     .map((w) => w.trim())
     .filter(Boolean);
+
+  let words = all;
+  if (fillMissing) {
+    const answered = new Set(
+      readFileSync(OUTPUT, "utf8")
+        .split("\n")
+        .filter((line) => line.trim())
+        .map((line) => (JSON.parse(line) as { text: string }).text.toLowerCase()),
+    );
+    words = all.filter((word) => !answered.has(word.toLowerCase()));
+    if (words.length === 0) {
+      console.log("Nothing missing.");
+      return;
+    }
+  }
 
   const batches = chunk(words, CHUNK);
   console.log(`${words.length} words in ${batches.length} requests of ${CHUNK}`);
@@ -71,7 +104,7 @@ async function main(): Promise<void> {
       custom_id: `chunk-${index}`,
       params: buildTranslationRequest(
         group.map((text) => ({ text })),
-        { note: NOTE },
+        { note: fillMissing ? MISSING_NOTE : NOTE },
       ),
     })),
   });
@@ -120,7 +153,11 @@ async function main(): Promise<void> {
     }
   }
 
-  writeFileSync(OUTPUT, lines.join("\n") + "\n");
+  if (fillMissing) {
+    appendFileSync(OUTPUT, lines.join("\n") + "\n");
+  } else {
+    writeFileSync(OUTPUT, lines.join("\n") + "\n");
+  }
 
   const usage = status.request_counts;
   console.log(

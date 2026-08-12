@@ -22,7 +22,6 @@ import {
   AUDIO_LADDER,
   currentTask,
   DEFAULT_LADDER,
-  graduate,
   isFinished,
   startBrainstorm,
   type BrainstormState,
@@ -101,7 +100,7 @@ export function BrainstormSession() {
       void fetch("/api/practice/graduate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wordId, ...graduate(word) }),
+        body: JSON.stringify({ wordId, errors: word.errors }),
       }).catch(() => {});
     }
   }, []);
