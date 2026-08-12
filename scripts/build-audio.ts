@@ -15,15 +15,23 @@
  * for single words comes out cheaper and, more usefully, predictable. Resuming
  * is free — words that already have a URL are skipped, so an interrupted run
  * costs nothing to restart.
+ *
+ * Stored in Cloudflare R2 rather than Vercel Blob. Blob suspended itself at
+ * six thousand files — not for space, fifty megabytes is nothing, but because
+ * it is a billed product and the free allowance ran out mid-run. R2 gives ten
+ * gigabytes and, more to the point, charges nothing for serving them, which is
+ * the recurring cost that matters for audio.
  */
 
 import { config } from "dotenv";
-import { put } from "@vercel/blob";
+import { AwsClient } from "aws4fetch";
 
 import { STUDY_SOURCE_LANG } from "@/lib/languages";
 import { getPrisma } from "@/lib/prisma";
 
 config({ path: [".env.local", ".env"] });
+
+const BUCKET = process.env.R2_BUCKET ?? "slova";
 
 const MODEL = "tts-1";
 const VOICE = "alloy";
@@ -61,10 +69,27 @@ async function main(): Promise<void> {
     console.error("OPENAI_API_KEY is not set.");
     process.exit(1);
   }
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    console.error("BLOB_READ_WRITE_TOKEN is not set — run `vercel env pull`.");
+  const account = process.env.R2_ACCOUNT_ID;
+  const publicBase = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
+  if (!account || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
+    console.error("R2_ACCOUNT_ID, R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY must be set.");
     process.exit(1);
   }
+  if (!publicBase) {
+    // Without it the files would be uploaded and unreachable, which is how the
+    // last attempt ended. Better to refuse than to store URLs that 403.
+    console.error(
+      "R2_PUBLIC_URL is not set — enable public access on the bucket and use its URL.",
+    );
+    process.exit(1);
+  }
+
+  const r2 = new AwsClient({
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    service: "s3",
+    region: "auto",
+  });
 
   const prisma = getPrisma();
   const limit = Number.parseInt(process.argv[2] ?? "", 10);
@@ -104,18 +129,24 @@ async function main(): Promise<void> {
 
       try {
         const audio = await synthesise(word.text, apiKey);
-        // Keyed by the normalised key, so re-running overwrites rather than
-        // accumulating a second copy under a different name.
-        const blob = await put(`audio/en/${word.key}.mp3`, audio, {
-          access: "public",
-          contentType: "audio/mpeg",
-          addRandomSuffix: false,
-          allowOverwrite: true,
-        });
+        // Named by the normalised key, so a re-run overwrites rather than
+        // leaving a second copy under a different name.
+        const path = `audio/en/${word.key}.mp3`;
+        const upload = await r2.fetch(
+          `https://${account}.r2.cloudflarestorage.com/${BUCKET}/${path}`,
+          {
+            method: "PUT",
+            body: new Uint8Array(audio),
+            headers: { "Content-Type": "audio/mpeg" },
+          },
+        );
+        if (!upload.ok) {
+          throw new Error(`upload ${upload.status} ${(await upload.text()).slice(0, 120)}`);
+        }
 
         await prisma.lexeme.update({
           where: { id: word.id },
-          data: { audioUrl: blob.url, audioSource: SOURCE },
+          data: { audioUrl: `${publicBase}/${path}`, audioSource: SOURCE },
         });
         done++;
       } catch (error) {
