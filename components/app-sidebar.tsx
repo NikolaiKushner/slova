@@ -4,13 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bookmark,
-  BookOpen,
   BookText,
   CalendarCheck,
   ChevronsUpDown,
-  ClipboardPlus,
-  Headphones,
   Heart,
+  Dumbbell,
   Layers,
   Library,
   LogOut,
@@ -60,9 +58,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/tasks": MapIcon,
   "/tasks/today": CalendarCheck,
   "/tasks/progress": TrendingUp,
-  "/practice/vocabulary": BookOpen,
+  "/practice": Dumbbell,
   "/practice/grammar": SpellCheck,
-  "/practice/listening": Headphones,
   "/practice/reading": BookText,
   "/courses/grammar": PenLine,
   "/courses/topics": Layers,
@@ -70,7 +67,6 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/dictionary": Library,
   "/dictionary/sets": Bookmark,
   "/dictionary/catalog": Sparkles,
-  "/dictionary/add": ClipboardPlus,
 };
 
 function userInitials(name?: string | null, email?: string | null) {
