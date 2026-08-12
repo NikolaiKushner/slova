@@ -178,3 +178,90 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ...result, setId: targetSetId });
 }
+
+const bulkSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1).max(500),
+});
+
+/**
+ * Delete several words at once.
+ *
+ * Scoped by user in the same statement rather than checked first: a list of
+ * ids from a browser is a request, not a fact, and the only safe way to honour
+ * it is to make ownership part of the delete itself.
+ */
+export async function DELETE(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const parsed = bulkSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Which words?" }, { status: 400 });
+  }
+
+  const { count } = await getPrisma().userWord.deleteMany({
+    where: { id: { in: parsed.data.ids }, userId: session.user.id },
+  });
+
+  return NextResponse.json({ deleted: count });
+}
+
+const filingSchema = bulkSchema.extend({
+  setId: z.string().min(1),
+  /**
+   * `add` files them under one more set; `move` makes it their only set. Both
+   * are wanted often enough that guessing would be wrong half the time.
+   */
+  mode: z.enum(["add", "move"]).default("add"),
+});
+
+/** File several words into a set, or move them there from wherever they were. */
+export async function PATCH(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const userId = session.user.id;
+
+  const parsed = filingSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Which words, and where?" }, { status: 400 });
+  }
+
+  const prisma = getPrisma();
+  const [set, words] = await Promise.all([
+    prisma.wordSet.findFirst({
+      where: { id: parsed.data.setId, userId },
+      select: { id: true },
+    }),
+    prisma.userWord.findMany({
+      where: { id: { in: parsed.data.ids }, userId },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!set) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (words.length === 0) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const ids = words.map((word) => word.id);
+
+  if (parsed.data.mode === "move") {
+    // Moving means this set and no other; adding leaves the rest alone.
+    await prisma.wordSetItem.deleteMany({ where: { wordId: { in: ids } } });
+  }
+
+  await prisma.wordSetItem.createMany({
+    data: ids.map((wordId) => ({ wordId, setId: set.id })),
+    skipDuplicates: true,
+  });
+  await prisma.wordSet.update({
+    where: { id: set.id },
+    data: { updatedAt: new Date() },
+  });
+
+  return NextResponse.json({ filed: ids.length });
+}

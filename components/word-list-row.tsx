@@ -5,6 +5,7 @@ import { Check, Pencil, Trash2, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { WordRating } from "@/components/word-rating";
@@ -32,9 +33,13 @@ export type WordRow = {
 
 export function WordListRow({
   word,
+  selected,
+  onSelect,
   onChanged,
 }: {
   word: WordRow;
+  selected: boolean;
+  onSelect: (selected: boolean) => void;
   onChanged: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -104,7 +109,14 @@ export function WordListRow({
   const cellInput = "h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0";
 
   return (
-    <TableRow className="group">
+    <TableRow className="group" data-state={selected ? "selected" : undefined}>
+      <TableCell className="w-10">
+        <Checkbox
+          checked={selected}
+          onCheckedChange={(value) => onSelect(value === true)}
+          aria-label={`Select ${word.front}`}
+        />
+      </TableCell>
       <TableCell className="font-medium">
         {editing ? (
           <Input

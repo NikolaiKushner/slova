@@ -24,11 +24,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { SetOption } from "@/components/set-picker";
 import { WordListFilters } from "@/components/word-list-filters";
 import { WordListRow, type WordRow } from "@/components/word-list-row";
-import { DEFAULT_PAGE_SIZE, type SortField } from "@/lib/words-query";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { WordBulkActions } from "@/components/word-bulk-actions";
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES, type SortField } from "@/lib/words-query";
 import { cn } from "@/lib/utils";
 
 /**
- * Every word already added, twenty-five at a time.
+ * Every word already added, ten at a time unless asked otherwise.
  *
  * Searching, filtering, sorting and paging all happen in the database, and all
  * of them live in the URL. That is the difference between a filter and a view:
@@ -56,11 +65,19 @@ export function WordListTable() {
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [sets, setSets] = useState<SetOption[]>([]);
+  // Selection is by id and survives nothing: a new page, a new filter and a
+  // completed action all start it over, because a tick you cannot see is a
+  // tick you did not mean.
+  const [selected, setSelected] = useState<string[]>([]);
+  const [working, setWorking] = useState(false);
 
   const page = Math.max(1, Number.parseInt(params.get("page") ?? "1", 10) || 1);
   const query = params.get("q") ?? "";
   const set = params.get("set") ?? "";
   const sort = (params.get("sort") ?? "added") as SortField;
+  const size =
+    PAGE_SIZES.find((value) => value === Number(params.get("pageSize"))) ??
+    DEFAULT_PAGE_SIZE;
   const dir = params.get("dir") === "asc" ? "asc" : "desc";
 
   const search = params.toString();
@@ -69,7 +86,7 @@ export function WordListTable() {
     let ignore = false;
 
     const request = new URLSearchParams(search);
-    request.set("pageSize", String(DEFAULT_PAGE_SIZE));
+    request.set("pageSize", String(size));
 
     fetch(`/api/words?${request.toString()}`)
       .then((response) => (response.ok ? response.json() : null))
@@ -85,7 +102,7 @@ export function WordListTable() {
     return () => {
       ignore = true;
     };
-  }, [search]);
+  }, [search, size]);
 
   useEffect(() => {
     let ignore = false;
@@ -117,6 +134,7 @@ export function WordListTable() {
       if (!("page" in changes)) next.delete("page");
 
       setLoading(true);
+      setSelected([]);
       router.replace(next.toString() ? `?${next.toString()}` : "?", {
         scroll: false,
       });
@@ -131,6 +149,38 @@ export function WordListTable() {
   };
 
   const filtered = Boolean(query || set);
+  const rows = data?.words ?? [];
+  const allTicked = rows.length > 0 && selected.length === rows.length;
+
+  async function act(run: () => Promise<Response | null>) {
+    setWorking(true);
+    const response = await run().catch(() => null);
+    setWorking(false);
+    if (!response?.ok) return;
+    setSelected([]);
+    update({ page: String(page) });
+  }
+
+  const fileInto = (setId: string, mode: "add" | "move") =>
+    act(() =>
+      fetch("/api/words", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selected, setId, mode }),
+      }),
+    );
+
+  const removeSelected = () => {
+    // The one action nothing can undo, so the one that asks.
+    if (!confirm(`Delete ${selected.length} words from your dictionary?`)) return;
+    return act(() =>
+      fetch("/api/words", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selected }),
+      }),
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -140,6 +190,15 @@ export function WordListTable() {
         sets={sets}
         onQueryChange={(value) => update({ q: value })}
         onSetChange={(value) => update({ set: value })}
+      />
+
+      <WordBulkActions
+        count={selected.length}
+        sets={sets}
+        onFile={fileInto}
+        onDelete={removeSelected}
+        onClear={() => setSelected([])}
+        busy={working}
       />
 
       {loading && !data ? (
@@ -160,6 +219,15 @@ export function WordListTable() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={allTicked}
+                      onCheckedChange={(value) =>
+                        setSelected(value === true ? rows.map((word) => word.id) : [])
+                      }
+                      aria-label="Select every word on this page"
+                    />
+                  </TableHead>
                   {SORTABLE.map((column) => (
                     <TableHead key={column.field}>
                       <SortButton
@@ -183,10 +251,18 @@ export function WordListTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.words.map((word) => (
+                {rows.map((word) => (
                   <WordListRow
                     key={word.id}
                     word={word}
+                    selected={selected.includes(word.id)}
+                    onSelect={(on) =>
+                      setSelected((current) =>
+                        on
+                          ? [...current, word.id]
+                          : current.filter((id) => id !== word.id),
+                      )
+                    }
                     onChanged={() => update({ page: String(page) })}
                   />
                 ))}
@@ -194,8 +270,9 @@ export function WordListTable() {
             </Table>
           </div>
 
-          {data.pages > 1 && (
-            <Pagination>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {data.pages > 1 ? (
+              <Pagination className="mx-0 w-auto justify-start">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
@@ -237,7 +314,28 @@ export function WordListTable() {
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
-          )}
+            ) : (
+              <span className="text-muted-foreground text-sm">
+                {data.total} {data.total === 1 ? "word" : "words"}
+              </span>
+            )}
+
+            <Select
+              value={String(size)}
+              onValueChange={(next) => update({ pageSize: next ?? "" })}
+            >
+              <SelectTrigger className="w-32" aria-label="Words per page">
+                <SelectValue>{size} per page</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZES.map((value) => (
+                  <SelectItem key={value} value={String(value)}>
+                    {value} per page
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </>
       )}
     </div>

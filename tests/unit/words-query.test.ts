@@ -14,6 +14,7 @@ const parse = (search: string) => parseWordsQuery(new URLSearchParams(search));
 
 describe("parseWordsQuery", () => {
   it("has usable defaults for a bare URL", () => {
+    expect(DEFAULT_PAGE_SIZE).toBe(10);
     expect(parse("")).toEqual({
       page: 1,
       pageSize: DEFAULT_PAGE_SIZE,

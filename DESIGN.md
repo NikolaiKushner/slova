@@ -132,8 +132,18 @@ surface you work on, and it should read as one.
    Rows fill in as the answers arrive — the shared base answers for the whole
    list at once, the model streams the rest. A machine-filled cell is muted
    until it is touched, because it is a suggestion.
-5. Under everything, **All words**: 25 a page, paged in the database, columns
-   English / Russian / Set / Learned.
+5. Under everything, **All words**: ten a page by default, paged in the
+   database, columns English / Russian / Set / Learned. Pages on the left, the
+   page size (10 / 25 / 50) on the right — one control for where you are, one
+   for how much you see.
+
+Rows tick. The bar of actions appears **only when something is selected** and
+says how many; a row of disabled buttons over an untouched table is furniture.
+Filing offers **Add to set** and **Move here** separately, because a word can
+belong to three lists and guessing which was meant would be wrong half the
+time. Deleting asks first — it is the one action nothing undoes. A tick you
+cannot see is a tick you did not mean, so changing page, filter or sort clears
+the selection.
 
 **Learned** is five dots in soft sage, not a number or a bar: the scale has five
 steps and no units, and a table row is read at a glance. It is derived from the
