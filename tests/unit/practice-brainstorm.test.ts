@@ -38,17 +38,19 @@ function run(
 }
 
 describe("startBrainstorm", () => {
-  it("shows every word its card before drilling anything", () => {
+  it("asks every word once before any of them comes round again", () => {
     let state = startBrainstorm(words(3));
     const opening: string[] = [];
 
     for (let i = 0; i < 3; i++) {
       const task = currentTask(state);
-      opening.push(task!.step);
+      opening.push(task!.wordId);
       state = answerBrainstorm(state, true);
     }
 
-    expect(opening).toEqual(["card", "card", "card"]);
+    // The introduction is the table shown before the session; in here the
+    // opening pass is one turn each, in order.
+    expect(opening).toEqual(["w0", "w1", "w2"]);
   });
 
   it("takes a sitting's worth and no more", () => {
@@ -60,26 +62,25 @@ describe("startBrainstorm", () => {
 describe("answerBrainstorm", () => {
   it("climbs a rung on a right answer", () => {
     let state = startBrainstorm(words(1));
-    expect(currentTask(state)!.step).toBe("card");
+    expect(currentTask(state)!.step).toBe(DEFAULT_LADDER[0]);
     state = answerBrainstorm(state, true);
     expect(currentTask(state)!.step).toBe(DEFAULT_LADDER[1]);
   });
 
   it("drops a rung on a wrong one", () => {
     let state = startBrainstorm(words(1));
-    state = answerBrainstorm(state, true); // card → first drill
-    state = answerBrainstorm(state, true); // first drill → second
+    state = answerBrainstorm(state, true);
+    state = answerBrainstorm(state, true);
     expect(currentTask(state)!.step).toBe(DEFAULT_LADDER[2]);
 
     state = answerBrainstorm(state, false);
     expect(currentTask(state)!.step).toBe(DEFAULT_LADDER[1]);
   });
 
-  it("never drops back to the card — that is reading, not practice", () => {
+  it("never drops off the bottom of the ladder", () => {
     let state = startBrainstorm(words(1));
-    state = answerBrainstorm(state, true); // now on the first drill
     state = answerBrainstorm(state, false);
-    expect(currentTask(state)!.step).toBe(DEFAULT_LADDER[1]);
+    expect(currentTask(state)!.step).toBe(DEFAULT_LADDER[0]);
   });
 
   it("does not let a word leave until the whole ladder is clean", () => {
@@ -106,7 +107,7 @@ describe("answerBrainstorm", () => {
 
   it("stops fighting a word after the struggle limit", () => {
     let state = startBrainstorm(words(1));
-    state = answerBrainstorm(state, true); // past the card
+    state = answerBrainstorm(state, true); // up one rung first
     for (let i = 0; i < STRUGGLE_LIMIT; i++) {
       state = answerBrainstorm(state, false);
     }

@@ -20,8 +20,12 @@ import type { ExerciseKind, PracticeWord } from "@/lib/practice/question";
  * is finished should be testable without a browser.
  */
 
-/** A rung. `card` is the first look at a word, with its translation shown. */
-export type BrainstormStep = "card" | ExerciseKind;
+/** A rung of the ladder. The first look at the words happens before any of
+ * these: the whole set is shown in one table, with translations, and the
+ * drilling starts when the person says they are ready. Meeting words one card
+ * at a time buried that introduction inside the drill, where it read as a
+ * question with no answer. */
+export type BrainstormStep = ExerciseKind;
 
 export type SessionWord = {
   wordId: string;
@@ -58,7 +62,6 @@ export type BrainstormTask = {
  * a silent device gets a shorter ladder rather than an impossible one.
  */
 export const DEFAULT_LADDER: BrainstormStep[] = [
-  "card",
   "word-to-translation",
   "translation-to-word",
   "builder",
@@ -66,7 +69,6 @@ export const DEFAULT_LADDER: BrainstormStep[] = [
 ];
 
 export const AUDIO_LADDER: BrainstormStep[] = [
-  "card",
   "word-to-translation",
   "audio-choice",
   "translation-to-word",
@@ -92,10 +94,11 @@ const GAP_AFTER_ERROR = 2;
 export const STRUGGLE_LIMIT = 6;
 
 /**
- * Seven to ten words a sitting. More than that and the later words are being
- * met for the first time when attention has already gone.
+ * Six words a sitting. Few enough that the opening table can be taken in at a
+ * glance and held in mind through the drilling that follows — which is the
+ * point of showing it, and stops being true somewhere around eight.
  */
-export const SESSION_SIZE = 8;
+export const SESSION_SIZE = 6;
 
 export function startBrainstorm(
   words: readonly PracticeWord[],
@@ -110,8 +113,8 @@ export function startBrainstorm(
       pos: 0,
       errors: 0,
     })),
-    // Spread across the opening ticks, so the first pass is every word's card
-    // before any drilling starts.
+    // Spread across the opening ticks, so the first pass asks every word once
+    // before any of them comes round again.
     queue: chosen.map((word, index) => ({ wordId: word.id, dueAt: index })),
     mastered: [],
     struggling: [],
@@ -184,9 +187,8 @@ export function answerBrainstorm(
   }
 
   const errors = word.errors + 1;
-  // Down a rung, never below the first drill: sending someone back to the
-  // card they have already read is a punishment, not a lesson.
-  const pos = Math.max(1, word.pos - 1);
+  // Down a rung, never off the bottom.
+  const pos = Math.max(0, word.pos - 1);
   const updated = { ...word, pos, errors };
 
   if (errors >= STRUGGLE_LIMIT) {
@@ -208,7 +210,7 @@ export function answerBrainstorm(
 }
 
 function gapFor(pos: number): number {
-  return GAPS[Math.min(pos - 1, GAPS.length - 1)] ?? GAPS[GAPS.length - 1];
+  return GAPS[Math.min(pos, GAPS.length - 1)] ?? GAPS[GAPS.length - 1];
 }
 
 function replace(words: SessionWord[], updated: SessionWord): SessionWord[] {

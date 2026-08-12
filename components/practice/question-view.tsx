@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Delete, Volume2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -29,13 +29,30 @@ export function QuestionView({
   question: Question;
   onAnswered: (result: Answered) => void;
 }) {
+  /**
+   * `blocked` means the browser refused to talk without being asked — a press
+   * of Play will work. `broken` means it refused that too, and the exercise
+   * has to stop being an audio exercise or it cannot be answered at all.
+   */
+  const [sound, setSound] = useState<"ok" | "blocked" | "broken">("ok");
+
   // A sound question should be heard without being asked for; a written one
   // should not start talking at somebody.
   useEffect(() => {
-    if (question.kind === "audio-choice" || question.kind === "listening") {
-      speak(question.speak ?? "");
-    }
+    if (question.kind !== "audio-choice" && question.kind !== "listening") return;
+    let ignore = false;
+    speak(question.speak ?? "").then((started) => {
+      if (!ignore && !started) setSound("blocked");
+    });
+    return () => {
+      ignore = true;
+    };
   }, [question]);
+
+  async function play() {
+    const started = await speak(question.speak ?? "");
+    setSound(started ? "ok" : "broken");
+  }
 
   // A new question is a new component, not the old one told to forget: the
   // previous answer's state cannot leak into it and no effect has to clear it.
@@ -43,7 +60,7 @@ export function QuestionView({
 
   return (
     <div className="space-y-6">
-      <Prompt question={question} />
+      <Prompt question={question} sound={sound} onPlay={play} />
 
       {"options" in question ? (
         <Choices key={key} question={question} onAnswered={onAnswered} />
@@ -56,30 +73,53 @@ export function QuestionView({
   );
 }
 
-function Prompt({ question }: { question: Question }) {
+function Prompt({
+  question,
+  sound,
+  onPlay,
+}: {
+  question: Question;
+  sound: "ok" | "blocked" | "broken";
+  onPlay: () => void;
+}) {
   const hasSound = Boolean(question.speak);
+  // Sound is dead and the question showed nothing: without the word on screen
+  // there is no exercise left, only a dead end. Show it and let them move on.
+  const rescued = sound === "broken" && !question.prompt;
 
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       {question.prompt ? (
         <p className="font-display text-3xl">{question.prompt}</p>
+      ) : rescued ? (
+        <p className="font-display text-3xl">{question.speak}</p>
       ) : (
-        <p className="text-brand-soft text-xs tracking-widest uppercase">
-          Listen
-        </p>
+        <p className="text-brand-soft text-xs tracking-widest uppercase">Listen</p>
       )}
 
-      {hasSound && (
+      {hasSound && !rescued && (
         <Button
           type="button"
           variant="ghost"
           size={question.prompt ? "sm" : "lg"}
-          onClick={() => speak(question.speak ?? "")}
-          aria-label="Play the word again"
+          onClick={onPlay}
+          aria-label="Play the word"
         >
           <Volume2 className={question.prompt ? "size-4" : "size-6"} />
-          {question.prompt ? null : "Play again"}
+          {question.prompt ? null : "Play"}
         </Button>
+      )}
+
+      {sound === "blocked" && !question.prompt && (
+        <p className="text-muted-foreground text-xs">
+          Your browser will not play sound on its own — press Play.
+        </p>
+      )}
+
+      {rescued && (
+        <p className="text-muted-foreground text-xs">
+          No sound on this device, so here is the word instead.
+        </p>
       )}
     </div>
   );
@@ -142,19 +182,60 @@ function Builder({
 
   const assembled = picked.map((index) => question.letters[index]).join("");
 
+  const commit = useCallback(
+    (next: number[]) => {
+      setPicked(next);
+      // Checked the moment every tile is used: asking for a separate confirm
+      // after the last letter is a click that carries no information.
+      if (next.length === question.letters.length) {
+        setDone(true);
+        const given = next.map((i) => question.letters[i]).join("");
+        onAnswered({ verdict: judge(given, question.answer), given });
+      }
+    },
+    [question, onAnswered],
+  );
+
   function add(index: number) {
     if (done || picked.includes(index)) return;
-    const next = [...picked, index];
-    setPicked(next);
-
-    // Checked the moment every tile is used: asking for a separate confirm
-    // after the last letter is a click that carries no information.
-    if (next.length === question.letters.length) {
-      setDone(true);
-      const given = next.map((i) => question.letters[i]).join("");
-      onAnswered({ verdict: judge(given, question.answer), given });
-    }
+    commit([...picked, index]);
   }
+
+  /**
+   * The tiles are also a keyboard. Typing a letter takes the leftmost tile
+   * bearing it, backspace gives the last one back — which is what anyone who
+   * can touch-type will try first, and clicking six tiles with a mouse when
+   * your hands are already on the keys is a strange thing to insist on.
+   */
+  useEffect(() => {
+    if (done) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+      if (event.key === "Backspace") {
+        event.preventDefault();
+        setPicked(picked.slice(0, -1));
+        return;
+      }
+
+      if (event.key.length !== 1) return;
+      const typed = event.key.toLowerCase();
+      const index = question.letters.findIndex(
+        (letter, i) => !picked.includes(i) && letter.toLowerCase() === typed,
+      );
+      if (index === -1) return;
+
+      event.preventDefault();
+      commit([...picked, index]);
+    }
+
+    // Re-subscribed on every letter so the handler reads the tiles as they are
+    // now. Deriving it inside a state updater instead would put `onAnswered`
+    // in a place React is allowed to run twice.
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [question, done, picked, commit]);
 
   return (
     <div className="space-y-4">
@@ -187,6 +268,7 @@ function Builder({
             variant="ghost"
             size="sm"
             onClick={() => setPicked(picked.slice(0, -1))}
+            aria-label="Undo the last letter" 
           >
             <Delete className="size-4" />
             Undo

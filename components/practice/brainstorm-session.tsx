@@ -6,6 +6,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
+import {
   AnswerFeedback,
   QuestionView,
   type Answered,
@@ -23,6 +29,7 @@ import {
 } from "@/lib/practice/brainstorm";
 import { buildQuestion, type PracticeWord } from "@/lib/practice/question";
 import { speak, whenVoiceReady } from "@/lib/practice/speech";
+import { Volume2 } from "lucide-react";
 
 /**
  * Brainstorm: the ladder, drawn.
@@ -42,6 +49,8 @@ export function BrainstormSession() {
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<BrainstormState | null>(null);
   const [result, setResult] = useState<Answered | null>(null);
+  // The words are read before they are drilled, not during.
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -69,11 +78,11 @@ export function BrainstormSession() {
     };
   }, []);
 
-  const task = state ? currentTask(state) : null;
+  const task = state && started ? currentTask(state) : null;
   const word = data?.words.find((w) => w.id === task?.wordId) ?? null;
 
   const question = useMemo(() => {
-    if (!task || !word || task.step === "card") return null;
+    if (!task || !word) return null;
     // Seeded per rung as well as per word: the same word met again on a higher
     // rung should not come back with the options in the order just memorised.
     return buildQuestion(task.step, word, data?.pool ?? [], `${data?.seed ?? ""}-${task.step}`);
@@ -130,6 +139,10 @@ export function BrainstormSession() {
     );
   }
 
+  if (!started) {
+    return <Preview words={data.words} onStart={() => setStarted(true)} />;
+  }
+
   if (isFinished(state)) {
     const learned = state.mastered.length;
     const parked = state.struggling.length;
@@ -155,9 +168,7 @@ export function BrainstormSession() {
         {task.remaining} {task.remaining === 1 ? "word" : "words"} left
       </p>
 
-      {task.step === "card" ? (
-        <WordCard word={word} onNext={next} />
-      ) : question && !result ? (
+      {question && !result ? (
         <QuestionView question={question} onAnswered={answer} />
       ) : question && result ? (
         <AnswerFeedback
@@ -175,22 +186,59 @@ export function BrainstormSession() {
 }
 
 /**
- * The first look at a word: both sides at once, nothing to get wrong. Meeting
- * a word for the first time as a test teaches nothing — the drilling starts on
- * the next rung.
+ * The words, all of them, before anything is asked.
+ *
+ * Reading six pairs takes a few seconds and makes the drilling that follows a
+ * test of what was just read rather than a guess at what was never shown. It
+ * also puts the whole set in one place, which is the thing a card-at-a-time
+ * introduction could not do.
  */
-function WordCard({ word, onNext }: { word: PracticeWord; onNext: () => void }) {
-  useEffect(() => {
-    speak(word.front);
-  }, [word]);
-
+function Preview({
+  words,
+  onStart,
+}: {
+  words: PracticeWord[];
+  onStart: () => void;
+}) {
   return (
-    <div className="flex flex-col items-center gap-4 text-center">
-      <p className="font-display text-4xl">{word.front}</p>
-      <p className="text-muted-foreground text-lg">{word.back}</p>
-      <Button type="button" size="lg" onClick={onNext} autoFocus>
-        Got it
-      </Button>
+    <div className="space-y-6">
+      <p className="text-brand-soft text-center text-xs tracking-widest uppercase">
+        {words.length} new {words.length === 1 ? "word" : "words"}
+      </p>
+
+      <div className="bg-card overflow-hidden rounded-lg border">
+        <Table>
+          <TableBody>
+            {words.map((word) => (
+              <TableRow key={word.id}>
+                <TableCell className="font-display w-1/2 text-lg">
+                  <span className="inline-flex items-center gap-2">
+                    {word.front}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Listen to ${word.front}`}
+                      onClick={() => void speak(word.front)}
+                    >
+                      <Volume2 className="size-4" />
+                    </Button>
+                  </span>
+                </TableCell>
+                <TableCell className="text-muted-foreground w-1/2">
+                  {word.back}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex justify-center">
+        <Button type="button" size="lg" onClick={onStart} autoFocus>
+          Start
+        </Button>
+      </div>
     </div>
   );
 }
