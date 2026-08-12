@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FolderInput, FolderMinus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDelete } from "@/components/confirm-delete";
 import {
   Select,
   SelectContent,
@@ -105,18 +106,23 @@ export function WordBulkActions({
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          disabled={busy}
-          // Muted until hover — never red at rest beside everything else.
-          className="text-muted-foreground hover:text-destructive"
-          onClick={onDelete}
+        <ConfirmDelete
+          title={`Delete ${count} ${count === 1 ? "word" : "words"}?`}
+          description="They leave the dictionary along with everything the scheduler had learned about them. Taking them out of a set instead keeps the words."
+          onConfirm={onDelete}
         >
-          <Trash2 className="size-4" />
-          Delete
-        </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            // Muted until hover — never red at rest beside everything else.
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+            Delete
+          </Button>
+        </ConfirmDelete>
         <Button type="button" variant="ghost" size="sm" onClick={onClear}>
           Clear
         </Button>

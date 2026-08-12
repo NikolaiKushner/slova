@@ -6,6 +6,7 @@ import { Check, Pencil, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDelete } from "@/components/confirm-delete";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { WordRating } from "@/components/word-rating";
@@ -87,10 +88,6 @@ export function WordListRow({
 
   async function remove() {
     if (busy) return;
-    // This one really does take the word away — its progress goes with it, and
-    // it leaves every set at once. Worth asking about.
-    if (!confirm(`Delete “${word.front}” from your dictionary?`)) return;
-
     setBusy(true);
     setError(null);
     const response = await fetch(`/api/words/${word.id}`, {
@@ -211,17 +208,22 @@ export function WordListRow({
               >
                 <Pencil className="size-4" />
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={`Delete ${word.front}`}
-                // Muted at rest, red only on hover — never red beside a primary.
-                className="text-muted-foreground hover:text-destructive"
-                onClick={remove}
+              <ConfirmDelete
+                title={`Delete “${word.front}”?`}
+                description="It leaves the dictionary along with everything the scheduler had learned about it, and every set it is in."
+                onConfirm={remove}
               >
-                <Trash2 className="size-4" />
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Delete ${word.front}`}
+                  // Muted at rest, red only on hover — never red beside a primary.
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </ConfirmDelete>
             </>
           )}
         </span>

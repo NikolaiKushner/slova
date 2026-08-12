@@ -70,6 +70,11 @@ export function WordListTable() {
   // tick you did not mean.
   const [selected, setSelected] = useState<string[]>([]);
   const [working, setWorking] = useState(false);
+  // Bumped after anything that changes a word. The URL cannot carry this: an
+  // edit leaves the filters exactly as they were, so `replace` would write the
+  // same address, no navigation would happen, and the table would keep showing
+  // what is no longer there.
+  const [reload, setReload] = useState(0);
 
   const page = Math.max(1, Number.parseInt(params.get("page") ?? "1", 10) || 1);
   const query = params.get("q") ?? "";
@@ -102,7 +107,7 @@ export function WordListTable() {
     return () => {
       ignore = true;
     };
-  }, [search, size]);
+  }, [search, size, reload]);
 
   useEffect(() => {
     let ignore = false;
@@ -142,6 +147,11 @@ export function WordListTable() {
     [params, router],
   );
 
+  const refresh = useCallback(() => {
+    setLoading(true);
+    setReload((value) => value + 1);
+  }, []);
+
   const sortBy = (field: SortField) => {
     // Clicking the column you are already sorted by turns it around.
     const nextDir = sort === field && dir === "asc" ? "desc" : "asc";
@@ -158,7 +168,7 @@ export function WordListTable() {
     setWorking(false);
     if (!response?.ok) return;
     setSelected([]);
-    update({ page: String(page) });
+    refresh();
   }
 
   const fileInto = (setId: string, mode: "add" | "move" | "remove") =>
@@ -170,17 +180,14 @@ export function WordListTable() {
       }),
     );
 
-  const removeSelected = () => {
-    // The one action nothing can undo, so the one that asks.
-    if (!confirm(`Delete ${selected.length} words from your dictionary?`)) return;
-    return act(() =>
+  const removeSelected = () =>
+    act(() =>
       fetch("/api/words", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: selected }),
       }),
     );
-  };
 
   return (
     <div className="space-y-4">
@@ -220,7 +227,15 @@ export function WordListTable() {
         </p>
       ) : (
         <>
-          <div className="bg-card overflow-hidden rounded-lg border">
+          <div
+            className={cn(
+              "bg-card overflow-hidden rounded-lg border transition-opacity",
+              // Dimmed rather than replaced: swapping ten rows for ten
+              // skeletons is the same information and a jump.
+              loading && "pointer-events-none opacity-60",
+            )}
+            aria-busy={loading}
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -268,7 +283,7 @@ export function WordListTable() {
                           : current.filter((id) => id !== word.id),
                       )
                     }
-                    onChanged={() => update({ page: String(page) })}
+                    onChanged={refresh}
                   />
                 ))}
               </TableBody>

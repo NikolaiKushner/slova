@@ -137,6 +137,10 @@ surface you work on, and it should read as one.
    page size (10 / 25 / 50) on the right — one control for where you are, one
    for how much you see.
 
+While the list is reloading it **dims in place** rather than turning into
+skeletons. Swapping ten rows for ten grey bars is the same information and a
+jump; the rows stay where the cursor left them.
+
 Rows tick, and the actions **take the place of the filters** on the same row
 rather than appearing above them — a bar that pushes the table down moves it
 out from under the cursor at the exact moment a tick goes in.
@@ -144,8 +148,10 @@ out from under the cursor at the exact moment a tick goes in.
 Filing is three separate verbs, because they are three intentions and guessing
 between them would be wrong: **Move here** (this set and no other, the usual
 one), **Also add** (a word can belong to several lists), **Take out** (leave
-this set, stay in the rest). Deleting asks first — it is the one action nothing
-undoes. A tick you cannot see is a tick you did not mean, so changing page,
+this set, stay in the rest). Deleting asks first, in a shadcn `AlertDialog` — it is the one action nothing
+undoes, and `confirm()` looked like the browser talking rather than the app.
+Nothing else asks: a dialog in front of a reversible action teaches people to
+dismiss dialogs. A tick you cannot see is a tick you did not mean, so changing page,
 filter or sort clears the selection.
 
 **Learned** is five dots in soft sage, not a number or a bar: the scale has five
