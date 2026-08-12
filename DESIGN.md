@@ -167,6 +167,34 @@ The destructive action differs by surface, and the icon says which:
 - in the **dictionary** it is a bin — the word goes, and its progress with it.
   That one asks first.
 
+## Practice
+
+Every training is the same screen with a different question in it. The prompt
+is Fraunces and large; the answer area is whatever that format needs.
+
+**The whole of it works from the keyboard**, because a drill you can only do
+with a mouse is a drill people stop doing:
+
+- multiple choice — options are numbered **1–4**, and those keys pick them;
+- word builder — typing a letter claims the leftmost tile bearing it,
+  **Backspace** hands the last one back;
+- typed formats — **Enter** submits, and **Enter** again moves on.
+
+**Brainstorm opens with the words**, all six in one table with their
+translations and a Start button. An introduction buried inside the drill reads
+as a question you cannot answer. Six is the number the table can be taken in at
+a glance.
+
+It shows **words left in the session, never a percentage.** A percentage in a
+drill-to-mastery loop becomes a number to be pushed to 100, and people start
+guessing to move it.
+
+**Sound is the browser's own voice.** It can refuse — a page may not speak
+before it is clicked, and iOS refuses every time — so an audio question that
+gets no sound says to press Play, and if that fails too it shows the word.
+A listening exercise with neither sound nor text is a dead end, not a hard
+question.
+
 ## Out of scope (for now)
 
 Dark theme, mascot, dense stats dashboards.

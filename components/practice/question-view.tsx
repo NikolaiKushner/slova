@@ -134,14 +134,40 @@ function Choices({
 }) {
   const [chosen, setChosen] = useState<number | null>(null);
 
-  function choose(index: number) {
+  const choose = useCallback(
+    (index: number) => {
+      if (chosen !== null) return;
+      setChosen(index);
+      onAnswered({
+        verdict: index === question.answerIndex ? "correct" : "wrong",
+        given: question.options[index],
+      });
+    },
+    [chosen, question, onAnswered],
+  );
+
+  /**
+   * The options are numbered, and the numbers are keys. Four options is few
+   * enough to pick blind once the habit forms, and it keeps a whole training
+   * on the keyboard — the builder and the typed formats are already there, so
+   * reaching for the mouse only here is the odd one out.
+   */
+  useEffect(() => {
     if (chosen !== null) return;
-    setChosen(index);
-    onAnswered({
-      verdict: index === question.answerIndex ? "correct" : "wrong",
-      given: question.options[index],
-    });
-  }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const number = Number.parseInt(event.key, 10);
+      if (!Number.isInteger(number)) return;
+      if (number < 1 || number > question.options.length) return;
+
+      event.preventDefault();
+      choose(number - 1);
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [question, chosen, choose]);
 
   return (
     <div className="grid gap-2 sm:grid-cols-2">
@@ -163,6 +189,12 @@ function Choices({
           disabled={chosen !== null && index !== chosen && index !== question.answerIndex}
           onClick={() => choose(index)}
         >
+          <span
+            aria-hidden
+            className="text-muted-foreground border-border mr-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md border text-xs"
+          >
+            {index + 1}
+          </span>
           {option}
         </Button>
       ))}
