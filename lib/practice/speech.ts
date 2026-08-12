@@ -36,7 +36,11 @@ const LANG = "en-US";
  */
 const START_TIMEOUT_MS = 3000;
 
-/** Checked early: `speaking` flips before `onstart` fires on some engines. */
+/**
+ * How often to look at `speaking` — for the report, not for the verdict. A
+ * wedged engine sets it and never speaks, so it says the utterance was
+ * accepted, not that anything was heard.
+ */
 const START_POLL_MS = 300;
 
 /**
@@ -72,6 +76,20 @@ function pickVoice(): SpeechSynthesisVoice | null {
  * Say it. Resolves true once it has actually begun, false when the browser
  * refused, errored, or simply never started.
  */
+/**
+ * Cleared once per page, before the first word is spoken.
+ *
+ * A previous page can leave the engine mid-utterance, and Chrome can leave it
+ * wedged — `speaking` stuck true forever, nothing playing, no events. Every
+ * later call then sees "something is speaking" and cancels it, which is how
+ * one bad state poisons an entire session. One cancel at the start, well away
+ * from any `speak`, clears that inheritance.
+ */
+let queueCleared = false;
+
+/** Set while we are deliberately interrupting, so the victim is not alarmed. */
+let interrupting = false;
+
 export async function speak(text: string): Promise<boolean> {
   if (!speechAvailable() || !text.trim()) {
     report("unavailable", text);
@@ -81,10 +99,18 @@ export async function speak(text: string): Promise<boolean> {
   const synth = window.speechSynthesis;
   synth.resume();
 
+  if (!queueCleared) {
+    queueCleared = true;
+    synth.cancel();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
   // The list is filled asynchronously and is routinely empty on the first
   // click of a fresh page. Speaking into that emptiness is silent on several
   // engines, so wait for it rather than guessing.
   if (synth.getVoices().length === 0) await whenVoiceReady();
+
+  let wedged = false;
 
   const queue = () =>
     new Promise<boolean>((resolve) => {
@@ -98,6 +124,8 @@ export async function speak(text: string): Promise<boolean> {
       if (voice) utterance.voice = voice;
 
       let settled = false;
+      let accepted = false;
+
       const settle = (started: boolean) => {
         if (settled) return;
         settled = true;
@@ -116,36 +144,52 @@ export async function speak(text: string): Promise<boolean> {
         release();
       };
       utterance.onerror = (event) => {
-        // Cancelling on purpose is not a failure worth reporting.
-        settle(event.error === "canceled" || event.error === "interrupted");
+        // Being cancelled counts as success only when we did the cancelling —
+        // a word cut short to play the next one is not a failure. Cancelled by
+        // anything else means nothing was heard, and saying otherwise is how
+        // a silent exercise ends up with no fallback offered.
+        const ours =
+          interrupting &&
+          (event.error === "canceled" || event.error === "interrupted");
+        settle(ours);
         release();
       };
 
-      // Second opinion: some engines set `speaking` without ever firing
-      // `onstart`, and treating those as failures would hide working audio
-      // behind an apology.
+      // Watched, not trusted. Chrome can accept an utterance, set `speaking`,
+      // and then never speak or fire a single event.
       const poll = setInterval(() => {
-        if (synth.speaking) settle(true);
+        if (synth.speaking) accepted = true;
       }, START_POLL_MS);
 
-      // Nothing at all — the shape of a refused autoplay, or of an engine
-      // that has quietly stopped working.
-      const timeout = setTimeout(() => settle(false), START_TIMEOUT_MS);
+      const timeout = setTimeout(() => {
+        // Accepted but never started is a wedged engine; never accepted at
+        // all is a refusal. Both are silence; the report tells them apart.
+        wedged = accepted;
+        settle(false);
+      }, START_TIMEOUT_MS);
 
       inFlight.add(utterance);
       synth.speak(utterance);
     });
 
-  const started =
-    !synth.speaking && !synth.pending
-      ? await queue()
-      : // Let the cancel land on its own turn before queueing the next one.
-        await new Promise<boolean>((resolve) => {
-          synth.cancel();
-          setTimeout(() => queue().then(resolve), 0);
-        });
+  let started: boolean;
 
-  if (!started) report("did not start", text);
+  if (!synth.speaking && !synth.pending) {
+    started = await queue();
+  } else {
+    interrupting = true;
+    synth.cancel();
+    started = await new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        interrupting = false;
+        queue().then(resolve);
+      }, 0);
+    });
+  }
+
+  if (!started) {
+    report(wedged ? "was accepted but never played" : "did not start", text);
+  }
   return started;
 }
 
