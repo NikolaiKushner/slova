@@ -72,11 +72,19 @@ function pickVoice(): SpeechSynthesisVoice | null {
  * Say it. Resolves true once it has actually begun, false when the browser
  * refused, errored, or simply never started.
  */
-export function speak(text: string): Promise<boolean> {
-  if (!speechAvailable() || !text.trim()) return Promise.resolve(false);
+export async function speak(text: string): Promise<boolean> {
+  if (!speechAvailable() || !text.trim()) {
+    report("unavailable", text);
+    return false;
+  }
 
   const synth = window.speechSynthesis;
   synth.resume();
+
+  // The list is filled asynchronously and is routinely empty on the first
+  // click of a fresh page. Speaking into that emptiness is silent on several
+  // engines, so wait for it rather than guessing.
+  if (synth.getVoices().length === 0) await whenVoiceReady();
 
   const queue = () =>
     new Promise<boolean>((resolve) => {
@@ -128,11 +136,30 @@ export function speak(text: string): Promise<boolean> {
       synth.speak(utterance);
     });
 
-  if (!synth.speaking && !synth.pending) return queue();
+  const started =
+    !synth.speaking && !synth.pending
+      ? await queue()
+      : // Let the cancel land on its own turn before queueing the next one.
+        await new Promise<boolean>((resolve) => {
+          synth.cancel();
+          setTimeout(() => queue().then(resolve), 0);
+        });
 
-  // Let the cancel land on its own turn before queueing the next one.
-  synth.cancel();
-  return new Promise((resolve) => setTimeout(() => queue().then(resolve), 0));
+  if (!started) report("did not start", text);
+  return started;
+}
+
+/**
+ * Says out loud, in development, why nothing was said out loud.
+ *
+ * Silence with no error is the whole difficulty with this API: from the
+ * outside, a refused autoplay, a missing voice and a wedged engine all look
+ * identical, and the console stays empty in every case. This makes them
+ * distinguishable without anyone having to paste a snippet into a console.
+ */
+function report(reason: string, text: string): void {
+  if (process.env.NODE_ENV === "production") return;
+  console.warn(`[slova] speech ${reason}: "${text}"`, speechDiagnostics());
 }
 
 /**

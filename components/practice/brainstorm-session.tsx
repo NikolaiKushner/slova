@@ -51,6 +51,7 @@ export function BrainstormSession() {
   const [result, setResult] = useState<Answered | null>(null);
   // The words are read before they are drilled, not during.
   const [started, setStarted] = useState(false);
+  const [hasVoice, setHasVoice] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -63,6 +64,7 @@ export function BrainstormSession() {
     ]).then(([payload, voice]: [Payload | null, boolean]) => {
       if (ignore) return;
       setData(payload);
+      setHasVoice(voice);
       // The audio rungs are added only when there is a voice to speak them:
       // a silent device gets a shorter ladder, not an impossible one.
       if (payload?.words.length) {
@@ -140,7 +142,13 @@ export function BrainstormSession() {
   }
 
   if (!started) {
-    return <Preview words={data.words} onStart={() => setStarted(true)} />;
+    return (
+      <Preview
+        words={data.words}
+        hasVoice={hasVoice}
+        onStart={() => setStarted(true)}
+      />
+    );
   }
 
   if (isFinished(state)) {
@@ -195,9 +203,11 @@ export function BrainstormSession() {
  */
 function Preview({
   words,
+  hasVoice,
   onStart,
 }: {
   words: PracticeWord[];
+  hasVoice: boolean;
   onStart: () => void;
 }) {
   return (
@@ -214,15 +224,17 @@ function Preview({
                 <TableCell className="font-display w-1/2 text-lg">
                   <span className="inline-flex items-center gap-2">
                     {word.front}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      aria-label={`Listen to ${word.front}`}
-                      onClick={() => void speak(word.front)}
-                    >
-                      <Volume2 className="size-4" />
-                    </Button>
+                    {hasVoice && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Listen to ${word.front}`}
+                        onClick={() => void speak(word.front)}
+                      >
+                        <Volume2 className="size-4" />
+                      </Button>
+                    )}
                   </span>
                 </TableCell>
                 <TableCell className="text-muted-foreground w-1/2">
