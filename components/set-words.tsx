@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Check, Pencil, Trash2, X } from "lucide-react";
+import { Check, Minus, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WORD_GRID, WordTable } from "@/components/word-table";
@@ -14,19 +14,19 @@ export type SetWord = {
   back: string;
 };
 
-export function SetWords({ words }: { words: SetWord[] }) {
+export function SetWords({ setId, words }: { setId: string; words: SetWord[] }) {
   return (
     <WordTable>
       <ul className="divide-y divide-border">
         {words.map((word) => (
-          <WordRow key={word.id} word={word} />
+          <WordRow key={word.id} setId={setId} word={word} />
         ))}
       </ul>
     </WordTable>
   );
 }
 
-function WordRow({ word }: { word: SetWord }) {
+function WordRow({ setId, word }: { setId: string; word: SetWord }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [front, setFront] = useState(word.front);
@@ -71,17 +71,29 @@ function WordRow({ word }: { word: SetWord }) {
     router.refresh();
   }
 
+  /**
+   * Takes the word out of this set and leaves everything else alone — the word
+   * stays in the dictionary with its translation and its schedule, and stays
+   * in any other set it belongs to. Deleting a word outright belongs on the
+   * dictionary page, where the whole list is.
+   *
+   * No confirmation: nothing is lost, and the word is one click from going
+   * back in.
+   */
   async function remove() {
     if (busy) return;
-    if (!confirm(`Delete “${word.front}” from your dictionary?`)) return;
 
     setBusy(true);
     setError(null);
-    const res = await fetch(`/api/words/${word.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/sets/${setId}/items`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wordId: word.id }),
+    });
     setBusy(false);
 
     if (!res.ok) {
-      setError("Could not delete this word.");
+      setError("Could not remove this word from the set.");
       return;
     }
 
@@ -162,12 +174,12 @@ function WordRow({ word }: { word: SetWord }) {
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label={`Delete ${word.front}`}
+                aria-label={`Remove ${word.front} from this set`}
                 className="text-muted-foreground hover:text-destructive"
                 disabled={busy}
                 onClick={remove}
               >
-                <Trash2 />
+                <Minus />
               </Button>
             </span>
           </>

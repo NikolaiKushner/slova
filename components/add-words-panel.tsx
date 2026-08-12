@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,19 @@ import { normalizeKey } from "@/lib/lexicon/key";
  * rows that were about to be deleted, and it filled the table with "…" at the
  * exact moment the person wanted to look at what they had written.
  */
-export function AddWordsPanel({ onAdded }: { onAdded: () => void }) {
+export function AddWordsPanel({
+  onAdded,
+  /**
+   * Fixed destination. On a set's own page there is nothing to choose — the
+   * words go in this set — so the picker is not shown at all rather than shown
+   * with one option preselected.
+   */
+  setId: fixedSetId,
+}: {
+  onAdded?: () => void;
+  setId?: string;
+}) {
+  const router = useRouter();
   const [rows, setRows] = useState<ComposerRow[]>([emptyRow()]);
   const [sets, setSets] = useState<SetOption[]>([]);
   const [setValue, setSetValue] = useState<string>(NO_SET);
@@ -30,6 +43,7 @@ export function AddWordsPanel({ onAdded }: { onAdded: () => void }) {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    if (fixedSetId) return; // no picker, nothing to populate it with
     let ignore = false;
     fetch("/api/sets")
       .then((response) => (response.ok ? response.json() : null))
@@ -40,11 +54,11 @@ export function AddWordsPanel({ onAdded }: { onAdded: () => void }) {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [fixedSetId]);
 
   const words = filledRows(rows);
   const busy = stage !== "idle";
-  const needsName = setValue === NEW_SET && !newTitle.trim();
+  const needsName = !fixedSetId && setValue === NEW_SET && !newTitle.trim();
 
   /**
    * Fill the blanks. Rows arrive one at a time over NDJSON — hits from the
@@ -152,11 +166,13 @@ export function AddWordsPanel({ onAdded }: { onAdded: () => void }) {
           // those to the shared base as candidates rather than as answers.
           typed: !row.filled,
         })),
-        ...(setValue === NEW_SET
-          ? { setTitle: newTitle.trim() }
-          : setValue !== NO_SET
-            ? { setId: setValue }
-            : {}),
+        ...(fixedSetId
+          ? { setId: fixedSetId }
+          : setValue === NEW_SET
+            ? { setTitle: newTitle.trim() }
+            : setValue !== NO_SET
+              ? { setId: setValue }
+              : {}),
       }),
     }).catch(() => null);
 
@@ -190,7 +206,9 @@ export function AddWordsPanel({ onAdded }: { onAdded: () => void }) {
         ? `Added ${result.added}. ${result.alreadyKnown} you already had — those kept their progress.`
         : `Added ${result.added}.`,
     );
-    onAdded();
+    // The set page renders its word list on the server, so it needs telling.
+    router.refresh();
+    onAdded?.();
   }
 
   return (
@@ -198,14 +216,18 @@ export function AddWordsPanel({ onAdded }: { onAdded: () => void }) {
       <WordComposer rows={rows} onChange={setRows} disabled={busy} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SetPicker
-          sets={sets}
-          value={setValue}
-          newTitle={newTitle}
-          onValueChange={setSetValue}
-          onNewTitleChange={setNewTitle}
-          disabled={busy}
-        />
+        {fixedSetId ? (
+          <span />
+        ) : (
+          <SetPicker
+            sets={sets}
+            value={setValue}
+            newTitle={newTitle}
+            onValueChange={setSetValue}
+            onNewTitleChange={setNewTitle}
+            disabled={busy}
+          />
+        )}
         <Button
           size="lg"
           onClick={submit}

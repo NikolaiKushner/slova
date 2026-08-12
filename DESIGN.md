@@ -145,16 +145,27 @@ translation stays private until a second independent source agrees with it.
 
 ## Word tables
 
-Saved words and import rows are the **same object**, so they share `WordTable`:
-one container, one `English | Russian | actions` grid (`WORD_GRID`), one header.
-Translations sit in their own column rather than pushed to the right edge — the
-whole point is reading a pair across.
+Two surfaces, and they are deliberately not the same component.
 
-Rows stay quiet. Edit and delete are **ghost icon buttons** that fade in on
-hover (and on focus, for keyboard) — on touch widths they stay visible, since
-there is no hover there. Editing swaps the two cells for inputs without
-changing the row height: save and cancel are icon buttons in the actions
-column, Enter saves, Escape cancels. No modal, no per-row toolbar.
+**The set page** keeps `WordTable` — one container, one `English | Russian |
+actions` grid (`WORD_GRID`), one header. Translations sit in their own column
+rather than pushed to the right edge; the whole point is reading a pair across.
+
+**The dictionary list** is a real table (shadcn `Table`) because it is a grid of
+records with four columns and pages, not a list of pairs.
+
+Rows stay quiet in both. Edit and delete are **ghost icon buttons** that fade in
+on hover (and on focus, for keyboard) — on touch widths they stay visible, since
+there is no hover there. Editing swaps the two cells for inputs without changing
+the row height: save and cancel are icon buttons in the actions column, Enter
+saves, Escape cancels. No modal, no per-row toolbar.
+
+The destructive action differs by surface, and the icon says which:
+
+- on a **set** page it is a minus — the word leaves the set and nothing else.
+  No confirmation: nothing is lost, and it goes back with one click.
+- in the **dictionary** it is a bin — the word goes, and its progress with it.
+  That one asks first.
 
 ## Out of scope (for now)
 

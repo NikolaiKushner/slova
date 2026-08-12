@@ -4,7 +4,7 @@ import { getPrisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { SetWords } from "@/components/set-words";
 import { DeleteSetButton } from "@/components/delete-set-button";
-import { ImportForm } from "@/components/import-form";
+import { AddWordsPanel } from "@/components/add-words-panel";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
@@ -61,6 +61,7 @@ export default async function SetPage({ params }: Props) {
         <Section title="Words" hint={`${words.length} saved`}>
           {words.length > 0 ? (
             <SetWords
+              setId={set.id}
               words={words.map((word) => ({
                 id: word.id,
                 front: word.front,
@@ -75,7 +76,7 @@ export default async function SetPage({ params }: Props) {
         </Section>
 
         <Section title="Add more words">
-          <ImportForm setId={set.id} />
+          <AddWordsPanel setId={set.id} />
         </Section>
       </div>
     </Page>

@@ -13,16 +13,13 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WordRating } from "@/components/word-rating";
+import { WordListRow, type WordRow } from "@/components/word-list-row";
 import { DEFAULT_PAGE_SIZE } from "@/lib/words-query";
-import type { Rating } from "@/lib/word-rating";
 
 /**
  * Every word already added, twenty-five at a time.
@@ -31,14 +28,6 @@ import type { Rating } from "@/lib/word-rating";
  * the list is meant to keep working at five thousand words, and the way to
  * lose that is to fetch them all and slice in the browser.
  */
-
-export type WordRow = {
-  id: string;
-  front: string;
-  back: string;
-  sets: { id: string; title: string }[];
-  rating: Rating;
-};
 
 type Payload = {
   words: WordRow[];
@@ -49,6 +38,7 @@ type Payload = {
 
 export function WordListTable() {
   const [page, setPage] = useState(1);
+  const [reload, setReload] = useState(0);
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -73,13 +63,17 @@ export function WordListTable() {
     return () => {
       ignore = true;
     };
-  }, [page]);
+  }, [page, reload]);
 
   // Paging is a user action, so the wait it causes is set from the action.
   const goTo = (next: number) => {
     setPage(next);
     setLoading(true);
   };
+
+  // After an edit or a delete, re-read the page rather than patching a copy of
+  // it in the browser: a deleted row changes what the page even contains.
+  const refresh = () => setReload((value) => value + 1);
 
   if (loading && !data) {
     return (
@@ -109,30 +103,12 @@ export function WordListTable() {
               <TableHead>Russian</TableHead>
               <TableHead>Set</TableHead>
               <TableHead className="w-24">Learned</TableHead>
+              <TableHead className="w-20" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.words.map((word) => (
-              <TableRow key={word.id}>
-                <TableCell className="font-medium">{word.front}</TableCell>
-                <TableCell>{word.back}</TableCell>
-                <TableCell>
-                  {word.sets.length === 0 ? (
-                    <span className="text-muted-foreground">—</span>
-                  ) : (
-                    <span className="flex flex-wrap gap-1">
-                      {word.sets.map((set) => (
-                        <Badge key={set.id} variant="secondary">
-                          {set.title}
-                        </Badge>
-                      ))}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <WordRating rating={word.rating} />
-                </TableCell>
-              </TableRow>
+              <WordListRow key={word.id} word={word} onChanged={refresh} />
             ))}
           </TableBody>
         </Table>

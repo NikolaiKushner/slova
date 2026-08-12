@@ -15,8 +15,9 @@ export type LangCode = (typeof LANG_CODES)[number];
 
 /**
  * Slova teaches one direction for now: English words, Russian translations.
- * LANG_CODES stays wider than this because /api/translate still accepts any
- * supported pair — only the UI is pinned.
+ * LANG_CODES stays wider than the pair actually taught because a WordSet
+ * stores its own languages, and a second direction would be a setting rather
+ * than a schema change.
  */
 export const STUDY_SOURCE_LANG: LangCode = "en";
 export const STUDY_TARGET_LANG: LangCode = "ru";
