@@ -87,6 +87,14 @@ Next.js App Router, Prisma over Neon Postgres, NextAuth with Google, shadcn/ui
 on base-ui. Claude Haiku 4.5 for translation, OpenAI `tts-1` for pronunciation,
 Cloudflare R2 for the audio files. Deployed on Vercel from `main`.
 
+## Licence
+
+MIT, with one carve-out: `content/lexicon/en-frequency.txt` comes from a corpus
+that is not mine to relicense, and reaches you under its own terms — personal
+and educational use, commercial use not recommended without licensing it from
+the LDC. `LICENSE` states the exception; `content/lexicon/SOURCE.md` explains
+where the file came from and how to replace it if that matters to you.
+
 ## If you are going to change something
 
 Read **`CLAUDE.md`** first — how work reaches `main`, and what to run before it
