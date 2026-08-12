@@ -5,6 +5,8 @@ import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { getStudySummary } from "@/lib/study-queue";
 import { getProgress, progressLine } from "@/lib/progress";
+import { getOverview } from "@/lib/overview";
+import { OverviewStats } from "@/components/overview-stats";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -13,9 +15,10 @@ export default async function TodayPage() {
   if (!session?.user?.id) redirect("/login");
 
   const now = new Date();
-  const [summary, progress] = await Promise.all([
+  const [summary, progress, overview] = await Promise.all([
     getStudySummary(session.user.id, now),
     getProgress(session.user.id, now),
+    getOverview(session.user.id),
   ]);
 
   const progressText = progressLine(progress.today, progress.streak);
@@ -57,7 +60,7 @@ export default async function TodayPage() {
               </Link>
             ) : null}
             <Link
-              href="/dictionary/add"
+              href="/dictionary"
               className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
             >
               Add words
@@ -71,6 +74,10 @@ export default async function TodayPage() {
           {progressText}
         </p>
       ) : null}
+
+      <div className="mt-10">
+        <OverviewStats overview={overview} />
+      </div>
     </Page>
   );
 }

@@ -113,7 +113,8 @@ carries no choice the user has to make twice.
 
 `/dictionary` is the whole of it. Adding words is not its own screen any more:
 the box sits on top of the list it fills, so a word added is visible the moment
-it is added, and `/dictionary/add` redirects here.
+it is added, and `/dictionary/add` redirects here (`next.config.ts`) for links
+that were made before the screen went away.
 
 Both tables sit on `bg-card` (white) against the mist page wash — a table is a
 surface you work on, and it should read as one.

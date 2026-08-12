@@ -57,7 +57,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       {
         title: "My words",
         href: "/dictionary",
-        matches: ["/import", "/dictionary/add"],
+        matches: ["/import"],
       },
       { title: "My sets", href: "/dictionary/sets" },
       { title: "Ready-made sets", href: "/dictionary/catalog" },

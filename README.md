@@ -1,64 +1,96 @@
 # Slova
 
-**Paste a word list. Start learning.**
+A vocabulary app for one direction: **English word, Russian translation.** You
+paste a list, the translations fill themselves in, and then you practise until
+the words stick.
 
-You got a sheet from your tutor, a CSV from class, or a messy note with words and translations. Slova turns that into something you can study in minutes — then quietly brings words back when it’s time to review.
-
-Not another deck manager. The job is simple: get words in, learn them, come back.
+The part worth explaining is the middle one. Translating a pasted list used to
+mean one HTTP request per word to a free translation service, with a deliberate
+pause between them — forty round trips and about five seconds of sleeping for a
+typical lesson. Now a list is answered in **one** request, and most of the time
+in none at all: the words come out of a shared dictionary that already holds
+**8,172 English words with translations and recorded pronunciations**, and only
+what is missing reaches a model.
 
 ## How it works
 
-1. **Paste a list** — lines like `hello — привет`, tabs, or commas. Preview, import, done.
-2. **Study** — flip a card, tap *Know it* or *Again*.
-3. **Come back** — due words show up on your home screen. Short sessions beat long ones.
+**The shared base is a cache, never the authority.** `Lexeme` and
+`LexemeTranslation` hold what everybody gets; a translation you type stays
+yours until a second, independent source agrees with it. One person's typo must
+not become the app's answer for a word, and there is no moderation to catch it
+if it does.
 
-Paste 200 words and you won't get 200 cards on day one: Slova introduces up to
-20 unseen words a day and holds the rest back, so a big import still starts as
-a short session.
+**A word belongs to you, not to a list.** `UserWord` is one row per word per
+person, with its own schedule; `WordSetItem` files it under as many sets as you
+like. A word in three sets is learned once, not three times — which is the
+whole reason sets are tags rather than folders.
 
-That’s the whole loop for now.
+**A miss is paid for once.** When the model does translate something, the
+answer goes into the shared base, so the next list containing that word is free.
+Seeding the frequency core cost about a dollar; a miss costs a hundredth of a
+cent.
 
-## Who it’s for
+**The scheduler is FSRS.** Three numbers per word — how long the memory lasts,
+how hard that word is for you, how likely you are to recall it now — instead of
+one ease factor and a fixed multiplier.
 
-Anyone learning vocabulary from real materials — tutors, courses, travel lists — who doesn’t want to rebuild every set by hand in a heavy flashcard app.
+## Screens
 
-## What’s next
+| Where | What |
+|---|---|
+| **Today** | What is due, and how the dictionary is going |
+| **Trainings** | Six formats plus Brainstorm; each asks which sets to draw on |
+| **My words** | Everything you have — search, filter, sort, edit, bulk actions |
+| **My sets** | Sets as tags, not folders |
 
-The core is “list → study → review.” Later we may grow into:
+Seven ways to be asked a word: recognise it, recognise it backwards, hear it
+and choose, assemble it from letters, hear it and write it, write it from the
+meaning — and **Brainstorm**, which walks new words up that ladder and does not
+let one go until it has been through cleanly.
 
-- a **daily micro-habit** (a few minutes, not a marathon)
-- words from **life** (chat, article, trip) — not only tutor packs
-- light **challenges** on top of the same cards
-- a **dictionary-diary** with your own notes and examples
+Everything runs from the keyboard: `1`–`4` pick an option, letters build a
+word, `Enter` submits and moves on.
 
-## Try it locally
+## Running it
 
 ```bash
-cp .env.example .env      # fill DATABASE_URL and the two AUTH_GOOGLE_* values
 npm install
+cp .env.example .env.local     # fill in the values it describes
 npx prisma migrate deploy
-npm run db:seed           # optional starter deck
+npm run db:seed                # a demo account and a few words
 npm run dev
 ```
 
-Sign-in is Google only — see [TEST_USERS.md](TEST_USERS.md) for the redirect
-URI the OAuth client needs. There is no local database file: point
-`DATABASE_URL` at a Neon branch (the free tier is plenty) for development too.
+Demo account from the seed: `demo@slova.app` / `demo1234`.
 
-Open [http://localhost:3000](http://localhost:3000).
+`.env.example` documents every variable. `ANTHROPIC_API_KEY` is required —
+`npm run check:env` fails with the name of anything missing rather than letting
+it surface later as an opaque error.
 
-## For contributors
+## Scripts
 
-Stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, Auth.js (Google), Prisma, Postgres (Neon).
+| Command | What it does |
+|---|---|
+| `npm test` | Unit tests over `tests/unit` — seconds, and the one check worth its cost |
+| `npm run lint` / `npx tsc --noEmit` | Also run in CI |
+| `npm run db:seed` | Demo user and a small set |
+| `npm run lexicon:build` | Translate the frequency list through the Batch API |
+| `npm run db:seed-lexicon` | Load that dataset into the shared base |
+| `npm run lexicon:audio` | Record every word and upload it to R2 |
 
-On Vercel: page analytics via `@vercel/analytics`, Web Vitals via `@vercel/speed-insights` (enabled in production automatically).
+The last three cost money and are run by hand, once. `content/lexicon/SOURCE.md`
+records where the word list came from and under what terms.
 
-| Script | What |
-|--------|------|
-| `npm run dev` | Dev server |
-| `npm test` | Unit tests |
-| `npm run build` | Production build |
-| `npm run db:migrate` | Migrations |
-| `npm run db:seed` | Demo user |
+## Stack
 
-UI changes: read [DESIGN.md](DESIGN.md) first. Agent notes: [CLAUDE.md](CLAUDE.md). Demo accounts: [TEST_USERS.md](TEST_USERS.md).
+Next.js App Router, Prisma over Neon Postgres, NextAuth with Google, shadcn/ui
+on base-ui. Claude Haiku 4.5 for translation, OpenAI `tts-1` for pronunciation,
+Cloudflare R2 for the audio files. Deployed on Vercel from `main`.
+
+## If you are going to change something
+
+Read **`CLAUDE.md`** first — how work reaches `main`, and what to run before it
+does. Then **`DESIGN.md`**, before touching anything visual; it is the reason
+the screens look like one app. **`plans/`** holds the plan the current work
+follows and a handoff document with the traps that have already cost someone an
+afternoon.
