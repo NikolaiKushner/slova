@@ -180,6 +180,13 @@ with a mouse is a drill people stop doing:
   **Backspace** hands the last one back;
 - typed formats — **Enter** submits, and **Enter** again moves on.
 
+**An answered question stays on screen.** The verdict appears under it — a
+green tick, or a red cross with the right answer — and the button becomes
+Next. Swapping the question for a panel that says "Correct" removed the answer
+at the exact moment it was worth looking at: seeing which option was right,
+beside the one you picked, is where the learning happens. A right answer says
+almost nothing; it is a wrong one that needs words.
+
 **Brainstorm opens with the words**, all six in one table with their
 translations and a Start button. An introduction buried inside the drill reads
 as a question you cannot answer. Six is the number the table can be taken in at

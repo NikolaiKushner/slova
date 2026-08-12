@@ -175,9 +175,9 @@ export function BrainstormSession() {
         {task.remaining} {task.remaining === 1 ? "word" : "words"} left
       </p>
 
-      {question && !result ? (
-        <QuestionView question={question} onAnswered={answer} />
-      ) : question && result ? (
+      {question && <QuestionView question={question} onAnswered={answer} />}
+
+      {question && result && (
         <AnswerFeedback
           result={result}
           answer={
@@ -187,7 +187,7 @@ export function BrainstormSession() {
           }
           onNext={next}
         />
-      ) : null}
+      )}
     </div>
   );
 }

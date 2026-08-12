@@ -157,14 +157,18 @@ export function PracticeSession({
         {title} · {index + 1} of {words.length}
       </p>
 
-      {question && !result && (
-        <QuestionView question={question} onAnswered={answer} />
-      )}
+      {/* The question stays put once answered — the coloured option beside
+          the one you picked is the part worth looking at. */}
+      {question && <QuestionView question={question} onAnswered={answer} />}
 
       {question && result && (
         <AnswerFeedback
           result={result}
-          answer={"answer" in question ? question.answer : question.options[question.answerIndex]}
+          answer={
+            "answer" in question
+              ? question.answer
+              : question.options[question.answerIndex]
+          }
           onNext={next}
         />
       )}
