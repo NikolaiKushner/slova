@@ -77,3 +77,10 @@ export const TRAININGS: Training[] = [
 export function trainingBySlug(slug: string): Training | undefined {
   return TRAININGS.find((training) => training.slug === slug);
 }
+
+/** `set=a&set=b`, or nothing at all when the whole dictionary is in play. */
+export function sessionQuery(setIds: readonly string[]): string {
+  const params = new URLSearchParams();
+  for (const id of setIds) params.append("set", id);
+  return params.toString();
+}

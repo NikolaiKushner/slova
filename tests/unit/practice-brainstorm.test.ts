@@ -3,7 +3,6 @@ import {
   answerBrainstorm,
   currentTask,
   DEFAULT_LADDER,
-  graduate,
   isFinished,
   SESSION_SIZE,
   startBrainstorm,
@@ -135,30 +134,5 @@ describe("answerBrainstorm", () => {
     const { state } = run(startBrainstorm(words(1)), () => true);
     expect(currentTask(state)).toBeNull();
     expect(answerBrainstorm(state, true)).toBe(state);
-  });
-});
-
-describe("graduate", () => {
-  it("rewards a clean run with a longer memory of it", () => {
-    expect(graduate({ errors: 0 })).toEqual({ intervalDays: 1, ease: 2.7 });
-  });
-
-  it("hands a shaky word back the same day rather than tomorrow", () => {
-    expect(graduate({ errors: 5 })).toEqual({ intervalDays: 0, ease: 2.1 });
-  });
-
-  it("never leaves ease outside what the scheduler accepts", () => {
-    for (const errors of [0, 1, 2, 3, 4, 10]) {
-      const { ease } = graduate({ errors });
-      expect(ease).toBeGreaterThanOrEqual(1.3);
-      expect(ease).toBeLessThanOrEqual(3.0);
-    }
-  });
-
-  it("is monotone: more mistakes never means a better start", () => {
-    const eases = [0, 1, 2, 3, 4, 5].map((errors) => graduate({ errors }).ease);
-    for (let i = 1; i < eases.length; i++) {
-      expect(eases[i]).toBeLessThanOrEqual(eases[i - 1]);
-    }
   });
 });

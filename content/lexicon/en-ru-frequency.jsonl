@@ -7851,3 +7851,333 @@
 {"text":"depot","translation":"склад"}
 {"text":"pie","translation":"пирог"}
 {"text":"blend","translation":"смесь"}
+{"text":"oops","translation":"ой"}
+{"text":"za","translation":"пицца"}
+{"text":"ooo","translation":"ООО"}
+{"text":"hz","translation":"герц"}
+{"text":"comm","translation":"коммерческий"}
+{"text":"ste","translation":"святая"}
+{"text":"watts","translation":"ватт"}
+{"text":"col","translation":"полковник"}
+{"text":"biol","translation":"биология"}
+{"text":"sq","translation":"площадь"}
+{"text":"poly","translation":"политехнический"}
+{"text":"neo","translation":"нео"}
+{"text":"om","translation":"ом"}
+{"text":"nat","translation":"сетевой"}
+{"text":"dpi","translation":"точек на дюйм"}
+{"text":"gis","translation":"геоинформационные системы"}
+{"text":"loc","translation":"местонахождение"}
+{"text":"vp","translation":"вице-президент"}
+{"text":"republicans","translation":"республиканцы"}
+{"text":"zen","translation":"дзен"}
+{"text":"dis","translation":"диссинг"}
+{"text":"kay","translation":"буква К"}
+{"text":"wifi","translation":"вай-фай"}
+{"text":"fwd","translation":"предисловие"}
+{"text":"hwy","translation":"шоссе"}
+{"text":"gdp","translation":"ВВП"}
+{"text":"grande","translation":"большой"}
+{"text":"trackbacks","translation":"трекбеки"}
+{"text":"aurora","translation":"аврора"}
+{"text":"tb","translation":"туберкулёз"}
+{"text":"yrs","translation":"годы"}
+{"text":"howto","translation":"практическое руководство"}
+{"text":"gotta","translation":"должен"}
+{"text":"vip","translation":"персона нон грата"}
+{"text":"mardi","translation":"вторник"}
+{"text":"holly","translation":"остролист"}
+{"text":"ka","translation":"буква К"}
+{"text":"gratuit","translation":"бесплатно"}
+{"text":"fbi","translation":"ФБР"}
+{"text":"jaguar","translation":"ягуар"}
+{"text":"ethernet","translation":"этернет"}
+{"text":"postposted","translation":"опубликованный впоследствии"}
+{"text":"cialis","translation":"циалис"}
+{"text":"hist","translation":"сокращение от history"}
+{"text":"firefox","translation":"Файрфокс"}
+{"text":"korean","translation":"корейский"}
+{"text":"princess","translation":"принцесса"}
+{"text":"dublin","translation":"Дублин"}
+{"text":"reg","translation":"реестр"}
+{"text":"wiki","translation":"вики"}
+{"text":"baker","translation":"пекарь"}
+{"text":"ukraine","translation":"Украина"}
+{"text":"nashville","translation":"Нэшвилл"}
+{"text":"ceo","translation":"генеральный директор"}
+{"text":"milwaukee","translation":"Милуоки"}
+{"text":"chile","translation":"Чили"}
+{"text":"sri","translation":"шри"}
+{"text":"trans","translation":"транс"}
+{"text":"nova","translation":"нова"}
+{"text":"acrobat","translation":"Акробат"}
+{"text":"config","translation":"конфигурация"}
+{"text":"edinburgh","translation":"Эдинбург"}
+{"text":"excel","translation":"Эксель"}
+{"text":"hungary","translation":"Венгрия"}
+{"text":"sms","translation":"смс"}
+{"text":"iraqi","translation":"иракский"}
+{"text":"vista","translation":"Виста"}
+{"text":"foto","translation":"фото"}
+{"text":"amsterdam","translation":"Амстердам"}
+{"text":"prince","translation":"принц"}
+{"text":"fm","translation":"частотная модуляция"}
+{"text":"mens","translation":"мужской"}
+{"text":"ref","translation":"рефери"}
+{"text":"potter","translation":"горшечник"}
+{"text":"sterling","translation":"стерлинг"}
+{"text":"swiss","translation":"швейцарский"}
+{"text":"caribbean","translation":"карибский"}
+{"text":"arab","translation":"араб"}
+{"text":"misc","translation":"разное"}
+{"text":"holdem","translation":"холдем"}
+{"text":"dont","translation":"не"}
+{"text":"kg","translation":"килограмм"}
+{"text":"qty","translation":"количество"}
+{"text":"pcs","translation":"шт."}
+{"text":"von","translation":"предлог немецкого происхождения"}
+{"text":"para","translation":"приставка"}
+{"text":"ing","translation":"суффикс"}
+{"text":"med","translation":"медицинский"}
+{"text":"jr","translation":"младший"}
+{"text":"incorporated","translation":"акционерная компания"}
+{"text":"exp","translation":"срок годности"}
+{"text":"cpu","translation":"центральный процессор"}
+{"text":"sr","translation":"старший"}
+{"text":"nr","translation":"номер"}
+{"text":"lbs","translation":"фунты"}
+{"text":"lol","translation":"очень смешно"}
+{"text":"mph","translation":"миль в час"}
+{"text":"def","translation":"определение"}
+{"text":"mrs","translation":"миссис"}
+{"text":"yr","translation":"год"}
+{"text":"latinas","translation":"латиноамериканки"}
+{"text":"temp","translation":"временный"}
+{"text":"intro","translation":"введение"}
+{"text":"tramadol","translation":"трамадол"}
+{"text":"sigma","translation":"сигма"}
+{"text":"ext","translation":"расширение"}
+{"text":"phd","translation":"доктор философии"}
+{"text":"aka","translation":"также известный как"}
+{"text":"goto","translation":"перейти"}
+{"text":"xl","translation":"экстра большой"}
+{"text":"cad","translation":"автоматизированное проектирование"}
+{"text":"dir","translation":"директория"}
+{"text":"israeli","translation":"израильский"}
+{"text":"fotos","translation":"фотографии"}
+{"text":"freeware","translation":"бесплатное программное обеспечение"}
+{"text":"commonwealth","translation":"содружество"}
+{"text":"islam","translation":"ислам"}
+{"text":"fy","translation":"финансовый год"}
+{"text":"lite","translation":"облегченный"}
+{"text":"ghz","translation":"гигагерц"}
+{"text":"halloween","translation":"хеллоуин"}
+{"text":"ep","translation":"расширенная пьеса"}
+{"text":"democrats","translation":"демократы"}
+{"text":"gbp","translation":"британский фунт"}
+{"text":"lb","translation":"фунт"}
+{"text":"the","translation":"определённый артикль"}
+{"text":"of","translation":"предлог родительного падежа"}
+{"text":"to","translation":"предлог дательного падежа / инфинитивная частица"}
+{"text":"in","translation":"предлог местного падежа"}
+{"text":"for","translation":"предлог"}
+{"text":"is","translation":"глагол быть (3-е лицо ед. ч.)"}
+{"text":"on","translation":"предлог"}
+{"text":"that","translation":"указательное местоимение / союз"}
+{"text":"by","translation":"предлог"}
+{"text":"this","translation":"указательное местоимение"}
+{"text":"with","translation":"предлог"}
+{"text":"are","translation":"глагол быть (множ. ч.)"}
+{"text":"from","translation":"предлог"}
+{"text":"at","translation":"предлог"}
+{"text":"as","translation":"союз / предлог"}
+{"text":"an","translation":"неопределённый артикль"}
+{"text":"was","translation":"глагол быть (прошедшее время, ед. ч.)"}
+{"text":"will","translation":"глагол будущего времени"}
+{"text":"has","translation":"вспомогательный глагол"}
+{"text":"am","translation":"глагол быть (1-е лицо ед. ч.)"}
+{"text":"been","translation":"причастие прошедшего времени от быть"}
+{"text":"would","translation":"условный глагол"}
+{"text":"were","translation":"глагол быть (прошедшее время, множ. ч. / 2-е лицо)"}
+{"text":"had","translation":"вспомогательный глагол"}
+{"text":"non","translation":"префикс отрицания"}
+{"text":"shall","translation":"вспомогательный глагол"}
+{"text":"english","translation":"английский язык"}
+{"text":"friday","translation":"пятница"}
+{"text":"monday","translation":"понедельник"}
+{"text":"sunday","translation":"воскресенье"}
+{"text":"pre","translation":"префикс"}
+{"text":"sat","translation":"суббота"}
+{"text":"tuesday","translation":"вторник"}
+{"text":"greek","translation":"греческий"}
+{"text":"namespace","translation":"пространство имён"}
+{"text":"changelog","translation":"журнал изменений"}
+{"text":"sic","translation":"так (в оригинале)"}
+{"text":"thanksgiving","translation":"день благодарения"}
+{"text":"rand","translation":"рэнд"}
+{"text":"eh","translation":"частица вопроса"}
+{"text":"aqua","translation":"вода"}
+{"text":"italiano","translation":"итальянский язык"}
+{"text":"bon","translation":"хороший"}
+{"text":"mas","translation":"более"}
+{"text":"dom","translation":"господин"}
+{"text":"dans","translation":"в"}
+{"text":"myanmar","translation":"Мьянма"}
+{"text":"antigua","translation":"Антигуа"}
+{"text":"dept","translation":"отдел"}
+{"text":"madagascar","translation":"Мадагаскар"}
+{"text":"tobago","translation":"Тобаго"}
+{"text":"cos","translation":"потому что"}
+{"text":"uzbekistan","translation":"Узбекистан"}
+{"text":"albania","translation":"Албания"}
+{"text":"whats","translation":"что есть"}
+{"text":"saturn","translation":"Сатурн"}
+{"text":"deutsche","translation":"немецкий"}
+{"text":"monte","translation":"гора"}
+{"text":"algeria","translation":"Алжир"}
+{"text":"leone","translation":"лев"}
+{"text":"eau","translation":"вода"}
+{"text":"mauritius","translation":"Маврикий"}
+{"text":"verde","translation":"зелёный"}
+{"text":"dvds","translation":"DVD"}
+{"text":"ringtones","translation":"рингтон"}
+{"text":"sec","translation":"сек"}
+{"text":"km","translation":"км"}
+{"text":"ft","translation":"фут"}
+{"text":"cds","translation":"CD"}
+{"text":"vs","translation":"против"}
+{"text":"sitemap","translation":"карта сайта"}
+{"text":"eu","translation":"ЕС"}
+{"text":"lcd","translation":"ЖК"}
+{"text":"ave","translation":"авеню"}
+{"text":"dj","translation":"ди-джей"}
+{"text":"russia","translation":"Россия"}
+{"text":"cm","translation":"см"}
+{"text":"hr","translation":"ч"}
+{"text":"vhs","translation":"VHS"}
+{"text":"saturday","translation":"суббота"}
+{"text":"christmas","translation":"рождество"}
+{"text":"fri","translation":"пт"}
+{"text":"thursday","translation":"четверг"}
+{"text":"wednesday","translation":"среда"}
+{"text":"wed","translation":"ср"}
+{"text":"eg","translation":"например"}
+{"text":"tue","translation":"вт"}
+{"text":"christian","translation":"христианский"}
+{"text":"thu","translation":"чт"}
+{"text":"tel","translation":"тел"}
+{"text":"ie","translation":"то есть"}
+{"text":"est","translation":"устан"}
+{"text":"max","translation":"макс"}
+{"text":"canadian","translation":"канадский"}
+{"text":"chinese","translation":"китайский"}
+{"text":"mr","translation":"г-н"}
+{"text":"multi","translation":"мульти"}
+{"text":"indian","translation":"индийский"}
+{"text":"prev","translation":"пред"}
+{"text":"pacific","translation":"тихоокеанский"}
+{"text":"int","translation":"целое"}
+{"text":"german","translation":"немецкий"}
+{"text":"ed","translation":"выпуск"}
+{"text":"phentermine","translation":"фентермин"}
+{"text":"etc","translation":"и т.д."}
+{"text":"min","translation":"мин"}
+{"text":"th","translation":"чт"}
+{"text":"dr","translation":"др"}
+{"text":"dev","translation":"разработка"}
+{"text":"vol","translation":"т"}
+{"text":"pp","translation":"с"}
+{"text":"na","translation":"неприменимо"}
+{"text":"proc","translation":"процедура"}
+{"text":"fx","translation":"эффекты"}
+{"text":"dl","translation":"закачка"}
+{"text":"comp","translation":"компьютер"}
+{"text":"alt","translation":"клавиша альт"}
+{"text":"ls","translation":"команда выведения списка"}
+{"text":"midi","translation":"midi"}
+{"text":"hon","translation":"почётный"}
+{"text":"sept","translation":"сентябрь"}
+{"text":"lt","translation":"лейтенант"}
+{"text":"atm","translation":"банкомат"}
+{"text":"eq","translation":"эквалайзер"}
+{"text":"lang","translation":"язык"}
+{"text":"uv","translation":"ультрафиолет"}
+{"text":"cms","translation":"система управления контентом"}
+{"text":"pos","translation":"точка продажи"}
+{"text":"utils","translation":"утилиты"}
+{"text":"phys","translation":"физика"}
+{"text":"nav","translation":"навигация"}
+{"text":"fa","translation":"фа"}
+{"text":"ist","translation":"суффикс -ист"}
+{"text":"lc","translation":"нижний регистр"}
+{"text":"lil","translation":"маленький"}
+{"text":"sys","translation":"система"}
+{"text":"scsi","translation":"scsi"}
+{"text":"dns","translation":"система доменных имён"}
+{"text":"pty","translation":"pty"}
+{"text":"ws","translation":"веб-сервис"}
+{"text":"univ","translation":"университет"}
+{"text":"allah","translation":"аллах"}
+{"text":"telecharger","translation":"скачать"}
+{"text":"theta","translation":"тета"}
+{"text":"lightbox","translation":"лайтбокс"}
+{"text":"filme","translation":"фильм"}
+{"text":"alot","translation":"много"}
+{"text":"incl","translation":"включая"}
+{"text":"belle","translation":"красавица"}
+{"text":"tions","translation":"суффикс существительных"}
+{"text":"til","translation":"до"}
+{"text":"christians","translation":"христиане"}
+{"text":"travesti","translation":"трансвестит"}
+{"text":"tanzania","translation":"Танзания"}
+{"text":"venice","translation":"Венеция"}
+{"text":"estonia","translation":"Эстония"}
+{"text":"namibia","translation":"Намибия"}
+{"text":"ecuador","translation":"Эквадор"}
+{"text":"samoa","translation":"Самоа"}
+{"text":"nano","translation":"нано"}
+{"text":"victorian","translation":"викторианский"}
+{"text":"cambodia","translation":"Камбоджа"}
+{"text":"lithuania","translation":"Литва"}
+{"text":"stat","translation":"немедленно"}
+{"text":"slovenia","translation":"Словения"}
+{"text":"bios","translation":"BIOS"}
+{"text":"thee","translation":"тебя"}
+{"text":"bolivia","translation":"Боливия"}
+{"text":"kuwait","translation":"Кувейт"}
+{"text":"sudan","translation":"Судан"}
+{"text":"americas","translation":"Америки"}
+{"text":"latvia","translation":"Латвия"}
+{"text":"guatemala","translation":"Гватемала"}
+{"text":"bangkok","translation":"Бангкок"}
+{"text":"brisbane","translation":"Брисбен"}
+{"text":"oscar","translation":"Оскар"}
+{"text":"manitoba","translation":"Манитоба"}
+{"text":"jerusalem","translation":"Иерусалим"}
+{"text":"transexuales","translation":"трансексуалы"}
+{"text":"fiji","translation":"Фиджи"}
+{"text":"dist","translation":"сокращение от distribution"}
+{"text":"prot","translation":"сокращение от protocol"}
+{"text":"geo","translation":"сокращение от geography"}
+{"text":"ln","translation":"сокращение от lane"}
+{"text":"eco","translation":"сокращение от ecology"}
+{"text":"mins","translation":"минуты"}
+{"text":"ecommerce","translation":"электронная коммерция"}
+{"text":"approx","translation":"примерно"}
+{"text":"jake","translation":"прекрасный"}
+{"text":"uh","translation":"межд."}
+{"text":"prix","translation":"цена"}
+{"text":"listprice","translation":"рекомендуемая цена"}
+{"text":"libs","translation":"библиотеки"}
+{"text":"ppm","translation":"частей на миллион"}
+{"text":"exec","translation":"выполнение"}
+{"text":"inf","translation":"бесконечность"}
+{"text":"electro","translation":"электро"}
+{"text":"vietnamese","translation":"вьетнамский"}
+{"text":"psi","translation":"фунт-сила на квадратный дюйм"}
+{"text":"pct","translation":"процент"}
+{"text":"vids","translation":"видеоролики"}
+{"text":"pas","translation":"шаги"}
+{"text":"gonna","translation":"собираться"}
+{"text":"ah","translation":"междометие"}
+{"text":"ho","translation":"междометие"}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Delete, Volume2 } from "lucide-react";
+import { Check, Delete, Volume2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +41,7 @@ export function QuestionView({
   useEffect(() => {
     if (question.kind !== "audio-choice" && question.kind !== "listening") return;
     let ignore = false;
-    speak(question.speak ?? "").then((started) => {
+    speak(question.speak ?? "", question.audioUrl).then((started) => {
       if (!ignore && !started) setSound("blocked");
     });
     return () => {
@@ -50,7 +50,7 @@ export function QuestionView({
   }, [question]);
 
   async function play() {
-    const started = await speak(question.speak ?? "");
+    const started = await speak(question.speak ?? "", question.audioUrl);
     setSound(started ? "ok" : "broken");
   }
 
@@ -211,6 +211,7 @@ function Builder({
 }) {
   const [picked, setPicked] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+  const [right, setRight] = useState(false);
 
   const assembled = picked.map((index) => question.letters[index]).join("");
 
@@ -220,9 +221,11 @@ function Builder({
       // Checked the moment every tile is used: asking for a separate confirm
       // after the last letter is a click that carries no information.
       if (next.length === question.letters.length) {
-        setDone(true);
         const given = next.map((i) => question.letters[i]).join("");
-        onAnswered({ verdict: judge(given, question.answer), given });
+        const verdict = judge(given, question.answer);
+        setDone(true);
+        setRight(passed(verdict));
+        onAnswered({ verdict, given });
       }
     },
     [question, onAnswered],
@@ -271,8 +274,18 @@ function Builder({
 
   return (
     <div className="space-y-4">
-      <div className="border-border flex min-h-12 items-center justify-center rounded-lg border border-dashed px-4">
-        <span className="font-display text-2xl tracking-wide">
+      <div
+        className={cn(
+          "flex min-h-12 items-center justify-center rounded-lg border border-dashed px-4",
+          done ? (right ? "border-primary" : "border-destructive") : "border-border",
+        )}
+      >
+        <span
+          className={cn(
+            "font-display text-2xl tracking-wide",
+            done && (right ? "text-primary" : "text-destructive"),
+          )}
+        >
           {assembled || <span className="text-muted-foreground text-base">…</span>}
         </span>
       </div>
@@ -320,11 +333,14 @@ function Typed({
 }) {
   const [value, setValue] = useState("");
   const [done, setDone] = useState(false);
+  const [right, setRight] = useState(false);
 
   function submit() {
     if (done || !value.trim()) return;
+    const verdict = judge(value, question.answer);
     setDone(true);
-    onAnswered({ verdict: judge(value, question.answer), given: value });
+    setRight(passed(verdict));
+    onAnswered({ verdict, given: value });
   }
 
   return (
@@ -345,16 +361,31 @@ function Typed({
         autoCapitalize="off"
         autoCorrect="off"
         spellCheck={false}
-        className="max-w-sm text-center text-base"
+        className={cn(
+          "max-w-sm text-center text-base",
+          done && (right ? "border-primary text-primary" : "border-destructive"),
+        )}
       />
-      <Button type="button" size="lg" onClick={submit} disabled={done || !value.trim()}>
-        Check
-      </Button>
+      {!done && (
+        <Button type="button" size="lg" onClick={submit} disabled={!value.trim()}>
+          Check
+        </Button>
+      )}
     </div>
   );
 }
 
-/** Shown after an answer: what was right, and how close the attempt was. */
+/**
+ * The verdict, under the question rather than instead of it.
+ *
+ * The question stays on screen: seeing which option was right, next to the one
+ * you picked, is the moment the learning happens, and swapping it for a panel
+ * that says "Correct" throws that away — it made the answer disappear at the
+ * exact instant it was worth looking at.
+ *
+ * Right answers say almost nothing. A tick, and the button moves you on. It is
+ * a wrong answer that needs words.
+ */
 export function AnswerFeedback({
   result,
   answer,
@@ -364,22 +395,36 @@ export function AnswerFeedback({
   answer: string;
   onNext: () => void;
 }) {
+  const right = passed(result.verdict);
+
   return (
     <div className="flex flex-col items-center gap-3 text-center">
-      {result.verdict === "correct" ? (
-        <p className="text-primary text-sm">Correct</p>
-      ) : result.verdict === "almost" ? (
-        <p className="text-brand-soft text-sm">
-          Almost — it is <span className="font-medium">{answer}</span>
-        </p>
-      ) : (
-        <p className="text-muted-foreground text-sm">
-          It is <span className="text-foreground font-medium">{answer}</span>
-        </p>
-      )}
+      <p
+        className={cn(
+          "flex items-center gap-2 text-sm",
+          right ? "text-primary" : "text-destructive",
+        )}
+      >
+        {right ? (
+          <Check className="size-4 shrink-0" />
+        ) : (
+          <X className="size-4 shrink-0" />
+        )}
+        {result.verdict === "correct" ? (
+          "Correct"
+        ) : result.verdict === "almost" ? (
+          <span className="text-brand-soft">
+            Almost — it is <span className="font-medium">{answer}</span>
+          </span>
+        ) : (
+          <span>
+            It is <span className="font-medium">{answer}</span>
+          </span>
+        )}
+      </p>
 
       <Button type="button" size="lg" onClick={onNext} autoFocus>
-        {passed(result.verdict) ? "Next" : "Got it"}
+        Next
       </Button>
     </div>
   );

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
-import { scheduleReview, type ReviewRating } from "@/lib/srs";
+import { scheduleReview, snapshotOf, type ReviewRating } from "@/lib/srs";
+import type { Prisma } from "@/app/generated/prisma/client";
 
 const schema = z.object({
   wordId: z.string().min(1),
@@ -29,19 +30,21 @@ export async function POST(request: Request) {
   }
 
   const now = new Date();
-  const next = scheduleReview(
-    { intervalDays: word.intervalDays, ease: word.ease },
-    parsed.data.rating as ReviewRating,
-    now,
-  );
+  const next = scheduleReview(word, parsed.data.rating as ReviewRating, now);
 
   const [updated] = await getPrisma().$transaction([
     getPrisma().userWord.update({
       where: { id: word.id },
       data: {
-        intervalDays: next.intervalDays,
-        ease: next.ease,
         dueAt: next.dueAt,
+        intervalDays: next.intervalDays,
+        stability: next.stability,
+        difficulty: next.difficulty,
+        srsState: next.srsState,
+        learningSteps: next.learningSteps,
+        reps: next.reps,
+        lapses: next.lapses,
+        lastReviewAt: next.lastReviewAt,
         // First rating spends one of today's new-word slots.
         introducedAt: word.introducedAt ?? now,
       },
@@ -51,6 +54,10 @@ export async function POST(request: Request) {
         wordId: word.id,
         rating: parsed.data.rating,
         // Snapshot for undo — a misclick should be one tap to take back.
+        // The whole scheduler state goes in one column: putting back an
+        // interval without the memory behind it would restore the date and
+        // quietly lose what the scheduler had learned about the word.
+        prevCard: snapshotOf(word) as unknown as Prisma.InputJsonValue,
         prevIntervalDays: word.intervalDays,
         prevEase: word.ease,
         prevDueAt: word.dueAt,

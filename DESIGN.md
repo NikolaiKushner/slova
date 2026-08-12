@@ -96,6 +96,17 @@ first review — a zero streak is discouraging, not informative. A day not yet
 studied keeps the streak visible rather than resetting it at midnight. No
 charts, no tiles; the dense stats dashboard stays out of scope.
 
+Under it, **Your words**: one stacked proportion bar (learned / learning / not
+started), a legend, and the share of translations that came from the shared
+base. The bar is the only picture on the screen, because three proportions are
+easier to see than to read.
+
+The page ends with its two actions — **Study now** and **Add words** — in the
+flow of the content, not in `PageHeader.actions`. A header action needs a
+header wide enough to hold it; here it left the buttons stranded in empty
+space beside a narrow title. **Study now** opens the trainings list rather than
+a session: choosing the format is part of studying now that there are seven.
+
 ## Study session
 
 One card, two answers, no chrome above it. Below the answer buttons sits a
@@ -113,7 +124,8 @@ carries no choice the user has to make twice.
 
 `/dictionary` is the whole of it. Adding words is not its own screen any more:
 the box sits on top of the list it fills, so a word added is visible the moment
-it is added, and `/dictionary/add` redirects here.
+it is added, and `/dictionary/add` redirects here (`next.config.ts`) for links
+that were made before the screen went away.
 
 Both tables sit on `bg-card` (white) against the mist page wash — a table is a
 surface you work on, and it should read as one.
@@ -132,8 +144,27 @@ surface you work on, and it should read as one.
    Rows fill in as the answers arrive — the shared base answers for the whole
    list at once, the model streams the rest. A machine-filled cell is muted
    until it is touched, because it is a suggestion.
-5. Under everything, **All words**: 25 a page, paged in the database, columns
-   English / Russian / Set / Learned.
+5. Under everything, **All words**: ten a page by default, paged in the
+   database, columns English / Russian / Set / Learned. Pages on the left, the
+   page size (10 / 25 / 50) on the right — one control for where you are, one
+   for how much you see.
+
+While the list is reloading it **dims in place** rather than turning into
+skeletons. Swapping ten rows for ten grey bars is the same information and a
+jump; the rows stay where the cursor left them.
+
+Rows tick, and the actions **take the place of the filters** on the same row
+rather than appearing above them — a bar that pushes the table down moves it
+out from under the cursor at the exact moment a tick goes in.
+
+Filing is three separate verbs, because they are three intentions and guessing
+between them would be wrong: **Move here** (this set and no other, the usual
+one), **Also add** (a word can belong to several lists), **Take out** (leave
+this set, stay in the rest). Deleting asks first, in a shadcn `AlertDialog` — it is the one action nothing
+undoes, and `confirm()` looked like the browser talking rather than the app.
+Nothing else asks: a dialog in front of a reversible action teaches people to
+dismiss dialogs. A tick you cannot see is a tick you did not mean, so changing page,
+filter or sort clears the selection.
 
 **Learned** is five dots in soft sage, not a number or a bar: the scale has five
 steps and no units, and a table row is read at a glance. It is derived from the
@@ -179,6 +210,21 @@ with a mouse is a drill people stop doing:
 - word builder — typing a letter claims the leftmost tile bearing it,
   **Backspace** hands the last one back;
 - typed formats — **Enter** submits, and **Enter** again moves on.
+
+**Every training asks where its words come from** before the first question —
+Brainstorm included. Once there is more than one list, "practise" stops being
+one thing: learning medical vocabulary and revising phrasal verbs are different
+sittings, and a trainer that decides for you turns the sets into decoration.
+Several can be chosen at once, and choosing none means everything. Someone with
+no sets never sees the step at all, because it would be a question with one
+answer.
+
+**An answered question stays on screen.** The verdict appears under it — a
+green tick, or a red cross with the right answer — and the button becomes
+Next. Swapping the question for a panel that says "Correct" removed the answer
+at the exact moment it was worth looking at: seeing which option was right,
+beside the one you picked, is where the learning happens. A right answer says
+almost nothing; it is a wrong one that needs words.
 
 **Brainstorm opens with the words**, all six in one table with their
 translations and a Start button. An introduction buried inside the drill reads

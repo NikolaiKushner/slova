@@ -10,8 +10,11 @@ import { LEARNED_INTERVAL_DAYS } from "@/lib/word-rating";
  * here, once, where it can be tested without a database.
  */
 
-/** Rows per page. The list is meant to be read, not scrolled forever. */
-export const DEFAULT_PAGE_SIZE = 25;
+/** Rows per page. Ten fits on a screen without scrolling past the controls. */
+export const DEFAULT_PAGE_SIZE = 10;
+
+/** What the page-size control offers. */
+export const PAGE_SIZES = [10, 25, 50] as const;
 export const MAX_PAGE_SIZE = 100;
 
 export const SORT_FIELDS = ["word", "translation", "rating", "added"] as const;

@@ -48,7 +48,18 @@ export async function POST(request: Request) {
   const [restored] = await getPrisma().$transaction([
     getPrisma().userWord.update({
       where: { id: word.id },
-      data: previous,
+      data: {
+        dueAt: previous.dueAt,
+        intervalDays: previous.intervalDays,
+        stability: previous.stability,
+        difficulty: previous.difficulty,
+        srsState: previous.srsState,
+        learningSteps: previous.learningSteps,
+        reps: previous.reps,
+        lapses: previous.lapses,
+        lastReviewAt: previous.lastReviewAt,
+        introducedAt: previous.introducedAt,
+      },
     }),
     getPrisma().reviewLog.delete({ where: { id: last.id } }),
   ]);

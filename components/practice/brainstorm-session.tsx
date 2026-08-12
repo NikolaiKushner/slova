@@ -22,13 +22,13 @@ import {
   AUDIO_LADDER,
   currentTask,
   DEFAULT_LADDER,
-  graduate,
   isFinished,
   startBrainstorm,
   type BrainstormState,
 } from "@/lib/practice/brainstorm";
 import { buildQuestion, type PracticeWord } from "@/lib/practice/question";
 import { speak, whenVoiceReady } from "@/lib/practice/speech";
+import { sessionQuery } from "@/lib/practice/catalog";
 import { Volume2 } from "lucide-react";
 
 /**
@@ -44,7 +44,7 @@ import { Volume2 } from "lucide-react";
 
 type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 
-export function BrainstormSession() {
+export function BrainstormSession({ setIds }: { setIds: string[] }) {
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<BrainstormState | null>(null);
@@ -57,7 +57,7 @@ export function BrainstormSession() {
     let ignore = false;
 
     Promise.all([
-      fetch("/api/practice/session?mode=brainstorm")
+      fetch(`/api/practice/session?mode=brainstorm&${sessionQuery(setIds)}`)
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
       whenVoiceReady(),
@@ -78,7 +78,7 @@ export function BrainstormSession() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [setIds]);
 
   const task = state && started ? currentTask(state) : null;
   const word = data?.words.find((w) => w.id === task?.wordId) ?? null;
@@ -101,7 +101,7 @@ export function BrainstormSession() {
       void fetch("/api/practice/graduate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wordId, ...graduate(word) }),
+        body: JSON.stringify({ wordId, errors: word.errors }),
       }).catch(() => {});
     }
   }, []);
@@ -176,9 +176,9 @@ export function BrainstormSession() {
         {task.remaining} {task.remaining === 1 ? "word" : "words"} left
       </p>
 
-      {question && !result ? (
-        <QuestionView question={question} onAnswered={answer} />
-      ) : question && result ? (
+      {question && <QuestionView question={question} onAnswered={answer} />}
+
+      {question && result && (
         <AnswerFeedback
           result={result}
           answer={
@@ -188,7 +188,7 @@ export function BrainstormSession() {
           }
           onNext={next}
         />
-      ) : null}
+      )}
     </div>
   );
 }
@@ -230,7 +230,7 @@ function Preview({
                         variant="ghost"
                         size="icon"
                         aria-label={`Listen to ${word.front}`}
-                        onClick={() => void speak(word.front)}
+                        onClick={() => void speak(word.front, word.audioUrl)}
                       >
                         <Volume2 className="size-4" />
                       </Button>

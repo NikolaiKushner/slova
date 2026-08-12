@@ -46,9 +46,30 @@ model UserWord {
   lexemeId String?
 
   dueAt        DateTime  @default(now())
+  /// Days the scheduler chose to wait. Written from FSRS's scheduled_days and
+  /// kept as a column because the list sorts and the learned rating read it —
+  /// both want one number, monotone in how well the word is known.
   intervalDays Float     @default(0)
+  /// Legacy from the interval-doubling scheduler that came before FSRS.
+  /// Nothing reads it any more; kept so this migration stays additive.
   ease         Float     @default(2.5)
   introducedAt DateTime?
+
+  /// FSRS memory state. Three numbers instead of one ease factor: how long the
+  /// memory currently lasts, how hard this particular word is for this person,
+  /// and where it is in the learning cycle. Null until the first review — a
+  /// word nobody has studied has no memory to model.
+  stability     Float?
+  difficulty    Float?
+  /// State enum from ts-fsrs: 0 new, 1 learning, 2 review, 3 relearning.
+  srsState      Int       @default(0)
+  learningSteps Int       @default(0)
+  reps          Int       @default(0)
+  /// Times this word was forgotten after having been learned. FSRS treats a
+  /// lapse very differently from a first failure, which is most of why it
+  /// beats a fixed multiplier.
+  lapses        Int       @default(0)
+  lastReviewAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,6 +129,12 @@ model ReviewLog {
   prevEase         Float?
   prevDueAt        DateTime?
   prevIntroducedAt DateTime?
+
+  /// The whole scheduler state before this rating, as FSRS keeps it. One
+  /// column rather than six more: undo needs to put back exactly what was
+  /// there, and the shape of that is the scheduler's business, not the
+  /// database's. Null on rows written before FSRS.
+  prevCard Json?
 
   @@index([wordId])
   @@index([wordId, createdAt])
@@ -170,6 +197,13 @@ model Lexeme {
 
   imageUrl    String?
   imageSource String?
+
+  /// Recorded pronunciation, shared by everyone the way the translation is —
+  /// paid for once per word rather than once per learner. Null means the
+  /// browser's own voice says it instead, which it can do for any word.
+  audioUrl    String?
+  /// Which voice made it, so a generation can be replaced without guessing.
+  audioSource String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

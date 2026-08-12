@@ -33,7 +33,7 @@ export default async function SetsPage() {
         description="Lists you have imported. A word can sit in several of them and still be one word, with one schedule."
         actions={
           <Link
-            href="/dictionary/add"
+            href="/dictionary"
             className={cn(
               buttonVariants({ size: "lg" }),
               "bg-teal-800 text-white hover:bg-teal-900",

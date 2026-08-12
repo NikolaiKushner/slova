@@ -220,26 +220,3 @@ function replace(words: SessionWord[], updated: SessionWord): SessionWord[] {
 export function isFinished(state: BrainstormState): boolean {
   return state.queue.length === 0;
 }
-
-/**
- * What the scheduler should start this word on.
- *
- * The point of the handover: a word that went through the whole ladder without
- * a stumble is genuinely better known than one that took six goes, and giving
- * both the same starting interval and the same ease throws that away. This is
- * the one honest signal about a new word we will ever get, and it costs
- * nothing to pass along.
- *
- * Deliberately expressed in this app's scheduler, not SM-2's: ease lives
- * between 1.3 and 3.0 here, and there are two ratings rather than six.
- */
-export function graduate(word: Pick<SessionWord, "errors">): {
-  intervalDays: number;
-  ease: number;
-} {
-  if (word.errors === 0) return { intervalDays: 1, ease: 2.7 };
-  if (word.errors === 1) return { intervalDays: 1, ease: 2.5 };
-  if (word.errors <= 3) return { intervalDays: 1, ease: 2.3 };
-  // Shaky: due again the same day rather than tomorrow.
-  return { intervalDays: 0, ease: 2.1 };
-}

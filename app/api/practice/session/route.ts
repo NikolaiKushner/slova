@@ -21,11 +21,13 @@ export async function GET(request: Request) {
   }
 
   const params = new URL(request.url).searchParams;
-  const setId = params.get("set")?.trim() || undefined;
+  // Repeated rather than comma-joined: a set id is opaque and a separator
+  // inside one would be silently wrong rather than loudly.
+  const setIds = params.getAll("set").map((id) => id.trim()).filter(Boolean);
   const brainstorm = params.get("mode") === "brainstorm";
 
   const { words, pool } = await buildPracticeSession(session.user.id, {
-    setId,
+    setIds,
     brainstorm,
   });
 

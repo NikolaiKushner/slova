@@ -3,25 +3,24 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
+import { scheduleGraduation } from "@/lib/srs";
 
 /**
  * A word leaving Brainstorm and entering the schedule.
  *
  * Not the review endpoint, and the difference matters. A review says "this
  * went well or badly, move the interval accordingly"; this says "this word has
- * just been learned from scratch, and here is how easily". It writes the
- * starting interval and ease outright rather than nudging what was there,
- * because there was nothing there — the word had never been studied.
+ * just been learned from scratch, and here is how easily".
  *
- * The numbers come from `graduate()` and are re-derived here rather than
- * trusted: a client could otherwise post itself an ease of 3.0 for every word.
+ * The client sends what it observed — how many times the word was missed —
+ * and the scheduler decides what that is worth. It is not allowed to send the
+ * schedule itself, or it could hand every word the longest interval going.
  */
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const schema = z.object({
   wordId: z.string().min(1),
-  intervalDays: z.number().min(0).max(1),
-  ease: z.number().min(1.3).max(3.0),
+  /** How many times the word was missed on its way up the ladder. */
+  errors: z.number().int().min(0).max(50),
 });
 
 export async function POST(request: Request) {
@@ -43,14 +42,20 @@ export async function POST(request: Request) {
   if (!word) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const now = new Date();
-  const { intervalDays, ease } = parsed.data;
+  const next = scheduleGraduation(parsed.data.errors, now);
 
   await prisma.userWord.update({
     where: { id: word.id },
     data: {
-      intervalDays,
-      ease,
-      dueAt: new Date(now.getTime() + intervalDays * MS_PER_DAY),
+      dueAt: next.dueAt,
+      intervalDays: next.intervalDays,
+      stability: next.stability,
+      difficulty: next.difficulty,
+      srsState: next.srsState,
+      learningSteps: next.learningSteps,
+      reps: next.reps,
+      lapses: next.lapses,
+      lastReviewAt: next.lastReviewAt,
       // A word graduates once. Running Brainstorm again later must not reset
       // the date it was first met, which is what the new-word allowance and
       // the learned rating both read.

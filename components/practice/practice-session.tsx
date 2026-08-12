@@ -18,6 +18,7 @@ import {
   type PracticeWord,
 } from "@/lib/practice/question";
 import { whenVoiceReady } from "@/lib/practice/speech";
+import { sessionQuery } from "@/lib/practice/catalog";
 
 /**
  * One training, one format, straight through the words.
@@ -36,9 +37,12 @@ type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 export function PracticeSession({
   kind,
   title,
+  setIds,
 }: {
   kind: ExerciseKind;
   title: string;
+  /** Empty means the whole dictionary. */
+  setIds: string[];
 }) {
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +54,7 @@ export function PracticeSession({
   useEffect(() => {
     let ignore = false;
 
-    fetch("/api/practice/session")
+    fetch(`/api/practice/session?${sessionQuery(setIds)}`)
       .then((response) => (response.ok ? response.json() : null))
       .then((payload: Payload | null) => {
         if (ignore) return;
@@ -64,7 +68,7 @@ export function PracticeSession({
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [setIds]);
 
   // Only the sound formats care, so only they ask — and the answer arrives in
   // the callback rather than being set from the body of the effect.
@@ -157,14 +161,18 @@ export function PracticeSession({
         {title} · {index + 1} of {words.length}
       </p>
 
-      {question && !result && (
-        <QuestionView question={question} onAnswered={answer} />
-      )}
+      {/* The question stays put once answered — the coloured option beside
+          the one you picked is the part worth looking at. */}
+      {question && <QuestionView question={question} onAnswered={answer} />}
 
       {question && result && (
         <AnswerFeedback
           result={result}
-          answer={"answer" in question ? question.answer : question.options[question.answerIndex]}
+          answer={
+            "answer" in question
+              ? question.answer
+              : question.options[question.answerIndex]
+          }
           onNext={next}
         />
       )}

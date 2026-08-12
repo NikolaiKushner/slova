@@ -5,6 +5,8 @@ import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { getStudySummary } from "@/lib/study-queue";
 import { getProgress, progressLine } from "@/lib/progress";
+import { getOverview } from "@/lib/overview";
+import { OverviewStats } from "@/components/overview-stats";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -13,9 +15,10 @@ export default async function TodayPage() {
   if (!session?.user?.id) redirect("/login");
 
   const now = new Date();
-  const [summary, progress] = await Promise.all([
+  const [summary, progress, overview] = await Promise.all([
     getStudySummary(session.user.id, now),
     getProgress(session.user.id, now),
+    getOverview(session.user.id),
   ]);
 
   const progressText = progressLine(progress.today, progress.streak);
@@ -43,27 +46,6 @@ export default async function TodayPage() {
         eyebrow="Today"
         title={title}
         description={description}
-        actions={
-          <>
-            {summary.total > 0 ? (
-              <Link
-                href="/study"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "bg-teal-800 text-white hover:bg-teal-900",
-                )}
-              >
-                Study now
-              </Link>
-            ) : null}
-            <Link
-              href="/dictionary/add"
-              className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-            >
-              Add words
-            </Link>
-          </>
-        }
       />
 
       {progressText ? (
@@ -71,6 +53,40 @@ export default async function TodayPage() {
           {progressText}
         </p>
       ) : null}
+
+      <div className="mt-10">
+        <OverviewStats overview={overview} />
+      </div>
+
+      {/*
+       * The two things to do next, at the end of what the page has to say
+       * rather than floated beside the title. Up there they sat in the empty
+       * half of the header with nothing to belong to; here they read as the
+       * answer to the numbers directly above them.
+       *
+       * "Study" goes to the trainings list, not straight into a session —
+       * there are seven ways to be asked a word now, and picking one is part
+       * of studying rather than a detour on the way to it.
+       */}
+      <div className="mt-10 flex flex-wrap gap-3">
+        {summary.total > 0 ? (
+          <Link
+            href="/practice"
+            className={cn(
+              buttonVariants({ size: "lg" }),
+              "bg-teal-800 text-white hover:bg-teal-900",
+            )}
+          >
+            Study now
+          </Link>
+        ) : null}
+        <Link
+          href="/dictionary"
+          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+        >
+          Add words
+        </Link>
+      </div>
     </Page>
   );
 }
