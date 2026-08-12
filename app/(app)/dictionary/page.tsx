@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import { AddWordsPanel } from "@/components/add-words-panel";
 import { PageWide } from "@/components/page";
@@ -36,7 +36,11 @@ export default function DictionaryPage() {
         </Section>
 
         <Section title="All words">
-          <WordListTable key={reloadKey} />
+          {/* The list reads its filters from the URL, and that has to be read
+              inside a boundary so the shell can render before them. */}
+          <Suspense fallback={null}>
+            <WordListTable key={reloadKey} />
+          </Suspense>
         </Section>
       </div>
     </PageWide>
