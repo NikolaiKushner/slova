@@ -90,7 +90,32 @@ let queueCleared = false;
 /** Set while we are deliberately interrupting, so the victim is not alarmed. */
 let interrupting = false;
 
-export async function speak(text: string): Promise<boolean> {
+/**
+ * Plays a recording, when the word has one.
+ *
+ * Tried before the synthesiser because it is the same voice for everyone and
+ * on every device, which is what a pronunciation should be. It can still be
+ * refused — the autoplay rules apply to audio elements too — and then the
+ * caller falls through to speech, which is refused less often because it is
+ * not "media".
+ */
+async function playRecording(url: string): Promise<boolean> {
+  try {
+    const audio = new Audio(url);
+    audio.preload = "auto";
+    await audio.play();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function speak(text: string, audioUrl?: string | null): Promise<boolean> {
+  if (audioUrl && typeof window !== "undefined") {
+    if (await playRecording(audioUrl)) return true;
+    // Fall through: a refused recording is still a word that needs saying.
+  }
+
   if (!speechAvailable() || !text.trim()) {
     report("unavailable", text);
     return false;

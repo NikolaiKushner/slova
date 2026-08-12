@@ -198,6 +198,13 @@ model Lexeme {
   imageUrl    String?
   imageSource String?
 
+  /// Recorded pronunciation, shared by everyone the way the translation is —
+  /// paid for once per word rather than once per learner. Null means the
+  /// browser's own voice says it instead, which it can do for any word.
+  audioUrl    String?
+  /// Which voice made it, so a generation can be replaced without guessing.
+  audioSource String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

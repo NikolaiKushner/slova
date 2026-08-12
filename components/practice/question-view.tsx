@@ -41,7 +41,7 @@ export function QuestionView({
   useEffect(() => {
     if (question.kind !== "audio-choice" && question.kind !== "listening") return;
     let ignore = false;
-    speak(question.speak ?? "").then((started) => {
+    speak(question.speak ?? "", question.audioUrl).then((started) => {
       if (!ignore && !started) setSound("blocked");
     });
     return () => {
@@ -50,7 +50,7 @@ export function QuestionView({
   }, [question]);
 
   async function play() {
-    const started = await speak(question.speak ?? "");
+    const started = await speak(question.speak ?? "", question.audioUrl);
     setSound(started ? "ok" : "broken");
   }
 

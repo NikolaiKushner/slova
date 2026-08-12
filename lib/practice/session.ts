@@ -1,4 +1,5 @@
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
+import { normalizeKey } from "@/lib/lexicon/key";
 import { LEXICON_VERSION } from "@/lib/lexicon/lookup";
 import { SESSION_SIZE } from "@/lib/practice/brainstorm";
 import type { PracticeWord } from "@/lib/practice/question";
@@ -56,7 +57,33 @@ export async function buildPracticeSession(
       });
 
   const pool = await buildPool(userId);
-  return { words, pool };
+  return { words: await withAudio(words), pool };
+}
+
+/**
+ * Attaches the shared recording to each word.
+ *
+ * Joined by normalised key rather than by `lexemeId`, because that link is
+ * soft and may be null on words added before the lexicon existed. The key is
+ * the thing both sides agree on — it is what the whole shared base is indexed
+ * by.
+ */
+async function withAudio(words: PracticeWord[]): Promise<PracticeWord[]> {
+  if (words.length === 0) return words;
+
+  const keys = words.map((word) => normalizeKey(word.front)).filter(Boolean);
+  if (keys.length === 0) return words;
+
+  const lexemes = await getPrisma().lexeme.findMany({
+    where: { lang: STUDY_SOURCE_LANG, key: { in: keys }, audioUrl: { not: null } },
+    select: { key: true, audioUrl: true },
+  });
+  const byKey = new Map(lexemes.map((lexeme) => [lexeme.key, lexeme.audioUrl]));
+
+  return words.map((word) => ({
+    ...word,
+    audioUrl: byKey.get(normalizeKey(word.front)) ?? null,
+  }));
 }
 
 /**

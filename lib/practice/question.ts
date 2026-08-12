@@ -33,6 +33,8 @@ export type PracticeWord = {
   front: string;
   /** Its Russian translation. */
   back: string;
+  /** A recording of it, when the shared base has one. */
+  audioUrl?: string | null;
 };
 
 export type Question =
@@ -43,6 +45,8 @@ export type Question =
       prompt: string;
       /** What to pronounce, when the format has a sound. */
       speak?: string;
+      /** A recording of it, preferred over the browser's own voice. */
+      audioUrl?: string | null;
       options: string[];
       answerIndex: number;
     }
@@ -51,6 +55,7 @@ export type Question =
       wordId: string;
       prompt: string;
       speak?: string;
+      audioUrl?: string | null;
       /** Shuffled letters of the answer, exactly those and no others. */
       letters: string[];
       answer: string;
@@ -60,6 +65,7 @@ export type Question =
       wordId: string;
       prompt: string;
       speak?: string;
+      audioUrl?: string | null;
       answer: string;
     };
 
@@ -85,6 +91,7 @@ export function buildQuestion(
         // The audio format deliberately shows nothing: hearing it is the task.
         prompt: kind === "audio-choice" ? "" : word.front,
         speak: word.front,
+        audioUrl: word.audioUrl ?? null,
         options,
         answerIndex,
       };
@@ -107,6 +114,7 @@ export function buildQuestion(
         wordId: word.id,
         prompt: word.back,
         speak: word.front,
+        audioUrl: word.audioUrl ?? null,
         letters: scramble(word.front, rng),
         answer: word.front,
       };
@@ -120,6 +128,7 @@ export function buildQuestion(
         // translation would turn this into the typing exercise.
         prompt: "",
         speak: word.front,
+        audioUrl: word.audioUrl ?? null,
         answer: word.front,
       };
     }

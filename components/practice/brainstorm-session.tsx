@@ -229,7 +229,7 @@ function Preview({
                         variant="ghost"
                         size="icon"
                         aria-label={`Listen to ${word.front}`}
-                        onClick={() => void speak(word.front)}
+                        onClick={() => void speak(word.front, word.audioUrl)}
                       >
                         <Volume2 className="size-4" />
                       </Button>
