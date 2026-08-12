@@ -31,16 +31,15 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     title: "Tasks",
     items: [
       { title: "Learning map", href: "/tasks" },
-      { title: "Today", href: "/tasks/today", matches: ["/home"] },
+      { title: "Today", href: "/tasks/today", matches: ["/home", "/study"] },
       { title: "My progress", href: "/tasks/progress" },
     ],
   },
   {
     title: "Practice",
     items: [
-      { title: "Vocabulary", href: "/practice/vocabulary", matches: ["/study"] },
+      { title: "Trainings", href: "/practice", matches: ["/practice/vocabulary"] },
       { title: "Grammar", href: "/practice/grammar" },
-      { title: "Listening", href: "/practice/listening" },
       { title: "Reading", href: "/practice/reading" },
     ],
   },

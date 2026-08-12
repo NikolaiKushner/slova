@@ -16,12 +16,11 @@ const nextConfig: NextConfig = {
       // Section roots that are only a heading in the sidebar — send them to
       // the first page inside. /tasks and /dictionary are real pages, so they
       // are absent here on purpose.
-      { source: "/practice", destination: "/practice/vocabulary", permanent: false },
       { source: "/courses", destination: "/courses/grammar", permanent: false },
 
-      // The study player is the vocabulary trainer; it keeps its own URL
-      // rather than being duplicated behind a second one.
-      { source: "/practice/vocabulary", destination: "/study", permanent: false },
+      // Vocabulary practice became the trainings grid; the daily review keeps
+      // its own URL, reached from Today rather than from here.
+      { source: "/practice/vocabulary", destination: "/practice", permanent: false },
     ];
   },
 };

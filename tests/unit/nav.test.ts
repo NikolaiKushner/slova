@@ -4,7 +4,7 @@ import { NAV_SECTIONS, activeNavHref, isNavItemActive } from "@/lib/nav";
 describe("activeNavHref", () => {
   it("matches an item by its own path", () => {
     expect(activeNavHref("/tasks/today")).toBe("/tasks/today");
-    expect(activeNavHref("/practice/listening")).toBe("/practice/listening");
+    expect(activeNavHref("/practice/grammar")).toBe("/practice/grammar");
   });
 
   it("gives a nested path to the deeper item, not the section root", () => {
@@ -25,9 +25,14 @@ describe("activeNavHref", () => {
     expect(isNavItemActive("/tasks/today", "/tasks/today")).toBe(true);
   });
 
-  it("routes the study player to Practice → Vocabulary", () => {
-    expect(activeNavHref("/study")).toBe("/practice/vocabulary");
-    expect(activeNavHref("/study/deck-1")).toBe("/practice/vocabulary");
+  it("routes the study player to Tasks → Today, where it is started from", () => {
+    expect(activeNavHref("/study")).toBe("/tasks/today");
+    expect(activeNavHref("/study/deck-1")).toBe("/tasks/today");
+  });
+
+  it("keeps the trainings lit while one of them is running", () => {
+    expect(activeNavHref("/practice/builder")).toBe("/practice");
+    expect(activeNavHref("/practice/brainstorm")).toBe("/practice");
   });
 
   it("routes legacy paths to where their page moved", () => {
