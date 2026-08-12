@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
-import { BrainstormSession } from "@/components/practice/brainstorm-session";
-import { PracticeSession } from "@/components/practice/practice-session";
+import { TrainingRunner } from "@/components/practice/training-runner";
 import { trainingBySlug } from "@/lib/practice/catalog";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -25,11 +24,7 @@ export default async function TrainingPage({ params }: Params) {
         description={training.description}
       />
 
-      {training.id === "brainstorm" ? (
-        <BrainstormSession />
-      ) : (
-        <PracticeSession kind={training.id} title={training.title} />
-      )}
+      <TrainingRunner training={training} />
     </Page>
   );
 }

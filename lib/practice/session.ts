@@ -29,12 +29,16 @@ export type PracticeSession = {
 
 export async function buildPracticeSession(
   userId: string,
-  options: { setId?: string; brainstorm?: boolean } = {},
+  options: { setIds?: readonly string[]; brainstorm?: boolean } = {},
 ): Promise<PracticeSession> {
   const prisma = getPrisma();
+  // Several sets at once, because a session is a choice of material rather
+  // than a folder: "verbs and the medical list, nothing else" is a normal
+  // thing to want and awkward to express one set at a time.
+  const setIds = options.setIds?.filter(Boolean) ?? [];
   const where = {
     userId,
-    ...(options.setId ? { sets: { some: { setId: options.setId } } } : {}),
+    ...(setIds.length > 0 ? { sets: { some: { setId: { in: setIds } } } } : {}),
   };
 
   const limit = options.brainstorm ? SESSION_SIZE : TRAINING_SIZE;

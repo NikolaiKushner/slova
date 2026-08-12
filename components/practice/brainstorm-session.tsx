@@ -28,6 +28,7 @@ import {
 } from "@/lib/practice/brainstorm";
 import { buildQuestion, type PracticeWord } from "@/lib/practice/question";
 import { speak, whenVoiceReady } from "@/lib/practice/speech";
+import { sessionQuery } from "@/lib/practice/catalog";
 import { Volume2 } from "lucide-react";
 
 /**
@@ -43,7 +44,7 @@ import { Volume2 } from "lucide-react";
 
 type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 
-export function BrainstormSession() {
+export function BrainstormSession({ setIds }: { setIds: string[] }) {
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<BrainstormState | null>(null);
@@ -56,7 +57,7 @@ export function BrainstormSession() {
     let ignore = false;
 
     Promise.all([
-      fetch("/api/practice/session?mode=brainstorm")
+      fetch(`/api/practice/session?mode=brainstorm&${sessionQuery(setIds)}`)
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
       whenVoiceReady(),
@@ -77,7 +78,7 @@ export function BrainstormSession() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [setIds]);
 
   const task = state && started ? currentTask(state) : null;
   const word = data?.words.find((w) => w.id === task?.wordId) ?? null;

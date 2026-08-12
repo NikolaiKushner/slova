@@ -180,6 +180,14 @@ with a mouse is a drill people stop doing:
   **Backspace** hands the last one back;
 - typed formats — **Enter** submits, and **Enter** again moves on.
 
+**Every training asks where its words come from** before the first question —
+Brainstorm included. Once there is more than one list, "practise" stops being
+one thing: learning medical vocabulary and revising phrasal verbs are different
+sittings, and a trainer that decides for you turns the sets into decoration.
+Several can be chosen at once, and choosing none means everything. Someone with
+no sets never sees the step at all, because it would be a question with one
+answer.
+
 **An answered question stays on screen.** The verdict appears under it — a
 green tick, or a red cross with the right answer — and the button becomes
 Next. Swapping the question for a panel that says "Correct" removed the answer
