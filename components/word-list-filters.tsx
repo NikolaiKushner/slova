@@ -60,23 +60,23 @@ export function WordListFilters({
         : (sets.find((option) => option.id === selected)?.title ?? "All sets");
 
   return (
-    <div className="flex h-9 items-center gap-2">
-      <div className="relative h-9 max-w-xs flex-1">
-        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="relative w-64 max-w-full">
+        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
         <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Search words and translations"
           aria-label="Search words"
-          className="h-9 pl-9"
+          className="h-8 pl-8"
         />
-        {draft && (
+        {draft ? (
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             aria-label="Clear search"
-            className="absolute top-1/2 right-1 -translate-y-1/2"
+            className="absolute top-1/2 right-0.5 -translate-y-1/2"
             onClick={() => {
               setDraft("");
               onQueryChange("");
@@ -84,7 +84,7 @@ export function WordListFilters({
           >
             <X className="size-4" />
           </Button>
-        )}
+        ) : null}
       </div>
 
       <Select
@@ -93,7 +93,7 @@ export function WordListFilters({
           onSetChange(!next || next === ALL_SETS ? "" : next)
         }
       >
-        <SelectTrigger size="sm" className="w-52" aria-label="Filter by set">
+        <SelectTrigger className="w-52" aria-label="Filter by set">
           <SelectValue placeholder="All sets">{label}</SelectValue>
         </SelectTrigger>
         <SelectContent>

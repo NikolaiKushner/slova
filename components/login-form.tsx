@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -32,27 +34,25 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export function LoginForm() {
+export function LoginForm({ className }: { className?: string }) {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="space-y-4">
-      <Button
-        type="button"
-        size="lg"
-        className="w-full gap-2 bg-teal-800 text-white hover:bg-teal-900"
-        disabled={loading}
-        onClick={() => {
-          setLoading(true);
-          signIn("google", { redirectTo: "/tasks/today" });
-        }}
-      >
-        <GoogleIcon className="size-4 rounded-sm bg-white p-0.5" />
-        {loading ? "Opening Google…" : "Continue with Google"}
-      </Button>
-      <p className="text-center text-sm text-muted-foreground">
-        First time here? Signing in creates your account.
-      </p>
-    </div>
+    <Button
+      type="button"
+      size="lg"
+      className={cn(
+        "min-h-11 w-full gap-2 bg-teal-800 text-white hover:bg-teal-900",
+        className,
+      )}
+      disabled={loading}
+      onClick={() => {
+        setLoading(true);
+        signIn("google", { redirectTo: "/tasks/today" });
+      }}
+    >
+      <GoogleIcon className="size-5 rounded-sm bg-white p-0.5" />
+      {loading ? "Opening Google…" : "Continue with Google"}
+    </Button>
   );
 }

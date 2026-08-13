@@ -4,6 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { NEW_SET, NO_SET, SetPicker, type SetOption } from "@/components/set-picker";
 import {
   emptyRow,
@@ -212,38 +217,47 @@ export function AddWordsPanel({
   }
 
   return (
-    <div className="space-y-4">
-      <WordComposer rows={rows} onChange={setRows} disabled={busy} />
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {fixedSetId ? (
-          <span />
-        ) : (
-          <SetPicker
-            sets={sets}
-            value={setValue}
-            newTitle={newTitle}
-            onValueChange={setSetValue}
-            onNewTitleChange={setNewTitle}
-            disabled={busy}
-          />
-        )}
-        <Button
-          size="lg"
-          onClick={submit}
-          disabled={busy || words.length === 0 || needsName}
+    <div className="space-y-3">
+      <Card className="gap-0 py-0">
+        <CardContent className="p-0">
+          <WordComposer rows={rows} onChange={setRows} disabled={busy} />
+        </CardContent>
+        <CardFooter
+          className={
+            fixedSetId
+              ? "justify-end"
+              : "flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"
+          }
         >
-          {stage === "translating"
-            ? "Translating…"
-            : stage === "saving"
-              ? "Adding…"
-              : words.length === 0
-                ? "Add words"
-                : `Add ${words.length} word${words.length === 1 ? "" : "s"}`}
-        </Button>
-      </div>
+          {fixedSetId ? null : (
+            <SetPicker
+              sets={sets}
+              value={setValue}
+              newTitle={newTitle}
+              onValueChange={setSetValue}
+              onNewTitleChange={setNewTitle}
+              disabled={busy}
+            />
+          )}
+          <Button
+            size="lg"
+            onClick={submit}
+            disabled={busy || words.length === 0 || needsName}
+          >
+            {stage === "translating"
+              ? "Translating…"
+              : stage === "saving"
+                ? "Adding…"
+                : words.length === 0
+                  ? "Add words"
+                  : `Add ${words.length} word${words.length === 1 ? "" : "s"}`}
+          </Button>
+        </CardFooter>
+      </Card>
 
-      {message && <p className="text-muted-foreground text-sm">{message}</p>}
+      {message ? (
+        <p className="text-muted-foreground text-sm">{message}</p>
+      ) : null}
     </div>
   );
 }

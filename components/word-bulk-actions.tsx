@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FolderInput, FolderMinus, Trash2 } from "lucide-react";
+import { FolderInput, FolderMinus, FolderPlus, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete } from "@/components/confirm-delete";
@@ -12,16 +12,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { useSidebar } from "@/components/ui/sidebar";
 import type { SetOption } from "@/components/set-picker";
 
 /**
  * What to do with the rows that are ticked.
  *
- * Appears only when something is selected, and says how many — a bar of
- * disabled buttons above an untouched table is furniture. Filing offers both
- * "add" and "move" because they are genuinely different intentions: a word can
- * belong to three lists, and guessing which one was meant would be wrong about
- * half the time.
+ * A floating pill at the bottom of the screen, not a bar that swaps with the
+ * filters: ticking a row should not move the table. Filing offers both "add"
+ * and "move" because they are genuinely different intentions.
  */
 export function WordBulkActions({
   count,
@@ -39,26 +39,41 @@ export function WordBulkActions({
   busy?: boolean;
 }) {
   const [setId, setSetId] = useState("");
+  const { state, isMobile } = useSidebar();
 
   if (count === 0) return null;
 
-  return (
-    // One row, the same height as the filters it replaces, so the table below
-    // does not jump when a tick goes in.
-    <div className="flex h-9 items-center gap-2">
-      <span className="text-sm whitespace-nowrap">
-        {count} selected
-      </span>
+  const inset =
+    isMobile
+      ? "0px"
+      : state === "collapsed"
+        ? "var(--sidebar-width-icon)"
+        : "var(--sidebar-width)";
 
-      <div className="flex flex-1 items-center gap-2">
-        {sets.length > 0 && (
+  return (
+    <div
+      role="toolbar"
+      aria-label="Actions for selected words"
+      className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4"
+      style={{
+        bottom: "max(1.25rem, env(safe-area-inset-bottom))",
+        paddingLeft: isMobile ? undefined : `calc(${inset} + 1rem)`,
+      }}
+    >
+      <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-2 rounded-2xl bg-card px-3 py-2 shadow-sm ring-1 ring-foreground/10">
+        <span className="px-1 text-sm font-medium whitespace-nowrap">
+          {count} selected
+        </span>
+
+        {sets.length > 0 ? (
           <>
+            <Separator orientation="vertical" className="hidden h-5 sm:block" />
             <Select
               value={setId}
               onValueChange={(next) => setSetId(next ?? "")}
               disabled={busy}
             >
-              <SelectTrigger size="sm" className="w-40" aria-label="Set">
+              <SelectTrigger size="sm" className="w-36 sm:w-40" aria-label="Set">
                 <SelectValue placeholder="Choose a set">
                   {sets.find((set) => set.id === setId)?.title ?? "Choose a set"}
                 </SelectValue>
@@ -80,7 +95,7 @@ export function WordBulkActions({
               onClick={() => onFile(setId, "move")}
             >
               <FolderInput className="size-4" />
-              Move here
+              <span className="hidden sm:inline">Move here</span>
             </Button>
             <Button
               type="button"
@@ -89,7 +104,8 @@ export function WordBulkActions({
               disabled={!setId || busy}
               onClick={() => onFile(setId, "add")}
             >
-              Also add
+              <FolderPlus className="size-4" />
+              <span className="hidden sm:inline">Also add</span>
             </Button>
             <Button
               type="button"
@@ -99,13 +115,13 @@ export function WordBulkActions({
               onClick={() => onFile(setId, "remove")}
             >
               <FolderMinus className="size-4" />
-              Take out
+              <span className="hidden sm:inline">Take out</span>
             </Button>
           </>
-        )}
-      </div>
+        ) : null}
 
-      <div className="flex shrink-0 items-center gap-1">
+        <Separator orientation="vertical" className="hidden h-5 sm:block" />
+
         <ConfirmDelete
           title={`Delete ${count} ${count === 1 ? "word" : "words"}?`}
           description="They leave the dictionary along with everything the scheduler had learned about them. Taking them out of a set instead keeps the words."
@@ -116,15 +132,20 @@ export function WordBulkActions({
             variant="ghost"
             size="sm"
             disabled={busy}
-            // Muted until hover — never red at rest beside everything else.
             className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="size-4" />
-            Delete
+            <span className="hidden sm:inline">Delete</span>
           </Button>
         </ConfirmDelete>
-        <Button type="button" variant="ghost" size="sm" onClick={onClear}>
-          Clear
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={onClear}
+          aria-label="Clear selection"
+        >
+          <X className="size-4" />
         </Button>
       </div>
     </div>

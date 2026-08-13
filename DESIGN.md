@@ -10,7 +10,7 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
   (`npx shadcn@latest add <name>`). Hand-written markup is for layout only.
   These are built on **@base-ui/react** (not Radix); `components.json` style is
   `base-nova`.
-- Brand first: **Slova** is the hero signal on the landing page; in the app shell it’s the sidebar wordmark (Fraunces).
+- Brand first: **Slova** is the hero signal on the landing page; in the app shell it’s the Fraunces wordmark (`BrandWordmark` — teal S, tighter and slightly wonkier than a page title). The wordmark hides when the sidebar collapses.
 - One job per screen: home = due; import = add words; study = one card.
 - Prefer whitespace and typography over cards/chrome.
 - Cards only where the user interacts (study flip surface, list rows).
@@ -80,7 +80,18 @@ Use tokens / Tailwind theme classes — do not hardcode new hex in components un
 ## Typography
 
 - **Display:** Fraunces (`font-display`) — brand, study words, section titles
-- **UI:** DM Sans (`font-sans`) — body, forms, nav
+- **UI:** Source Sans 3 (`font-sans`) — body, forms, nav; includes Cyrillic,
+  so translations do not fall back to a system serif
+
+## Brand mark
+
+The logo is the word **Slova** (`BrandWordmark`): Fraunces, S in strong teal,
+the rest in ink. No tile, no icon beside it. It uses `font-logo` so it does
+not read as a heading. The tab icon is that same Fraunces S, outlined as a path so the tab does not
+have to load a font (`app/icon.svg`, plus `app/favicon.ico` because Chrome
+still asks for that path first) — teal, no tile. The iOS home-screen
+icon is the S on a teal field (`app/apple-icon.tsx`) because a home-screen
+glyph still needs a fill, and iOS applies its own mask.
 
 ## Motion
 
@@ -145,17 +156,19 @@ surface you work on, and it should read as one.
    list at once, the model streams the rest. A machine-filled cell is muted
    until it is touched, because it is a suggestion.
 5. Under everything, **All words**: ten a page by default, paged in the
-   database, columns English / Russian / Set / Learned. Pages on the left, the
-   page size (10 / 25 / 50) on the right — one control for where you are, one
-   for how much you see.
+   database, columns English / Russian / Set / Learned. Pages on the left —
+   shadcn `Pagination` with numbered links and an ellipsis — the page size
+   (10 / 25 / 50) on the right. One control for where you are, one for how
+   much you see.
 
 While the list is reloading it **dims in place** rather than turning into
 skeletons. Swapping ten rows for ten grey bars is the same information and a
 jump; the rows stay where the cursor left them.
 
-Rows tick, and the actions **take the place of the filters** on the same row
-rather than appearing above them — a bar that pushes the table down moves it
-out from under the cursor at the exact moment a tick goes in.
+Rows tick, and the actions appear as a floating pill at the bottom of the
+screen rather than taking the place of the filters — a bar that pushes the
+table down moves it out from under the cursor at the exact moment a tick
+goes in. Filters stay where they were.
 
 Filing is three separate verbs, because they are three intentions and guessing
 between them would be wrong: **Move here** (this set and no other, the usual

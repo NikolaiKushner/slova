@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDelete } from "@/components/confirm-delete";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { ROW_ICON, ROW_ICON_DESTROY } from "@/components/word-table";
 import { WordRating } from "@/components/word-rating";
 import { cn } from "@/lib/utils";
 import type { Rating } from "@/lib/word-rating";
@@ -179,22 +180,24 @@ export function WordListRow({
               <Button
                 type="button"
                 variant="ghost"
-                size="icon"
+                size="icon-sm"
                 aria-label="Save word"
                 disabled={busy}
                 onClick={save}
+                className={ROW_ICON}
               >
-                <Check className="size-4" />
+                <Check strokeWidth={1.75} />
               </Button>
               <Button
                 type="button"
                 variant="ghost"
-                size="icon"
+                size="icon-sm"
                 aria-label="Cancel editing"
                 disabled={busy}
                 onClick={cancel}
+                className={ROW_ICON}
               >
-                <X className="size-4" />
+                <X strokeWidth={1.75} />
               </Button>
             </>
           ) : (
@@ -202,11 +205,12 @@ export function WordListRow({
               <Button
                 type="button"
                 variant="ghost"
-                size="icon"
+                size="icon-sm"
                 aria-label={`Edit ${word.front}`}
                 onClick={() => setEditing(true)}
+                className={ROW_ICON}
               >
-                <Pencil className="size-4" />
+                <Pencil strokeWidth={1.75} />
               </Button>
               <ConfirmDelete
                 title={`Delete “${word.front}”?`}
@@ -216,12 +220,11 @@ export function WordListRow({
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon"
+                  size="icon-sm"
                   aria-label={`Delete ${word.front}`}
-                  // Muted at rest, red only on hover — never red beside a primary.
-                  className="text-muted-foreground hover:text-destructive"
+                  className={ROW_ICON_DESTROY}
                 >
-                  <Trash2 className="size-4" />
+                  <Trash2 strokeWidth={1.75} />
                 </Button>
               </ConfirmDelete>
             </>

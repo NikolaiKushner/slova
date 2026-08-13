@@ -37,6 +37,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { AppSearch } from "@/components/app-search";
+import { BrandWordmark } from "@/components/brand-mark";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -80,13 +81,13 @@ function userInitials(name?: string | null, email?: string | null) {
 
 function SidebarBrandHeader() {
   return (
-    <SidebarHeader className="h-14 justify-center px-3">
+    <SidebarHeader className="min-h-14 justify-center px-3 pt-[env(safe-area-inset-top)]">
       <div className="flex h-9 items-center gap-1.5">
         <Link
           href="/tasks/today"
-          className="min-w-0 flex-1 font-display text-2xl tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden"
+          className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden"
         >
-          <span className="truncate">Slova</span>
+          <BrandWordmark className="text-2xl" />
         </Link>
         <div className="ml-auto flex items-center gap-0.5 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:ml-0">
           <AppSearch className="group-data-[collapsible=icon]:hidden" />
@@ -154,7 +155,7 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar collapsible="icon" className="border-sidebar-border">
+    <Sidebar collapsible="icon" className="h-dvh border-sidebar-border">
       <SidebarBrandHeader />
 
       <SidebarContent>
@@ -186,7 +187,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="gap-2 px-3 pb-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+      <SidebarFooter className="gap-2 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
         <SidebarUserMenu />
       </SidebarFooter>
       <SidebarRail />

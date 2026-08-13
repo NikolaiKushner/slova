@@ -5,7 +5,12 @@ import { useState } from "react";
 import { Check, Minus, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { WORD_GRID, WordTable } from "@/components/word-table";
+import {
+  ROW_ICON,
+  ROW_ICON_DESTROY,
+  WORD_GRID,
+  WordTable,
+} from "@/components/word-table";
 import { cn } from "@/lib/utils";
 
 export type SetWord = {
@@ -134,8 +139,9 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
                 title="Save (Enter)"
                 disabled={busy}
                 onClick={save}
+                className={ROW_ICON}
               >
-                <Check />
+                <Check strokeWidth={1.75} />
               </Button>
               <Button
                 type="button"
@@ -145,8 +151,9 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
                 title="Cancel (Escape)"
                 disabled={busy}
                 onClick={cancel}
+                className={ROW_ICON}
               >
-                <X />
+                <X strokeWidth={1.75} />
               </Button>
             </span>
           </>
@@ -167,19 +174,20 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
                 aria-label={`Edit ${word.front}`}
                 disabled={busy}
                 onClick={() => setEditing(true)}
+                className={ROW_ICON}
               >
-                <Pencil />
+                <Pencil strokeWidth={1.75} />
               </Button>
               <Button
                 type="button"
                 size="icon-sm"
                 variant="ghost"
                 aria-label={`Remove ${word.front} from this set`}
-                className="text-muted-foreground hover:text-destructive"
+                className={ROW_ICON_DESTROY}
                 disabled={busy}
                 onClick={remove}
               >
-                <Minus />
+                <Minus strokeWidth={1.75} />
               </Button>
             </span>
           </>
