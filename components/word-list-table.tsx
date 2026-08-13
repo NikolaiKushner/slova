@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowDown, ArrowUp } from "lucide-react";
 
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -33,7 +34,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WordBulkActions } from "@/components/word-bulk-actions";
-import { DEFAULT_PAGE_SIZE, PAGE_SIZES, type SortField } from "@/lib/words-query";
+import { COLUMN_LABEL } from "@/components/word-table";
+import { paginationItems } from "@/lib/pagination";
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES, nextSort, type SortField } from "@/lib/words-query";
 import { cn } from "@/lib/utils";
 
 /**
@@ -153,9 +156,25 @@ export function WordListTable() {
   }, []);
 
   const sortBy = (field: SortField) => {
-    // Clicking the column you are already sorted by turns it around.
-    const nextDir = sort === field && dir === "asc" ? "desc" : "asc";
-    update({ sort: field, dir: nextDir });
+    const next = nextSort(sort, dir, field);
+    update(next);
+  };
+
+  const pageHref = (target: number) => {
+    const next = new URLSearchParams(params.toString());
+    if (target <= 1) next.delete("page");
+    else next.set("page", String(target));
+    const queryString = next.toString();
+    return queryString ? `?${queryString}` : "?";
+  };
+
+  const goToPage = (
+    event: MouseEvent<HTMLAnchorElement>,
+    target: number,
+  ) => {
+    event.preventDefault();
+    if (target === page || target < 1 || target > (data?.pages ?? 1)) return;
+    update({ page: String(target) });
   };
 
   const filtered = Boolean(query || set);
@@ -190,11 +209,16 @@ export function WordListTable() {
     );
 
   return (
-    <div className="space-y-4">
-      {/* One row either way: filters when nothing is ticked, actions when
-          something is. Stacking them would move the table under the cursor at
-          the moment a tick goes in. */}
-      {selected.length === 0 ? (
+    <>
+      <WordBulkActions
+        count={selected.length}
+        sets={sets}
+        onFile={fileInto}
+        onDelete={removeSelected}
+        onClear={() => setSelected([])}
+        busy={working}
+      />
+      <div className={cn("space-y-4", selected.length > 0 && "pb-24")}>
         <WordListFilters
           query={query}
           set={set}
@@ -202,16 +226,6 @@ export function WordListTable() {
           onQueryChange={(value) => update({ q: value })}
           onSetChange={(value) => update({ set: value })}
         />
-      ) : (
-        <WordBulkActions
-          count={selected.length}
-          sets={sets}
-          onFile={fileInto}
-          onDelete={removeSelected}
-          onClear={() => setSelected([])}
-          busy={working}
-        />
-      )}
 
       {loading && !data ? (
         <div className="space-y-2">
@@ -238,8 +252,8 @@ export function WordListTable() {
           >
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10">
+                <TableRow className="border-border bg-muted/50 hover:bg-muted/50">
+                  <TableHead className={cn("w-10", COLUMN_LABEL)}>
                     <Checkbox
                       checked={allTicked}
                       onCheckedChange={(value) =>
@@ -249,7 +263,7 @@ export function WordListTable() {
                     />
                   </TableHead>
                   {SORTABLE.map((column) => (
-                    <TableHead key={column.field}>
+                    <TableHead key={column.field} className={COLUMN_LABEL}>
                       <SortButton
                         label={column.label}
                         active={sort === column.field}
@@ -258,8 +272,8 @@ export function WordListTable() {
                       />
                     </TableHead>
                   ))}
-                  <TableHead>Set</TableHead>
-                  <TableHead className="w-28">
+                  <TableHead className={COLUMN_LABEL}>Set</TableHead>
+                  <TableHead className={cn("w-28", COLUMN_LABEL)}>
                     <SortButton
                       label="Learned"
                       active={sort === "rating"}
@@ -293,47 +307,50 @@ export function WordListTable() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {data.pages > 1 ? (
               <Pagination className="mx-0 w-auto justify-start">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    aria-disabled={page === 1}
-                    className={page === 1 ? "pointer-events-none opacity-50" : ""}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      update({ page: String(Math.max(1, page - 1)) });
-                    }}
-                  />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    isActive
-                    onClick={(event) => event.preventDefault()}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <span className="text-muted-foreground px-2 text-sm">
-                    of {data.pages} · {data.total} words
-                  </span>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    aria-disabled={page === data.pages}
-                    className={
-                      page === data.pages ? "pointer-events-none opacity-50" : ""
-                    }
-                    onClick={(event) => {
-                      event.preventDefault();
-                      update({ page: String(Math.min(data.pages, page + 1)) });
-                    }}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href={pageHref(page - 1)}
+                      aria-disabled={page === 1}
+                      className={
+                        page === 1 ? "pointer-events-none opacity-50" : ""
+                      }
+                      onClick={(event) => goToPage(event, page - 1)}
+                    />
+                  </PaginationItem>
+                  {paginationItems(page, data.pages).map((item, index) =>
+                    item === "ellipsis" ? (
+                      <PaginationItem key={`ellipsis-${index}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={item}>
+                        <PaginationLink
+                          href={pageHref(item)}
+                          isActive={item === page}
+                          onClick={(event) => goToPage(event, item)}
+                        >
+                          {item}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      href={pageHref(page + 1)}
+                      aria-disabled={page === data.pages}
+                      className={
+                        page === data.pages
+                          ? "pointer-events-none opacity-50"
+                          : ""
+                      }
+                      onClick={(event) =>
+                        goToPage(event, page + 1)
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             ) : (
               <span className="text-muted-foreground text-sm">
                 {data.total} {data.total === 1 ? "word" : "words"}
@@ -359,6 +376,7 @@ export function WordListTable() {
         </>
       )}
     </div>
+    </>
   );
 }
 
@@ -382,10 +400,16 @@ function SortButton({
       variant="ghost"
       size="sm"
       onClick={onClick}
-      aria-label={`Sort by ${label}`}
+      aria-label={
+        !active
+          ? `Sort by ${label}`
+          : dir === "asc"
+            ? `Sort ${label} descending`
+            : `Clear ${label} sort`
+      }
       className={cn(
-        "-ml-2 h-auto px-2 py-1 font-medium",
-        !active && "text-muted-foreground",
+        COLUMN_LABEL,
+        "-ml-2 h-auto cursor-pointer px-2 py-1 hover:bg-transparent hover:text-foreground",
       )}
     >
       {label}

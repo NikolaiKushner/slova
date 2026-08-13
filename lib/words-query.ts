@@ -114,6 +114,22 @@ export function wordsOrderBy(query: WordsQuery) {
   }
 }
 
+/**
+ * Three-state column sort: unsorted → asc → desc → unsorted.
+ *
+ * Unsorted is the list's default (newest added first). Empty strings mean
+ * drop the params from the URL rather than writing `sort=added`.
+ */
+export function nextSort(
+  current: SortField,
+  dir: "asc" | "desc",
+  field: SortField,
+): { sort: string; dir: string } {
+  if (current !== field) return { sort: field, dir: "asc" };
+  if (dir === "asc") return { sort: field, dir: "desc" };
+  return { sort: "", dir: "" };
+}
+
 export function wordsSkip(query: WordsQuery): number {
   return (query.page - 1) * query.pageSize;
 }

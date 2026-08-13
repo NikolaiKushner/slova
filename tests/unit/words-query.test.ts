@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
+  nextSort,
   pageCount,
   parseWordsQuery,
   wordsOrderBy,
@@ -92,6 +93,27 @@ describe("wordsOrderBy", () => {
       const order = wordsOrderBy(parse(`sort=${sort}`));
       expect(order[order.length - 1]).toEqual({ id: "asc" });
     }
+  });
+});
+
+describe("nextSort", () => {
+  it("cycles unsorted → asc → desc → unsorted", () => {
+    expect(nextSort("added", "desc", "word")).toEqual({
+      sort: "word",
+      dir: "asc",
+    });
+    expect(nextSort("word", "asc", "word")).toEqual({
+      sort: "word",
+      dir: "desc",
+    });
+    expect(nextSort("word", "desc", "word")).toEqual({ sort: "", dir: "" });
+  });
+
+  it("starts a different column from the beginning", () => {
+    expect(nextSort("word", "desc", "rating")).toEqual({
+      sort: "rating",
+      dir: "asc",
+    });
   });
 });
 

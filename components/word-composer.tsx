@@ -4,23 +4,18 @@ import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { WORD_GRID, COLUMN_HEADER } from "@/components/word-table";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { parseImportText } from "@/lib/parse-import";
 import { cn } from "@/lib/utils";
 
 /**
- * The table you type words into.
+ * The pairs you type words into.
  *
- * It does nothing but hold what you type. Nothing is translated here and
- * nothing is saved here — that all happens once, when the button below is
- * pressed. Typing and waiting are separate states, and mixing them was what
- * made the previous version feel like it had hung: every row said
- * "translating…" while the person was still adding rows.
- *
- * There is always one empty row at the bottom. Type in it and another appears
- * underneath, so the table grows the way a list does. A paste with several
- * lines expands into a row each.
+ * Two labelled fields per row — English and Russian — so it is obvious where
+ * each half belongs. It still does nothing but hold what you type: nothing is
+ * translated here and nothing is saved here. There is always one empty row at
+ * the bottom; a paste with several lines expands into a row each.
  */
 
 export type ComposerRow = {
@@ -104,61 +99,58 @@ export function WordComposer({
   };
 
   return (
-    <div className="bg-card overflow-hidden rounded-lg border">
-      {/* Ten rows fit; past that the table scrolls rather than pushing the set
+    <div>
+      <div
+        className={cn(WORD_GRID, COLUMN_HEADER)}
+      >
+        <span>English</span>
+        <span>Russian</span>
+        <span className="sr-only">Remove</span>
+      </div>
+      {/* Ten rows fit; past that it scrolls rather than pushing the set
           picker and the button off the screen. */}
-      <div className="max-h-[26rem] overflow-y-auto">
-        <Table>
-          <TableBody>
-            {rows.map((row, index) => (
-              <TableRow key={row.id} className="group">
-                <TableCell className="w-1/2 py-1">
-                  <Cell
-                    value={row.front}
-                    placeholder={index === 0 ? "English word" : ""}
-                    aria-label="English word"
-                    disabled={disabled}
-                    onChange={(front) => edit(row.id, { front })}
-                    onPasteText={(text) => pasteInto(row.id, text)}
-                  />
-                </TableCell>
-                <TableCell className="w-1/2 py-1">
-                  <Cell
-                    value={row.back}
-                    placeholder={index === 0 ? "Russian — or leave it to us" : ""}
-                    aria-label="Russian translation"
-                    disabled={disabled}
-                    muted={row.filled}
-                    onChange={(back) => edit(row.id, { back })}
-                  />
-                </TableCell>
-                <TableCell className="w-10 py-1">
-                  {row.front.trim() && !disabled && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      aria-label={`Remove ${row.front}`}
-                      className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100"
-                      onClick={() => remove(row.id)}
-                    >
-                      <X className="size-4" />
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="max-h-[26rem] space-y-2 overflow-y-auto p-2">
+        {rows.map((row, index) => (
+          <div key={row.id} className={cn(WORD_GRID, "group")}>
+            <Cell
+              value={row.front}
+              placeholder={index === rows.length - 1 ? "Type or paste" : ""}
+              aria-label="English word"
+              disabled={disabled}
+              onChange={(front) => edit(row.id, { front })}
+              onPasteText={(text) => pasteInto(row.id, text)}
+            />
+            <Cell
+              value={row.back}
+              placeholder={
+                index === rows.length - 1 ? "or leave it to us" : ""
+              }
+              aria-label="Russian translation"
+              disabled={disabled}
+              muted={row.filled}
+              onChange={(back) => edit(row.id, { back })}
+            />
+            <div className="flex justify-end">
+              {row.front.trim() && !disabled ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Remove ${row.front}`}
+                  className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100"
+                  onClick={() => remove(row.id)}
+                >
+                  <X className="size-4" />
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-/**
- * The shadcn input with its chrome removed rather than a bare `<input>` given
- * borders: a cell is edited in place and must not change height when focused.
- */
 function Cell({
   value,
   placeholder,
@@ -187,17 +179,13 @@ function Cell({
         onPasteText
           ? (event) => {
               const text = event.clipboardData.getData("text/plain");
-              if (!text.includes("\n")) return; // one word: let it land normally
+              if (!text.includes("\n")) return;
               event.preventDefault();
               onPasteText(text);
             }
           : undefined
       }
-      className={cn(
-        "h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0",
-        // A machine translation reads as a suggestion until it is touched.
-        muted && "text-muted-foreground",
-      )}
+      className={cn("h-9 bg-background", muted && "text-muted-foreground")}
     />
   );
 }

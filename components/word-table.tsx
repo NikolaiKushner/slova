@@ -8,6 +8,21 @@ import { cn } from "@/lib/utils";
 export const WORD_GRID =
   "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_4rem] items-center gap-3";
 
+/** Shared by the add-words pair and both word tables, so the hats match. */
+export const COLUMN_LABEL =
+  "text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground";
+
+/** Quiet icon actions on a word row — same size and weight in both tables. */
+export const ROW_ICON =
+  "cursor-pointer text-muted-foreground hover:text-foreground";
+export const ROW_ICON_DESTROY =
+  "cursor-pointer text-muted-foreground hover:text-destructive";
+
+export const COLUMN_HEADER = cn(
+  "border-b border-border bg-muted/50 px-3 py-2",
+  COLUMN_LABEL,
+);
+
 export function WordTable({
   children,
   className,
@@ -22,12 +37,7 @@ export function WordTable({
         className,
       )}
     >
-      <div
-        className={cn(
-          WORD_GRID,
-          "border-b border-border bg-muted/50 px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground",
-        )}
-      >
+      <div className={cn(WORD_GRID, COLUMN_HEADER)}>
         <span>English</span>
         <span>Russian</span>
         <span />

@@ -112,7 +112,17 @@
 }
 
 @utility font-display {
-  font-family: var(--font-display), ui-serif, Georgia, serif;
+  /* Sans sits behind Fraunces so Russian on a study card does not fall
+     through to Georgia — Fraunces has no Cyrillic. */
+  font-family: var(--font-display), var(--font-sans), ui-serif, Georgia, serif;
+}
+
+@utility font-logo {
+  font-family: var(--font-display), var(--font-sans), ui-serif, Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variation-settings: "SOFT" 40, "WONK" 0.8, "opsz" 144;
 }
 
 .study-card {
