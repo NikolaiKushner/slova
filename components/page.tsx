@@ -9,9 +9,7 @@ type Props = {
  * Page width lives here, not in the app shell.
  *
  * Reading screens stay narrow — one job per screen, whitespace over chrome
- * (DESIGN.md). The dictionary table is the exception that forced the choice
- * out of `AppShell`: a sortable, filterable list of every word a person knows
- * does not fit in `max-w-2xl` and looks cramped pretending to.
+ * (DESIGN.md). `<PageWide>` is for a grid of records (the dictionary table).
  */
 export function Page({ className, children }: Props) {
   return (

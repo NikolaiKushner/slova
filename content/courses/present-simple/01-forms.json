@@ -1,0 +1,104 @@
+{
+  "slug": "forms",
+  "title": "Forms",
+  "titleRu": "Форма",
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Present Simple — короткая форма глагола для двух вещей: того, что бывает регулярно, и того, что верно вообще.\n\nПосле **I, you, we, they** глагол остаётся как в словаре: work, live, like. После **he, she, it** к нему добавляется **-s**: works, lives, likes.\n\nИмя человека и слова вроде my brother или the shop тоже считаются как he / she / it: Anna works, the shop opens."
+    },
+    {
+      "type": "table",
+      "headers": ["I / you / we / they", "he / she / it"],
+      "rows": [
+        ["work", "works"],
+        ["live", "lives"],
+        ["like", "likes"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I work here.",
+      "ru": "Я здесь работаю."
+    },
+    {
+      "type": "example",
+      "en": "She works here.",
+      "ru": "Она здесь работает."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "ps-third-person-s",
+      "md": "После **he / she / it** русскоязычные часто оставляют глагол как в словаре: she work. Нужно **she works**.\n\n**-s** здесь не «множественное». Это как раз единственное третье лицо: one person, one thing."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-01",
+      "ruleId": "ps-third-person-s",
+      "kind": "choice",
+      "prompt": "She ___ in London.",
+      "options": ["live", "lives"],
+      "answer": "lives"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-02",
+      "ruleId": "ps-base-form",
+      "kind": "choice",
+      "prompt": "They ___ English.",
+      "options": ["speak", "speaks"],
+      "answer": "speak"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-03",
+      "ruleId": "ps-third-person-s",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["He like coffee.", "He likes coffee."],
+      "answer": "He likes coffee."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-04",
+      "ruleId": "ps-third-person-s",
+      "kind": "gap",
+      "prompt": "My brother ___ in a bank. (work)",
+      "answer": "works"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-05",
+      "ruleId": "ps-base-form",
+      "kind": "choice",
+      "prompt": "I ___ tea.",
+      "options": ["like", "likes"],
+      "answer": "like"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-06",
+      "ruleId": "ps-base-form",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["We lives here.", "We live here."],
+      "answer": "We live here."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-07",
+      "ruleId": "ps-third-person-s",
+      "kind": "gap",
+      "prompt": "Anna ___ football on Sundays. (play)",
+      "answer": "plays"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-08",
+      "ruleId": "ps-base-form",
+      "kind": "gap",
+      "prompt": "You ___ a new bag. (need)",
+      "answer": "need"
+    }
+  ]
+}

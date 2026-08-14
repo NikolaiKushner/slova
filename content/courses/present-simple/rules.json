@@ -1,0 +1,47 @@
+[
+  {
+    "id": "ps-base-form",
+    "title": "I / you / we / they + verb",
+    "anchorMd": "После **I, you, we, they** глагол стоит в словарной форме: I work, they live. **-s** сюда не ставится."
+  },
+  {
+    "id": "ps-third-person-s",
+    "title": "he / she / it + -s",
+    "anchorMd": "После **he, she, it** к глаголу добавляется **-s**: she works, he lives. Имя вроде Anna или my brother считается как she / he."
+  },
+  {
+    "id": "ps-use-habits",
+    "title": "Habits",
+    "anchorMd": "Present Simple для привычек и расписания: то, что бывает снова и снова. Часто рядом стоят **every day**, **on Sundays**, **usually**."
+  },
+  {
+    "id": "ps-use-facts",
+    "title": "Facts",
+    "anchorMd": "Present Simple для фактов — того, что верно вообще, не только сейчас: Water freezes, the shop opens at nine."
+  },
+  {
+    "id": "ps-spelling-es",
+    "title": "-s / -es / -ies",
+    "anchorMd": "Обычный глагол берёт **-s**. Если он кончается на s, sh, ch, x или o — **-es** (goes, watches). Если согласная + y — **y → ies** (studies). После гласной y не трогают: plays."
+  },
+  {
+    "id": "ps-negative-dont",
+    "title": "don't",
+    "anchorMd": "Отрицание с **I / you / we / they**: **don't** + словарная форма. Не I don't works — don't уже делает отрицание, глагол остаётся как в словаре."
+  },
+  {
+    "id": "ps-negative-doesnt",
+    "title": "doesn't",
+    "anchorMd": "Отрицание с **he / she / it**: **doesn't** + словарная форма, без **-s** на глаголе: she doesn't live, не doesn't lives. **-s** уже внутри doesn't."
+  },
+  {
+    "id": "ps-question-do",
+    "title": "Do … ?",
+    "anchorMd": "Вопрос с **I / you / we / they** начинается с **Do**, затем человек, затем глагол: Do you work here?"
+  },
+  {
+    "id": "ps-question-does",
+    "title": "Does … ?",
+    "anchorMd": "Вопрос с **he / she / it** начинается с **Does**, глагол без **-s**: Does he play football? Не Does he plays — Does уже несёт 3-е лицо."
+  }
+]

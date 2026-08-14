@@ -1,0 +1,181 @@
+[
+  {
+    "type": "exercise",
+    "id": "ps-bank-01",
+    "ruleId": "ps-base-form",
+    "kind": "choice",
+    "prompt": "They ___ football after school.",
+    "options": ["play", "plays"],
+    "answer": "play"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-02",
+    "ruleId": "ps-base-form",
+    "kind": "pick-sentence",
+    "prompt": "Which sentence is correct?",
+    "options": ["I lives in Berlin.", "I live in Berlin."],
+    "answer": "I live in Berlin."
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-03",
+    "ruleId": "ps-base-form",
+    "kind": "gap",
+    "prompt": "We ___ more time. (need)",
+    "answer": "need"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-04",
+    "ruleId": "ps-third-person-s",
+    "kind": "choice",
+    "prompt": "He ___ books in the evening.",
+    "options": ["read", "reads"],
+    "answer": "reads"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-05",
+    "ruleId": "ps-third-person-s",
+    "kind": "pick-sentence",
+    "prompt": "Which sentence is correct?",
+    "options": ["My sister like tea.", "My sister likes tea."],
+    "answer": "My sister likes tea."
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-06",
+    "ruleId": "ps-third-person-s",
+    "kind": "gap",
+    "prompt": "Tom ___ a new bag. (want)",
+    "answer": "wants"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-07",
+    "ruleId": "ps-use-habits",
+    "kind": "choice",
+    "prompt": "They ___ to work every day.",
+    "options": ["walk", "walks"],
+    "answer": "walk"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-08",
+    "ruleId": "ps-use-habits",
+    "kind": "pick-sentence",
+    "prompt": "Which sentence is a habit?",
+    "options": [
+      "He plays football on Sundays.",
+      "He playing football on Sundays."
+    ],
+    "answer": "He plays football on Sundays."
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-09",
+    "ruleId": "ps-use-facts",
+    "kind": "gap",
+    "prompt": "Birds ___ in the sky. (fly)",
+    "answer": "fly"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-10",
+    "ruleId": "ps-use-facts",
+    "kind": "choice",
+    "prompt": "The shop ___ at nine.",
+    "options": ["open", "opens"],
+    "answer": "opens"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-11",
+    "ruleId": "ps-spelling-es",
+    "kind": "gap",
+    "prompt": "She ___ the car on Saturday. (wash)",
+    "answer": "washes"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-12",
+    "ruleId": "ps-spelling-es",
+    "kind": "choice",
+    "prompt": "He ___ to school by bus. (go)",
+    "options": ["gos", "goes", "go"],
+    "answer": "goes"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-13",
+    "ruleId": "ps-negative-dont",
+    "kind": "choice",
+    "prompt": "We ___ tea.",
+    "options": ["don't like", "doesn't like", "don't likes"],
+    "answer": "don't like"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-14",
+    "ruleId": "ps-negative-dont",
+    "kind": "transform",
+    "prompt": "Make this negative.",
+    "source": "I need more time.",
+    "answer": "I don't need more time.",
+    "accept": ["I do not need more time."]
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-15",
+    "ruleId": "ps-negative-doesnt",
+    "kind": "pick-sentence",
+    "prompt": "Which sentence is correct?",
+    "options": ["It doesn't works.", "It doesn't work."],
+    "answer": "It doesn't work."
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-16",
+    "ruleId": "ps-negative-doesnt",
+    "kind": "gap",
+    "prompt": "She ___ here. (doesn't live)",
+    "answer": "doesn't live",
+    "accept": ["does not live"]
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-17",
+    "ruleId": "ps-question-do",
+    "kind": "choice",
+    "prompt": "___ they speak English?",
+    "options": ["Do", "Does"],
+    "answer": "Do"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-18",
+    "ruleId": "ps-question-do",
+    "kind": "transform",
+    "prompt": "Make this a question.",
+    "source": "You like this song.",
+    "answer": "Do you like this song?"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-19",
+    "ruleId": "ps-question-does",
+    "kind": "pick-sentence",
+    "prompt": "Which question is correct?",
+    "options": ["Does Anna live here?", "Does Anna lives here?"],
+    "answer": "Does Anna live here?"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-20",
+    "ruleId": "ps-question-does",
+    "kind": "gap",
+    "prompt": "___ he work here? (Does)",
+    "answer": "Does"
+  }
+]

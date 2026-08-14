@@ -1,0 +1,78 @@
+{
+  "slug": "spelling",
+  "title": "Spelling",
+  "titleRu": "Орфография",
+  "blocks": [
+    {
+      "type": "explanation",
+      "ruleId": "ps-spelling-es",
+      "md": "В 3-м лице единственного числа — после **he / she / it** — к большинству глаголов просто добавляется **-s**: work → works, live → lives.\n\nЕсли глагол заканчивается на **s, sh, ch, x** или **o**, пишется **-es**: go → goes, watch → watches, finish → finishes. Иначе вышло бы gos — так не пишут.\n\nЕсли глагол кончается на согласную + **y**, **y** меняется на **ies**: study → studies. После гласной **y** остаётся на месте: play → plays."
+    },
+    {
+      "type": "table",
+      "headers": ["If the verb ends in", "Add", "Example"],
+      "rows": [
+        ["most letters", "-s", "work → works"],
+        ["s, sh, ch, x, o", "-es", "go → goes, watch → watches"],
+        ["consonant + y", "y → ies", "study → studies"]
+      ]
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "ps-spelling-es",
+      "md": "После гласной **y** не меняется: play → **plays**, не plaies.\n\nПутаница идёт от studies: там перед y согласная (d), поэтому y уходит. В play перед y стоит гласная — трогать нечего."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-01",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "She ___ to school. (go)",
+      "options": ["gos", "goes", "go"],
+      "answer": "goes"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-02",
+      "ruleId": "ps-spelling-es",
+      "kind": "gap",
+      "prompt": "He ___ TV in the evening. (watch)",
+      "answer": "watches"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-03",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "Anna ___ English. (study)",
+      "options": ["studys", "studies", "study"],
+      "answer": "studies"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-04",
+      "ruleId": "ps-spelling-es",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is spelled right?",
+      "options": ["He plaies football.", "He plays football."],
+      "answer": "He plays football."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-05",
+      "ruleId": "ps-spelling-es",
+      "kind": "gap",
+      "prompt": "The class ___ at two. (finish)",
+      "answer": "finishes"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-06",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "She ___ her family on Sunday. (visit)",
+      "options": ["visit", "visits", "visites"],
+      "answer": "visits"
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "groups": [
+    {
+      "id": "a1",
+      "title": "A1",
+      "titleRu": "Начальный",
+      "courses": [
+        { "slug": "present-simple", "status": "available" },
+        {
+          "slug": "to-be-present",
+          "status": "coming",
+          "title": "to be",
+          "titleRu": "am / is / are"
+        },
+        {
+          "slug": "there-is",
+          "status": "coming",
+          "title": "there is / there are",
+          "titleRu": "есть, находится"
+        },
+        {
+          "slug": "present-continuous",
+          "status": "coming",
+          "title": "Present Continuous",
+          "titleRu": "Настоящее длительное"
+        },
+        {
+          "slug": "past-simple",
+          "status": "coming",
+          "title": "Past Simple",
+          "titleRu": "Простое прошедшее"
+        },
+        {
+          "slug": "can",
+          "status": "coming",
+          "title": "can / can't",
+          "titleRu": "умею, могу"
+        },
+        {
+          "slug": "have-got",
+          "status": "coming",
+          "title": "have got",
+          "titleRu": "есть (вещь, человек)"
+        },
+        {
+          "slug": "articles-a-the",
+          "status": "coming",
+          "title": "a / an / the",
+          "titleRu": "артикли"
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "title": "A2",
+      "titleRu": "Элементарный",
+      "courses": [
+        {
+          "slug": "past-continuous",
+          "status": "coming",
+          "title": "Past Continuous",
+          "titleRu": "Прошедшее длительное"
+        },
+        {
+          "slug": "going-to",
+          "status": "coming",
+          "title": "going to",
+          "titleRu": "собираюсь"
+        },
+        {
+          "slug": "will",
+          "status": "coming",
+          "title": "will",
+          "titleRu": "будущее will"
+        },
+        {
+          "slug": "present-perfect",
+          "status": "coming",
+          "title": "Present Perfect",
+          "titleRu": "Настоящее совершённое"
+        },
+        {
+          "slug": "comparatives",
+          "status": "coming",
+          "title": "Comparatives",
+          "titleRu": "Степени сравнения"
+        },
+        {
+          "slug": "some-any",
+          "status": "coming",
+          "title": "some / any / much / many",
+          "titleRu": "неопределённые количества"
+        },
+        {
+          "slug": "modals-must",
+          "status": "coming",
+          "title": "must / have to / should",
+          "titleRu": "должен"
+        },
+        {
+          "slug": "first-conditional",
+          "status": "coming",
+          "title": "First conditional",
+          "titleRu": "Первое условие"
+        }
+      ]
+    },
+    {
+      "id": "b1",
+      "title": "B1",
+      "titleRu": "Средний",
+      "courses": [
+        {
+          "slug": "present-perfect-vs-past",
+          "status": "coming",
+          "title": "Present Perfect vs Past Simple",
+          "titleRu": "Perfect или Past"
+        },
+        {
+          "slug": "present-perfect-continuous",
+          "status": "coming",
+          "title": "Present Perfect Continuous",
+          "titleRu": "Perfect Continuous"
+        },
+        {
+          "slug": "past-perfect",
+          "status": "coming",
+          "title": "Past Perfect",
+          "titleRu": "Предпрошедшее"
+        },
+        {
+          "slug": "future-forms",
+          "status": "coming",
+          "title": "Future forms",
+          "titleRu": "will, going to, Present Continuous"
+        },
+        {
+          "slug": "used-to",
+          "status": "coming",
+          "title": "used to",
+          "titleRu": "бывало, раньше"
+        },
+        {
+          "slug": "passive",
+          "status": "coming",
+          "title": "Passive",
+          "titleRu": "Страдательный залог"
+        },
+        {
+          "slug": "reported-speech",
+          "status": "coming",
+          "title": "Reported speech",
+          "titleRu": "Косвенная речь"
+        },
+        {
+          "slug": "conditionals-2-3",
+          "status": "coming",
+          "title": "Second and third conditional",
+          "titleRu": "Второе и третье условие"
+        }
+      ]
+    }
+  ]
+}

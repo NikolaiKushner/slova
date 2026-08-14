@@ -1,0 +1,90 @@
+{
+  "slug": "negatives",
+  "title": "Negatives",
+  "titleRu": "Отрицание",
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Отрицание в Present Simple собирается не из not у глагола, а из **don't / doesn't** и словарной формы.\n\n**I / you / we / they** берут **don't** (или do not). **he / she / it** берут **doesn't** (или does not). **-s** с основного глагола снимается: оно уже внутри **doesn't**.\n\nПолные формы **do not** и **does not** значат то же самое. В разговоре почти всегда don't и doesn't."
+    },
+    {
+      "type": "table",
+      "headers": ["Person", "Negative"],
+      "rows": [
+        ["I / you / we / they", "don't work"],
+        ["he / she / it", "doesn't work"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I don't like coffee.",
+      "ru": "Я не люблю кофе."
+    },
+    {
+      "type": "example",
+      "en": "She doesn't live here.",
+      "ru": "Она здесь не живёт."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "ps-negative-doesnt",
+      "md": "После **doesn't** глагол без **-s**: she doesn't like, не she doesn't likes.\n\nДва **-s** подряд (doesn't likes) — частая ошибка: лицо уже отмечено в doesn't, глаголу больше нечего добавлять."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-01",
+      "ruleId": "ps-negative-dont",
+      "kind": "choice",
+      "prompt": "They ___ in London.",
+      "options": ["don't live", "doesn't live", "don't lives"],
+      "answer": "don't live"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-02",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "choice",
+      "prompt": "He ___ tea.",
+      "options": ["don't like", "doesn't like", "doesn't likes"],
+      "answer": "doesn't like"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-03",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["She doesn't likes it.", "She doesn't like it."],
+      "answer": "She doesn't like it."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-04",
+      "ruleId": "ps-negative-dont",
+      "kind": "gap",
+      "prompt": "I ___ football. (do not play)",
+      "answer": "don't play",
+      "accept": ["do not play"]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-05",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "transform",
+      "prompt": "Make this negative.",
+      "source": "She works here.",
+      "answer": "She doesn't work here.",
+      "accept": ["She does not work here."]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-06",
+      "ruleId": "ps-negative-dont",
+      "kind": "transform",
+      "prompt": "Make this negative.",
+      "source": "We like this song.",
+      "answer": "We don't like this song.",
+      "accept": ["We do not like this song."]
+    }
+  ]
+}

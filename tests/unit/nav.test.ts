@@ -30,9 +30,13 @@ describe("activeNavHref", () => {
     expect(activeNavHref("/study/deck-1")).toBe("/tasks/today");
   });
 
-  it("keeps the trainings lit while one of them is running", () => {
-    expect(activeNavHref("/practice/builder")).toBe("/practice");
-    expect(activeNavHref("/practice/brainstorm")).toBe("/practice");
+  it("keeps Courses → Grammar lit inside a lesson", () => {
+    expect(activeNavHref("/courses/grammar/present-simple")).toBe(
+      "/courses/grammar",
+    );
+    expect(activeNavHref("/courses/grammar/present-simple/forms")).toBe(
+      "/courses/grammar",
+    );
   });
 
   it("routes legacy paths to where their page moved", () => {

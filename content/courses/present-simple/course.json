@@ -1,0 +1,9 @@
+{
+  "slug": "present-simple",
+  "title": "Present Simple",
+  "titleRu": "Простое настоящее",
+  "level": "A1",
+  "order": 1,
+  "estMinutes": 40,
+  "lessons": ["forms", "use", "spelling", "negatives", "questions", "test"]
+}

@@ -28,8 +28,8 @@ Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 
 The shell no longer picks a width — the page does, via `components/page.tsx`:
 
-- `<Page>` — `max-w-2xl`. The default, and what every reading screen uses.
-- `<PageWide>` — `max-w-5xl`. Table-shaped screens only (the dictionary list). Reach for it when a screen is a grid of records, not a thing to read.
+- `<Page>` — `max-w-2xl`. The default, and what every reading screen uses — including grammar courses, the lesson list, and a lesson itself.
+- `<PageWide>` — `max-w-5xl`. Table-shaped screens only (the dictionary list).
 
 ## Placeholders
 
@@ -38,6 +38,10 @@ A page that isn't built yet uses `ComingSoon` — one component, not a dozen han
 ## Page headers
 
 Every app page uses `PageHeader`: optional **eyebrow** + Fraunces **title** + muted **description**. Optional actions on the right.
+
+A nested course page (a lesson, the lesson list, My courses) ends with `PageBack` — a ghost `lg` button, arrow plus label (`Back to lessons`, `Back to courses`). It is not in the header: the title stays the title, and leaving is a choice after the work.
+
+A grammar lesson is two beats. First the rule on a card, and **Start practice** (the one filled button). Then the drill; the rule leaves the page. **Show the rule** (ghost) opens it again in a shadcn Drawer from the right, so the practice column stays one job.
 
 Header actions share **one size** (`lg`). A page has at most one filled button
 — the thing you came to do; everything beside it is `ghost`. Destructive
