@@ -50,18 +50,10 @@ export async function registerAccount(
   const existing = await prisma.user.findUnique({ where: { email } });
   const plan = registrationPlan(existing);
 
-  if (plan === "exists") {
+  if (plan === "exists" || plan === "google-only") {
     return {
       ok: false,
       error: "An account with this email already exists. Sign in.",
-    };
-  }
-
-  if (plan === "google-only") {
-    return {
-      ok: false,
-      error:
-        "This email already has an account. Sign in with Google, or reset your password to add one.",
     };
   }
 

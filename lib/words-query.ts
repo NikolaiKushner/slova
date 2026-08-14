@@ -64,7 +64,7 @@ export function parseWordsQuery(params: URLSearchParams): WordsQuery {
       1,
       MAX_PAGE_SIZE,
     ),
-    q: (params.get("q") ?? "").trim(),
+    q: (params.get("q") ?? "").trim().slice(0, 200),
     set: (params.get("set") ?? "").trim(),
     sort,
     dir,

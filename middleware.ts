@@ -5,7 +5,8 @@ export default NextAuth(authConfig).auth;
 
 /**
  * Must stay in step with PROTECTED_PREFIXES and AUTH_PATHS in
- * lib/auth.config.ts. It cannot import those arrays — Next reads this config
+ * lib/auth.config.ts, plus `/api` (except `/api/auth`, which authorized()
+ * leaves open). It cannot import those arrays — Next reads this config
  * statically at build time — so a unit test compares the two instead.
  */
 export const config = {
@@ -22,5 +23,6 @@ export const config = {
     "/forgot-password",
     "/reset-password",
     "/verify-email",
+    "/api/:path*",
   ],
 };

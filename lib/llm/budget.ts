@@ -9,11 +9,9 @@ import { getPrisma } from "@/lib/prisma";
  * complete it; the only thing between that and a bill from Anthropic is this
  * file.
  *
- * The check happens *before* the call and looks only at what was already
- * spent, because the cost of a request is unknown until it comes back. So the
- * real ceiling is the limit plus one request — bounded, and the alternative
- * (estimating tokens up front) would be a guess that fails in the expensive
- * direction.
+ * The request slot is reserved atomically (`tryReserveRequest`) so parallel
+ * calls cannot all slip through a read-then-call gap. Token cost is still
+ * added after the model answers, because it is unknown until then.
  */
 
 /** What a day of usage looks like to the limit check. */
@@ -152,6 +150,53 @@ export async function assertWithinBudget(
 ): Promise<void> {
   const verdict = checkBudget(await usageToday(userId, now), activeLimits(), now);
   if (!verdict.withinBudget) throw new BudgetExceededError(verdict);
+}
+
+/**
+ * Atomically spend one request slot. Parallel calls cannot all slip through
+ * the read-then-call gap: the increment itself is the gate.
+ */
+export async function tryReserveRequest(
+  userId: string,
+  now: Date = new Date(),
+): Promise<void> {
+  const day = utcDay(now);
+  const limits = activeLimits();
+  const prisma = getPrisma();
+
+  await prisma.llmUsage.upsert({
+    where: { userId_day: { userId, day } },
+    create: { userId, day },
+    update: {},
+  });
+
+  const used = await prisma.llmUsage.findUnique({
+    where: { userId_day: { userId, day } },
+    select: { requests: true, inputTokens: true, outputTokens: true },
+  });
+  const tokenVerdict = checkBudget(
+    {
+      requests: 0,
+      inputTokens: used?.inputTokens ?? 0,
+      outputTokens: used?.outputTokens ?? 0,
+    },
+    { ...limits, requests: Number.MAX_SAFE_INTEGER },
+    now,
+  );
+  if (!tokenVerdict.withinBudget) throw new BudgetExceededError(tokenVerdict);
+
+  const reserved = await prisma.llmUsage.updateMany({
+    where: { userId, day, requests: { lt: limits.requests } },
+    data: { requests: { increment: 1 } },
+  });
+  if (reserved.count === 0) {
+    throw new BudgetExceededError({
+      withinBudget: false,
+      reason: "requests",
+      message: `You have used today's ${limits.requests} automatic translations. ${RESET_HINT}`,
+      retryAfter: secondsUntilReset(now),
+    });
+  }
 }
 
 export type UsageDelta = Partial<

@@ -27,6 +27,7 @@ import { config } from "dotenv";
 import { AwsClient } from "aws4fetch";
 
 import { STUDY_SOURCE_LANG } from "@/lib/languages";
+import { audioObjectKey } from "@/lib/lexicon/key";
 import { getPrisma } from "@/lib/prisma";
 
 config({ path: [".env.local", ".env"] });
@@ -131,7 +132,12 @@ async function main(): Promise<void> {
         const audio = await synthesise(word.text, apiKey);
         // Named by the normalised key, so a re-run overwrites rather than
         // leaving a second copy under a different name.
-        const path = `audio/en/${word.key}.mp3`;
+        const path = audioObjectKey(word.key);
+        if (!path) {
+          failed += 1;
+          console.error(`skip unsafe key ${word.id} ${word.key}`);
+          continue;
+        }
         const upload = await r2.fetch(
           `https://${account}.r2.cloudflarestorage.com/${BUCKET}/${path}`,
           {

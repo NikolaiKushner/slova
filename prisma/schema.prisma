@@ -268,9 +268,10 @@ model LexemeTranslation {
   /// and get re-asked for, without deleting anything.
   version Int @default(1)
 
-  /// How many independent sources produced exactly this text. A translation a
-  /// person typed starts at 0 and stays private to them until something else
-  /// agrees, so one bad paste cannot spread.
+  /// How many distinct users (or a seed/curated write) produced exactly this
+  /// text. A typed or model translation stays private until a second person
+  /// agrees, so one paste or one prompt-injection cannot become everyone's
+  /// answer.
   confirmations Int     @default(0)
   isGlobal      Boolean @default(false)
   isPrimary     Boolean @default(false)
@@ -278,10 +279,32 @@ model LexemeTranslation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  lexeme Lexeme @relation(fields: [lexemeId], references: [id], onDelete: Cascade)
+  lexeme        Lexeme                            @relation(fields: [lexemeId], references: [id], onDelete: Cascade)
+  confirmationsBy LexemeTranslationConfirmation[]
 
   @@unique([lexemeId, targetLang, text])
   @@index([lexemeId, targetLang, isGlobal, isPrimary])
+}
+
+/// One person agreeing with one translation. The unique pair is what stops
+/// the same account confirming twice and publishing a private wording.
+model LexemeTranslationConfirmation {
+  translationId String
+  userId        String
+  createdAt     DateTime @default(now())
+
+  translation LexemeTranslation @relation(fields: [translationId], references: [id], onDelete: Cascade)
+
+  @@id([translationId, userId])
+  @@index([userId])
+}
+
+/// Sliding-window counters for login, mail and write bursts. Lives in Postgres
+/// so serverless isolates share the same ceiling.
+model RateLimit {
+  key         String   @id
+  count       Int      @default(0)
+  windowStart DateTime
 }
 
 /// A person's place in one grammar course. The course itself is a folder of

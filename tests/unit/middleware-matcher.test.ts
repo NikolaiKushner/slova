@@ -22,6 +22,10 @@ describe("middleware matcher", () => {
     }
   });
 
+  it("matches /api so a forgotten auth() check is not world-reachable", () => {
+    expect(source).toContain('"/api/:path*"');
+  });
+
   it("does not match a route nobody protects", () => {
     expect(source).not.toContain('"/decks/:path*"');
   });

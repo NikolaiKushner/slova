@@ -53,6 +53,10 @@ describe("parseWordsQuery", () => {
   it("trims the search box", () => {
     expect(parse("q=%20%20cat%20%20").q).toBe("cat");
   });
+
+  it("caps a huge search string", () => {
+    expect(parse(`q=${"a".repeat(500)}`).q).toHaveLength(200);
+  });
 });
 
 describe("wordsWhere", () => {

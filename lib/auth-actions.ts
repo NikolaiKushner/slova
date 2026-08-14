@@ -8,7 +8,7 @@ import {
   registerAccount,
   requestPasswordReset,
 } from "@/lib/auth-password";
-import { allowAttempt } from "@/lib/rate-limit";
+import { allowAttemptDurable } from "@/lib/rate-limit";
 import { normalizeEmail } from "@/lib/password-rules";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -25,7 +25,7 @@ async function clientIp() {
 
 export async function registerAction(email: string, password: string) {
   const ip = await clientIp();
-  if (!allowAttempt(`register:ip:${ip}`, 8, HOUR_MS)) {
+  if (!(await allowAttemptDurable(`register:ip:${ip}`, 8, HOUR_MS))) {
     return { ok: false, error: "Too many attempts. Try again in a while." };
   }
   return registerAccount(email, password);
@@ -33,8 +33,8 @@ export async function registerAction(email: string, password: string) {
 
 export async function requestPasswordResetAction(email: string) {
   const ip = await clientIp();
-  if (!allowAttempt(`reset:ip:${ip}`, 8, HOUR_MS)) return { ok: true };
-  if (!allowAttempt(`reset:email:${normalizeEmail(email)}`, 5, HOUR_MS)) {
+  if (!(await allowAttemptDurable(`reset:ip:${ip}`, 8, HOUR_MS))) return { ok: true };
+  if (!(await allowAttemptDurable(`reset:email:${normalizeEmail(email)}`, 5, HOUR_MS))) {
     return { ok: true };
   }
   return requestPasswordReset(email);

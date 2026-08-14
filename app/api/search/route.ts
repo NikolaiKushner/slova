@@ -8,7 +8,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const q = new URL(request.url).searchParams.get("q")?.trim() ?? "";
+  const q = (new URL(request.url).searchParams.get("q") ?? "")
+    .trim()
+    .slice(0, 200);
   if (q.length < 1) {
     return NextResponse.json({ sets: [], words: [] });
   }

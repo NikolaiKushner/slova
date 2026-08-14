@@ -8,6 +8,7 @@
 
 import { getPrisma } from "@/lib/prisma";
 import { CourseContentError, loadCourse } from "@/lib/courses/load";
+import { isExerciseBlock } from "@/content/courses/schema";
 
 export const LESSON_PASS_PERCENT = 80;
 export const TEST_PASS_PERCENT = 90;
@@ -73,19 +74,34 @@ export async function saveLessonProgress(input: {
   courseSlug: string;
   lessonSlug: string;
   right: number;
-  total: number;
   missedRuleIds: string[];
   now?: Date;
 }): Promise<LessonRecord> {
   const loaded = loadCourse(input.courseSlug);
-  if (!loaded.lessons.some((lesson) => lesson.slug === input.lessonSlug)) {
+  const lesson = loaded.lessons.find((item) => item.slug === input.lessonSlug);
+  if (!lesson) {
     throw new CourseContentError(
       `${input.courseSlug}: no lesson "${input.lessonSlug}".`,
     );
   }
 
+  const total = lesson.blocks.filter(isExerciseBlock).length;
+  if (total <= 0) {
+    throw new CourseContentError(
+      `${input.courseSlug}: lesson "${input.lessonSlug}" has no exercises.`,
+    );
+  }
+
+  const right = Math.min(Math.max(0, input.right), total);
+  const allowedRules = new Set(loaded.rules.map((rule) => rule.id));
+  const missedRuleIds = [
+    ...new Set(
+      input.missedRuleIds.filter((id) => allowedRules.has(id)).slice(0, 50),
+    ),
+  ];
+
   const now = input.now ?? new Date();
-  const percent = scorePercent(input.right, input.total);
+  const percent = scorePercent(right, total);
   const prisma = getPrisma();
 
   await prisma.userCourse.upsert({
@@ -129,7 +145,7 @@ export async function saveLessonProgress(input: {
   const next = nextLessonRecord(
     previous,
     percent,
-    input.missedRuleIds,
+    missedRuleIds,
     input.lessonSlug,
     now,
   );

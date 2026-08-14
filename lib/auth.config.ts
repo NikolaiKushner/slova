@@ -47,6 +47,9 @@ export const authConfig = {
       );
 
       if (isProtected) return isLoggedIn;
+      if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth")) {
+        return isLoggedIn;
+      }
       if (isAuthPage && isLoggedIn) {
         return Response.redirect(new URL(SIGNED_IN_HOME, request.nextUrl));
       }

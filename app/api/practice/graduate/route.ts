@@ -40,6 +40,12 @@ export async function POST(request: Request) {
     select: { id: true, introducedAt: true },
   });
   if (!word) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (word.introducedAt) {
+    return NextResponse.json(
+      { error: "That word is already in the schedule." },
+      { status: 409 },
+    );
+  }
 
   const now = new Date();
   const next = scheduleGraduation(parsed.data.errors, now);

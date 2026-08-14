@@ -10,7 +10,7 @@ import {
   normalizeEmail,
   verifyPassword,
 } from "@/lib/password";
-import { allowAttempt } from "@/lib/rate-limit";
+import { allowAttemptDurable } from "@/lib/rate-limit";
 
 class EmailNotVerified extends CredentialsSignin {
   code = "email_not_verified";
@@ -41,7 +41,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!isEmail(emailRaw) || !password) return null;
 
         const email = normalizeEmail(emailRaw);
-        if (!allowAttempt(`login:${email}`, 10, 15 * 60 * 1000)) return null;
+        if (!(await allowAttemptDurable(`login:${email}`, 10, 15 * 60 * 1000))) {
+          return null;
+        }
 
         const user = await getPrisma().user.findUnique({ where: { email } });
         if (!user?.passwordHash) return null;
