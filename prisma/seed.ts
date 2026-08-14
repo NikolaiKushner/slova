@@ -15,8 +15,8 @@ const STARTER = [
 ];
 
 async function main() {
-  // Sign-in is Google-only, so this seeds data shape, not a way in: use the
-  // email of the Google account you sign in with to see the starter set.
+  // This seeds data shape, not a way in. Sign in with this email (Google, or
+  // register a password) to see the starter set.
   const email = process.env.SEED_EMAIL ?? "demo@slova.app";
   const prisma = getPrisma();
 

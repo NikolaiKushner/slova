@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeKey, sameKey } from "@/lib/lexicon/key";
+import { normalizeKey, sameKey, audioObjectKey } from "@/lib/lexicon/key";
 
 describe("normalizeKey", () => {
   it("folds case", () => {
@@ -51,5 +51,16 @@ describe("normalizeKey", () => {
   it("survives text that is only punctuation", () => {
     expect(normalizeKey("...")).toBe("");
     expect(normalizeKey("   ")).toBe("");
+  });
+});
+
+describe("audioObjectKey", () => {
+  it("names a recording after the key", () => {
+    expect(audioObjectKey("monitor")).toBe("audio/en/monitor.mp3");
+  });
+
+  it("refuses traversal and turns slashes into underscores", () => {
+    expect(audioObjectKey("../etc/passwd")).toBeNull();
+    expect(audioObjectKey("was/were")).toBe("audio/en/was_were.mp3");
   });
 });

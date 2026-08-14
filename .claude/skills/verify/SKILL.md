@@ -13,5 +13,5 @@ Build and smoke-check the Next.js + Prisma app when the user explicitly asks to 
 2. `npx prisma migrate deploy` (or `migrate dev` locally).
 3. `npm run db:seed` if no demo user.
 4. `npm run build && npm run start` (or `npm run dev`).
-5. Open http://localhost:3000 — register or use `demo@slova.app` / `demo1234`.
+5. Open http://localhost:3000 — sign in with Google or email and password.
 6. Paste a short word list, study once, confirm home due counts update.

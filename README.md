@@ -61,7 +61,8 @@ npm run db:seed                # a demo account and a few words
 npm run dev
 ```
 
-Demo account from the seed: `demo@slova.app` / `demo1234`.
+Demo account from the seed: `demo@slova.app`. Sign in with that email
+(Google, or register a password), or run `SEED_EMAIL=you@gmail.com npm run db:seed`.
 
 `.env.example` documents every variable. `ANTHROPIC_API_KEY` is required —
 `npm run check:env` fails with the name of anything missing rather than letting
@@ -83,7 +84,7 @@ records where the word list came from and under what terms.
 
 ## Stack
 
-Next.js App Router, Prisma over Neon Postgres, NextAuth with Google, shadcn/ui
+Next.js App Router, Prisma over Neon Postgres, NextAuth with Google and email/password, shadcn/ui
 on base-ui. Claude Haiku 4.5 for translation, OpenAI `tts-1` for pronunciation,
 Cloudflare R2 for the audio files. Deployed on Vercel from `main`.
 

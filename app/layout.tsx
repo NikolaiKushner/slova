@@ -17,9 +17,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Slova — paste a list, start learning",
+  title: "Slova — words and grammar",
   description:
-    "Drop a tutor word list into Slova and start studying. Light spaced repetition when it’s time to review.",
+    "Paste English words and study them. Grammar courses explain a rule, then drill it.",
 };
 
 export const viewport: Viewport = {

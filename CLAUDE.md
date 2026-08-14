@@ -55,6 +55,6 @@ cheap check moved locally, and the slow ones stayed in CI:
   installs a different dependency set from CI.
 - Vercel deploys **only `main`** (`vercel.json` → `git.deploymentEnabled`).
   Branches get CI, not preview deployments.
-- Demo user from `npm run db:seed`: `demo@slova.app` / `demo1234`.
+- Demo user from `npm run db:seed`: `demo@slova.app` (Google, or register a password).
 - After editing `prisma/schema.prisma`, run `npx prisma migrate dev` and
   commit the migration.

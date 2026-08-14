@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { ratingOf } from "@/lib/word-rating";
 import { recordTranslations } from "@/lib/lexicon/write";
+import { allowAttemptDurable } from "@/lib/rate-limit";
 import { addWords } from "@/lib/words/add";
 import {
   pageCount,
@@ -100,6 +101,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const userId = session.user.id;
+  if (!(await allowAttemptDurable(`words:${userId}`, 40, 60 * 60 * 1000))) {
+    return NextResponse.json(
+      { error: "Too many writes. Try again in a while." },
+      { status: 429 },
+    );
+  }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
@@ -166,6 +173,7 @@ export async function POST(request: Request) {
         translation: word.back,
         source: "import" as const,
       })),
+      { userId },
     ).catch(() => {});
   }
 

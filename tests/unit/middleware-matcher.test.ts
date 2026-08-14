@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { PROTECTED_PREFIXES } from "@/lib/auth.config";
+import { AUTH_PATHS, PROTECTED_PREFIXES } from "@/lib/auth.config";
 
 /**
  * Next reads `config.matcher` in middleware.ts statically, so it has to be a
@@ -16,8 +16,14 @@ describe("middleware matcher", () => {
     }
   });
 
-  it("still matches the sign-in page, which redirects when already signed in", () => {
-    expect(source).toContain('"/login"');
+  it("matches every auth page so a signed-in person is sent home", () => {
+    for (const path of AUTH_PATHS) {
+      expect(source).toContain(`"${path}"`);
+    }
+  });
+
+  it("matches /api so a forgotten auth() check is not world-reachable", () => {
+    expect(source).toContain('"/api/:path*"');
   });
 
   it("does not match a route nobody protects", () => {

@@ -6,11 +6,10 @@ import { CourseContentError } from "@/lib/courses/load";
 import { saveLessonProgress } from "@/lib/courses/progress";
 
 const schema = z.object({
-  courseSlug: z.string().min(1),
-  lessonSlug: z.string().min(1),
-  right: z.number().int().nonnegative(),
-  total: z.number().int().positive(),
-  missedRuleIds: z.array(z.string().min(1)).default([]),
+  courseSlug: z.string().min(1).max(80),
+  lessonSlug: z.string().min(1).max(80),
+  right: z.number().int().nonnegative().max(500),
+  missedRuleIds: z.array(z.string().min(1).max(80)).max(50).default([]),
 });
 
 export async function POST(request: Request) {
@@ -22,10 +21,6 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid progress" }, { status: 400 });
-  }
-
-  if (parsed.data.right > parsed.data.total) {
     return NextResponse.json({ error: "Invalid progress" }, { status: 400 });
   }
 

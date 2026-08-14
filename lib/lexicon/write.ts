@@ -8,26 +8,20 @@ import { getPrisma } from "@/lib/prisma";
  * Putting a translation into the shared base — and deciding whether everyone
  * gets to see it.
  *
- * The asymmetry here is the point. A model's answer is one anonymous opinion
- * produced by the same instructions every time, so it can be trusted alone. A
- * translation somebody typed into their own import table is *their* answer: it
- * may be a shorthand, a mistake, or right only for their lesson. Publishing it
- * to everyone on sight would mean one person's typo becoming the app's answer
- * for that word, permanently, with no moderation to catch it.
+ * A model's answer is one more opinion, not a moderator. The words in the
+ * prompt are whatever the person pasted, so a crafted list can skew what the
+ * model writes, and that must not become everyone's answer on sight. A typed
+ * translation is even more private: it may be a shorthand or a mistake.
  *
- * So a typed translation is stored as a candidate and waits. When a second,
- * independent source produces the same text — another person, or the model —
- * it becomes everyone's.
+ * Seed and curated rows are the exception — they were reviewed before they
+ * landed. Everything else is a candidate until a *different* person produces
+ * the same text.
  */
 
 export type TranslationSource = "curated" | "seed" | "llm" | "import";
 
 /** Sources that stand on their own; the rest must be confirmed. */
-const TRUSTED: ReadonlySet<TranslationSource> = new Set([
-  "curated",
-  "seed",
-  "llm",
-]);
+const TRUSTED: ReadonlySet<TranslationSource> = new Set(["curated", "seed"]);
 
 /** Agreements needed before an untrusted translation goes global. */
 export const CONFIRMATIONS_TO_PUBLISH = 2;
@@ -45,17 +39,20 @@ export type PromotionDecision = {
 /**
  * Pure, because this is the rule that decides what strangers see.
  *
- * Known limitation, and it is a deliberate simplification rather than an
- * oversight: "independent" is not verified. Nothing records *who* confirmed a
- * translation, so the same person importing the same word twice counts twice.
- * With one account that is the difference between "my edits stay mine" and
- * "my edits stay mine unless I import twice"; when there are enough users for
- * it to matter, the fix is a column and this function keeps its shape.
+ * `alreadyConfirmedByUser` is the row for this person on this wording. A
+ * second save from the same account must not count as a second source.
  */
 export function promote(
   existing: ExistingTranslation,
   source: TranslationSource,
+  alreadyConfirmedByUser = false,
 ): PromotionDecision {
+  if (alreadyConfirmedByUser) {
+    return {
+      confirmations: existing?.confirmations ?? 0,
+      isGlobal: existing?.isGlobal === true || TRUSTED.has(source),
+    };
+  }
   const confirmations = (existing?.confirmations ?? 0) + 1;
   return {
     confirmations,
@@ -81,10 +78,20 @@ export type IncomingTranslation = {
  */
 export async function recordTranslations(
   incoming: readonly IncomingTranslation[],
+  options: { userId: string },
 ): Promise<number> {
-  const usable = incoming.filter(
-    (item) => normalizeKey(item.text) && item.translation.trim(),
-  );
+  const usable = incoming.filter((item) => {
+    const key = normalizeKey(item.text);
+    const translation = item.translation.trim();
+    return (
+      key &&
+      !key.includes("..") &&
+      translation &&
+      translation.length <= 200 &&
+      !translation.includes("\n") &&
+      !translation.includes("\r")
+    );
+  });
   if (usable.length === 0) return 0;
 
   const prisma = getPrisma();
@@ -117,10 +124,24 @@ export async function recordTranslations(
           text: translation,
         },
       },
-      select: { confirmations: true, isGlobal: true },
+      select: { id: true, confirmations: true, isGlobal: true },
     });
 
-    const decision = promote(existing, item.source);
+    const alreadyConfirmedByUser = existing
+      ? Boolean(
+          await prisma.lexemeTranslationConfirmation.findUnique({
+            where: {
+              translationId_userId: {
+                translationId: existing.id,
+                userId: options.userId,
+              },
+            },
+            select: { translationId: true },
+          }),
+        )
+      : false;
+
+    const decision = promote(existing, item.source, alreadyConfirmedByUser);
 
     // Exactly one translation answers for a word. If something already does,
     // this one joins the base without displacing it — the seeded answer stays
@@ -134,7 +155,7 @@ export async function recordTranslations(
       select: { id: true },
     });
 
-    await prisma.lexemeTranslation.upsert({
+    const saved = await prisma.lexemeTranslation.upsert({
       where: {
         lexemeId_targetLang_text: {
           lexemeId: lexeme.id,
@@ -158,6 +179,11 @@ export async function recordTranslations(
         isGlobal: decision.isGlobal,
       },
       select: { id: true },
+    });
+
+    await prisma.lexemeTranslationConfirmation.createMany({
+      data: [{ translationId: saved.id, userId: options.userId }],
+      skipDuplicates: true,
     });
 
     written += 1;

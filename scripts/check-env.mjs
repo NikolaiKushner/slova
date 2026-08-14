@@ -9,8 +9,13 @@ const REQUIRED = {
   DATABASE_URL:
     "Neon connection string. Vercel → Storage → Neon sets this; check the name is exactly DATABASE_URL, not POSTGRES_URL.",
   AUTH_SECRET: "openssl rand -base64 32",
+  AUTH_URL: "Public origin, e.g. https://slova.study or http://localhost:3000.",
   AUTH_GOOGLE_ID: "Google Cloud Console → Credentials → OAuth client (Web).",
   AUTH_GOOGLE_SECRET: "Same OAuth client as AUTH_GOOGLE_ID.",
+  AUTH_RESEND_KEY:
+    "resend.com → API Keys. Sends confirmation and password-reset emails. Incoming routing to Gmail does not send.",
+  AUTH_EMAIL_FROM:
+    'From address Resend is allowed to use, e.g. Slova <hello@slova.study>. Until the domain is verified, use Resend <onboarding@resend.dev>.',
   ANTHROPIC_API_KEY:
     "console.anthropic.com → API keys. Without it the translate route fails per request, at the one moment a user is watching.",
 };
@@ -66,6 +71,14 @@ if (authUrl) {
     );
     process.exit(1);
   }
+}
+
+const emailFrom = process.env.AUTH_EMAIL_FROM;
+if (emailFrom && !emailFrom.includes("@")) {
+  console.error(
+    `\nAUTH_EMAIL_FROM is not an email address (got "${emailFrom}").\nUse e.g. Slova <hello@slova.study>.\n`,
+  );
+  process.exit(1);
 }
 
 if (!/^postgres(ql)?:\/\//.test(process.env.DATABASE_URL)) {

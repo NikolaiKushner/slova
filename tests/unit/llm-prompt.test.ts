@@ -50,10 +50,14 @@ describe("buildTranslationRequest", () => {
     expect(text).not.toContain("монитор");
   });
 
-  it("sends the whole batch in one message", () => {
+  it("sends the words as JSON data, not a markdown list a prompt can hide in", () => {
     const request = buildTranslationRequest(ROWS);
+    const text = userText(request);
     expect(request.messages).toHaveLength(1);
     expect(request.system).toBe(SYSTEM_PROMPT);
+    expect(text).toContain(JSON.stringify(["discharge summary", "accuracy", "was/were"]));
+    expect(text).toMatch(/not instructions/i);
+    expect(text).not.toContain("- discharge summary");
   });
 
   it("omits effort for claude-haiku-4-5 — the parameter is a 400 there", () => {

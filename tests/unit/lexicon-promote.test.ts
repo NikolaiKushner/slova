@@ -15,14 +15,26 @@ describe("promote", () => {
     expect(second.isGlobal).toBe(true);
   });
 
+  it("does not let the same person confirm twice", () => {
+    const first = promote(null, "import");
+    expect(promote(first, "import", true)).toEqual({
+      confirmations: 1,
+      isGlobal: false,
+    });
+  });
+
   it("counts the model as that second source", () => {
     const candidate = promote(null, "import");
     expect(candidate.isGlobal).toBe(false);
     expect(promote(candidate, "llm").isGlobal).toBe(true);
   });
 
-  it("trusts the model, a seed and a curated entry on their own", () => {
-    for (const source of ["llm", "seed", "curated"] as const) {
+  it("does not publish a model answer on its own", () => {
+    expect(promote(null, "llm")).toEqual({ confirmations: 1, isGlobal: false });
+  });
+
+  it("trusts a seed and a curated entry on their own", () => {
+    for (const source of ["seed", "curated"] as const) {
       expect(promote(null, source)).toEqual({ confirmations: 1, isGlobal: true });
     }
   });

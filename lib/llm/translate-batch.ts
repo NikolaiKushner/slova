@@ -8,6 +8,7 @@ import {
   TRANSLATION_ITEM_DEPTH,
   type TranslationItem,
 } from "@/lib/llm/prompt";
+import { tryReserveRequest } from "@/lib/llm/budget";
 import { activeModel } from "@/lib/llm/models";
 import { cleanCell, looksTransliterated, matchCase } from "@/lib/normalize";
 
@@ -50,6 +51,7 @@ export type BatchOutcome = {
 export async function* translateBatch(
   texts: readonly string[],
   outcome: BatchOutcome,
+  options: { userId: string },
 ): AsyncGenerator<TranslatedRow> {
   const usage = outcome.usage;
 
@@ -65,6 +67,9 @@ export async function* translateBatch(
   if (misses.length === 0) return;
   usage.llmMisses = misses.length;
 
+  await tryReserveRequest(options.userId);
+
+  const missKeys = new Set(misses.map((text) => normalizeKey(text)));
   const model = activeModel();
   const request = buildTranslationRequest(misses.map((text) => ({ text })));
   const stream = llm().messages.stream(request);
@@ -85,6 +90,7 @@ export async function* translateBatch(
     for (const item of scanner.push(event.delta.text)) {
       const row = clean(item);
       if (!row) continue;
+      if (!missKeys.has(normalizeKey(row.text))) continue;
       produced.push(row);
       yield { ...row, from: "llm" };
     }
@@ -101,6 +107,7 @@ export async function* translateBatch(
   if (produced.length > 0) {
     await recordTranslations(
       produced.map((row) => ({ ...row, source: "llm" as const, model })),
+      { userId: options.userId },
     );
   }
 }

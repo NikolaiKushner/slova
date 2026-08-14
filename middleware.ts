@@ -4,11 +4,10 @@ import { authConfig } from "@/lib/auth.config";
 export default NextAuth(authConfig).auth;
 
 /**
- * Must stay in step with PROTECTED_PREFIXES in lib/auth.config.ts. It cannot
- * import that array — Next reads this config statically at build time — so a
- * unit test compares the two instead. That test exists because these once
- * drifted: the matcher still listed /home, /decks and /import for a while
- * after those routes had moved.
+ * Must stay in step with PROTECTED_PREFIXES and AUTH_PATHS in
+ * lib/auth.config.ts, plus `/api` (except `/api/auth`, which authorized()
+ * leaves open). It cannot import those arrays — Next reads this config
+ * statically at build time — so a unit test compares the two instead.
  */
 export const config = {
   matcher: [
@@ -20,5 +19,10 @@ export const config = {
     "/home/:path*",
     "/import/:path*",
     "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-email",
+    "/api/:path*",
   ],
 };

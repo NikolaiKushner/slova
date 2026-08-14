@@ -52,6 +52,14 @@ export function normalizeKey(raw: string): string {
   return key;
 }
 
+/** Object key for a shared recording. Rejects traversal; slashes become `_`. */
+export function audioObjectKey(key: string): string | null {
+  if (!key || key.includes("\0") || key.includes("..") || key.includes("\\")) {
+    return null;
+  }
+  return `audio/en/${key.replaceAll("/", "_")}.mp3`;
+}
+
 /** True when two spellings are the same entry. */
 export function sameKey(a: string, b: string): boolean {
   return normalizeKey(a) === normalizeKey(b);

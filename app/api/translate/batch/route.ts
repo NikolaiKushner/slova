@@ -2,12 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
-import {
-  assertWithinBudget,
-  BudgetExceededError,
-  recordUsage,
-} from "@/lib/llm/budget";
+import { BudgetExceededError, recordUsage } from "@/lib/llm/budget";
 import { emptyUsage, translateBatch } from "@/lib/llm/translate-batch";
+import { allowAttemptDurable } from "@/lib/rate-limit";
 
 /**
  * Translate a list, streaming each row back as it is ready.
@@ -29,25 +26,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const userId = session.user.id;
+  if (!(await allowAttemptDurable(`translate:${userId}`, 30, 60 * 60 * 1000))) {
+    return NextResponse.json(
+      { error: "Too many translation requests. Try again in a while." },
+      { status: 429 },
+    );
+  }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Send a list of words." }, { status: 400 });
-  }
-
-  // Before anything is spent, not after: the whole point of the ceiling is to
-  // be the thing that answers instead of Anthropic.
-  try {
-    await assertWithinBudget(userId);
-  } catch (error) {
-    if (error instanceof BudgetExceededError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 429, headers: { "Retry-After": String(error.retryAfter) } },
-      );
-    }
-    throw error;
   }
 
   const outcome = { usage: emptyUsage() };
@@ -56,21 +45,31 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const row of translateBatch(parsed.data.words, outcome)) {
+        for await (const row of translateBatch(parsed.data.words, outcome, {
+          userId,
+        })) {
           controller.enqueue(encoder.encode(JSON.stringify(row) + "\n"));
         }
       } catch (error) {
-        // The rows already sent stay sent — a failure halfway through should
-        // cost the rest of the list, not the part that worked.
-        const message =
-          error instanceof Error ? error.message : "Translation failed";
-        controller.enqueue(
-          encoder.encode(JSON.stringify({ error: message }) + "\n"),
-        );
+        if (error instanceof BudgetExceededError) {
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({ error: error.message }) + "\n",
+            ),
+          );
+        } else {
+          const message =
+            error instanceof Error ? error.message : "Translation failed";
+          controller.enqueue(
+            encoder.encode(JSON.stringify({ error: message }) + "\n"),
+          );
+        }
       } finally {
-        // Recorded even on failure: tokens spent before the error were still
-        // spent, and hits are the number that says whether any of this works.
-        await recordUsage(userId, outcome.usage).catch(() => {});
+        try {
+          await recordUsage(userId, { ...outcome.usage, requests: 0 });
+        } catch (error) {
+          console.error("Failed to record translation usage", error);
+        }
         controller.close();
       }
     },
