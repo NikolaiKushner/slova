@@ -1,0 +1,30 @@
+{
+  "groups": [
+    {
+      "id": "tenses",
+      "title": "Tenses",
+      "titleRu": "Времена",
+      "courses": [
+        { "slug": "present-simple", "status": "available" },
+        {
+          "slug": "to-be-present",
+          "status": "coming",
+          "title": "to be",
+          "titleRu": "am / is / are"
+        },
+        {
+          "slug": "present-continuous",
+          "status": "coming",
+          "title": "Present Continuous",
+          "titleRu": "Настоящее длительное"
+        },
+        {
+          "slug": "past-simple",
+          "status": "coming",
+          "title": "Past Simple",
+          "titleRu": "Простое прошедшее"
+        }
+      ]
+    }
+  ]
+}

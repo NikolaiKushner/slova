@@ -1,0 +1,12 @@
+[
+  {
+    "id": "ps-base-form",
+    "title": "I / you / we / they + verb",
+    "anchorMd": "После **I, you, we, they** глагол стоит в словарной форме: *I work*, *they live*."
+  },
+  {
+    "id": "ps-third-person-s",
+    "title": "he / she / it + -s",
+    "anchorMd": "После **he, she, it** к глаголу добавляется **-s**: *she works*, *he lives*."
+  }
+]

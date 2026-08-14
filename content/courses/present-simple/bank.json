@@ -1,0 +1,54 @@
+[
+  {
+    "type": "exercise",
+    "id": "ps-bank-01",
+    "ruleId": "ps-base-form",
+    "kind": "choice",
+    "prompt": "They ___ football after school.",
+    "options": ["play", "plays"],
+    "answer": "play"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-02",
+    "ruleId": "ps-base-form",
+    "kind": "pick-sentence",
+    "prompt": "Which sentence is correct?",
+    "options": ["I lives in Berlin.", "I live in Berlin."],
+    "answer": "I live in Berlin."
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-03",
+    "ruleId": "ps-base-form",
+    "kind": "gap",
+    "prompt": "We ___ more time. (need)",
+    "answer": "need"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-04",
+    "ruleId": "ps-third-person-s",
+    "kind": "choice",
+    "prompt": "He ___ books in the evening.",
+    "options": ["read", "reads"],
+    "answer": "reads"
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-05",
+    "ruleId": "ps-third-person-s",
+    "kind": "pick-sentence",
+    "prompt": "Which sentence is correct?",
+    "options": ["My sister like tea.", "My sister likes tea."],
+    "answer": "My sister likes tea."
+  },
+  {
+    "type": "exercise",
+    "id": "ps-bank-06",
+    "ruleId": "ps-third-person-s",
+    "kind": "gap",
+    "prompt": "Tom ___ a new bag. (want)",
+    "answer": "wants"
+  }
+]
