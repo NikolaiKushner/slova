@@ -7,6 +7,7 @@ import {
   confirmEmailAddress,
   registerAccount,
   requestPasswordReset,
+  type AuthActionResult,
 } from "@/lib/auth-password";
 import { allowAttemptDurable } from "@/lib/rate-limit";
 import { normalizeEmail } from "@/lib/password-rules";
@@ -23,7 +24,10 @@ async function clientIp() {
   }
 }
 
-export async function registerAction(email: string, password: string) {
+export async function registerAction(
+  email: string,
+  password: string,
+): Promise<AuthActionResult> {
   const ip = await clientIp();
   if (!(await allowAttemptDurable(`register:ip:${ip}`, 8, HOUR_MS))) {
     return { ok: false, error: "Too many attempts. Try again in a while." };
@@ -31,7 +35,9 @@ export async function registerAction(email: string, password: string) {
   return registerAccount(email, password);
 }
 
-export async function requestPasswordResetAction(email: string) {
+export async function requestPasswordResetAction(
+  email: string,
+): Promise<AuthActionResult> {
   const ip = await clientIp();
   if (!(await allowAttemptDurable(`reset:ip:${ip}`, 8, HOUR_MS))) return { ok: true };
   if (!(await allowAttemptDurable(`reset:email:${normalizeEmail(email)}`, 5, HOUR_MS))) {
@@ -44,10 +50,13 @@ export async function completePasswordResetAction(
   email: string,
   token: string,
   password: string,
-) {
+): Promise<AuthActionResult> {
   return completePasswordReset(email, token, password);
 }
 
-export async function confirmEmailAction(email: string, token: string) {
+export async function confirmEmailAction(
+  email: string,
+  token: string,
+): Promise<AuthActionResult> {
   return confirmEmailAddress(email, token);
 }
