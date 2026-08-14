@@ -5,7 +5,7 @@
   "blocks": [
     {
       "type": "explanation",
-      "md": "Вопрос начинается с **Do** или **Does**. Глагол после подлежащего — словарная форма, без **-s**."
+      "md": "Вопрос начинается с **Do** или **Does**, затем человек, затем глагол в словарной форме.\n\n**Do** — для I / you / we / they. **Does** — для he / she / it. **Does** уже несёт 3-е лицо, поэтому дальше **work**, а не works.\n\nПорядок такой: Do/Does + who + verb …? Не You work here? — это звучит как уточнение, а не как обычный вопрос."
     },
     {
       "type": "table",
@@ -16,9 +16,19 @@
       ]
     },
     {
+      "type": "example",
+      "en": "Do you live here?",
+      "ru": "Ты здесь живёшь?"
+    },
+    {
+      "type": "example",
+      "en": "Does she play tennis?",
+      "ru": "Она играет в теннис?"
+    },
+    {
       "type": "pitfall",
       "ruleId": "ps-question-does",
-      "md": "**Does** уже несёт 3-е лицо. Не Does he works? — Does he work?"
+      "md": "**Does** уже несёт 3-е лицо. Не Does he works? — **Does he work?**\n\n**-s** переезжает на Does и с глагола снимается, как в отрицании с doesn't."
     },
     {
       "type": "exercise",

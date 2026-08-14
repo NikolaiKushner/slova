@@ -5,7 +5,7 @@
   "blocks": [
     {
       "type": "explanation",
-      "md": "Отрицание собирается из **do / does + not** и словарной формы глагола. **-s** с глагола снимается: оно уже внутри **doesn't**."
+      "md": "Отрицание в Present Simple собирается не из not у глагола, а из **don't / doesn't** и словарной формы.\n\n**I / you / we / they** берут **don't** (или do not). **he / she / it** берут **doesn't** (или does not). **-s** с основного глагола снимается: оно уже внутри **doesn't**.\n\nПолные формы **do not** и **does not** значат то же самое. В разговоре почти всегда don't и doesn't."
     },
     {
       "type": "table",
@@ -28,7 +28,7 @@
     {
       "type": "pitfall",
       "ruleId": "ps-negative-doesnt",
-      "md": "После **doesn't** глагол без **-s**: she doesn't like, не she doesn't likes."
+      "md": "После **doesn't** глагол без **-s**: she doesn't like, не she doesn't likes.\n\nДва **-s** подряд (doesn't likes) — частая ошибка: лицо уже отмечено в doesn't, глаголу больше нечего добавлять."
     },
     {
       "type": "exercise",

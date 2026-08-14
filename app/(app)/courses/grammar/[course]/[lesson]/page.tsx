@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { LessonPlayer } from "@/components/courses/lesson-player";
+import { PageBack } from "@/components/page-back";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { CourseContentError, loadCourse } from "@/lib/courses/load";
@@ -37,6 +38,10 @@ export default async function CourseLessonPage({ params }: Params) {
         courseSlug={courseSlug}
         lesson={lesson}
         rules={loaded.rules}
+      />
+      <PageBack
+        href={`/courses/grammar/${courseSlug}`}
+        label="Back to lessons"
       />
     </Page>
   );

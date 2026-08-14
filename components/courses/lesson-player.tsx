@@ -1,21 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
 import {
   isExerciseBlock,
   type Lesson,
   type Rule,
 } from "@/content/courses/schema";
-import { BlockView } from "@/components/courses/block-view";
+import { TheoryView } from "@/components/courses/block-view";
 import {
   ExerciseView,
   GrammarFeedback,
   type GrammarAnswered,
 } from "@/components/courses/exercise-view";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Section } from "@/components/section";
+import { X } from "lucide-react";
 
 export function LessonPlayer({
   courseSlug,
@@ -26,8 +36,12 @@ export function LessonPlayer({
   lesson: Lesson;
   rules: Rule[];
 }) {
-  const theory = lesson.blocks.filter((block) => block.type !== "exercise");
+  const theory = lesson.blocks.filter(
+    (block): block is Exclude<typeof block, { type: "exercise" }> =>
+      !isExerciseBlock(block),
+  );
   const exercises = lesson.blocks.filter(isExerciseBlock);
+  const [practicing, setPracticing] = useState(theory.length === 0);
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<GrammarAnswered | null>(null);
   const [right, setRight] = useState(0);
@@ -73,6 +87,19 @@ export function LessonPlayer({
     setIndex(nextIndex);
   }
 
+  if (!practicing && theory.length > 0) {
+    return (
+      <Section title="The rule">
+        <TheoryView blocks={theory} />
+        <div className="mt-6">
+          <Button size="lg" onClick={() => setPracticing(true)}>
+            Start practice
+          </Button>
+        </div>
+      </Section>
+    );
+  }
+
   if (finished) {
     return (
       <Section title="This lesson" hint={`${right} of ${exercises.length}`}>
@@ -81,14 +108,6 @@ export function LessonPlayer({
             ? "Every one right."
             : "You can go through it again whenever you like."}
         </p>
-        <div className="mt-4">
-          <Button
-            size="lg"
-            render={<Link href={`/courses/grammar/${courseSlug}`} />}
-          >
-            Back to the course
-          </Button>
-        </div>
       </Section>
     );
   }
@@ -102,19 +121,17 @@ export function LessonPlayer({
   }
 
   return (
-    <div className="space-y-10">
-      {theory.length > 0 ? (
-        <Section title="The rule">
-          <div className="space-y-5">
-            {theory.map((block, blockIndex) => (
-              <BlockView key={`${block.type}-${blockIndex}`} block={block} />
-            ))}
-          </div>
-        </Section>
-      ) : null}
-
-      <Section title="Practice" hint={`${index + 1} of ${exercises.length}`}>
-        <div className="space-y-6">
+    <Section
+      title="Practice"
+      hint={`${index + 1} of ${exercises.length}`}
+      action={
+        theory.length > 0 ? (
+          <RuleDrawer title={lesson.title} blocks={theory} />
+        ) : undefined
+      }
+    >
+      <Card className="gap-0 py-0">
+        <CardContent className="space-y-6 py-4">
           <ExerciseView
             key={current.id}
             exercise={current}
@@ -128,8 +145,45 @@ export function LessonPlayer({
               onNext={handleNext}
             />
           ) : null}
+        </CardContent>
+      </Card>
+    </Section>
+  );
+}
+
+function RuleDrawer({
+  title,
+  blocks,
+}: {
+  title: string;
+  blocks: Exclude<Lesson["blocks"][number], { type: "exercise" }>[];
+}) {
+  return (
+    <Drawer swipeDirection="right">
+      <DrawerTrigger render={<Button variant="ghost" />}>
+        Show the rule
+      </DrawerTrigger>
+      <DrawerContent className="data-[swipe-axis=x]:[--drawer-content-width:min(32rem,92vw)]">
+        <DrawerHeader className="relative pr-12">
+          <DrawerTitle>The rule</DrawerTitle>
+          <DrawerDescription>{title}</DrawerDescription>
+          <DrawerClose
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="absolute top-3 right-3"
+              />
+            }
+          >
+            <X />
+            <span className="sr-only">Close</span>
+          </DrawerClose>
+        </DrawerHeader>
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+          <TheoryView blocks={blocks} framed={false} />
         </div>
-      </Section>
-    </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

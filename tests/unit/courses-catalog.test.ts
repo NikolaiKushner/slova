@@ -11,6 +11,8 @@ describe("grammarCatalog", () => {
       ["past-simple", "coming"],
     ]);
     expect(group?.courses[0]?.href).toBe("/courses/grammar/present-simple");
+    expect(group?.courses[0]?.level).toBe("A1");
+    expect(group?.courses[0]?.lessonCount).toBe(6);
     expect(group?.courses[1]?.href).toBeNull();
   });
 });

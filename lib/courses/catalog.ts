@@ -6,6 +6,8 @@ export type CatalogCourse = {
   titleRu: string;
   status: "available" | "coming";
   href: string | null;
+  level: string | null;
+  lessonCount: number | null;
 };
 
 export type CatalogGroup = {
@@ -32,6 +34,8 @@ export function grammarCatalog(): CatalogGroup[] {
           titleRu: entry.titleRu,
           status: "coming",
           href: null,
+          level: null,
+          lessonCount: null,
         };
       }
 
@@ -42,6 +46,8 @@ export function grammarCatalog(): CatalogGroup[] {
         titleRu: loaded.course.titleRu,
         status: "available",
         href: `/courses/grammar/${entry.slug}`,
+        level: loaded.course.level,
+        lessonCount: loaded.course.lessons.length,
       };
     }),
   }));

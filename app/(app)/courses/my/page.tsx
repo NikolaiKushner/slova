@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
+import { PageBack } from "@/components/page-back";
 import { Section } from "@/components/section";
 import { Card } from "@/components/ui/card";
 import { loadCourse } from "@/lib/courses/load";
@@ -89,6 +90,8 @@ export default async function MyCoursesPage() {
           </Card>
         )}
       </Section>
+
+      <PageBack href="/courses/grammar" label="Back to courses" />
     </Page>
   );
 }
