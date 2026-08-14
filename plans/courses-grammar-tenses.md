@@ -169,7 +169,7 @@ UserLesson  userId + courseSlug + lessonSlug
 
 ### Фаза 1 — Present Simple
 
-#### 1. Схема + урок Forms в JSON — M · `[ ]`
+#### 1. Схема + урок Forms в JSON — M · `[x]`
 
 - **Why first:** если `ruleId`, банк и четыре `kind` не выражаются в файлах, плеер рано.
 - **Files:** `content/courses/SOURCE.md`, `content/courses/schema.ts`, `content/courses/present-simple/{course,rules,01-forms,bank}.json`, `lib/courses/load.ts`, `tests/unit/courses-schema.test.ts`.

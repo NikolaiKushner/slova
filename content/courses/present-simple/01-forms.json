@@ -29,7 +29,7 @@
     {
       "type": "pitfall",
       "ruleId": "ps-third-person-s",
-      "md": "После *he / she / it* русскоязычные часто оставляют глагол без **-s**: *she work*. Нужно *she works*."
+      "md": "После he / she / it русскоязычные часто оставляют глагол без **-s**: she work. Нужно **she works**."
     },
     {
       "type": "exercise",
