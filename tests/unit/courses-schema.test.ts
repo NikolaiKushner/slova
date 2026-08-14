@@ -12,10 +12,24 @@ describe("present-simple pack", () => {
   it("parses and satisfies the bank rule", () => {
     const loaded = loadCourse("present-simple");
     expect(loaded.course.title).toBe("Present Simple");
-    expect(loaded.lessons.map((lesson) => lesson.slug)).toEqual(["forms"]);
+    expect(loaded.lessons.map((lesson) => lesson.slug)).toEqual([
+      "forms",
+      "use",
+      "spelling",
+      "negatives",
+      "questions",
+      "test",
+    ]);
     expect(loaded.rules.map((rule) => rule.id).sort()).toEqual([
       "ps-base-form",
+      "ps-negative-doesnt",
+      "ps-negative-dont",
+      "ps-question-do",
+      "ps-question-does",
+      "ps-spelling-es",
       "ps-third-person-s",
+      "ps-use-facts",
+      "ps-use-habits",
     ]);
   });
 

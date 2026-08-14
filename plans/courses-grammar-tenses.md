@@ -177,7 +177,7 @@ UserLesson  userId + courseSlug + lessonSlug
 - **Verify:** `npm test -- tests/unit/courses-schema.test.ts` — ruleId резолвится, один canonical answer, банк не пуст, опечатка в `kind` падает.
 - **Depends on:** —
 
-#### 2. Плеер урока на Forms — M · `[ ]`
+#### 2. Плеер урока на Forms — M · `[x]`
 
 - **Why:** скучная петля убивает модель; это видно на одном уроке.
 - **Files:** `lib/courses/answer.ts`, `lib/courses/question.ts`, `components/courses/lesson-player.tsx`, `components/courses/exercise-view.tsx`, `components/courses/block-view.tsx`, `app/(app)/courses/grammar/[course]/[lesson]/page.tsx`, `tests/unit/courses-answer.test.ts`.

@@ -2,6 +2,11 @@ import catalogJson from "@/content/courses/catalog.json";
 import presentSimpleBank from "@/content/courses/present-simple/bank.json";
 import presentSimpleCourse from "@/content/courses/present-simple/course.json";
 import presentSimpleForms from "@/content/courses/present-simple/01-forms.json";
+import presentSimpleUse from "@/content/courses/present-simple/02-use.json";
+import presentSimpleSpelling from "@/content/courses/present-simple/03-spelling.json";
+import presentSimpleNegatives from "@/content/courses/present-simple/04-negatives.json";
+import presentSimpleQuestions from "@/content/courses/present-simple/05-questions.json";
+import presentSimpleTest from "@/content/courses/present-simple/99-test.json";
 import presentSimpleRules from "@/content/courses/present-simple/rules.json";
 import {
   acceptedAnswers,
@@ -39,7 +44,14 @@ const PACKS: Record<string, CoursePackJson> = {
   "present-simple": {
     course: presentSimpleCourse,
     rules: presentSimpleRules,
-    lessons: { forms: presentSimpleForms },
+    lessons: {
+      forms: presentSimpleForms,
+      use: presentSimpleUse,
+      spelling: presentSimpleSpelling,
+      negatives: presentSimpleNegatives,
+      questions: presentSimpleQuestions,
+      test: presentSimpleTest,
+    },
     bank: presentSimpleBank,
   },
 };

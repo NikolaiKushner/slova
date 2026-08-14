@@ -8,5 +8,40 @@
     "id": "ps-third-person-s",
     "title": "he / she / it + -s",
     "anchorMd": "После **he, she, it** к глаголу добавляется **-s**: she works, he lives."
+  },
+  {
+    "id": "ps-use-habits",
+    "title": "Habits",
+    "anchorMd": "Present Simple для привычек и расписания: то, что бывает снова и снова. Часто рядом стоят every day, on Sundays, usually."
+  },
+  {
+    "id": "ps-use-facts",
+    "title": "Facts",
+    "anchorMd": "Present Simple для фактов — того, что верно вообще, не только сейчас."
+  },
+  {
+    "id": "ps-spelling-es",
+    "title": "-s / -es / -ies",
+    "anchorMd": "Обычный глагол берёт **-s**. Если он кончается на s, sh, ch, x или o — **-es** (goes, watches). Если согласная + y — **y → ies** (studies)."
+  },
+  {
+    "id": "ps-negative-dont",
+    "title": "don't",
+    "anchorMd": "Отрицание с **I / you / we / they**: **don't** + словарная форма. Не I don't works."
+  },
+  {
+    "id": "ps-negative-doesnt",
+    "title": "doesn't",
+    "anchorMd": "Отрицание с **he / she / it**: **doesn't** + словарная форма, без **-s** на глаголе: she doesn't live, не doesn't lives."
+  },
+  {
+    "id": "ps-question-do",
+    "title": "Do … ?",
+    "anchorMd": "Вопрос с **I / you / we / they** начинается с **Do**: Do you work here?"
+  },
+  {
+    "id": "ps-question-does",
+    "title": "Does … ?",
+    "anchorMd": "Вопрос с **he / she / it** начинается с **Does**, глагол без **-s**: Does he play football? Не Does he plays."
   }
 ]

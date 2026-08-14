@@ -1,0 +1,77 @@
+{
+  "slug": "questions",
+  "title": "Questions",
+  "titleRu": "Вопросы",
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Вопрос начинается с **Do** или **Does**. Глагол после подлежащего — словарная форма, без **-s**."
+    },
+    {
+      "type": "table",
+      "headers": ["Person", "Question"],
+      "rows": [
+        ["I / you / we / they", "Do you work here?"],
+        ["he / she / it", "Does he work here?"]
+      ]
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "ps-question-does",
+      "md": "**Does** уже несёт 3-е лицо. Не Does he works? — Does he work?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-01",
+      "ruleId": "ps-question-do",
+      "kind": "choice",
+      "prompt": "___ you live in Berlin?",
+      "options": ["Do", "Does", "Are"],
+      "answer": "Do"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-02",
+      "ruleId": "ps-question-does",
+      "kind": "choice",
+      "prompt": "___ she play tennis?",
+      "options": ["Do", "Does", "Is"],
+      "answer": "Does"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-03",
+      "ruleId": "ps-question-does",
+      "kind": "pick-sentence",
+      "prompt": "Which question is correct?",
+      "options": ["Does he works here?", "Does he work here?"],
+      "answer": "Does he work here?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-04",
+      "ruleId": "ps-question-do",
+      "kind": "transform",
+      "prompt": "Make this a question.",
+      "source": "They live here.",
+      "answer": "Do they live here?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-05",
+      "ruleId": "ps-question-does",
+      "kind": "transform",
+      "prompt": "Make this a question.",
+      "source": "She likes tea.",
+      "answer": "Does she like tea?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-06",
+      "ruleId": "ps-question-do",
+      "kind": "gap",
+      "prompt": "___ you need more time? (Do)",
+      "answer": "Do"
+    }
+  ]
+}

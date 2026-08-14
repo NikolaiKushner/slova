@@ -12,7 +12,11 @@ import { acceptedAnswers, type Exercise } from "@/content/courses/schema";
 export type GrammarVerdict = "correct" | "wrong";
 
 export function normalizeGrammarAnswer(text: string): string {
-  return text.trim().replace(/\s+/g, " ").toLowerCase();
+  return text
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[.?!]+$/g, "")
+    .toLowerCase();
 }
 
 export function gradeExercise(

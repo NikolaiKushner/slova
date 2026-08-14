@@ -1,0 +1,90 @@
+{
+  "slug": "use",
+  "title": "Use",
+  "titleRu": "Употребление",
+  "blocks": [
+    {
+      "type": "explanation",
+      "ruleId": "ps-use-habits",
+      "md": "Present Simple говорит о привычке: то, что человек делает снова и снова, а не именно в эту минуту."
+    },
+    {
+      "type": "example",
+      "en": "I walk to work every day.",
+      "ru": "Я каждый день хожу на работу пешком."
+    },
+    {
+      "type": "example",
+      "en": "She plays tennis on Sundays.",
+      "ru": "Она играет в теннис по воскресеньям."
+    },
+    {
+      "type": "explanation",
+      "ruleId": "ps-use-facts",
+      "md": "Тем же временем называют факт — то, что верно вообще."
+    },
+    {
+      "type": "example",
+      "en": "Water freezes in winter.",
+      "ru": "Вода зимой замерзает."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-01",
+      "ruleId": "ps-use-habits",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence talks about a habit?",
+      "options": [
+        "She reads in the evening.",
+        "She reading in the evening."
+      ],
+      "answer": "She reads in the evening."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-02",
+      "ruleId": "ps-use-habits",
+      "kind": "choice",
+      "prompt": "I ___ coffee every morning.",
+      "options": ["drink", "drinks"],
+      "answer": "drink"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-03",
+      "ruleId": "ps-use-facts",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is a fact?",
+      "options": [
+        "The shop opens at nine.",
+        "The shop opening at nine."
+      ],
+      "answer": "The shop opens at nine."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-04",
+      "ruleId": "ps-use-facts",
+      "kind": "choice",
+      "prompt": "Cats ___ meat.",
+      "options": ["eat", "eats"],
+      "answer": "eat"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-05",
+      "ruleId": "ps-use-habits",
+      "kind": "gap",
+      "prompt": "He ___ football after school. (play)",
+      "answer": "plays"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-06",
+      "ruleId": "ps-use-facts",
+      "kind": "gap",
+      "prompt": "The sun ___ in the east. (rise)",
+      "answer": "rises"
+    }
+  ]
+}

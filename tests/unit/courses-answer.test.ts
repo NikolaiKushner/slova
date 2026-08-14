@@ -39,4 +39,19 @@ describe("gradeExercise", () => {
     expect(gradeExercise(gap, "lives")).toBe("correct");
     expect(gradeExercise(gap, "Lives")).toBe("correct");
   });
+
+  it("ignores a trailing full stop on a whole sentence", () => {
+    const transform = {
+      type: "exercise",
+      id: "t-tr",
+      ruleId: "ps-negative-doesnt",
+      kind: "transform",
+      prompt: "Make this negative.",
+      source: "She works here.",
+      answer: "She doesn't work here.",
+      accept: ["She does not work here."],
+    } satisfies Exercise;
+    expect(gradeExercise(transform, "She doesn't work here")).toBe("correct");
+    expect(gradeExercise(transform, "She does not work here")).toBe("correct");
+  });
 });

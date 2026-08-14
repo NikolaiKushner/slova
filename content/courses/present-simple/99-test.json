@@ -1,0 +1,121 @@
+{
+  "slug": "test",
+  "title": "Test",
+  "titleRu": "Проверка",
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Смесь всего курса. Без новой теории — только то, что уже было в уроках."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-01",
+      "ruleId": "ps-third-person-s",
+      "kind": "choice",
+      "prompt": "My father ___ in a bank.",
+      "options": ["work", "works"],
+      "answer": "works"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-02",
+      "ruleId": "ps-base-form",
+      "kind": "choice",
+      "prompt": "We ___ English at school.",
+      "options": ["speak", "speaks"],
+      "answer": "speak"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-03",
+      "ruleId": "ps-spelling-es",
+      "kind": "gap",
+      "prompt": "She ___ to work at eight. (go)",
+      "answer": "goes"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-04",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["He doesn't likes coffee.", "He doesn't like coffee."],
+      "answer": "He doesn't like coffee."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-05",
+      "ruleId": "ps-question-does",
+      "kind": "choice",
+      "prompt": "___ Tom play football?",
+      "options": ["Do", "Does"],
+      "answer": "Does"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-06",
+      "ruleId": "ps-use-habits",
+      "kind": "choice",
+      "prompt": "I ___ tea every morning.",
+      "options": ["drink", "drinks"],
+      "answer": "drink"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-07",
+      "ruleId": "ps-negative-dont",
+      "kind": "transform",
+      "prompt": "Make this negative.",
+      "source": "They live in Berlin.",
+      "answer": "They don't live in Berlin.",
+      "accept": ["They do not live in Berlin."]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-08",
+      "ruleId": "ps-question-do",
+      "kind": "transform",
+      "prompt": "Make this a question.",
+      "source": "You work here.",
+      "answer": "Do you work here?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-09",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "He ___ French. (study)",
+      "options": ["studys", "studies"],
+      "answer": "studies"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-10",
+      "ruleId": "ps-use-facts",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is a fact?",
+      "options": [
+        "Water boils at 100 degrees.",
+        "Water boil at 100 degrees."
+      ],
+      "answer": "Water boils at 100 degrees."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-11",
+      "ruleId": "ps-third-person-s",
+      "kind": "gap",
+      "prompt": "Anna ___ here. (live)",
+      "answer": "lives"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-test-12",
+      "ruleId": "ps-question-does",
+      "kind": "pick-sentence",
+      "prompt": "Which question is correct?",
+      "options": ["Does she plays tennis?", "Does she play tennis?"],
+      "answer": "Does she play tennis?"
+    }
+  ]
+}
