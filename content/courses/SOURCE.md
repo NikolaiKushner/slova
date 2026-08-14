@@ -15,9 +15,7 @@ and exercise sentences stay in the books.
 
 The PDFs are not in this repository.
 
-First four courses, in the order we will ship them:
-
-1. Present Simple
-2. *to be* (am / is / are)
-3. Present Continuous
-4. Past Simple
+The live catalog is grouped by CEFR in `catalog.json`. Only Present Simple
+is written; the rest are Coming. A1 follows the owner's tense line first,
+then the other beginner constructions. A2 and B1 are the next shelves, not
+this course's JSON yet.

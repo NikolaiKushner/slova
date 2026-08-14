@@ -29,7 +29,7 @@
 - Автосвалка слов в словарь и кнопка «Add these phrases».
 - Типы `order` (чипсы) и `audio-gap`.
 - LLM / `courses:build`. Первый курс руками.
-- JSON остальных одиннадцати курсов времён.
+- JSON остальных курсов A1–B1 — фаза 3, каталог уже показывает полку как Coming.
 - PDF в git.
 
 ## Locked decisions
@@ -50,6 +50,7 @@
 | Подписи | Как карточки Лео: английский title + русская строка (`Forms` / `Форма`). |
 | FSRS | Второй планировщик не пишем. `lib/srs.ts` (`ScheduledWord`) уже только поля карточки; в фазе 2 переименовать тип и повесить `UserRule`. |
 | Учебники | Essential RU — нарезка A1–A2. EGIU 5th — контрасты B1 и модель смешанного теста. Чужой текст не копируем. |
+| Каталог | Группы **A1 / A2 / B1**. Замка по уровню нет. Coming не кликается. |
 
 ```
 Courses/Grammar          Practice/Grammar         Dictionary
@@ -140,16 +141,50 @@ content/courses/
 Правила Present Simple (id нельзя терять; схлопнуть можно при написании):  
 `ps-base-form`, `ps-third-person-s`, `ps-use-habits`, `ps-use-facts`, `ps-spelling-es`, `ps-negative-dont`, `ps-negative-doesnt`, `ps-question-do`, `ps-question-does`.
 
-### Каталог времён
+### Каталог по уровням
 
-Порядок владельца (2026-08-14). В фазе 1 живёт №1; 2–4 в каталоге как Next.
+Группы в `catalog.json` — **A1 / A2 / B1**. Замок по уровню не строим: Coming
+не кликается, available открыт всем. Переставить полки или спрятать B1 новичку —
+отдельное решение, когда живых курсов больше одного.
 
-1. **`present-simple`** ← шаги 1–4  
-2. `to-be-present` — am / is / are  
-3. `present-continuous`  
-4. `past-simple`  
+Внутри A1 сначала линейка времён владельца (2026-08-14), потом остальные
+конструкции этого уровня.
 
-Дальше, не в этом заходе: past continuous, present perfect, контрасты, going to / will.
+**A1 · Начальный** — Essential, короткие формы.
+
+- [x] `present-simple` — живой
+- [ ] `to-be-present` — am / is / are
+- [ ] `there-is` — there is / there are
+- [ ] `present-continuous`
+- [ ] `past-simple`
+- [ ] `can` — can / can't
+- [ ] `have-got`
+- [ ] `articles-a-the` — a / an / the
+
+**A2 · Элементарный** — ещё времена и «сколько / должен / если».
+
+- [ ] `past-continuous`
+- [ ] `going-to`
+- [ ] `will`
+- [ ] `present-perfect` — первый взгляд, без контраста с Past
+- [ ] `comparatives`
+- [ ] `some-any` — some / any / much / many
+- [ ] `modals-must` — must / have to / should
+- [ ] `first-conditional`
+
+**B1 · Средний** — EGIU: контрасты и конструкции длиннее предложения.
+
+- [ ] `present-perfect-vs-past`
+- [ ] `present-perfect-continuous`
+- [ ] `past-perfect`
+- [ ] `future-forms` — will / going to / Present Continuous
+- [ ] `used-to`
+- [ ] `passive`
+- [ ] `reported-speech`
+- [ ] `conditionals-2-3`
+
+Не в полке, пока эти не живые: gerund vs infinitive, relative clauses, wish,
+articles на глубину B2. Один курс = одна конструкция, не «вся грамматика A2».
 
 ### Прогресс (Prisma)
 
@@ -223,9 +258,14 @@ UserLesson  userId + courseSlug + lessonSlug
 - **Verify:** после промаха в Forms due через день достаёт item из bank, не `ps-forms-03`.
 - **Depends on:** 5
 
-### Фаза 3 — остальные времена
+### Фаза 3 — полка курсов, тот же плеер
 
-По одному курсу JSON на ту же схему, без нового кода плеера. Порядок — каталог выше. Первый после Present Simple: `to-be-present` (он в Essential раньше и короткий) **или** `present-continuous`, как решит владелец по живому ощущению фазы 1.
+По одному JSON на схему фазы 1, без нового кода. Первый после мержа —
+`to-be-present` (короткий, Essential юниты 1–2) **или** `present-continuous`,
+как решит владелец по живому Present Simple.
+
+Галочки курсов — в каталоге выше. Не писать B1, пока A1 не из чего собрать
+контраст (Present Perfect vs Past Simple бессмысленен без обоих).
 
 ## Risks
 
@@ -235,7 +275,7 @@ UserLesson  userId + courseSlug + lessonSlug
 | Петля скучная | шаг 2 | короче explanation, не новые типы |
 | Копируем Murphy | дифф JSON | SOURCE.md, PDF не в git |
 | `judge()` словаря прощает `-s` | шаг 2 | свой `answer.ts` |
-| 12 Coming пустят каталог | шаг 3 | один живой + 3–4 Next |
+| 12 Coming пустят каталог | шаг 3 | группы по уровню; один available |
 | Банк слишком похож на урок | шаг 1 / 6 | разные предложения, тот же ruleId |
 
 ## Rollback
@@ -261,7 +301,7 @@ UserLesson  userId + courseSlug + lessonSlug
 - [x] Медицина? нет.
 - [x] Пороги? 80 / 90.
 - [x] Подписи уроков? EN + RU строка.
-- [x] Фаза 3 порядок: Present Simple → to be → Present Continuous → Past Simple. Владелец, 2026-08-14.
+- [x] Фаза 3 полка: A1 / A2 / B1 в каталоге; замок по уровню — позже.
 
 ## Deferred
 

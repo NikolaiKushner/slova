@@ -66,12 +66,16 @@ describe("catalog", () => {
   it("lists present-simple as the only available course", () => {
     const catalog = loadCatalog();
     expect(listedAvailableSlugs(catalog)).toEqual(["present-simple"]);
-    const slugs = catalog.groups[0]?.courses.map((entry) => entry.slug);
-    expect(slugs).toEqual([
+    expect(catalog.groups.map((group) => group.id)).toEqual(["a1", "a2", "b1"]);
+    expect(catalog.groups[0]?.courses.map((entry) => entry.slug)).toEqual([
       "present-simple",
       "to-be-present",
+      "there-is",
       "present-continuous",
       "past-simple",
+      "can",
+      "have-got",
+      "articles-a-the",
     ]);
   });
 });
