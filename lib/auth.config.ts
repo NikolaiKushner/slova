@@ -3,6 +3,15 @@ import type { NextAuthConfig } from "next-auth";
 /** Where a signed-in person lands. Everything else in the app hangs off here. */
 export const SIGNED_IN_HOME = "/tasks/today";
 
+/** Public auth screens. Signed-in people get sent home from these. */
+export const AUTH_PATHS = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+] as const;
+
 /**
  * Every top-level segment under `app/(app)`, plus the routes that redirect
  * into it. Matched on a segment boundary, so `/tasks-archive` would not
@@ -22,6 +31,7 @@ export const authConfig = {
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   providers: [],
   callbacks: {
@@ -29,7 +39,9 @@ export const authConfig = {
       const { pathname } = request.nextUrl;
       const isLoggedIn = !!auth?.user;
 
-      const isAuthPage = pathname.startsWith("/login");
+      const isAuthPage = AUTH_PATHS.some(
+        (path) => pathname === path || pathname.startsWith(`${path}/`),
+      );
       const isProtected = PROTECTED_PREFIXES.some(
         (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
       );

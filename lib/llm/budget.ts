@@ -4,9 +4,10 @@ import { getPrisma } from "@/lib/prisma";
  * The ceiling on what one person can spend of our key in a day, and the
  * counters that say whether the shared base is earning its keep.
  *
- * The limit is not a nicety. Sign-in is Google-only with no allow-list, so the
- * translate route is reachable by anyone with a Google account; the only thing
- * between that and a bill from Anthropic is this file.
+ * The limit is not a nicety. Sign-in is open (Google or email and password)
+ * with no allow-list, so the translate route is reachable by anyone who can
+ * complete it; the only thing between that and a bill from Anthropic is this
+ * file.
  *
  * The check happens *before* the call and looks only at what was already
  * spent, because the cost of a request is unknown until it comes back. So the

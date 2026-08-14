@@ -8,18 +8,55 @@ datasource db {
 }
 
 model User {
-  id            String  @id @default(cuid())
-  email         String  @unique
+  id            String    @id @default(cuid())
+  email         String    @unique
   name          String?
   image         String?
-  // Sign-in is Google-only; no local passwords are stored.
-  dailyNewLimit Int     @default(20)
+  /// Set when they confirm a registration email, reset a password, or sign
+  /// in with Google. Null on older Google-only rows is fine: Google still
+  /// lets them in; email-and-password waits for a confirmed address.
+  emailVerified DateTime?
+  /// scrypt hash (`salt:hash` hex). Null when they only ever used Google.
+  passwordHash  String?
+  dailyNewLimit Int       @default(20)
 
   createdAt DateTime @default(now())
 
-  words   UserWord[]
-  sets    WordSet[]
-  courses UserCourse[]
+  accounts Account[]
+  words    UserWord[]
+  sets     WordSet[]
+  courses  UserCourse[]
+}
+
+/// A login method attached to a User. Google stores the OAuth tokens here;
+/// email-and-password does not write a row (Auth.js only links OAuth).
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@index([userId])
+}
+
+/// One-time hashed token for email confirm and password-reset links.
+/// `identifier` is `verify:email` or `reset:email`. Deleted when used.
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
 }
 
 /// A word as this user keeps it: their spelling, their translation, their
@@ -144,9 +181,10 @@ model ReviewLog {
 /// What one user spent, and got, in one UTC day.
 ///
 /// Two jobs in one row. The counters on the left are a spending cap: sign-in is
-/// Google-only with no allow-list, so anyone with a Google account can reach
-/// the translate route, and without a ceiling the first bored visitor spends
-/// our key. The counters on the right are the only measurement that says
+/// open (Google or email and password) with no allow-list, so anyone who can
+/// complete it can reach the translate route, and without a ceiling the first
+/// bored visitor spends our key. The counters on the right are the only
+/// measurement that says
 /// whether the shared base is working at all — hits divided by hits plus
 /// misses. Both are per user per day, so both fit the same row.
 ///

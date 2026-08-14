@@ -1,22 +1,34 @@
-import { CalendarCheck, ListPlus, Repeat } from "lucide-react";
+import { BookOpen, CalendarCheck, ListPlus, Repeat } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { LoginForm } from "@/components/login-form";
-import { BrandWordmark } from "@/components/brand-mark";
-import { StudyPreview } from "@/components/study-preview";
+import {
+  CourseScreen,
+  DictionaryScreen,
+  PracticeScreen,
+  ProductFrame,
+  TodayScreen,
+} from "@/components/product-frame";
+import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { Button } from "@/components/ui/button";
 
 const STEPS: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: ListPlus,
     title: "Paste a list",
-    body: "A tutor sheet or CSV. Translations fill in as you add the words.",
+    body: "Type or paste English words. Translations fill in as you add them.",
   },
   {
     icon: Repeat,
     title: "Study the words",
     body: "One card, seven formats. Recognising one is easy; writing it is not.",
+  },
+  {
+    icon: BookOpen,
+    title: "Learn a rule",
+    body: "Grammar courses: the rule on a card, then a drill. Present Simple is first.",
   },
   {
     icon: CalendarCheck,
@@ -33,42 +45,48 @@ export default async function LandingPage() {
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -left-24 top-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -right-20 bottom-10 h-96 w-96 rounded-full bg-brand-soft/15 blur-3xl" />
-        <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-accent/40 blur-3xl" />
+        <div className="absolute -right-20 top-40 h-96 w-96 rounded-full bg-brand-soft/15 blur-3xl" />
       </div>
 
-      <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-20">
-        <div className="flex flex-col">
-          <BrandWordmark className="text-4xl sm:text-5xl" />
+      <SiteHeader />
 
-          <div className="mt-14 space-y-6 sm:mt-20">
-            <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-              Vocabulary
-            </p>
-            <h1 className="max-w-xl font-display text-4xl leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Paste a word list.
-              <br />
-              Start learning.
-            </h1>
-            <p className="max-w-md text-lg leading-relaxed text-muted-foreground">
-              Drop a tutor sheet or CSV into Slova. Study in minutes. Come back
-              when words are due again.
-            </p>
-            <div className="max-w-sm space-y-3 pt-2">
-              <LoginForm />
-              <p className="text-sm text-muted-foreground">
-                First time here? Signing in creates your account.
-              </p>
-            </div>
+      <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pb-8 pt-4 lg:grid-cols-2 lg:gap-16 lg:pb-20 lg:pt-10">
+        <div className="flex flex-col">
+          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
+            English
+          </p>
+          <h1 className="mt-4 max-w-xl font-display text-4xl leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            Paste a word list.
+            <br />
+            Learn the grammar.
+          </h1>
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
+            Type or paste words — translations fill in. Grammar courses explain
+            a rule, then drill it. Come back when words are due.
+          </p>
+          <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <Button
+              size="lg"
+              className="min-h-11 bg-teal-800 px-5 text-white hover:bg-teal-900"
+              render={<Link href="/register" />}
+            >
+              Create an account
+            </Button>
+            <Link
+              href="/login"
+              className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Sign in
+            </Link>
           </div>
         </div>
 
-        <div className="flex items-center justify-center">
-          <StudyPreview />
-        </div>
-      </div>
+        <ProductFrame>
+          <TodayScreen />
+        </ProductFrame>
+      </section>
 
-      <ol className="mx-auto grid w-full max-w-6xl gap-8 px-6 pb-16 sm:grid-cols-3 sm:gap-10">
+      <ol className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step) => {
           const Icon = step.icon;
           return (
@@ -86,6 +104,76 @@ export default async function LandingPage() {
           );
         })}
       </ol>
+
+      <section className="mx-auto grid w-full max-w-6xl gap-16 px-6 pb-24 lg:grid-cols-2">
+        <div className="space-y-4">
+          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
+            Dictionary
+          </p>
+          <h2 className="font-display text-3xl tracking-tight">
+            Paste. Translations fill in.
+          </h2>
+          <p className="max-w-sm text-muted-foreground">
+            Type or paste. Most words come from a shared dictionary. Only the
+            gaps go to a model, once.
+          </p>
+          <ProductFrame>
+            <DictionaryScreen />
+          </ProductFrame>
+        </div>
+        <div className="space-y-4 lg:pt-16">
+          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
+            Practice
+          </p>
+          <h2 className="font-display text-3xl tracking-tight">
+            Seven ways to be asked.
+          </h2>
+          <p className="max-w-sm text-muted-foreground">
+            Recognise it, hear it, write it. The whole drill works from the
+            keyboard.
+          </p>
+          <ProductFrame>
+            <PracticeScreen />
+          </ProductFrame>
+        </div>
+      </section>
+
+      <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 pb-24 lg:grid-cols-2 lg:gap-16">
+        <div className="space-y-4">
+          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
+            Courses
+          </p>
+          <h2 className="font-display text-3xl tracking-tight">
+            A rule, then a drill.
+          </h2>
+          <p className="max-w-sm text-muted-foreground">
+            Longer than a training, shorter than a textbook. Each lesson shows
+            the rule, then asks you to use it. Present Simple is first — six
+            lessons, from forms to a test.
+          </p>
+        </div>
+        <ProductFrame active="courses">
+          <CourseScreen />
+        </ProductFrame>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-6 pb-24">
+        <p className="font-display text-3xl tracking-tight sm:text-4xl">
+          Start with a list, or open a course.
+        </p>
+        <div className="mt-6">
+          <Button
+            size="lg"
+            variant="outline"
+            className="min-h-11 px-5"
+            render={<Link href="/register" />}
+          >
+            Create an account
+          </Button>
+        </div>
+      </section>
+
+      <SiteFooter />
     </main>
   );
 }
