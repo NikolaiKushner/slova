@@ -185,7 +185,7 @@ UserLesson  userId + courseSlug + lessonSlug
 - **Verify:** `doesn't` проходит через `accept`; `likes`/`like` не almost. `npx tsc --noEmit`.
 - **Depends on:** 1
 
-#### 3. Остальные уроки + каталог + карта курса — M · `[ ]`
+#### 3. Остальные уроки + каталог + карта курса — M · `[x]`
 
 - **Why:** один урок не курс.
 - **Files:** `02-use`, `03-spelling`, `04-negatives`, `05-questions`, `99-test.json`, дописать bank/rules, `content/courses/catalog.json`, `lib/courses/catalog.ts`, `app/(app)/courses/grammar/page.tsx`, `app/(app)/courses/grammar/[course]/page.tsx`, `tests/unit/courses-catalog.test.ts`, `tests/unit/nav.test.ts`.
@@ -193,7 +193,7 @@ UserLesson  userId + courseSlug + lessonSlug
 - **Verify:** схема на всём `present-simple/`. Каталог: Present Simple `available`, `to-be-present` `coming`. Nav: вложенный путь подсвечивает Grammar.
 - **Depends on:** 1 и 2
 
-#### 4. Прогресс и My courses — M · `[ ]`
+#### 4. Прогресс и My courses — M · `[x]`
 
 - **Why:** иначе нет «где остановился».
 - **Files:** `prisma/schema.prisma`, миграция, `lib/courses/progress.ts`, `app/api/courses/progress/route.ts`, `app/(app)/courses/my/page.tsx`, дописать `lesson-player.tsx`, `tests/unit/courses-progress.test.ts`.

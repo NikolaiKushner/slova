@@ -31,20 +31,42 @@ export function LessonPlayer({
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<GrammarAnswered | null>(null);
   const [right, setRight] = useState(0);
+  const [missed, setMissed] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const current = exercises[index];
   const rule = current
     ? rules.find((item) => item.id === current.ruleId)
     : undefined;
 
-  function handleNext() {
-    if (!current || !result) return;
+  async function handleNext() {
+    if (!current || !result || saving) return;
     const nextRight = right + (result.verdict === "correct" ? 1 : 0);
+    const nextMissed =
+      result.verdict === "wrong"
+        ? [...missed, current.ruleId]
+        : missed;
     const nextIndex = index + 1;
     setRight(nextRight);
+    setMissed(nextMissed);
     setResult(null);
     if (nextIndex >= exercises.length) {
+      setSaving(true);
+      await fetch("/api/courses/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseSlug,
+          lessonSlug: lesson.slug,
+          right: nextRight,
+          total: exercises.length,
+          missedRuleIds: [...new Set(nextMissed)],
+        }),
+      }).catch(() => {
+        // The lesson is still finished on this page; My courses can miss one
+        // save, and a retry of the lesson writes it.
+      });
       setFinished(true);
       return;
     }

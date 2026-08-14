@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
+import { auth } from "@/lib/auth";
+import { getPrisma } from "@/lib/prisma";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
@@ -25,6 +27,18 @@ export default async function CoursePage({ params }: Params) {
     throw error;
   }
 
+  const session = await auth();
+  const lessonRows = session?.user?.id
+    ? await getPrisma().userLesson.findMany({
+        where: { userId: session.user.id, courseSlug },
+      })
+    : [];
+  const done = new Set(
+    lessonRows
+      .filter((row) => row.status === "completed")
+      .map((row) => row.lessonSlug),
+  );
+
   return (
     <Page>
       <PageHeader
@@ -46,8 +60,15 @@ export default async function CoursePage({ params }: Params) {
                     {index + 1}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="font-display text-base leading-snug">
-                      {lesson.title}
+                    <span className="flex flex-wrap items-baseline gap-x-2">
+                      <span className="font-display text-base leading-snug">
+                        {lesson.title}
+                      </span>
+                      {done.has(lesson.slug) ? (
+                        <span className="text-brand-soft text-[0.65rem] font-medium tracking-widest uppercase">
+                          Done
+                        </span>
+                      ) : null}
                     </span>
                     <span className="text-muted-foreground block text-sm">
                       {lesson.titleRu}
