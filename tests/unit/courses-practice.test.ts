@@ -19,7 +19,11 @@ function gap(id: string, ruleId: string): Exercise {
   };
 }
 
-function choice(id: string, ruleId: string, options: string[]): Exercise {
+function choice(
+  id: string,
+  ruleId: string,
+  options: string[],
+): Extract<Exercise, { kind: "choice" }> {
   return {
     type: "exercise",
     id,
