@@ -9,6 +9,6 @@ export const SITE_ORIGIN = "https://slova.study";
 
 /**
  * Unique English words in the seeded shared dictionary (translations + audio).
- * The landing page quotes this; keep it in step with README and the seed file.
+ * Public copy says “more than 8,000”, not this exact seed count — it will drift.
  */
 export const SHARED_LEXICON_SIZE = 8172;

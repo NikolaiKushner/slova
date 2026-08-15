@@ -1,7 +1,5 @@
 import { ImageResponse } from "next/og";
 
-import { SHARED_LEXICON_SIZE } from "@/lib/site";
-
 export const OG_SIZE = { width: 1200, height: 630 };
 
 /**
@@ -56,7 +54,7 @@ const FONT_TEXT = [
   "thanks because although enough maybe already instead",
   "спасибо потому что хотя достаточно может быть уже вместо",
   "Вставьте список слов. Выучите грамматику.",
-  "0123456789 слова уже с переводом и озвучкой",
+  "Больше 8 000 слов уже с переводом и озвучкой",
   "slova.study ·",
 ].join(" ");
 
@@ -115,7 +113,6 @@ function Arrow({ color }: { color: string }) {
 export async function renderOgImage(variant: OgVariant = "dark") {
   const theme = THEME[variant];
   const fonts = await loadFonts().catch(() => undefined);
-  const count = new Intl.NumberFormat("ru-RU").format(SHARED_LEXICON_SIZE);
   const serif = fonts ? "Newsreader" : "Georgia, serif";
   const sans = fonts ? "Inter" : "system-ui, sans-serif";
 
@@ -273,7 +270,7 @@ export async function renderOgImage(variant: OgVariant = "dark") {
               maxWidth: 520,
             }}
           >
-            {count} слова уже с переводом и озвучкой
+            Больше 8 000 слов уже с переводом и озвучкой
           </div>
           <div
             style={{

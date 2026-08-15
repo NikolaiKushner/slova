@@ -11,7 +11,7 @@ describe("public addresses", () => {
 });
 
 describe("shared lexicon size", () => {
-  it("is the number the landing page is allowed to quote", () => {
-    expect(SHARED_LEXICON_SIZE).toBe(8172);
+  it("is the seeded unique count — public copy rounds it down to 8,000+", () => {
+    expect(SHARED_LEXICON_SIZE).toBeGreaterThan(8000);
   });
 });

@@ -1,11 +1,10 @@
 import { BookOpen, CalendarCheck, ListPlus, Repeat } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/lib/auth";
 import { TRAININGS } from "@/lib/practice/catalog";
-import { SHARED_LEXICON_SIZE } from "@/lib/site";
 import { redirect } from "next/navigation";
 import {
   CourseScreen,
@@ -47,8 +46,6 @@ export default async function LandingPage() {
   if (session?.user) redirect("/tasks/today");
 
   const t = await getTranslations("landing");
-  const locale = await getLocale();
-  const lexiconCount = new Intl.NumberFormat(locale).format(SHARED_LEXICON_SIZE);
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
@@ -88,7 +85,7 @@ export default async function LandingPage() {
         <dl className="grid gap-8 sm:grid-cols-3">
           <div>
             <dt className="font-display text-4xl tracking-tight text-primary tabular-nums sm:text-5xl">
-              {lexiconCount}
+              {t("statLexiconValue")}
             </dt>
             <dd className="mt-2 text-sm text-muted-foreground">{t("statLexicon")}</dd>
           </div>

@@ -3,7 +3,7 @@
     "title": "Slova — words and grammar",
     "description": "Paste English words and study them. Grammar courses explain a rule, then drill it.",
     "ogTitle": "Slova — paste a word list, learn the grammar",
-    "ogDescription": "Translations fill in from a shared dictionary of {count, number} words. Seven practice formats and grammar courses."
+    "ogDescription": "Translations fill in from a shared dictionary of more than 8,000 words. Seven practice formats and grammar courses."
   },
   "locale": {
     "en": "EN",
@@ -54,6 +54,7 @@
     "heroBody": "Type or paste words — translations fill in. Grammar courses explain a rule, then drill it. Come back when words are due.",
     "createAccount": "Create an account",
     "freeLine": "Free · no card · takes a minute",
+    "statLexiconValue": "8,000+",
     "statLexicon": "words in the shared dictionary",
     "statFormats": "question formats",
     "statRequest": "translations in one request",

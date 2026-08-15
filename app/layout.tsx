@@ -5,7 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/providers";
-import { SHARED_LEXICON_SIZE, SITE_ORIGIN } from "@/lib/site";
+import { SITE_ORIGIN } from "@/lib/site";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   // to English.
   const og = await getTranslations({ locale: "ru", namespace: "meta" });
   const ogTitle = og("ogTitle");
-  const ogDescription = og("ogDescription", { count: SHARED_LEXICON_SIZE });
+  const ogDescription = og("ogDescription");
 
   return {
     metadataBase: new URL(SITE_ORIGIN),

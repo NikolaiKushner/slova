@@ -128,8 +128,8 @@ Quiet editorial: serif titles, mist wash, product stills. No stock photos
   on the page (light fill on teal), not an outline.
 - One Sign in — in the header. The hero has Create account and a quiet
   “free · no card” line.
-- The shared dictionary size (`SHARED_LEXICON_SIZE` in `lib/site.ts`) is a
-  fact on the page, not a decoration.
+- The shared dictionary is quoted as **more than 8,000 words**, not the exact
+  seed count (`SHARED_LEXICON_SIZE` in `lib/site.ts`) — that number will drift.
 
 ## Motion
 
