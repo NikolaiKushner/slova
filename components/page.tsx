@@ -8,18 +8,17 @@ type Props = {
 /**
  * Page width lives here, not in the app shell.
  *
- * Reading screens stay narrow — one job per screen, whitespace over chrome
- * (DESIGN.md). `<PageWide>` is for a grid of records (the dictionary table).
+ * 828.5px is the iPad Air column beside the 287.5px sidebar, after the shell
+ * padding (1180 − 287.5 − 64). Every app screen uses it — lessons, the lesson
+ * list, the dictionary, Today. Wider screens stay at that; a phone shrinks.
  */
 export function Page({ className, children }: Props) {
   return (
-    <div className={cn("mx-auto w-full max-w-2xl", className)}>{children}</div>
+    <div className={cn("mx-auto w-full max-w-[828.5px]", className)}>
+      {children}
+    </div>
   );
 }
 
-/** For table-shaped screens only. Everything else uses `Page`. */
-export function PageWide({ className, children }: Props) {
-  return (
-    <div className={cn("mx-auto w-full max-w-5xl", className)}>{children}</div>
-  );
-}
+/** Same width as `Page`. Kept so the dictionary import does not have to move. */
+export const PageWide = Page;

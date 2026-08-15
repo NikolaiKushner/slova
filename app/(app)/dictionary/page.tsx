@@ -13,8 +13,8 @@ import { WordListTable } from "@/components/word-list-table";
  *
  * One screen rather than two, because the two halves answer each other — a
  * word added at the top appears in the list below without going anywhere, and
- * the list is the reason to add. `<PageWide>` because this is a grid of
- * records rather than something to read.
+ * the list is the reason to add. Same width as every other app screen
+ * (`<Page>` / `<PageWide>`): 828.5px, the iPad column.
  */
 export default function DictionaryPage() {
   // Bumped after an add. Used as a `key`, so the list remounts: it starts on

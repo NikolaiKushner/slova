@@ -30,8 +30,10 @@ Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 
 The shell no longer picks a width — the page does, via `components/page.tsx`:
 
-- `<Page>` — `max-w-2xl`. The default, and what every reading screen uses — including grammar courses, the lesson list, and a lesson itself.
-- `<PageWide>` — `max-w-5xl`. Table-shaped screens only (the dictionary list).
+- `<Page>` — **828.5px** max (`w-full max-w-[828.5px]`). That is the iPad Air
+  column beside the 287.5px sidebar, after the shell’s `md:px-8`. Lessons, the
+  lesson list, My words, Today — every app screen. A phone is narrower, so it
+  shrinks. `<PageWide>` is the same width; the name is leftover.
 
 ## Placeholders
 
