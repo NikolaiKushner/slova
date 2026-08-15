@@ -1,29 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/providers";
+import { inter, literata } from "@/app/fonts";
 import { SITE_ORIGIN } from "@/lib/site";
 import "./globals.css";
-
-const sourceSans = Source_Sans_3({
-  variable: "--font-sans",
-  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin", "latin-ext"],
-  axes: ["SOFT", "WONK", "opsz"],
-});
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#EEF2F4",
+  // neutral-100, the application background. Kept as hex because the browser
+  // chrome reads this before any stylesheet, so it cannot be a token.
+  themeColor: "#F1F3F2",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -74,7 +65,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${sourceSans.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${inter.variable} ${literata.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning: password managers / extensions inject attrs on body */}
