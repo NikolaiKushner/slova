@@ -179,7 +179,7 @@ export function AppSidebar() {
               {section.title}
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-0">
+              <SidebarMenu className="gap-1">
                 {section.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
                   return (
@@ -188,7 +188,7 @@ export function AppSidebar() {
                         render={<Link href={item.href} />}
                         isActive={isNavItemActive(pathname, item.href)}
                         tooltip={`${section.title} \u00b7 ${item.title}`}
-                        className="h-9 py-0 text-base leading-none [&_svg]:size-4"
+                        className="h-7 py-0 text-base leading-none [&_svg]:size-4"
                       >
                         {Icon ? <Icon /> : null}
                         <span>{item.title}</span>
