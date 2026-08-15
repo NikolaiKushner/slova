@@ -165,7 +165,7 @@ export function PracticeSession({
           the one you picked is the part worth looking at. */}
       {question && <QuestionView question={question} onAnswered={answer} />}
 
-      {question && result && (
+      {question && (
         <AnswerFeedback
           result={result}
           answer={

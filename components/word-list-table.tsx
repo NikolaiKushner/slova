@@ -33,7 +33,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WordBulkActions } from "@/components/word-bulk-actions";
+import {
+  WordBulkActions,
+  type FilingDestination,
+} from "@/components/word-bulk-actions";
 import { COLUMN_LABEL } from "@/components/word-table";
 import { paginationItems } from "@/lib/pagination";
 import { DEFAULT_PAGE_SIZE, PAGE_SIZES, nextSort, type SortField } from "@/lib/words-query";
@@ -123,7 +126,7 @@ export function WordListTable() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [reload]);
 
   /**
    * Writes a filter into the URL. `replace` rather than `push`: narrowing a
@@ -190,12 +193,15 @@ export function WordListTable() {
     refresh();
   }
 
-  const fileInto = (setId: string, mode: "add" | "move" | "remove") =>
+  const fileInto = (
+    destination: FilingDestination,
+    mode: "add" | "remove",
+  ) =>
     act(() =>
       fetch("/api/words", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selected, setId, mode }),
+        body: JSON.stringify({ ids: selected, ...destination, mode }),
       }),
     );
 

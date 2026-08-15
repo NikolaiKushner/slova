@@ -22,6 +22,7 @@ import {
   type Lesson,
   type Rule,
 } from "@/content/courses/schema";
+import { LESSON_PRACTICE_POOL_MIN } from "@/lib/courses/practice";
 
 /**
  * Courses on disk, parsed and checked.
@@ -205,6 +206,16 @@ function assertCourse(slug: string, loaded: LoadedCourse): void {
     if (inBank < BANK_PER_RULE) {
       throw new CourseContentError(
         `${slug}: rule "${ruleId}" needs at least ${BANK_PER_RULE} bank exercises, has ${inBank}.`,
+      );
+    }
+  }
+
+  for (const lesson of loaded.lessons) {
+    if (lesson.slug === "test") continue;
+    const inLesson = lesson.blocks.filter(isExerciseBlock).length;
+    if (inLesson < LESSON_PRACTICE_POOL_MIN) {
+      throw new CourseContentError(
+        `${slug}: lesson "${lesson.slug}" needs at least ${LESSON_PRACTICE_POOL_MIN} exercises to deal a sitting, has ${inLesson}.`,
       );
     }
   }

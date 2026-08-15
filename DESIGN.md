@@ -20,16 +20,24 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
 Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 
 - Width **287.5px**; search + collapse sit opposite the Fraunces wordmark (logo hides when collapsed). Search: ⌘K / Ctrl+K.
-- Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active.
+- Nav items are **text-base** on a **32px** row — the type stays large, the
+  pill is a little taller than a line of text. **6px** gaps sit between the
+  items, so the list is not one block. Twelve links plus labels fill an iPad
+  Air (820px) without the menu scrolling. Group labels stay the small sage
+  caps. Collapsed icon mode keeps the compact 32px target.
+- Header and footer are hairlined off the scrolling list (`border-sidebar-border` under the wordmark, above the account). They are flex regions, not overlays, so a line is enough. Collapsed, the toggle sits below a short top inset so it is not flush with the edge.
+- Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages, with extra vertical padding between groups so the sections read apart. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active.
 - Nav states: `--sidebar-hover` (lighter) vs `--sidebar-active` (slightly darker) — not the same color.
-- Footer: avatar + name, dropdown opens **up** with Log out.
+- Footer: avatar + name, dropdown opens **to the right** (below on a phone) with Log out.
 
 ## Page width
 
 The shell no longer picks a width — the page does, via `components/page.tsx`:
 
-- `<Page>` — `max-w-2xl`. The default, and what every reading screen uses — including grammar courses, the lesson list, and a lesson itself.
-- `<PageWide>` — `max-w-5xl`. Table-shaped screens only (the dictionary list).
+- `<Page>` — **828.5px** max (`w-full max-w-[828.5px]`). That is the iPad Air
+  column beside the 287.5px sidebar, after the shell’s `md:px-8`. Lessons, the
+  lesson list, My words, Today — every app screen. A phone is narrower, so it
+  shrinks. `<PageWide>` is the same width; the name is leftover.
 
 ## Placeholders
 
@@ -41,7 +49,9 @@ Every app page uses `PageHeader`: optional **eyebrow** + Fraunces **title** + mu
 
 A nested course page (a lesson, the lesson list, My courses) ends with `PageBack` — a ghost `lg` button, arrow plus label (`Back to lessons`, `Back to courses`). It is not in the header: the title stays the title, and leaving is a choice after the work.
 
-A grammar lesson is two beats. First the rule on a card, and **Start practice** (the one filled button). Then the drill; the rule leaves the page. **Show the rule** (ghost) opens it again in a shadcn Drawer from the right, so the practice column stays one job.
+A grammar lesson is two beats. First the rule on a card, and **Start practice** (the one filled button). Then the drill; the rule leaves the page. **Show the rule** (ghost) opens it again in a shadcn Drawer from the right, so the practice column stays one job. Under the question, **Next** is already on the right — disabled until there is a verdict — and Correct or Incorrect takes the left of that same row.
+
+A lesson stores a pool of prompts and deals **eight** when practice starts, covering the rules in a new order each time. The course test keeps every item and only shuffles. Extra prompts in `bank.json` are a later drill, not this sitting.
 
 Header actions share **one size** (`lg`). A page has at most one filled button
 — the thing you came to do; everything beside it is `ghost`. Destructive
@@ -174,10 +184,12 @@ screen rather than taking the place of the filters — a bar that pushes the
 table down moves it out from under the cursor at the exact moment a tick
 goes in. Filters stay where they were.
 
-Filing is three separate verbs, because they are three intentions and guessing
-between them would be wrong: **Move here** (this set and no other, the usual
-one), **Also add** (a word can belong to several lists), **Take out** (leave
-this set, stay in the rest). Deleting asks first, in a shadcn `AlertDialog` — it is the one action nothing
+Filing is two verbs, because a word can belong to several lists: **Also add**
+(join this set, keep the rest), **Take out** (leave this set, stay in the
+rest). The picker can name a **new set** as well as pick an existing one —
+the same choice as when adding words. **Also add** then creates the deck and
+files the ticked rows into it, which is how words that arrived with no set
+get one later. **Take out** stays on sets that already exist. Deleting asks first, in a shadcn `AlertDialog` — it is the one action nothing
 undoes, and `confirm()` looked like the browser talking rather than the app.
 Nothing else asks: a dialog in front of a reversible action teaches people to
 dismiss dialogs. A tick you cannot see is a tick you did not mean, so changing page,
@@ -226,7 +238,9 @@ with a mouse is a drill people stop doing:
 - multiple choice — options are numbered **1–4**, and those keys pick them;
 - word builder — typing a letter claims the leftmost tile bearing it,
   **Backspace** hands the last one back;
-- typed formats — **Enter** submits, and **Enter** again moves on.
+- typed formats — **Check** sits on the same row as the field (invisible after
+  a verdict, so the card does not jump); **Enter** submits, and **Enter** again
+  moves on.
 
 **Every training asks where its words come from** before the first question —
 Brainstorm included. Once there is more than one list, "practise" stops being
@@ -236,12 +250,14 @@ Several can be chosen at once, and choosing none means everything. Someone with
 no sets never sees the step at all, because it would be a question with one
 answer.
 
-**An answered question stays on screen.** The verdict appears under it — a
-green tick, or a red cross with the right answer — and the button becomes
-Next. Swapping the question for a panel that says "Correct" removed the answer
-at the exact moment it was worth looking at: seeing which option was right,
-beside the one you picked, is where the learning happens. A right answer says
-almost nothing; it is a wrong one that needs words.
+**An answered question stays on screen.** Next sits on the right of the row
+under the question from the start, disabled until there is a verdict, so the
+card does not grow when the answer lands. Correct or Incorrect takes the left
+of that same row — a green tick, or a red cross with the right answer
+underneath. Swapping the question for a panel that says "Correct" removed the
+answer at the exact moment it was worth looking at: seeing which option was
+right, beside the one you picked, is where the learning happens. A right
+answer says almost nothing; it is a wrong one that needs words.
 
 **Brainstorm opens with the words**, all six in one table with their
 translations and a Start button. An introduction buried inside the drill reads

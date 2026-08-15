@@ -90,6 +90,102 @@
       "kind": "gap",
       "prompt": "The sun ___ in the east. (rise)",
       "answer": "rises"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-07",
+      "ruleId": "ps-use-habits",
+      "kind": "choice",
+      "prompt": "She ___ tennis on Sundays.",
+      "options": ["play", "plays"],
+      "answer": "plays"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-08",
+      "ruleId": "ps-use-facts",
+      "kind": "choice",
+      "prompt": "Water ___ at 100 degrees.",
+      "options": ["boil", "boils"],
+      "answer": "boils"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-09",
+      "ruleId": "ps-use-habits",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence talks about a habit?",
+      "options": [
+        "He walks to work every day.",
+        "He walking to work every day."
+      ],
+      "answer": "He walks to work every day."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-10",
+      "ruleId": "ps-use-facts",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is a fact?",
+      "options": [
+        "Birds fly in the sky.",
+        "Birds flying in the sky."
+      ],
+      "answer": "Birds fly in the sky."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-11",
+      "ruleId": "ps-use-habits",
+      "kind": "gap",
+      "prompt": "I ___ to work every day. (walk)",
+      "answer": "walk"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-12",
+      "ruleId": "ps-use-facts",
+      "kind": "gap",
+      "prompt": "Ice ___ in spring. (melt)",
+      "answer": "melts"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-13",
+      "ruleId": "ps-use-habits",
+      "kind": "choice",
+      "prompt": "We ___ tennis on Sundays.",
+      "options": ["play", "plays"],
+      "answer": "play"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-14",
+      "ruleId": "ps-use-facts",
+      "kind": "choice",
+      "prompt": "The shop ___ at nine.",
+      "options": ["open", "opens"],
+      "answer": "opens"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-15",
+      "ruleId": "ps-use-habits",
+      "kind": "gap",
+      "prompt": "We ___ tea every morning. (drink)",
+      "answer": "drink"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-use-16",
+      "ruleId": "ps-use-facts",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is a fact?",
+      "options": [
+        "The Earth goes round the sun.",
+        "The Earth going round the sun."
+      ],
+      "answer": "The Earth goes round the sun."
     }
   ]
 }

@@ -6,6 +6,7 @@ import { getPrisma } from "@/lib/prisma";
 import { ratingOf } from "@/lib/word-rating";
 import { recordTranslations } from "@/lib/lexicon/write";
 import { allowAttemptDurable } from "@/lib/rate-limit";
+import { bulkIdsSchema, filingSchema } from "@/lib/words";
 import { addWords } from "@/lib/words/add";
 import {
   pageCount,
@@ -140,17 +141,7 @@ export async function POST(request: Request) {
     }
     targetSetId = set.id;
   } else if (setTitle) {
-    const title = setTitle.trim();
-    // Typing the name of a set that already exists means that set, not a
-    // second one wearing the same name.
-    const existing = await prisma.wordSet.findFirst({
-      where: { userId, title },
-      select: { id: true },
-    });
-    targetSetId =
-      existing?.id ??
-      (await prisma.wordSet.create({ data: { userId, title }, select: { id: true } }))
-        .id;
+    targetSetId = await findOrCreateSet(userId, setTitle);
   }
 
   const result = await addWords({
@@ -187,10 +178,6 @@ export async function POST(request: Request) {
   return NextResponse.json({ ...result, setId: targetSetId });
 }
 
-const bulkSchema = z.object({
-  ids: z.array(z.string().min(1)).min(1).max(500),
-});
-
 /**
  * Delete several words at once.
  *
@@ -204,7 +191,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const parsed = bulkSchema.safeParse(await request.json().catch(() => null));
+  const parsed = bulkIdsSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "Which words?" }, { status: 400 });
   }
@@ -216,17 +203,11 @@ export async function DELETE(request: Request) {
   return NextResponse.json({ deleted: count });
 }
 
-const filingSchema = bulkSchema.extend({
-  setId: z.string().min(1),
-  /**
-   * `move` makes this set their only one, `add` files them under one more, and
-   * `remove` takes them out of this one and leaves the rest. All three are
-   * wanted often enough that guessing between them would be wrong.
-   */
-  mode: z.enum(["add", "move", "remove"]).default("move"),
-});
-
-/** File several words into a set, or move them there from wherever they were. */
+/**
+ * File several words into a set — an existing one, or a new one named here —
+ * or take them out of one. Words that arrived with no set get one later this
+ * way, rather than having to be added again.
+ */
 export async function PATCH(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -240,27 +221,31 @@ export async function PATCH(request: Request) {
   }
 
   const prisma = getPrisma();
-  const [set, words] = await Promise.all([
-    prisma.wordSet.findFirst({
-      where: { id: parsed.data.setId, userId },
-      select: { id: true },
-    }),
-    prisma.userWord.findMany({
-      where: { id: { in: parsed.data.ids }, userId },
-      select: { id: true },
-    }),
-  ]);
-
-  if (!set) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const words = await prisma.userWord.findMany({
+    where: { id: { in: parsed.data.ids }, userId },
+    select: { id: true },
+  });
   if (words.length === 0) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  let targetSetId: string;
+  if (parsed.data.setId) {
+    const set = await prisma.wordSet.findFirst({
+      where: { id: parsed.data.setId, userId },
+      select: { id: true },
+    });
+    if (!set) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    targetSetId = set.id;
+  } else {
+    targetSetId = await findOrCreateSet(userId, parsed.data.setTitle!);
   }
 
   const ids = words.map((word) => word.id);
 
   if (parsed.data.mode === "remove") {
     await prisma.wordSetItem.deleteMany({
-      where: { wordId: { in: ids }, setId: set.id },
+      where: { wordId: { in: ids }, setId: targetSetId },
     });
   } else {
     if (parsed.data.mode === "move") {
@@ -268,14 +253,33 @@ export async function PATCH(request: Request) {
       await prisma.wordSetItem.deleteMany({ where: { wordId: { in: ids } } });
     }
     await prisma.wordSetItem.createMany({
-      data: ids.map((wordId) => ({ wordId, setId: set.id })),
+      data: ids.map((wordId) => ({ wordId, setId: targetSetId })),
       skipDuplicates: true,
     });
   }
   await prisma.wordSet.update({
-    where: { id: set.id },
+    where: { id: targetSetId },
     data: { updatedAt: new Date() },
   });
 
-  return NextResponse.json({ filed: ids.length });
+  return NextResponse.json({ filed: ids.length, setId: targetSetId });
+}
+
+/**
+ * Typing the name of a set that already exists means that set, not a second
+ * one wearing the same name.
+ */
+async function findOrCreateSet(userId: string, title: string) {
+  const prisma = getPrisma();
+  const trimmed = title.trim();
+  const existing = await prisma.wordSet.findFirst({
+    where: { userId, title: trimmed },
+    select: { id: true },
+  });
+  if (existing) return existing.id;
+  const created = await prisma.wordSet.create({
+    data: { userId, title: trimmed },
+    select: { id: true },
+  });
+  return created.id;
 }

@@ -73,6 +73,92 @@
       "prompt": "She ___ her family on Sunday. (visit)",
       "options": ["visit", "visits", "visites"],
       "answer": "visits"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-07",
+      "ruleId": "ps-spelling-es",
+      "kind": "gap",
+      "prompt": "He ___ the bus. (miss)",
+      "answer": "misses"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-08",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "She ___ to help. (try)",
+      "options": ["trys", "tries", "try"],
+      "answer": "tries"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-09",
+      "ruleId": "ps-spelling-es",
+      "kind": "gap",
+      "prompt": "Tom ___ the bags. (carry)",
+      "answer": "carries"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-10",
+      "ruleId": "ps-spelling-es",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is spelled right?",
+      "options": ["She enjoies music.", "She enjoys music."],
+      "answer": "She enjoys music."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-11",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "He ___ English. (teach)",
+      "options": ["teachs", "teaches", "teach"],
+      "answer": "teaches"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-12",
+      "ruleId": "ps-spelling-es",
+      "kind": "gap",
+      "prompt": "She ___ her homework. (do)",
+      "answer": "does"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-13",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "The shop ___ at six. (close)",
+      "options": ["close", "closes", "closess"],
+      "answer": "closes"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-14",
+      "ruleId": "ps-spelling-es",
+      "kind": "gap",
+      "prompt": "He ___ the ball. (catch)",
+      "answer": "catches"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-15",
+      "ruleId": "ps-spelling-es",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is spelled right?",
+      "options": ["She flys to London.", "She flies to London."],
+      "answer": "She flies to London."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-spell-16",
+      "ruleId": "ps-spelling-es",
+      "kind": "choice",
+      "prompt": "He ___ the window. (fix)",
+      "options": ["fixs", "fixes", "fix"],
+      "answer": "fixes"
     }
   ]
 }

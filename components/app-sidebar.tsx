@@ -81,8 +81,8 @@ function userInitials(name?: string | null, email?: string | null) {
 
 function SidebarBrandHeader() {
   return (
-    <SidebarHeader className="min-h-14 justify-center px-3 pt-[env(safe-area-inset-top)]">
-      <div className="flex h-9 items-center gap-1.5">
+    <SidebarHeader className="min-h-14 justify-center border-b border-sidebar-border px-3 pt-[env(safe-area-inset-top)] group-data-[collapsible=icon]:min-h-16 group-data-[collapsible=icon]:pt-4">
+      <div className="flex h-10 items-center gap-1.5">
         <Link
           href="/tasks/today"
           className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden"
@@ -90,8 +90,8 @@ function SidebarBrandHeader() {
           <BrandWordmark className="text-2xl" />
         </Link>
         <div className="ml-auto flex items-center gap-0.5 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:ml-0">
-          <AppSearch className="group-data-[collapsible=icon]:hidden" />
-          <SidebarTrigger className="size-8 shrink-0 text-sidebar-foreground hover:bg-sidebar-hover hover:text-sidebar-foreground [&_svg]:size-4 [&_svg]:stroke-[2]" />
+          <AppSearch className="size-9 group-data-[collapsible=icon]:hidden [&_svg]:size-5" />
+          <SidebarTrigger className="size-9 shrink-0 text-sidebar-foreground hover:bg-sidebar-hover hover:text-sidebar-foreground group-data-[collapsible=icon]:size-8! [&_svg]:size-5 group-data-[collapsible=icon]:[&_svg]:size-4 [&_svg]:stroke-[2]" />
         </div>
       </div>
     </SidebarHeader>
@@ -108,34 +108,48 @@ function SidebarUserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex w-full items-center gap-2 rounded-lg p-2 text-left outline-none transition-colors hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-sidebar-hover group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0!"
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left outline-none transition-colors hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-sidebar-hover group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0!"
       >
-        <Avatar className="size-7 bg-foreground text-background after:border-transparent group-data-[collapsible=icon]:size-7">
-          <AvatarFallback className="bg-foreground text-xs font-medium text-background">
+        <Avatar className="size-8 bg-foreground text-background after:border-transparent group-data-[collapsible=icon]:size-7">
+          <AvatarFallback className="bg-foreground text-sm font-medium text-background group-data-[collapsible=icon]:text-xs">
             {initials}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-          <p className="truncate text-sm font-medium text-sidebar-foreground">
+          <p className="truncate text-base leading-tight font-medium text-sidebar-foreground">
             {name}
           </p>
           {email ? (
-            <p className="truncate text-xs text-muted-foreground">{email}</p>
+            <p className="truncate text-xs leading-tight text-muted-foreground">{email}</p>
           ) : null}
         </div>
         <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        side={isMobile ? "bottom" : "top"}
-        align="start"
-        sideOffset={8}
-        className="w-64"
+        side={isMobile ? "bottom" : "right"}
+        align="end"
+        sideOffset={4}
+        className="min-w-56"
       >
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="font-normal">
-            <p className="truncate text-xs text-muted-foreground">
-              {email || "Signed in"}
-            </p>
+          <DropdownMenuLabel className="p-0 font-normal">
+            <div className="flex items-center gap-2.5 px-1 py-1.5 text-left">
+              <Avatar className="size-8 bg-foreground text-background after:border-transparent">
+                <AvatarFallback className="bg-foreground text-sm font-medium text-background">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid min-w-0 flex-1 leading-tight">
+                <span className="truncate text-sm font-medium text-foreground">
+                  {name}
+                </span>
+                {email ? (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {email}
+                  </span>
+                ) : null}
+              </div>
+            </div>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -160,12 +174,12 @@ export function AppSidebar() {
 
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
-          <SidebarGroup key={section.title}>
-            <SidebarGroupLabel className="text-[0.7rem] tracking-[0.14em] text-brand-soft">
+          <SidebarGroup key={section.title} className="py-4">
+            <SidebarGroupLabel className="h-7 text-xs tracking-[0.14em] text-brand-soft group-data-[collapsible=icon]:-mt-7">
               {section.title}
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-1">
+              <SidebarMenu className="gap-1.5">
                 {section.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
                   return (
@@ -174,6 +188,7 @@ export function AppSidebar() {
                         render={<Link href={item.href} />}
                         isActive={isNavItemActive(pathname, item.href)}
                         tooltip={`${section.title} \u00b7 ${item.title}`}
+                        className="h-8 py-0 text-base leading-none [&_svg]:size-4"
                       >
                         {Icon ? <Icon /> : null}
                         <span>{item.title}</span>
@@ -187,7 +202,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="gap-2 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+      <SidebarFooter className="gap-1 border-t border-sidebar-border px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
         <SidebarUserMenu />
       </SidebarFooter>
       <SidebarRail />

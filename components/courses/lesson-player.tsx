@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   isExerciseBlock,
+  type Exercise,
   type Lesson,
   type Rule,
 } from "@/content/courses/schema";
@@ -25,6 +26,11 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Section } from "@/components/section";
+import {
+  dealLessonPractice,
+  lessonPool,
+  practiceSessionSize,
+} from "@/lib/courses/practice";
 import { X } from "lucide-react";
 
 export function LessonPlayer({
@@ -40,14 +46,31 @@ export function LessonPlayer({
     (block): block is Exclude<typeof block, { type: "exercise" }> =>
       !isExerciseBlock(block),
   );
-  const exercises = lesson.blocks.filter(isExerciseBlock);
-  const [practicing, setPracticing] = useState(theory.length === 0);
+  const pool = lessonPool(lesson);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [practicing, setPracticing] = useState(false);
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<GrammarAnswered | null>(null);
   const [right, setRight] = useState(0);
   const [missed, setMissed] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  function startPractice() {
+    setExercises(
+      dealLessonPractice(pool, {
+        take: practiceSessionSize(lesson.slug, pool.length),
+        rng: Math.random,
+      }),
+    );
+    setPracticing(true);
+  }
+
+  useEffect(() => {
+    if (theory.length === 0) startPractice();
+    // Deal once if there is no rule to read first.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const current = exercises[index];
   const rule = current
@@ -74,7 +97,6 @@ export function LessonPlayer({
           courseSlug,
           lessonSlug: lesson.slug,
           right: nextRight,
-          total: exercises.length,
           missedRuleIds: [...new Set(nextMissed)],
         }),
       }).catch(() => {
@@ -92,7 +114,7 @@ export function LessonPlayer({
       <Section title="The rule">
         <TheoryView blocks={theory} />
         <div className="mt-6">
-          <Button size="lg" onClick={() => setPracticing(true)}>
+          <Button size="lg" onClick={startPractice}>
             Start practice
           </Button>
         </div>
@@ -137,14 +159,12 @@ export function LessonPlayer({
             exercise={current}
             onAnswered={setResult}
           />
-          {result ? (
-            <GrammarFeedback
-              result={result}
-              answer={current.answer}
-              rule={rule}
-              onNext={handleNext}
-            />
-          ) : null}
+          <GrammarFeedback
+            result={result}
+            answer={current.answer}
+            rule={rule}
+            onNext={handleNext}
+          />
         </CardContent>
       </Card>
     </Section>
