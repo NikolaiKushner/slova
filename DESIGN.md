@@ -20,7 +20,10 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
 Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 
 - Width **287.5px**; search + collapse sit opposite the Fraunces wordmark (logo hides when collapsed). Search: ⌘K / Ctrl+K.
-- Nav items are **text-base** on a 44px row, so they stay easy to hit on a tablet and a large screen. Group labels stay the small sage caps. Collapsed icon mode keeps the compact 32px target.
+- Nav items are **text-base** on a 36px row — large enough to read, short
+  enough that the twelve links plus labels fit an iPad Air (820px) without
+  the menu scrolling. Group labels stay the small sage caps. Collapsed icon
+  mode keeps the compact 32px target.
 - Header and footer are hairlined off the scrolling list (`border-sidebar-border` under the wordmark, above the account). They are flex regions, not overlays, so a line is enough.
 - Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active.
 - Nav states: `--sidebar-hover` (lighter) vs `--sidebar-active` (slightly darker) — not the same color.

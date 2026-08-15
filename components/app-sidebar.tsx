@@ -108,7 +108,7 @@ function SidebarUserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex w-full items-center gap-2.5 rounded-lg p-2 text-left outline-none transition-colors hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-sidebar-hover group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0!"
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left outline-none transition-colors hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-sidebar-hover group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0!"
       >
         <Avatar className="size-8 bg-foreground text-background after:border-transparent group-data-[collapsible=icon]:size-7">
           <AvatarFallback className="bg-foreground text-sm font-medium text-background group-data-[collapsible=icon]:text-xs">
@@ -116,11 +116,11 @@ function SidebarUserMenu() {
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-          <p className="truncate text-base font-medium text-sidebar-foreground">
+          <p className="truncate text-base leading-tight font-medium text-sidebar-foreground">
             {name}
           </p>
           {email ? (
-            <p className="truncate text-sm text-muted-foreground">{email}</p>
+            <p className="truncate text-xs leading-tight text-muted-foreground">{email}</p>
           ) : null}
         </div>
         <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden" />
@@ -174,12 +174,12 @@ export function AppSidebar() {
 
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
-          <SidebarGroup key={section.title}>
-            <SidebarGroupLabel className="h-8 text-xs tracking-[0.14em] text-brand-soft">
+          <SidebarGroup key={section.title} className="py-1">
+            <SidebarGroupLabel className="h-6 text-xs tracking-[0.14em] text-brand-soft">
               {section.title}
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-1">
+              <SidebarMenu className="gap-0">
                 {section.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
                   return (
@@ -188,7 +188,7 @@ export function AppSidebar() {
                         render={<Link href={item.href} />}
                         isActive={isNavItemActive(pathname, item.href)}
                         tooltip={`${section.title} \u00b7 ${item.title}`}
-                        className="h-11 text-base [&_svg]:size-5 group-data-[collapsible=icon]:[&_svg]:size-4"
+                        className="h-9 py-0 text-base leading-none [&_svg]:size-4"
                       >
                         {Icon ? <Icon /> : null}
                         <span>{item.title}</span>
@@ -202,7 +202,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="gap-2 border-t border-sidebar-border px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+      <SidebarFooter className="gap-1 border-t border-sidebar-border px-3 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
         <SidebarUserMenu />
       </SidebarFooter>
       <SidebarRail />
