@@ -107,10 +107,33 @@ still asks for that path first) — teal, no tile. The iOS home-screen
 icon is the S on a teal field (`app/apple-icon.tsx`) because a home-screen
 glyph still needs a fill, and iOS applies its own mask.
 
+The **Open Graph** card is the dark forest share image (`lib/og-image.tsx`,
+variant A): `hello → привет` in large type, a quiet column of word pairs as
+texture, no photograph. Served at `/og.png`. Hex in that file is from the
+card spec, not the page cascade. Social caches stick — a later rewrite of
+the art goes out as `/og-v2.png`, not over the same URL.
+
+## Landing
+
+Quiet editorial: serif titles, mist wash, product stills. No stock photos
+(Big Ben, buses, Scrabble) — absence of pictures is the look.
+
+- Full app window (sidebar included) once, in the hero. Later stills crop to
+  the content panel (`ProductFrame chrome="panel"`), or to a fragment
+  (`ProductPanel`) when three formats sit in a row.
+- Vertical rhythm ~120–160px between sections (`py-12` / `lg:py-16`). Text
+  and stills share a top edge (`items-start`). No 50px chessboard offset.
+- Density changes, not new objects: a white band under Practice (`bg-card`),
+  a filled primary band for the closing CTA. That last button is the strongest
+  on the page (light fill on teal), not an outline.
+- One Sign in — in the header. The hero has Create account and a quiet
+  “free · no card” line.
+- The shared dictionary size (`SHARED_LEXICON_SIZE` in `lib/site.ts`) is a
+  fact on the page, not a decoration.
+
 ## Motion
 
 - Study card enter: `rise-in` ~320ms
-- Soft background blurs on landing for atmosphere
 - Prefer opacity/transform; no glow stacks
 
 ## Progress on Today

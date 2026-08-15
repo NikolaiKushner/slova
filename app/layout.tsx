@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/providers";
+import { SHARED_LEXICON_SIZE, SITE_ORIGIN } from "@/lib/site";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -27,9 +28,39 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
+  // Share card is Russian (hello → привет). Crawlers rarely send a locale
+  // cookie, so the tags stay in step with the image rather than defaulting
+  // to English.
+  const og = await getTranslations({ locale: "ru", namespace: "meta" });
+  const ogTitle = og("ogTitle");
+  const ogDescription = og("ogDescription", { count: SHARED_LEXICON_SIZE });
+
   return {
+    metadataBase: new URL(SITE_ORIGIN),
     title: t("title"),
     description: t("description"),
+    openGraph: {
+      title: ogTitle,
+      description: ogDescription,
+      url: "/",
+      siteName: "Slova",
+      locale: "ru_RU",
+      type: "website",
+      images: [
+        {
+          url: "/og.png",
+          width: 1200,
+          height: 630,
+          alt: "Slova — hello → привет",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: ogDescription,
+      images: ["/og.png"],
+    },
   };
 }
 

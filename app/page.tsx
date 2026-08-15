@@ -1,43 +1,60 @@
 import { BookOpen, CalendarCheck, ListPlus, Repeat } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { auth } from "@/lib/auth";
+import { TRAININGS } from "@/lib/practice/catalog";
+import { SHARED_LEXICON_SIZE } from "@/lib/site";
 import { redirect } from "next/navigation";
 import {
   CourseScreen,
   DictionaryScreen,
-  PracticeScreen,
+  PracticeAudioStill,
+  PracticeChoiceStill,
+  PracticeTypingStill,
   ProductFrame,
+  ProductPanel,
   TodayScreen,
 } from "@/components/product-frame";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const STEPS: { icon: LucideIcon; title: "stepPasteTitle" | "stepStudyTitle" | "stepRuleTitle" | "stepDueTitle"; body: "stepPasteBody" | "stepStudyBody" | "stepRuleBody" | "stepDueBody" }[] = [
+const STEPS: {
+  icon: LucideIcon;
+  title: "stepPasteTitle" | "stepStudyTitle" | "stepRuleTitle" | "stepDueTitle";
+  body: "stepPasteBody" | "stepStudyBody" | "stepRuleBody" | "stepDueBody";
+}[] = [
   { icon: ListPlus, title: "stepPasteTitle", body: "stepPasteBody" },
   { icon: Repeat, title: "stepStudyTitle", body: "stepStudyBody" },
   { icon: BookOpen, title: "stepRuleTitle", body: "stepRuleBody" },
   { icon: CalendarCheck, title: "stepDueTitle", body: "stepDueBody" },
 ];
 
+const FORMAT_CHIPS = [
+  "formatChoice",
+  "formatTyping",
+  "formatAudio",
+  "formatReverse",
+  "formatBuilder",
+  "formatDictation",
+  "formatBrainstorm",
+] as const;
+
 export default async function LandingPage() {
   const session = await auth();
   if (session?.user) redirect("/tasks/today");
 
   const t = await getTranslations("landing");
+  const locale = await getLocale();
+  const lexiconCount = new Intl.NumberFormat(locale).format(SHARED_LEXICON_SIZE);
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -left-24 top-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -right-20 top-40 h-96 w-96 rounded-full bg-brand-soft/15 blur-3xl" />
-      </div>
-
       <SiteHeader />
 
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pb-8 pt-4 lg:grid-cols-2 lg:gap-16 lg:pb-20 lg:pt-10">
+      <section className="mx-auto grid w-full max-w-6xl items-start gap-10 px-6 pt-4 pb-12 lg:grid-cols-2 lg:gap-16 lg:pt-8 lg:pb-12">
         <div className="flex flex-col">
           <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
             {t("eyebrow")}
@@ -50,21 +67,16 @@ export default async function LandingPage() {
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
             {t("heroBody")}
           </p>
-          <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <div className="mt-8">
             <Button
               size="lg"
-              className="min-h-11 bg-teal-800 px-5 text-white hover:bg-teal-900"
+              className="min-h-11 px-5"
               render={<Link href="/register" />}
             >
               {t("createAccount")}
             </Button>
-            <Link
-              href="/login"
-              className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              {t("signIn")}
-            </Link>
           </div>
+          <p className="mt-4 text-sm text-brand-soft">{t("freeLine")}</p>
         </div>
 
         <ProductFrame>
@@ -72,11 +84,34 @@ export default async function LandingPage() {
         </ProductFrame>
       </section>
 
-      <ol className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="mx-auto w-full max-w-6xl px-6 pb-12 lg:pb-16">
+        <dl className="grid gap-8 sm:grid-cols-3">
+          <div>
+            <dt className="font-display text-4xl tracking-tight text-primary tabular-nums sm:text-5xl">
+              {lexiconCount}
+            </dt>
+            <dd className="mt-2 text-sm text-muted-foreground">{t("statLexicon")}</dd>
+          </div>
+          <div>
+            <dt className="font-display text-4xl tracking-tight text-primary tabular-nums sm:text-5xl">
+              {TRAININGS.length}
+            </dt>
+            <dd className="mt-2 text-sm text-muted-foreground">{t("statFormats")}</dd>
+          </div>
+          <div>
+            <dt className="font-display text-4xl tracking-tight text-primary tabular-nums sm:text-5xl">
+              1
+            </dt>
+            <dd className="mt-2 text-sm text-muted-foreground">{t("statRequest")}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <ul className="mx-auto grid w-full max-w-6xl items-stretch gap-8 px-6 pb-12 sm:grid-cols-2 lg:grid-cols-4 lg:pb-16">
         {STEPS.map((step) => {
           const Icon = step.icon;
           return (
-            <li key={step.title} className="flex gap-3">
+            <li key={step.title} className="flex h-full gap-3">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-brand-soft">
                 <Icon className="size-4" aria-hidden />
               </span>
@@ -89,9 +124,9 @@ export default async function LandingPage() {
             </li>
           );
         })}
-      </ol>
+      </ul>
 
-      <section className="mx-auto grid w-full max-w-6xl gap-16 px-6 pb-24 lg:grid-cols-2">
+      <section className="mx-auto grid w-full max-w-6xl items-start gap-10 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
         <div className="space-y-4">
           <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
             {t("dictionaryEyebrow")}
@@ -99,55 +134,80 @@ export default async function LandingPage() {
           <h2 className="font-display text-3xl tracking-tight">
             {t("dictionaryTitle")}
           </h2>
-          <p className="max-w-sm text-muted-foreground">
-            {t("dictionaryBody")}
-          </p>
-          <ProductFrame>
-            <DictionaryScreen />
-          </ProductFrame>
+          <p className="max-w-sm text-muted-foreground">{t("dictionaryBody")}</p>
+          <Badge className="h-auto rounded-full bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground">
+            {t("dictionaryPill")}
+          </Badge>
         </div>
-        <div className="space-y-4 lg:pt-16">
-          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            {t("practiceEyebrow")}
-          </p>
-          <h2 className="font-display text-3xl tracking-tight">
-            {t("practiceTitle")}
-          </h2>
-          <p className="max-w-sm text-muted-foreground">
-            {t("practiceBody")}
-          </p>
-          <ProductFrame>
-            <PracticeScreen />
-          </ProductFrame>
+        <ProductFrame chrome="panel">
+          <DictionaryScreen />
+        </ProductFrame>
+      </section>
+
+      <section className="bg-card">
+        <div className="mx-auto w-full max-w-6xl px-6 py-12 lg:py-16">
+          <div className="max-w-xl">
+            <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
+              {t("practiceEyebrow")}
+            </p>
+            <h2 className="mt-4 font-display text-3xl tracking-tight">
+              {t("practiceTitle")}
+            </h2>
+            <p className="mt-3 text-muted-foreground">{t("practiceBody")}</p>
+          </div>
+          <ul className="mt-8 flex flex-wrap gap-2">
+            {FORMAT_CHIPS.map((chip) => (
+              <li key={chip}>
+                <Badge className="h-auto rounded-full bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground">
+                  {t(chip)}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            <ProductPanel>
+              <PracticeChoiceStill />
+            </ProductPanel>
+            <ProductPanel>
+              <PracticeAudioStill />
+            </ProductPanel>
+            <ProductPanel>
+              <PracticeTypingStill />
+            </ProductPanel>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 pb-24 lg:grid-cols-2 lg:gap-16">
-        <div className="space-y-4">
+      <section className="mx-auto grid w-full max-w-6xl items-start gap-10 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
+        <div className="order-1 space-y-4 lg:order-2">
           <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
             {t("coursesEyebrow")}
           </p>
           <h2 className="font-display text-3xl tracking-tight">
             {t("coursesTitle")}
           </h2>
-          <p className="max-w-sm text-muted-foreground">
-            {t("coursesBody")}
-          </p>
+          <p className="max-w-sm text-muted-foreground">{t("coursesBody")}</p>
         </div>
-        <ProductFrame active="courses">
-          <CourseScreen />
-        </ProductFrame>
+        <div className="order-2 lg:order-1">
+          <ProductFrame chrome="panel" active="courses">
+            <CourseScreen />
+          </ProductFrame>
+        </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pb-24">
-        <p className="font-display text-3xl tracking-tight sm:text-4xl">
-          {t("closeTitle")}
-        </p>
-        <div className="mt-6">
+      <section className="bg-primary text-primary-foreground">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16 sm:flex-row sm:items-center sm:justify-between lg:py-20">
+          <div>
+            <h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+              {t("closeTitle")}
+            </h2>
+            <p className="mt-3 text-sm text-primary-foreground/80">
+              {t("freeLine")}
+            </p>
+          </div>
           <Button
             size="lg"
-            variant="outline"
-            className="min-h-11 px-5"
+            className="min-h-11 bg-primary-foreground px-5 text-primary hover:bg-primary-foreground/90"
             render={<Link href="/register" />}
           >
             {t("createAccount")}

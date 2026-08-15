@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Slova — words and grammar",
-    "description": "Paste English words and study them. Grammar courses explain a rule, then drill it."
+    "description": "Paste English words and study them. Grammar courses explain a rule, then drill it.",
+    "ogTitle": "Slova — paste a word list, learn the grammar",
+    "ogDescription": "Translations fill in from a shared dictionary of {count, number} words. Seven practice formats and grammar courses."
   },
   "locale": {
     "en": "EN",
@@ -46,30 +48,41 @@
     "toggleSidebar": "Toggle Sidebar"
   },
   "landing": {
-    "eyebrow": "English",
+    "eyebrow": "English → Russian",
     "heroTitle1": "Paste a word list.",
     "heroTitle2": "Learn the grammar.",
     "heroBody": "Type or paste words — translations fill in. Grammar courses explain a rule, then drill it. Come back when words are due.",
     "createAccount": "Create an account",
-    "signIn": "Sign in",
+    "freeLine": "Free · no card · takes a minute",
+    "statLexicon": "words in the shared dictionary",
+    "statFormats": "question formats",
+    "statRequest": "translations in one request",
     "stepPasteTitle": "Paste a list",
     "stepPasteBody": "Type or paste English words. Translations fill in as you add them.",
     "stepStudyTitle": "Study the words",
-    "stepStudyBody": "One card, seven formats. Recognising one is easy; writing it is not.",
-    "stepRuleTitle": "Learn a rule",
-    "stepRuleBody": "Grammar courses: the rule on a card, then a drill. Present Simple is first.",
-    "stepDueTitle": "Come back when due",
-    "stepDueBody": "The schedule brings words back. Nothing to organise by hand.",
+    "stepStudyBody": "One card, seven formats. Recognising a word is easy; writing it is not.",
+    "stepRuleTitle": "Sets and rules",
+    "stepRuleBody": "A grammar course shows the rule, then drills it. Present Simple is first.",
+    "stepDueTitle": "Come back later",
+    "stepDueBody": "The schedule brings words back when they are due. Nothing to organise by hand.",
     "dictionaryEyebrow": "Dictionary",
-    "dictionaryTitle": "Paste. Translations fill in.",
-    "dictionaryBody": "Type or paste. Most words come from a shared dictionary. Only the gaps go to a model, once.",
+    "dictionaryTitle": "Paste — translations fill in.",
+    "dictionaryBody": "Most words come from a shared dictionary, with audio already recorded. Only the gaps go to a model, once.",
+    "dictionaryPill": "one request instead of forty",
     "practiceEyebrow": "Practice",
     "practiceTitle": "Seven ways to be asked.",
     "practiceBody": "Recognise it, hear it, write it. The whole drill works from the keyboard.",
+    "formatChoice": "Pick the translation",
+    "formatTyping": "Type the word",
+    "formatAudio": "Audio",
+    "formatReverse": "Pick the word",
+    "formatBuilder": "Build the word",
+    "formatDictation": "Dictation",
+    "formatBrainstorm": "Brainstorm",
     "coursesEyebrow": "Courses",
-    "coursesTitle": "A rule, then a drill.",
+    "coursesTitle": "A rule, then a drill right after.",
     "coursesBody": "Longer than a training, shorter than a textbook. Each lesson shows the rule, then asks you to use it. Present Simple is first — six lessons, from forms to a test.",
-    "closeTitle": "Start with a list, or open a course."
+    "closeTitle": "Start with a list — or open a course."
   },
   "product": {
     "todayEyebrow": "Today",
