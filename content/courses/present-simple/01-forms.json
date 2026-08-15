@@ -5,7 +5,21 @@
   "blocks": [
     {
       "type": "explanation",
-      "md": "Present Simple — короткая форма глагола для двух вещей: того, что бывает регулярно, и того, что верно вообще.\n\nПосле **I, you, we, they** глагол остаётся как в словаре: work, live, like. После **he, she, it** к нему добавляется **-s**: works, lives, likes.\n\nИмя человека и слова вроде my brother или the shop тоже считаются как he / she / it: Anna works, the shop opens."
+      "md": "Present Simple — самое простое настоящее время. Оно нужно для двух вещей: что-то происходит регулярно и что-то верно вообще."
+    },
+    {
+      "type": "example",
+      "en": "I drink coffee every morning.",
+      "ru": "Я пью кофе каждое утро."
+    },
+    {
+      "type": "example",
+      "en": "Water boils at 100 degrees.",
+      "ru": "Вода кипит при 100 градусах."
+    },
+    {
+      "type": "explanation",
+      "md": "После **I, you, we, they** глагол остаётся как в словаре: work, live, like.\n\nПосле **he, she, it** к нему добавляется **-s**: works, lives, likes."
     },
     {
       "type": "table",
@@ -27,9 +41,23 @@
       "ru": "Она здесь работает."
     },
     {
+      "type": "example",
+      "en": "We play football on Sundays.",
+      "ru": "Мы играем в футбол по воскресеньям."
+    },
+    {
+      "type": "explanation",
+      "md": "Не только местоимения. Имя человека и любое слово в единственном числе работают как **he / she / it**: Anna works. My brother lives here. The shop opens at nine.\n\nА несколько предметов или людей — как **they**, глагол без **-s**: My parents work. The shops open at nine."
+    },
+    {
+      "type": "explanation",
+      "ruleId": "ps-spelling-es",
+      "md": "Как добавлять **-s**\n\nОбычно просто **-s**: work → works, live → lives.\n\nПосле **-o, -s, -sh, -ch, -x** пишем **-es**: go → goes, watch → watches, fix → fixes.\n\nСогласная + **y** → **-ies**: study → studies, try → tries.\n\nНо гласная + **y** — обычное **-s**: play → plays."
+    },
+    {
       "type": "pitfall",
       "ruleId": "ps-third-person-s",
-      "md": "После **he / she / it** русскоязычные часто оставляют глагол как в словаре: she work. Нужно **she works**.\n\n**-s** здесь не «множественное». Это как раз единственное третье лицо: one person, one thing."
+      "md": "После **he / she / it** русскоязычные часто оставляют глагол как в словаре: she work → **she works**.\n\nЛегко перепутать **-s** у существительных и у глаголов. У существительных **-s** значит «много»: shops. У глаголов — наоборот, «один»: she works.\n\nГлагол **be** (am / is / are) по этому правилу не работает — у него отдельные формы."
     },
     {
       "type": "exercise",
