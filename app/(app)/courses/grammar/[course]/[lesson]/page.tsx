@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { LessonPlayer } from "@/components/courses/lesson-player";
 import { PageBack } from "@/components/page-back";
@@ -15,6 +16,7 @@ type Params = { params: Promise<{ course: string; lesson: string }> };
  */
 export default async function CourseLessonPage({ params }: Params) {
   const { course: courseSlug, lesson: lessonSlug } = await params;
+  const t = await getTranslations("courses");
 
   let loaded;
   try {
@@ -41,7 +43,7 @@ export default async function CourseLessonPage({ params }: Params) {
       />
       <PageBack
         href={`/courses/grammar/${courseSlug}`}
-        label="Back to lessons"
+        label={t("backToLessons")}
       />
     </Page>
   );

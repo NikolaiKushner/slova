@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import {
   ChevronRight,
   Headphones,
@@ -37,37 +38,65 @@ const TRAINING_ICONS: Record<TrainingId, LucideIcon> = {
   typing: Keyboard,
 };
 
-export default function PracticePage() {
+export default async function PracticePage() {
+  const t = await getTranslations("practice");
+  const trainings = await getTranslations("trainings");
+  const common = await getTranslations("common");
   const [brainstorm, ...rest] = TRAININGS;
 
   return (
     <Page>
       <PageHeader
-        eyebrow="Practice"
-        title="Trainings"
-        description="Every format asks the same words a different way — recognising one is easy, writing it from memory is not."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
       />
 
       <div className="space-y-10">
-        <Section title="Learn new words">
-          <TrainingGroup trainings={[brainstorm]} />
+        <Section title={t("learnNew")}>
+          <TrainingGroup
+            trainings={[brainstorm]}
+            needsSound={common("needsSound")}
+            titleOf={(id) => trainings(`${id}.title`)}
+            descriptionOf={(id) => trainings(`${id}.description`)}
+          />
         </Section>
 
-        <Section title="Practise what you know">
-          <TrainingGroup trainings={rest} />
+        <Section title={t("practiseKnown")}>
+          <TrainingGroup
+            trainings={rest}
+            needsSound={common("needsSound")}
+            titleOf={(id) => trainings(`${id}.title`)}
+            descriptionOf={(id) => trainings(`${id}.description`)}
+          />
         </Section>
       </div>
     </Page>
   );
 }
 
-function TrainingGroup({ trainings }: { trainings: readonly Training[] }) {
+function TrainingGroup({
+  trainings,
+  needsSound,
+  titleOf,
+  descriptionOf,
+}: {
+  trainings: readonly Training[];
+  needsSound: string;
+  titleOf: (id: TrainingId) => string;
+  descriptionOf: (id: TrainingId) => string;
+}) {
   return (
     <Card className="gap-0 py-0">
       <ul className="divide-y divide-border">
         {trainings.map((training) => (
           <li key={training.id}>
-            <TrainingRow training={training} />
+            <TrainingRow
+              training={training}
+              needsSound={needsSound}
+              title={titleOf(training.id)}
+              description={descriptionOf(training.id)}
+            />
           </li>
         ))}
       </ul>
@@ -75,7 +104,17 @@ function TrainingGroup({ trainings }: { trainings: readonly Training[] }) {
   );
 }
 
-function TrainingRow({ training }: { training: Training }) {
+function TrainingRow({
+  training,
+  needsSound,
+  title,
+  description,
+}: {
+  training: Training;
+  needsSound: string;
+  title: string;
+  description: string;
+}) {
   const Icon = TRAINING_ICONS[training.id];
 
   return (
@@ -88,18 +127,14 @@ function TrainingRow({ training }: { training: Training }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-baseline gap-x-2">
-          <span className="font-display text-base leading-snug">
-            {training.title}
-          </span>
+          <span className="font-display text-base leading-snug">{title}</span>
           {training.audio ? (
             <span className="text-brand-soft text-[0.65rem] font-medium tracking-widest uppercase">
-              Needs sound
+              {needsSound}
             </span>
           ) : null}
         </span>
-        <span className="text-muted-foreground block text-sm">
-          {training.description}
-        </span>
+        <span className="text-muted-foreground block text-sm">{description}</span>
       </span>
       <ChevronRight
         className="size-4 shrink-0 text-muted-foreground/40"

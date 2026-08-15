@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 import { langCodeSchema } from "@/lib/languages";
 
@@ -9,7 +10,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const { id } = await params;
@@ -24,7 +25,7 @@ export async function GET(_request: Request, { params }: Params) {
   });
 
   if (!set) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   const now = new Date();
@@ -57,14 +58,14 @@ const updateSchema = z
 export async function PATCH(request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const { id } = await params;
   const body = await request.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid set" }, { status: 400 });
+    return jsonError("invalidSet", 400);
   }
 
   const existing = await getPrisma().wordSet.findFirst({
@@ -72,7 +73,7 @@ export async function PATCH(request: Request, { params }: Params) {
     select: { id: true },
   });
   if (!existing) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   const set = await getPrisma().wordSet.update({
@@ -90,7 +91,7 @@ export async function PATCH(request: Request, { params }: Params) {
 export async function DELETE(_request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const { id } = await params;
@@ -99,7 +100,7 @@ export async function DELETE(_request: Request, { params }: Params) {
     select: { id: true },
   });
   if (!existing) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   await getPrisma().wordSet.delete({ where: { id } });

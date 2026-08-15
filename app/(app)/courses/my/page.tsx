@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ChevronRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
@@ -14,6 +15,9 @@ import { loadCourse } from "@/lib/courses/load";
 export default async function MyCoursesPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+
+  const t = await getTranslations("courses");
+  const common = await getTranslations("common");
 
   const rows = await getPrisma().userCourse.findMany({
     where: { userId: session.user.id },
@@ -42,19 +46,17 @@ export default async function MyCoursesPage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="Courses"
-        title="My courses"
-        description="Courses you have started, and where you left off."
+        eyebrow={t("eyebrow")}
+        title={t("myTitle")}
+        description={t("myDescription")}
       />
 
       <Section
-        title="In progress"
+        title={t("inProgress")}
         hint={courses.length > 0 ? `${courses.length}` : undefined}
       >
         {courses.length === 0 ? (
-          <p className="text-muted-foreground">
-            Nothing here until you start one. Grammar courses are next door.
-          </p>
+          <p className="text-muted-foreground">{t("empty")}</p>
         ) : (
           <Card className="gap-0 py-0">
             <ul className="divide-y divide-border">
@@ -71,7 +73,7 @@ export default async function MyCoursesPage() {
                         </span>
                         {course.done ? (
                           <span className="text-brand-soft text-[0.65rem] font-medium tracking-widest uppercase">
-                            Done
+                            {common("done")}
                           </span>
                         ) : null}
                       </span>
@@ -91,7 +93,7 @@ export default async function MyCoursesPage() {
         )}
       </Section>
 
-      <PageBack href="/courses/grammar" label="Back to courses" />
+      <PageBack href="/courses/grammar" label={t("backToCourses")} />
     </Page>
   );
 }

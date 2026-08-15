@@ -1,6 +1,7 @@
 import { BookOpen, CalendarCheck, ListPlus, Repeat } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -14,32 +15,18 @@ import {
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { Button } from "@/components/ui/button";
 
-const STEPS: { icon: LucideIcon; title: string; body: string }[] = [
-  {
-    icon: ListPlus,
-    title: "Paste a list",
-    body: "Type or paste English words. Translations fill in as you add them.",
-  },
-  {
-    icon: Repeat,
-    title: "Study the words",
-    body: "One card, seven formats. Recognising one is easy; writing it is not.",
-  },
-  {
-    icon: BookOpen,
-    title: "Learn a rule",
-    body: "Grammar courses: the rule on a card, then a drill. Present Simple is first.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Come back when due",
-    body: "The schedule brings words back. Nothing to organise by hand.",
-  },
+const STEPS: { icon: LucideIcon; title: "stepPasteTitle" | "stepStudyTitle" | "stepRuleTitle" | "stepDueTitle"; body: "stepPasteBody" | "stepStudyBody" | "stepRuleBody" | "stepDueBody" }[] = [
+  { icon: ListPlus, title: "stepPasteTitle", body: "stepPasteBody" },
+  { icon: Repeat, title: "stepStudyTitle", body: "stepStudyBody" },
+  { icon: BookOpen, title: "stepRuleTitle", body: "stepRuleBody" },
+  { icon: CalendarCheck, title: "stepDueTitle", body: "stepDueBody" },
 ];
 
 export default async function LandingPage() {
   const session = await auth();
   if (session?.user) redirect("/tasks/today");
+
+  const t = await getTranslations("landing");
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
@@ -53,16 +40,15 @@ export default async function LandingPage() {
       <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pb-8 pt-4 lg:grid-cols-2 lg:gap-16 lg:pb-20 lg:pt-10">
         <div className="flex flex-col">
           <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            English
+            {t("eyebrow")}
           </p>
           <h1 className="mt-4 max-w-xl font-display text-4xl leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Paste a word list.
+            {t("heroTitle1")}
             <br />
-            Learn the grammar.
+            {t("heroTitle2")}
           </h1>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Type or paste words — translations fill in. Grammar courses explain
-            a rule, then drill it. Come back when words are due.
+            {t("heroBody")}
           </p>
           <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
             <Button
@@ -70,13 +56,13 @@ export default async function LandingPage() {
               className="min-h-11 bg-teal-800 px-5 text-white hover:bg-teal-900"
               render={<Link href="/register" />}
             >
-              Create an account
+              {t("createAccount")}
             </Button>
             <Link
               href="/login"
               className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
-              Sign in
+              {t("signIn")}
             </Link>
           </div>
         </div>
@@ -95,9 +81,9 @@ export default async function LandingPage() {
                 <Icon className="size-4" aria-hidden />
               </span>
               <div>
-                <p className="font-display text-lg leading-snug">{step.title}</p>
+                <p className="font-display text-lg leading-snug">{t(step.title)}</p>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {step.body}
+                  {t(step.body)}
                 </p>
               </div>
             </li>
@@ -108,14 +94,13 @@ export default async function LandingPage() {
       <section className="mx-auto grid w-full max-w-6xl gap-16 px-6 pb-24 lg:grid-cols-2">
         <div className="space-y-4">
           <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Dictionary
+            {t("dictionaryEyebrow")}
           </p>
           <h2 className="font-display text-3xl tracking-tight">
-            Paste. Translations fill in.
+            {t("dictionaryTitle")}
           </h2>
           <p className="max-w-sm text-muted-foreground">
-            Type or paste. Most words come from a shared dictionary. Only the
-            gaps go to a model, once.
+            {t("dictionaryBody")}
           </p>
           <ProductFrame>
             <DictionaryScreen />
@@ -123,14 +108,13 @@ export default async function LandingPage() {
         </div>
         <div className="space-y-4 lg:pt-16">
           <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Practice
+            {t("practiceEyebrow")}
           </p>
           <h2 className="font-display text-3xl tracking-tight">
-            Seven ways to be asked.
+            {t("practiceTitle")}
           </h2>
           <p className="max-w-sm text-muted-foreground">
-            Recognise it, hear it, write it. The whole drill works from the
-            keyboard.
+            {t("practiceBody")}
           </p>
           <ProductFrame>
             <PracticeScreen />
@@ -141,15 +125,13 @@ export default async function LandingPage() {
       <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 pb-24 lg:grid-cols-2 lg:gap-16">
         <div className="space-y-4">
           <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Courses
+            {t("coursesEyebrow")}
           </p>
           <h2 className="font-display text-3xl tracking-tight">
-            A rule, then a drill.
+            {t("coursesTitle")}
           </h2>
           <p className="max-w-sm text-muted-foreground">
-            Longer than a training, shorter than a textbook. Each lesson shows
-            the rule, then asks you to use it. Present Simple is first — six
-            lessons, from forms to a test.
+            {t("coursesBody")}
           </p>
         </div>
         <ProductFrame active="courses">
@@ -159,7 +141,7 @@ export default async function LandingPage() {
 
       <section className="mx-auto w-full max-w-6xl px-6 pb-24">
         <p className="font-display text-3xl tracking-tight sm:text-4xl">
-          Start with a list, or open a course.
+          {t("closeTitle")}
         </p>
         <div className="mt-6">
           <Button
@@ -168,7 +150,7 @@ export default async function LandingPage() {
             className="min-h-11 px-5"
             render={<Link href="/register" />}
           >
-            Create an account
+            {t("createAccount")}
           </Button>
         </div>
       </section>

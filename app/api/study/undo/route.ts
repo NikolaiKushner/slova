@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 import { restoreFromSnapshot } from "@/lib/srs";
 
@@ -15,13 +16,13 @@ const schema = z.object({
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid undo" }, { status: 400 });
+    return jsonError("invalidUndo", 400);
   }
 
   const word = await getPrisma().userWord.findFirst({
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     select: { id: true },
   });
   if (!word) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   const last = await getPrisma().reviewLog.findFirst({
@@ -39,10 +40,7 @@ export async function POST(request: Request) {
 
   const previous = last ? restoreFromSnapshot(last) : null;
   if (!last || !previous) {
-    return NextResponse.json(
-      { error: "Nothing to undo for this word." },
-      { status: 409 },
-    );
+    return jsonError("nothingToUndo", 409);
   }
 
   const [restored] = await getPrisma().$transaction([

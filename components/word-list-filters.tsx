@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export function WordListFilters({
   onQueryChange: (value: string) => void;
   onSetChange: (value: string) => void;
 }) {
+  const t = useTranslations("dictionary");
   const [draft, setDraft] = useState(query);
 
   // The box is typed into; the filter follows a moment later. Only the local
@@ -54,10 +56,10 @@ export function WordListFilters({
   const selected = set || ALL_SETS;
   const label =
     selected === ALL_SETS
-      ? "All sets"
+      ? t("allSets")
       : selected === NO_SET_FILTER
-        ? "No set"
-        : (sets.find((option) => option.id === selected)?.title ?? "All sets");
+        ? t("noSet")
+        : (sets.find((option) => option.id === selected)?.title ?? t("allSets"));
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -66,8 +68,8 @@ export function WordListFilters({
         <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="Search words and translations"
-          aria-label="Search words"
+          placeholder={t("searchWords")}
+          aria-label={t("searchWordsAria")}
           className="h-8 pl-8"
         />
         {draft ? (
@@ -75,7 +77,7 @@ export function WordListFilters({
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Clear search"
+            aria-label={t("clearSearch")}
             className="absolute top-1/2 right-0.5 -translate-y-1/2"
             onClick={() => {
               setDraft("");
@@ -93,12 +95,12 @@ export function WordListFilters({
           onSetChange(!next || next === ALL_SETS ? "" : next)
         }
       >
-        <SelectTrigger className="w-52" aria-label="Filter by set">
-          <SelectValue placeholder="All sets">{label}</SelectValue>
+        <SelectTrigger className="w-52" aria-label={t("filterBySet")}>
+          <SelectValue placeholder={t("allSets")}>{label}</SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL_SETS}>All sets</SelectItem>
-          <SelectItem value={NO_SET_FILTER}>No set</SelectItem>
+          <SelectItem value={ALL_SETS}>{t("allSets")}</SelectItem>
+          <SelectItem value={NO_SET_FILTER}>{t("noSet")}</SelectItem>
           {sets.map((option) => (
             <SelectItem key={option.id} value={option.id}>
               {option.title}

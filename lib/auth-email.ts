@@ -4,6 +4,9 @@
  */
 
 import { MAIL_FROM } from "@/lib/site";
+import { DEFAULT_LOCALE, type AppLocale } from "@/lib/i18n/locale";
+import en from "@/messages/en.json";
+import ru from "@/messages/ru.json";
 
 export const DEFAULT_EMAIL_FROM = `Slova <${MAIL_FROM}>`;
 
@@ -12,6 +15,12 @@ const INK = "#15202B";
 const TEAL = "#115E59";
 const MUTED = "#5B6B78";
 const CARD = "#ffffff";
+
+const catalogs = { en, ru } as const;
+
+function emailCopy(locale: AppLocale) {
+  return catalogs[locale].email;
+}
 
 function escapeHtml(value: string) {
   return value
@@ -25,10 +34,12 @@ export function brandedEmailHtml({
   body,
   button,
   url,
+  ignore,
 }: {
   body: string;
   button: string;
   url: string;
+  ignore: string;
 }): string {
   const href = escapeHtml(url);
   return `
@@ -57,7 +68,7 @@ export function brandedEmailHtml({
           </tr>
           <tr>
             <td style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:${MUTED};padding-top:28px;">
-              If you did not ask for this, you can ignore the email.
+              ${escapeHtml(ignore)}
             </td>
           </tr>
         </table>
@@ -71,29 +82,40 @@ export function brandedEmailHtml({
 export function brandedEmailText({
   body,
   url,
+  ignore,
 }: {
   body: string;
   url: string;
+  ignore: string;
 }): string {
-  return `${body}\n\n${url}\n\nIf you did not ask for this, ignore the email.\n`;
+  return `${body}\n\n${url}\n\n${ignore}\n`;
 }
 
-export function confirmEmailCopy(url: string) {
-  const body =
-    "Confirm this email to finish creating your account. The link expires in 24 hours.";
+export function confirmEmailCopy(url: string, locale: AppLocale = DEFAULT_LOCALE) {
+  const copy = emailCopy(locale);
   return {
-    subject: "Confirm your Slova account",
-    html: brandedEmailHtml({ body, button: "Confirm email", url }),
-    text: brandedEmailText({ body, url }),
+    subject: copy.confirmSubject,
+    html: brandedEmailHtml({
+      body: copy.confirmBody,
+      button: copy.confirmButton,
+      url,
+      ignore: copy.ignoreHtml,
+    }),
+    text: brandedEmailText({ body: copy.confirmBody, url, ignore: copy.ignoreText }),
   };
 }
 
-export function resetEmailCopy(url: string) {
-  const body = "Choose a new password. The link expires in 1 hour.";
+export function resetEmailCopy(url: string, locale: AppLocale = DEFAULT_LOCALE) {
+  const copy = emailCopy(locale);
   return {
-    subject: "Reset your Slova password",
-    html: brandedEmailHtml({ body, button: "Choose a new password", url }),
-    text: brandedEmailText({ body, url }),
+    subject: copy.resetSubject,
+    html: brandedEmailHtml({
+      body: copy.resetBody,
+      button: copy.resetButton,
+      url,
+      ignore: copy.ignoreHtml,
+    }),
+    text: brandedEmailText({ body: copy.resetBody, url, ignore: copy.ignoreText }),
   };
 }
 

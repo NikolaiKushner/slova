@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { BrandWordmark } from "@/components/brand-mark";
 import {
@@ -13,6 +14,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SiteFooter } from "@/components/site-chrome";
+
+function AuthHeroTitles() {
+  const t = useTranslations("auth");
+  return (
+    <>
+      {t("heroTitle1")}
+      <br />
+      {t("heroTitle2")}
+    </>
+  );
+}
 
 export function AuthBackground() {
   return (
@@ -67,9 +79,7 @@ export function AuthSplit({
               <BrandWordmark className="text-4xl" />
             </Link>
             <p className="mt-10 font-display text-4xl leading-[1.1] tracking-tight text-foreground">
-              Paste a word list.
-              <br />
-              Learn the grammar.
+              <AuthHeroTitles />
             </p>
             <p className="mt-4 max-w-sm text-muted-foreground">{lead}</p>
             <div className="mt-12">

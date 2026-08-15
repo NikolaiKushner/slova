@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { confirmEmailAction } from "@/lib/auth-actions";
+import { formatAuthError } from "@/lib/i18n/auth-error";
 
 export function VerifyEmailForm({
   email,
@@ -13,6 +15,8 @@ export function VerifyEmailForm({
   email: string;
   token: string;
 }) {
+  const t = useTranslations("auth");
+  const errors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<"ok" | "error" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,9 +24,7 @@ export function VerifyEmailForm({
   if (!email || !token) {
     return (
       <div className="space-y-4">
-        <p className="text-base text-foreground">
-          That confirmation link is missing its token. Check the email again.
-        </p>
+        <p className="text-base text-foreground">{t("confirmLinkMissing")}</p>
         <Button
           type="button"
           variant="ghost"
@@ -30,7 +32,7 @@ export function VerifyEmailForm({
           className="min-h-11 px-4"
           render={<Link href="/register" />}
         >
-          Create an account
+          {t("createAccount")}
         </Button>
       </div>
     );
@@ -43,7 +45,7 @@ export function VerifyEmailForm({
         className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
         render={<Link href="/login" />}
       >
-        Sign in
+        {t("signIn")}
       </Button>
     );
   }
@@ -59,7 +61,7 @@ export function VerifyEmailForm({
         setPending(false);
         if (!next.ok) {
           setResult("error");
-          setError(next.error);
+          setError(formatAuthError(errors, next.error));
           return;
         }
         setResult("ok");
@@ -72,7 +74,7 @@ export function VerifyEmailForm({
         className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
         disabled={pending}
       >
-        {pending ? "Confirming…" : "Confirm email"}
+        {pending ? t("confirming") : t("confirmEmail")}
       </Button>
     </form>
   );

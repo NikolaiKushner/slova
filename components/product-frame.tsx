@@ -1,5 +1,6 @@
 import { BrandWordmark } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 /**
  * A still of the app, for the public pages. It is markup, not a screenshot:
@@ -17,6 +18,7 @@ export function ProductFrame({
   compact?: boolean;
   active?: "today" | "courses";
 }) {
+  const t = useTranslations("nav");
   return (
     <div
       className={cn(
@@ -34,7 +36,7 @@ export function ProductFrame({
       <div className="flex bg-background">
         <aside className="hidden w-40 shrink-0 border-r border-sidebar-border bg-sidebar p-3 sm:block">
           <p className="px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Tasks
+            {t("tasks")}
           </p>
           <p
             className={cn(
@@ -44,14 +46,14 @@ export function ProductFrame({
                 : "text-muted-foreground",
             )}
           >
-            Today
+            {t("today")}
           </p>
           <p className="mt-3 px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Practice
+            {t("practice")}
           </p>
-          <p className="px-2 py-1 text-sm text-muted-foreground">Trainings</p>
+          <p className="px-2 py-1 text-sm text-muted-foreground">{t("trainings")}</p>
           <p className="mt-3 px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Courses
+            {t("courses")}
           </p>
           <p
             className={cn(
@@ -61,12 +63,12 @@ export function ProductFrame({
                 : "text-muted-foreground",
             )}
           >
-            Grammar
+            {t("grammar")}
           </p>
           <p className="mt-3 px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
-            Dictionary
+            {t("dictionary")}
           </p>
-          <p className="px-2 py-1 text-sm text-muted-foreground">My words</p>
+          <p className="px-2 py-1 text-sm text-muted-foreground">{t("myWords")}</p>
         </aside>
         <div
           className={cn(
@@ -82,25 +84,26 @@ export function ProductFrame({
 }
 
 export function TodayScreen() {
+  const t = useTranslations("product");
   return (
     <div className="space-y-6">
       <header className="space-y-2">
         <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          Today
+          {t("todayEyebrow")}
         </p>
         <p className="font-display text-3xl tracking-tight sm:text-4xl">
-          12 words ready
+          {t("todayTitle")}
         </p>
         <p className="text-sm text-muted-foreground">
-          A short session now keeps them sticky.
+          {t("todayBody")}
         </p>
       </header>
       <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-        8 reviewed today · 5-day streak
+        {t("todayProgress")}
       </p>
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          Your words
+          {t("yourWords")}
         </p>
         <div className="flex h-2 overflow-hidden rounded-full bg-border">
           <span className="h-full w-[35%] bg-primary" />
@@ -111,22 +114,22 @@ export function TodayScreen() {
           <span className="flex items-center gap-2">
             <span className="size-2 rounded-full bg-primary" />
             <span className="font-medium">14</span>
-            <span className="text-muted-foreground">learned</span>
+            <span className="text-muted-foreground">{t("learned")}</span>
           </span>
           <span className="flex items-center gap-2">
             <span className="size-2 rounded-full bg-brand-soft" />
             <span className="font-medium">16</span>
-            <span className="text-muted-foreground">learning</span>
+            <span className="text-muted-foreground">{t("learning")}</span>
           </span>
           <span className="flex items-center gap-2">
             <span className="size-2 rounded-full bg-border" />
             <span className="font-medium">10</span>
-            <span className="text-muted-foreground">not started</span>
+            <span className="text-muted-foreground">{t("notStarted")}</span>
           </span>
         </div>
       </div>
       <span className="inline-flex h-9 items-center rounded-lg bg-teal-800 px-3 text-sm font-medium text-white">
-        Study now
+        {t("studyNow")}
       </span>
     </div>
   );
@@ -140,18 +143,19 @@ const WORDS = [
 ] as const;
 
 export function DictionaryScreen() {
+  const t = useTranslations("product");
   return (
     <div className="space-y-5">
       <header className="space-y-2">
         <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          My words
+          {t("myWords")}
         </p>
-        <p className="font-display text-3xl tracking-tight">Add words</p>
+        <p className="font-display text-3xl tracking-tight">{t("addWords")}</p>
       </header>
       <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="grid grid-cols-2 gap-px bg-border text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
-          <p className="bg-card px-3 py-2">English</p>
-          <p className="bg-card px-3 py-2">Russian</p>
+          <p className="bg-card px-3 py-2">{t("english")}</p>
+          <p className="bg-card px-3 py-2">{t("russian")}</p>
         </div>
         {WORDS.map(([en, ru]) => (
           <div
@@ -163,7 +167,7 @@ export function DictionaryScreen() {
           </div>
         ))}
         <div className="grid grid-cols-2 border-t border-border text-sm text-muted-foreground">
-          <p className="px-3 py-2.5">Type or paste</p>
+          <p className="px-3 py-2.5">{t("typeOrPaste")}</p>
           <p className="px-3 py-2.5"> </p>
         </div>
       </div>
@@ -172,10 +176,11 @@ export function DictionaryScreen() {
 }
 
 export function PracticeScreen() {
+  const t = useTranslations("product");
   return (
     <div className="space-y-6">
       <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-        Word
+        {t("word")}
       </p>
       <p className="font-display text-4xl tracking-tight sm:text-5xl">hello</p>
       <div className="grid gap-2">
@@ -208,11 +213,12 @@ const LESSONS = [
 ] as const;
 
 export function CourseScreen() {
+  const t = useTranslations("product");
   return (
     <div className="space-y-5">
       <header className="space-y-2">
         <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          Courses
+          {t("courses")}
         </p>
         <p className="font-display text-3xl tracking-tight">Present Simple</p>
         <p className="text-sm text-muted-foreground">Простое настоящее</p>

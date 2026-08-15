@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +40,7 @@ export function AddWordsPanel({
   onAdded?: () => void;
   setId?: string;
 }) {
+  const t = useTranslations("dictionary");
   const router = useRouter();
   const [rows, setRows] = useState<ComposerRow[]>([emptyRow()]);
   const [sets, setSets] = useState<SetOption[]>([]);
@@ -80,7 +82,7 @@ export function AddWordsPanel({
 
     if (!response.ok || !response.body) {
       const payload = await response.json().catch(() => null);
-      throw new Error(payload?.error ?? "Could not translate these words.");
+      throw new Error(payload?.error ?? t("couldNotTranslate"));
     }
 
     const reader = response.body.getReader();
@@ -138,7 +140,7 @@ export function AddWordsPanel({
       } catch (error) {
         setStage("idle");
         setMessage(
-          error instanceof Error ? error.message : "Could not translate these words.",
+          error instanceof Error ? error.message : t("couldNotTranslate"),
         );
         return;
       }
@@ -156,7 +158,7 @@ export function AddWordsPanel({
       .filter((row) => row.back);
     if (complete.length === 0) {
       setStage("idle");
-      setMessage("Nothing to add — every word still needs a translation.");
+      setMessage(t("nothingToAdd"));
       return;
     }
 
@@ -185,7 +187,7 @@ export function AddWordsPanel({
 
     if (!response?.ok) {
       const payload = await response?.json().catch(() => null);
-      setMessage(payload?.error ?? "Could not add these words.");
+      setMessage(payload?.error ?? t("couldNotAdd"));
       return;
     }
 
@@ -208,8 +210,11 @@ export function AddWordsPanel({
 
     setMessage(
       result.alreadyKnown > 0
-        ? `Added ${result.added}. ${result.alreadyKnown} you already had — those kept their progress.`
-        : `Added ${result.added}.`,
+        ? t("addedWithKnown", {
+            added: result.added,
+            known: result.alreadyKnown,
+          })
+        : t("added", { count: result.added }),
     );
     // The set page renders its word list on the server, so it needs telling.
     router.refresh();
@@ -245,12 +250,12 @@ export function AddWordsPanel({
             disabled={busy || words.length === 0 || needsName}
           >
             {stage === "translating"
-              ? "Translating…"
+              ? t("translating")
               : stage === "saving"
-                ? "Adding…"
+                ? t("adding")
                 : words.length === 0
-                  ? "Add words"
-                  : `Add ${words.length} word${words.length === 1 ? "" : "s"}`}
+                  ? t("addWords")
+                  : t("addN", { count: words.length })}
           </Button>
         </CardFooter>
       </Card>

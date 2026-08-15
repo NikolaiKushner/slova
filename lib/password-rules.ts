@@ -1,13 +1,11 @@
 export const MIN_PASSWORD_LENGTH = 8;
 export const MAX_PASSWORD_LENGTH = 200;
 
-export function passwordIssue(password: string): string | null {
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    return `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
-  }
-  if (password.length > MAX_PASSWORD_LENGTH) {
-    return "That password is too long.";
-  }
+export type PasswordIssue = "passwordTooShort" | "passwordTooLong";
+
+export function passwordIssue(password: string): PasswordIssue | null {
+  if (password.length < MIN_PASSWORD_LENGTH) return "passwordTooShort";
+  if (password.length > MAX_PASSWORD_LENGTH) return "passwordTooLong";
   return null;
 }
 

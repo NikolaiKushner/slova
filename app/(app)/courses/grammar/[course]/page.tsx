@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ChevronRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
@@ -19,6 +20,8 @@ type Params = { params: Promise<{ course: string }> };
  */
 export default async function CoursePage({ params }: Params) {
   const { course: courseSlug } = await params;
+  const t = await getTranslations("courses");
+  const common = await getTranslations("common");
 
   let loaded;
   try {
@@ -43,12 +46,12 @@ export default async function CoursePage({ params }: Params) {
   return (
     <Page>
       <PageHeader
-        eyebrow="Courses"
+        eyebrow={t("eyebrow")}
         title={loaded.course.title}
         description={loaded.course.titleRu}
       />
 
-      <Section title="Lessons" hint={`${loaded.lessons.length}`}>
+      <Section title={t("lessons")} hint={`${loaded.lessons.length}`}>
         <Card className="gap-0 py-0">
           <ol className="divide-y divide-border">
             {loaded.lessons.map((lesson, index) => (
@@ -67,7 +70,7 @@ export default async function CoursePage({ params }: Params) {
                       </span>
                       {done.has(lesson.slug) ? (
                         <span className="text-brand-soft text-[0.65rem] font-medium tracking-widest uppercase">
-                          Done
+                          {common("done")}
                         </span>
                       ) : null}
                     </span>
@@ -86,7 +89,7 @@ export default async function CoursePage({ params }: Params) {
         </Card>
       </Section>
 
-      <PageBack href="/courses/grammar" label="Back to courses" />
+      <PageBack href="/courses/grammar" label={t("backToCourses")} />
     </Page>
   );
 }

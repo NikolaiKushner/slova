@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { BudgetExceededError, recordUsage } from "@/lib/llm/budget";
 import { emptyUsage, translateBatch } from "@/lib/llm/translate-batch";
 import { allowAttemptDurable } from "@/lib/rate-limit";
@@ -23,20 +23,17 @@ const schema = z.object({
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
   const userId = session.user.id;
   if (!(await allowAttemptDurable(`translate:${userId}`, 30, 60 * 60 * 1000))) {
-    return NextResponse.json(
-      { error: "Too many translation requests. Try again in a while." },
-      { status: 429 },
-    );
+    return jsonError("tooManyTranslations", 429);
   }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Send a list of words." }, { status: 400 });
+    return jsonError("sendList", 400);
   }
 
   const outcome = { usage: emptyUsage() };

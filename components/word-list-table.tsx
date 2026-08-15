@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ArrowDown, ArrowUp } from "lucide-react";
 
 import {
@@ -59,12 +60,11 @@ type Payload = {
   total: number;
 };
 
-const SORTABLE: { field: SortField; label: string }[] = [
-  { field: "word", label: "English" },
-  { field: "translation", label: "Russian" },
-];
+const SORTABLE: SortField[] = ["word", "translation"];
 
 export function WordListTable() {
+  const t = useTranslations("dictionary");
+  const common = useTranslations("common");
   const router = useRouter();
   const params = useSearchParams();
 
@@ -241,9 +241,7 @@ export function WordListTable() {
         </div>
       ) : !data || data.total === 0 ? (
         <p className="text-muted-foreground text-sm">
-          {filtered
-            ? "Nothing matches that. Try another word, or clear the filter."
-            : "Nothing here yet. Words you add above will show up in this list."}
+          {filtered ? t("nothingMatches") : t("nothingHere")}
         </p>
       ) : (
         <>
@@ -265,23 +263,27 @@ export function WordListTable() {
                       onCheckedChange={(value) =>
                         setSelected(value === true ? rows.map((word) => word.id) : [])
                       }
-                      aria-label="Select every word on this page"
+                      aria-label={t("selectPage")}
                     />
                   </TableHead>
-                  {SORTABLE.map((column) => (
-                    <TableHead key={column.field} className={COLUMN_LABEL}>
+                  {SORTABLE.map((field) => (
+                    <TableHead key={field} className={COLUMN_LABEL}>
                       <SortButton
-                        label={column.label}
-                        active={sort === column.field}
+                        label={
+                          field === "word"
+                            ? common("english")
+                            : common("russian")
+                        }
+                        active={sort === field}
                         dir={dir}
-                        onClick={() => sortBy(column.field)}
+                        onClick={() => sortBy(field)}
                       />
                     </TableHead>
                   ))}
-                  <TableHead className={COLUMN_LABEL}>Set</TableHead>
+                  <TableHead className={COLUMN_LABEL}>{t("set")}</TableHead>
                   <TableHead className={cn("w-28", COLUMN_LABEL)}>
                     <SortButton
-                      label="Learned"
+                      label={t("learned")}
                       active={sort === "rating"}
                       dir={dir}
                       onClick={() => sortBy("rating")}
@@ -359,7 +361,7 @@ export function WordListTable() {
               </Pagination>
             ) : (
               <span className="text-muted-foreground text-sm">
-                {data.total} {data.total === 1 ? "word" : "words"}
+                {t("summaryWords", { count: data.total })}
               </span>
             )}
 
@@ -367,13 +369,13 @@ export function WordListTable() {
               value={String(size)}
               onValueChange={(next) => update({ pageSize: next ?? "" })}
             >
-              <SelectTrigger className="w-32" aria-label="Words per page">
-                <SelectValue>{size} per page</SelectValue>
+              <SelectTrigger className="w-32" aria-label={t("wordsPerPage")}>
+                <SelectValue>{t("perPage", { count: size })}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {PAGE_SIZES.map((value) => (
                   <SelectItem key={value} value={String(value)}>
-                    {value} per page
+                    {t("perPage", { count: value })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -398,6 +400,7 @@ function SortButton({
   dir: "asc" | "desc";
   onClick: () => void;
 }) {
+  const t = useTranslations("dictionary");
   const Arrow = dir === "asc" ? ArrowUp : ArrowDown;
 
   return (
@@ -408,10 +411,10 @@ function SortButton({
       onClick={onClick}
       aria-label={
         !active
-          ? `Sort by ${label}`
+          ? t("sortBy", { label })
           : dir === "asc"
-            ? `Sort ${label} descending`
-            : `Clear ${label} sort`
+            ? t("sortDescending", { label })
+            : t("clearSort", { label })
       }
       className={cn(
         COLUMN_LABEL,

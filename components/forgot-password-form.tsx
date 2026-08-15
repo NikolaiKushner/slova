@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestPasswordResetAction } from "@/lib/auth-actions";
+import { formatAuthError } from "@/lib/i18n/auth-error";
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("auth");
+  const errors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -16,10 +20,7 @@ export function ForgotPasswordForm() {
   if (sent) {
     return (
       <div className="space-y-4">
-        <p className="text-base text-foreground">
-          If that email is with us, a reset link is on its way. It expires in
-          an hour.
-        </p>
+        <p className="text-base text-foreground">{t("resetSent")}</p>
         <Button
           type="button"
           variant="ghost"
@@ -27,7 +28,7 @@ export function ForgotPasswordForm() {
           className="min-h-11 px-4"
           render={<Link href="/login" />}
         >
-          Back to sign in
+          {t("backToSignIn")}
         </Button>
       </div>
     );
@@ -46,14 +47,14 @@ export function ForgotPasswordForm() {
         );
         setPending(false);
         if (!result.ok) {
-          setError(result.error);
+          setError(formatAuthError(errors, result.error));
           return;
         }
         setSent(true);
       }}
     >
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("email")}</Label>
         <Input
           id="email"
           name="email"
@@ -73,11 +74,11 @@ export function ForgotPasswordForm() {
         className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
         disabled={pending}
       >
-        {pending ? "Sending…" : "Email me a reset link"}
+        {pending ? t("sending") : t("emailResetLink")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
-          Back to sign in
+          {t("backToSignIn")}
         </Link>
       </p>
     </form>

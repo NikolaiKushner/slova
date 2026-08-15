@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
@@ -15,35 +16,37 @@ export default async function TodayPage() {
   if (!session?.user?.id) redirect("/login");
 
   const now = new Date();
-  const [summary, progress, overview] = await Promise.all([
+  const [summary, progress, overview, t] = await Promise.all([
     getStudySummary(session.user.id, now),
     getProgress(session.user.id, now),
     getOverview(session.user.id),
+    getTranslations("today"),
   ]);
 
-  const progressText = progressLine(progress.today, progress.streak);
+  const progressText = progressLine(progress.today, progress.streak, {
+    reviewed: (count) => t("reviewedToday", { count }),
+    streak: (count) => t("streak", { count }),
+  });
 
   const title =
     summary.total === 0
-      ? "Nothing due"
-      : `${summary.total} word${summary.total === 1 ? "" : "s"} ready`;
+      ? t("nothingDue")
+      : t("wordsReady", { count: summary.total });
 
   let description: string;
   if (summary.total === 0) {
     description =
-      summary.unseen > 0
-        ? "Today's new words are done. The rest are waiting for tomorrow."
-        : "Paste a list from your tutor, or open a set and review later.";
+      summary.unseen > 0 ? t("newWordsDone") : t("pasteAList");
   } else if (summary.unseen > summary.allowance) {
-    description = "A short session now keeps them sticky. The rest keeps.";
+    description = t("shortSessionRest");
   } else {
-    description = "A short session now keeps them sticky.";
+    description = t("shortSession");
   }
 
   return (
     <Page>
       <PageHeader
-        eyebrow="Today"
+        eyebrow={t("eyebrow")}
         title={title}
         description={description}
       />
@@ -77,14 +80,14 @@ export default async function TodayPage() {
               "bg-teal-800 text-white hover:bg-teal-900",
             )}
           >
-            Study now
+            {t("studyNow")}
           </Link>
         ) : null}
         <Link
           href="/dictionary"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
         >
-          Add words
+          {t("addWords")}
         </Link>
       </div>
     </Page>

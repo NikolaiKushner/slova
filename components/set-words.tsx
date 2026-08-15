@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Minus, Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ export function SetWords({ setId, words }: { setId: string; words: SetWord[] }) 
 }
 
 function WordRow({ setId, word }: { setId: string; word: SetWord }) {
+  const t = useTranslations("dictionary");
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [front, setFront] = useState(word.front);
@@ -49,7 +51,7 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
   async function save() {
     if (busy) return;
     if (!front.trim() || !back.trim()) {
-      setError("A word needs a translation.");
+      setError(t("needsTranslation"));
       return;
     }
     if (front.trim() === word.front && back.trim() === word.back) {
@@ -68,7 +70,7 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => null);
-      setError(data?.error ?? "Could not save this word.");
+      setError(data?.error ?? t("couldNotSave"));
       return;
     }
 
@@ -98,7 +100,7 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
     setBusy(false);
 
     if (!res.ok) {
-      setError("Could not remove this word from the set.");
+      setError(t("couldNotRemoveFromSet"));
       return;
     }
 
@@ -116,7 +118,7 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
         {editing ? (
           <>
             <Input
-              aria-label="English word"
+              aria-label={t("englishWord")}
               value={front}
               autoFocus
               disabled={busy}
@@ -124,7 +126,7 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
               onKeyDown={onKeyDown}
             />
             <Input
-              aria-label="Russian translation"
+              aria-label={t("russianTranslation")}
               value={back}
               disabled={busy}
               onChange={(e) => setBack(e.target.value)}
@@ -135,8 +137,8 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label="Save word"
-                title="Save (Enter)"
+                aria-label={t("saveWord")}
+                title={t("saveEnter")}
                 disabled={busy}
                 onClick={save}
                 className={ROW_ICON}
@@ -147,8 +149,8 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label="Cancel editing"
-                title="Cancel (Escape)"
+                aria-label={t("cancelEditing")}
+                title={t("cancelEscape")}
                 disabled={busy}
                 onClick={cancel}
                 className={ROW_ICON}
@@ -171,7 +173,7 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label={`Edit ${word.front}`}
+                aria-label={t("editWord", { word: word.front })}
                 disabled={busy}
                 onClick={() => setEditing(true)}
                 className={ROW_ICON}
@@ -182,7 +184,7 @@ function WordRow({ setId, word }: { setId: string; word: SetWord }) {
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label={`Remove ${word.front} from this set`}
+                aria-label={t("removeWord", { word: word.front })}
                 className={ROW_ICON_DESTROY}
                 disabled={busy}
                 onClick={remove}

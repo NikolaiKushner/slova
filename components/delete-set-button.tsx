@@ -2,14 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 export function DeleteSetButton({ setId }: { setId: string }) {
+  const t = useTranslations("dictionary");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function onDelete() {
-    if (!confirm("Delete this set? The words stay in your dictionary.")) return;
+    if (!confirm(t("deleteSetConfirm"))) return;
     setLoading(true);
     await fetch(`/api/sets/${setId}`, { method: "DELETE" });
     router.push("/dictionary/sets");
@@ -25,7 +27,7 @@ export function DeleteSetButton({ setId }: { setId: string }) {
       disabled={loading}
       onClick={onDelete}
     >
-      Delete
+      {t("deleteSet")}
     </Button>
   );
 }

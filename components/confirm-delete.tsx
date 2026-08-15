@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   AlertDialog,
@@ -28,7 +29,7 @@ import {
 export function ConfirmDelete({
   title,
   description,
-  action = "Delete",
+  action,
   onConfirm,
   children,
 }: {
@@ -38,6 +39,7 @@ export function ConfirmDelete({
   onConfirm: () => void;
   children: ReactNode;
 }) {
+  const t = useTranslations("common");
   const [open, setOpen] = useState(false);
 
   return (
@@ -49,7 +51,7 @@ export function ConfirmDelete({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-white hover:bg-destructive/90"
             onClick={() => {
@@ -57,7 +59,7 @@ export function ConfirmDelete({
               onConfirm();
             }}
           >
-            {action}
+            {action ?? t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
@@ -7,94 +8,82 @@ import { Section } from "@/components/section";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { CONTACT_EMAIL } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Privacy — Slova",
-  description: "What Slova stores, who sees it, and how to ask for it to be deleted.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("legal");
+  return {
+    title: t("privacyMetaTitle"),
+    description: t("privacyMetaDescription"),
+  };
+}
 
-export default function PrivacyPage() {
+function MailLink() {
+  return (
+    <a
+      href={`mailto:${CONTACT_EMAIL}`}
+      className="text-foreground underline-offset-4 hover:underline"
+    >
+      {CONTACT_EMAIL}
+    </a>
+  );
+}
+
+export default async function PrivacyPage() {
+  const t = await getTranslations("legal");
+
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <Page className="flex-1 px-6 pb-16">
         <PageHeader
-          eyebrow="Legal"
-          title="Privacy"
-          description="What we keep in order to run the app, and nothing else."
+          eyebrow={t("eyebrow")}
+          title={t("privacyTitle")}
+          description={t("privacyDescription")}
         />
 
         <div className="space-y-10 text-base leading-relaxed text-foreground">
-          <Section title="Who">
+          <Section title={t("whoTitle")}>
             <p className="text-muted-foreground">
-              Slova is the vocabulary app at slova.study. There is no separate
-              company behind the name. Questions:{" "}
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="text-foreground underline-offset-4 hover:underline"
-              >
-                {CONTACT_EMAIL}
-              </a>
-              .
+              {t.rich("whoBody", { email: () => <MailLink /> })}
             </p>
           </Section>
 
-          <Section title="What we store">
+          <Section title={t("storeTitle")}>
             <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
-              <li>Your email, and a password hash if you set one. We never store the password itself.</li>
-              <li>Your name and photo, if you sign in with Google.</li>
-              <li>The words you add, your translations, sets, and study schedule.</li>
-              <li>Where you are in a grammar course, if you take one.</li>
+              <li>{t("store1")}</li>
+              <li>{t("store2")}</li>
+              <li>{t("store3")}</li>
+              <li>{t("store4")}</li>
             </ul>
           </Section>
 
-          <Section title="Who else sees it">
+          <Section title={t("elseTitle")}>
             <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
-              <li>Neon holds the database. Vercel hosts the app.</li>
-              <li>Resend sends the confirmation and password-reset emails.</li>
-              <li>Google, if you use Google to sign in.</li>
-              <li>
-                Anthropic, when a word you pasted is not already in the shared
-                dictionary — so it can be translated. A translation you type
-                stays private until a second source agrees with it.
-              </li>
-              <li>
-                Vercel Analytics and Speed Insights count visits. They do not
-                get your word lists.
-              </li>
+              <li>{t("else1")}</li>
+              <li>{t("else2")}</li>
+              <li>{t("else3")}</li>
+              <li>{t("else4")}</li>
+              <li>{t("else5")}</li>
             </ul>
           </Section>
 
-          <Section title="Cookies">
+          <Section title={t("cookiesTitle")}>
+            <p className="text-muted-foreground">{t("cookiesBody")}</p>
+          </Section>
+
+          <Section title={t("howLongTitle")}>
             <p className="text-muted-foreground">
-              A session cookie keeps you signed in. That is the only cookie we
-              set on purpose.
+              {t.rich("howLongBody", { email: () => <MailLink /> })}
             </p>
           </Section>
 
-          <Section title="How long">
-            <p className="text-muted-foreground">
-              We keep the account until you ask us to delete it. Write to{" "}
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="text-foreground underline-offset-4 hover:underline"
-              >
-                {CONTACT_EMAIL}
-              </a>{" "}
-              and we will remove your row and the words attached to it.
-            </p>
-          </Section>
-
-          <Section title="Children">
-            <p className="text-muted-foreground">
-              Slova is not aimed at children under 16. If an account was created
-              for someone younger, write and we will delete it.
-            </p>
+          <Section title={t("childrenTitle")}>
+            <p className="text-muted-foreground">{t("childrenBody")}</p>
           </Section>
         </div>
 
         <p className="mt-12 text-sm text-muted-foreground">
           <Link href="/terms" className="underline-offset-4 hover:underline">
-            Terms of use
+            {t("termsOfUse")}
           </Link>
         </p>
       </Page>

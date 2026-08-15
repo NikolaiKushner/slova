@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 import { scheduleReview, snapshotOf, type ReviewRating } from "@/lib/srs";
 import type { Prisma } from "@/app/generated/prisma/client";
@@ -13,20 +14,20 @@ const schema = z.object({
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid review" }, { status: 400 });
+    return jsonError("invalidReview", 400);
   }
 
   const word = await getPrisma().userWord.findFirst({
     where: { id: parsed.data.wordId, userId: session.user.id },
   });
   if (!word) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   const now = new Date();

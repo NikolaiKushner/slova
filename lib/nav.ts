@@ -11,7 +11,18 @@
  */
 
 export type NavItem = {
-  title: string;
+  titleKey:
+    | "learningMap"
+    | "today"
+    | "myProgress"
+    | "trainings"
+    | "grammar"
+    | "reading"
+    | "topics"
+    | "myCourses"
+    | "myWords"
+    | "mySets"
+    | "readyMadeSets";
   href: string;
   /**
    * Paths this item should also light up for, when they sit outside its own
@@ -22,45 +33,45 @@ export type NavItem = {
 };
 
 export type NavSection = {
-  title: string;
+  titleKey: "tasks" | "practice" | "courses" | "dictionary";
   items: readonly NavItem[];
 };
 
 export const NAV_SECTIONS: readonly NavSection[] = [
   {
-    title: "Tasks",
+    titleKey: "tasks",
     items: [
-      { title: "Learning map", href: "/tasks" },
-      { title: "Today", href: "/tasks/today", matches: ["/home", "/study"] },
-      { title: "My progress", href: "/tasks/progress" },
+      { titleKey: "learningMap", href: "/tasks" },
+      { titleKey: "today", href: "/tasks/today", matches: ["/home", "/study"] },
+      { titleKey: "myProgress", href: "/tasks/progress" },
     ],
   },
   {
-    title: "Practice",
+    titleKey: "practice",
     items: [
-      { title: "Trainings", href: "/practice", matches: ["/practice/vocabulary"] },
-      { title: "Grammar", href: "/practice/grammar" },
-      { title: "Reading", href: "/practice/reading" },
+      { titleKey: "trainings", href: "/practice", matches: ["/practice/vocabulary"] },
+      { titleKey: "grammar", href: "/practice/grammar" },
+      { titleKey: "reading", href: "/practice/reading" },
     ],
   },
   {
-    title: "Courses",
+    titleKey: "courses",
     items: [
-      { title: "Grammar", href: "/courses/grammar" },
-      { title: "Topics", href: "/courses/topics" },
-      { title: "My courses", href: "/courses/my" },
+      { titleKey: "grammar", href: "/courses/grammar" },
+      { titleKey: "topics", href: "/courses/topics" },
+      { titleKey: "myCourses", href: "/courses/my" },
     ],
   },
   {
-    title: "Dictionary",
+    titleKey: "dictionary",
     items: [
       {
-        title: "My words",
+        titleKey: "myWords",
         href: "/dictionary",
         matches: ["/import"],
       },
-      { title: "My sets", href: "/dictionary/sets" },
-      { title: "Ready-made sets", href: "/dictionary/catalog" },
+      { titleKey: "mySets", href: "/dictionary/sets" },
+      { titleKey: "readyMadeSets", href: "/dictionary/catalog" },
     ],
   },
 ] as const;

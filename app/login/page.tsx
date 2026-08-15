@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import { AuthCard, AuthSplit } from "@/components/auth-shell";
 import { LoginForm } from "@/components/login-form";
 import { LegalLinks } from "@/components/site-chrome";
@@ -8,13 +10,14 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; code?: string }>;
 }) {
   const { error, code } = await searchParams;
+  const t = await getTranslations("auth");
 
   return (
-    <AuthSplit lead="Sign in with email, or continue with Google. A new account is created the first time you register.">
+    <AuthSplit lead={t("signInLead")}>
       <AuthCard
-        eyebrow="Welcome"
-        title="Sign in"
-        description="Email and password, or Google."
+        eyebrow={t("welcome")}
+        title={t("signInTitle")}
+        description={t("signInDescription")}
       >
         <LoginForm error={error} code={code} />
       </AuthCard>

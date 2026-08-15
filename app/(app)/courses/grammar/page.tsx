@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ChevronRight } from "lucide-react";
 
 import { Page } from "@/components/page";
@@ -17,15 +18,17 @@ import {
 } from "@/lib/courses/catalog";
 import { cn } from "@/lib/utils";
 
-export default function CoursesGrammarPage() {
+export default async function CoursesGrammarPage() {
+  const t = await getTranslations("courses");
+  const common = await getTranslations("common");
   const groups = grammarCatalog();
 
   return (
     <Page>
       <PageHeader
-        eyebrow="Courses"
-        title="Grammar courses"
-        description="Longer than a drill, shorter than a textbook. A rule explained, then used."
+        eyebrow={t("eyebrow")}
+        title={t("grammarTitle")}
+        description={t("grammarDescription")}
       />
 
       <div className="space-y-10">
@@ -34,7 +37,18 @@ export default function CoursesGrammarPage() {
             <ul className="grid gap-4 sm:grid-cols-2">
               {group.courses.map((course) => (
                 <li key={course.slug} className="min-h-0">
-                  <CourseTile course={course} />
+                  <CourseTile
+                    course={course}
+                    coming={common("coming")}
+                    levelLessons={
+                      course.level && course.lessonCount !== null
+                        ? t("levelLessons", {
+                            level: course.level,
+                            count: course.lessonCount,
+                          })
+                        : null
+                    }
+                  />
                 </li>
               ))}
             </ul>
@@ -45,7 +59,15 @@ export default function CoursesGrammarPage() {
   );
 }
 
-function CourseTile({ course }: { course: CatalogCourse }) {
+function CourseTile({
+  course,
+  coming,
+  levelLessons,
+}: {
+  course: CatalogCourse;
+  coming: string;
+  levelLessons: string | null;
+}) {
   const inner = (
     <Card
       className={cn(
@@ -65,13 +87,9 @@ function CourseTile({ course }: { course: CatalogCourse }) {
         <CardDescription>{course.titleRu}</CardDescription>
       </CardHeader>
       <CardFooter className="mt-auto min-h-11 justify-between text-sm">
-        {course.status === "available" &&
-        course.level &&
-        course.lessonCount !== null ? (
+        {course.status === "available" && levelLessons ? (
           <>
-            <span>
-              {course.level} · {course.lessonCount} lessons
-            </span>
+            <span>{levelLessons}</span>
             <ChevronRight
               className="size-4 text-muted-foreground/40"
               aria-hidden
@@ -79,7 +97,7 @@ function CourseTile({ course }: { course: CatalogCourse }) {
           </>
         ) : (
           <span className="text-brand-soft text-[0.65rem] font-medium tracking-widest uppercase">
-            Coming
+            {coming}
           </span>
         )}
       </CardFooter>

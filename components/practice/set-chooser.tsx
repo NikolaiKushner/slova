@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -27,6 +28,9 @@ export function SetChooser({
   title: string;
   onStart: (setIds: string[]) => void;
 }) {
+  const t = useTranslations("practice");
+  const dictionary = useTranslations("dictionary");
+  const common = useTranslations("common");
   const [sets, setSets] = useState<SetOption[] | null>(null);
   const [chosen, setChosen] = useState<string[]>([]);
 
@@ -77,13 +81,13 @@ export function SetChooser({
   return (
     <div className="space-y-6">
       <p className="text-brand-soft text-center text-xs tracking-widest uppercase">
-        {title} · where from
+        {t("whereFrom", { title })}
       </p>
 
       <div className="bg-card divide-border divide-y overflow-hidden rounded-lg border">
         <Row
-          label="All my words"
-          hint="Everything in the dictionary"
+          label={t("allMyWords")}
+          hint={t("everythingInDictionary")}
           checked={chosen.length === 0}
           onToggle={() => setChosen([])}
         />
@@ -93,7 +97,7 @@ export function SetChooser({
             label={set.title}
             hint={
               typeof set.wordCount === "number"
-                ? `${set.wordCount} ${set.wordCount === 1 ? "word" : "words"}`
+                ? dictionary("summaryWords", { count: set.wordCount })
                 : undefined
             }
             checked={chosen.includes(set.id)}
@@ -104,11 +108,11 @@ export function SetChooser({
 
       <div className="flex flex-col items-center gap-2">
         <Button type="button" size="lg" onClick={() => onStart(chosen)} autoFocus>
-          Start
+          {common("start")}
         </Button>
         {words !== null && (
           <p className="text-muted-foreground text-xs">
-            {words} {words === 1 ? "word" : "words"} to draw on
+            {t("wordsToDraw", { count: words })}
           </p>
         )}
       </div>

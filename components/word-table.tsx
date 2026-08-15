@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 
 /**
@@ -30,6 +34,8 @@ export function WordTable({
   children: React.ReactNode;
   className?: string;
 }) {
+  const common = useTranslations("common");
+
   return (
     <div
       className={cn(
@@ -38,8 +44,8 @@ export function WordTable({
       )}
     >
       <div className={cn(WORD_GRID, COLUMN_HEADER)}>
-        <span>English</span>
-        <span>Russian</span>
+        <span>{common("english")}</span>
+        <span>{common("russian")}</span>
         <span />
       </div>
       {children}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { Page } from "@/components/page";
@@ -13,6 +14,8 @@ export default async function SetsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
+  const t = await getTranslations("dictionary");
+  const common = await getTranslations("common");
   const now = new Date();
   const sets = await getPrisma().wordSet.findMany({
     where: { userId: session.user.id },
@@ -28,9 +31,9 @@ export default async function SetsPage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="Dictionary"
-        title="My sets"
-        description="Lists you have imported. A word can sit in several of them and still be one word, with one schedule."
+        eyebrow={t("eyebrow")}
+        title={t("mySetsTitle")}
+        description={t("mySetsDescription")}
         actions={
           <Link
             href="/dictionary"
@@ -39,18 +42,18 @@ export default async function SetsPage() {
               "bg-teal-800 text-white hover:bg-teal-900",
             )}
           >
-            New set
+            {t("newSet")}
           </Link>
         }
       />
 
       <Section
-        title="Your sets"
+        title={t("yourSets")}
         hint={sets.length > 0 ? `${sets.length}` : undefined}
       >
         {sets.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border bg-white/50 px-5 py-8 text-muted-foreground">
-            No sets yet. Paste words from a tutor doc to begin.
+            {t("noSets")}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -72,10 +75,15 @@ export default async function SetsPage() {
                     <div>
                       <p className="font-medium text-foreground">{set.title}</p>
                       <p className="text-sm text-muted-foreground">
-                        {setSummary(set._count.items, due, unseen)}
+                        {setSummary(set._count.items, due, unseen, {
+                          words: (count) => t("summaryWords", { count }),
+                          due: (count) => t("summaryDue", { count }),
+                          unseen: (count) => t("summaryNew", { count }),
+                          caughtUp: t("summaryCaughtUp"),
+                        })}
                       </p>
                     </div>
-                    <span className="text-sm text-teal-800">Open</span>
+                    <span className="text-sm text-teal-800">{common("open")}</span>
                   </Link>
                 </li>
               );

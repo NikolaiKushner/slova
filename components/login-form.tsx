@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
@@ -11,21 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { SIGNED_IN_HOME } from "@/lib/auth.config";
+import { formatAuthError } from "@/lib/i18n/auth-error";
 import { cn } from "@/lib/utils";
 
-const ERRORS: Record<string, string> = {
-  CredentialsSignin: "Wrong email or password.",
-  email_not_verified: "Confirm the email we sent you, then sign in.",
-  AccessDenied: "That sign-in was denied.",
-  OAuthAccountNotLinked:
-    "This email is already in use with another sign-in method.",
-  Configuration: "Sign-in is not configured yet.",
-};
-
-function errorMessage(error?: string | null, code?: string | null) {
-  if (code && ERRORS[code]) return ERRORS[code];
-  if (error && ERRORS[error]) return ERRORS[error];
-  if (error || code) return "Could not sign in. Try again.";
+function errorMessage(
+  t: ReturnType<typeof useTranslations<"errors">>,
+  error?: string | null,
+  code?: string | null,
+) {
+  if (code) return formatAuthError(t, code);
+  if (error) return formatAuthError(t, error);
   return null;
 }
 
@@ -39,9 +35,11 @@ export function LoginForm({
   code?: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("auth");
+  const errors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [formError, setFormError] = useState<string | null>(
-    errorMessage(error, code),
+    errorMessage(errors, error, code),
   );
 
   return (
@@ -61,7 +59,7 @@ export function LoginForm({
           });
           setPending(false);
           if (result?.error) {
-            setFormError(errorMessage(result.error, result.code));
+            setFormError(errorMessage(errors, result.error, result.code));
             return;
           }
           router.push(SIGNED_IN_HOME);
@@ -69,7 +67,7 @@ export function LoginForm({
         }}
       >
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("email")}</Label>
           <Input
             id="email"
             name="email"
@@ -84,12 +82,12 @@ export function LoginForm({
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("password")}</Label>
             <Link
               href="/forgot-password"
               className="text-sm text-muted-foreground transition hover:text-foreground"
             >
-              Forgot password?
+              {t("forgotPassword")}
             </Link>
           </div>
           <Input
@@ -111,7 +109,7 @@ export function LoginForm({
           className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
           disabled={pending}
         >
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? t("signingIn") : t("signIn")}
         </Button>
       </form>
 
@@ -119,7 +117,7 @@ export function LoginForm({
         <Separator />
         <span className="absolute inset-0 flex items-center justify-center">
           <span className="bg-card px-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-            or
+            {t("or")}
           </span>
         </span>
       </div>
@@ -127,10 +125,16 @@ export function LoginForm({
       <GoogleSignInButton disabled={pending} />
 
       <p className="text-center text-sm text-muted-foreground">
-        New here?{" "}
-        <Link href="/register" className="text-foreground underline-offset-4 hover:underline">
-          Create an account
-        </Link>
+        {t.rich("newHere", {
+          link: (chunks) => (
+            <Link
+              href="/register"
+              className="text-foreground underline-offset-4 hover:underline"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
     </div>
   );

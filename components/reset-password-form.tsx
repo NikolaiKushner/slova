@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { completePasswordResetAction } from "@/lib/auth-actions";
+import { formatAuthError } from "@/lib/i18n/auth-error";
 import { MIN_PASSWORD_LENGTH } from "@/lib/password-rules";
 
 export function ResetPasswordForm({
@@ -18,15 +20,15 @@ export function ResetPasswordForm({
   token: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("auth");
+  const errors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!email || !token) {
     return (
       <div className="space-y-4">
-        <p className="text-base text-foreground">
-          That reset link is missing its token. Ask for a new one.
-        </p>
+        <p className="text-base text-foreground">{t("resetLinkMissing")}</p>
         <Button
           type="button"
           variant="ghost"
@@ -34,7 +36,7 @@ export function ResetPasswordForm({
           className="min-h-11 px-4"
           render={<Link href="/forgot-password" />}
         >
-          Reset password
+          {t("resetTitle")}
         </Button>
       </div>
     );
@@ -50,21 +52,21 @@ export function ResetPasswordForm({
         const confirm = String(form.get("confirm") ?? "");
         setError(null);
         if (password !== confirm) {
-          setError("Passwords do not match.");
+          setError(errors("passwordsMismatch"));
           return;
         }
         setPending(true);
         const result = await completePasswordResetAction(email, token, password);
         setPending(false);
         if (!result.ok) {
-          setError(result.error);
+          setError(formatAuthError(errors, result.error));
           return;
         }
         router.push("/login");
       }}
     >
       <div className="space-y-2">
-        <Label htmlFor="password">New password</Label>
+        <Label htmlFor="password">{t("newPassword")}</Label>
         <Input
           id="password"
           name="password"
@@ -76,11 +78,11 @@ export function ResetPasswordForm({
           disabled={pending}
         />
         <p className="text-xs text-muted-foreground">
-          At least {MIN_PASSWORD_LENGTH} characters.
+          {t("passwordHint", { count: MIN_PASSWORD_LENGTH })}
         </p>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="confirm">Confirm password</Label>
+        <Label htmlFor="confirm">{t("confirmPassword")}</Label>
         <Input
           id="confirm"
           name="confirm"
@@ -99,7 +101,7 @@ export function ResetPasswordForm({
         className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
         disabled={pending}
       >
-        {pending ? "Saving…" : "Save password"}
+        {pending ? t("saving") : t("savePassword")}
       </Button>
     </form>
   );

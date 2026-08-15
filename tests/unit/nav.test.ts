@@ -63,11 +63,11 @@ describe("activeNavHref", () => {
 
 describe("NAV_SECTIONS", () => {
   it("has four sections", () => {
-    expect(NAV_SECTIONS.map((s) => s.title)).toEqual([
-      "Tasks",
-      "Practice",
-      "Courses",
-      "Dictionary",
+    expect(NAV_SECTIONS.map((s) => s.titleKey)).toEqual([
+      "tasks",
+      "practice",
+      "courses",
+      "dictionary",
     ]);
   });
 

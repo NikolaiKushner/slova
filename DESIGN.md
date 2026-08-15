@@ -26,7 +26,7 @@ Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
   Air (820px) without the menu scrolling. Group labels stay the small sage
   caps. Collapsed icon mode keeps the compact 32px target.
 - Header and footer are hairlined off the scrolling list (`border-sidebar-border` under the wordmark, above the account). They are flex regions, not overlays, so a line is enough. Collapsed, the toggle sits below a short top inset so it is not flush with the edge.
-- Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages, with extra vertical padding between groups so the sections read apart. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active.
+- Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages, with extra vertical padding between groups so the sections read apart. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active. UI chrome is English or Russian (`messages/en.json`, `messages/ru.json`); a compact EN · RU switcher sits on the public header and in the account menu. The study pair (English word, Russian translation) is not the same as the UI language.
 - Nav states: `--sidebar-hover` (lighter) vs `--sidebar-active` (slightly darker) — not the same color.
 - Footer: avatar + name, dropdown opens **to the right** (below on a phone) with Log out.
 
