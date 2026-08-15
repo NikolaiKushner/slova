@@ -81,7 +81,7 @@ function userInitials(name?: string | null, email?: string | null) {
 
 function SidebarBrandHeader() {
   return (
-    <SidebarHeader className="min-h-14 justify-center border-b border-sidebar-border px-3 pt-[env(safe-area-inset-top)]">
+    <SidebarHeader className="min-h-14 justify-center border-b border-sidebar-border px-3 pt-[env(safe-area-inset-top)] group-data-[collapsible=icon]:min-h-16 group-data-[collapsible=icon]:pt-4">
       <div className="flex h-10 items-center gap-1.5">
         <Link
           href="/tasks/today"
@@ -174,8 +174,8 @@ export function AppSidebar() {
 
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
-          <SidebarGroup key={section.title} className="py-1">
-            <SidebarGroupLabel className="h-6 text-xs tracking-[0.14em] text-brand-soft">
+          <SidebarGroup key={section.title} className="py-3">
+            <SidebarGroupLabel className="h-6 text-xs tracking-[0.14em] text-brand-soft group-data-[collapsible=icon]:-mt-6">
               {section.title}
             </SidebarGroupLabel>
             <SidebarGroupContent>
