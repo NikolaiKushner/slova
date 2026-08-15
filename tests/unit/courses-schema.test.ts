@@ -7,6 +7,7 @@ import {
   loadCourse,
   parsePack,
 } from "@/lib/courses/load";
+import { LESSON_PRACTICE_POOL_MIN } from "@/lib/courses/practice";
 
 describe("present-simple pack", () => {
   it("parses and satisfies the bank rule", () => {
@@ -58,6 +59,15 @@ describe("present-simple pack", () => {
     );
     for (const item of loaded.bank) {
       expect(lessonIds.has(item.id)).toBe(false);
+    }
+  });
+
+  it("gives each regular lesson a pool larger than one sitting", () => {
+    const loaded = loadCourse("present-simple");
+    for (const lesson of loaded.lessons) {
+      if (lesson.slug === "test") continue;
+      const pool = lesson.blocks.filter((block) => block.type === "exercise");
+      expect(pool.length).toBeGreaterThanOrEqual(LESSON_PRACTICE_POOL_MIN);
     }
   });
 });
@@ -200,5 +210,63 @@ describe("invariants", () => {
         ],
       }),
     ).toThrow(/at least 2 bank exercises/);
+  });
+
+  it("rejects a regular lesson whose pool is too small to deal a sitting", () => {
+    const gaps = Array.from({ length: 15 }, (_, i) => ({
+      type: "exercise" as const,
+      id: `thin-${i}`,
+      ruleId: "ps-base-form",
+      kind: "gap" as const,
+      prompt: `I ___ here ${i}. (live)`,
+      answer: "live",
+    }));
+
+    expect(() =>
+      parsePack("present-simple", {
+        course: {
+          slug: "present-simple",
+          title: "Present Simple",
+          titleRu: "Простое настоящее",
+          level: "A1",
+          order: 1,
+          estMinutes: 40,
+          lessons: ["forms"],
+        },
+        rules: [
+          {
+            id: "ps-base-form",
+            title: "base",
+            anchorMd: "base",
+          },
+        ],
+        lessons: {
+          forms: {
+            slug: "forms",
+            title: "Forms",
+            titleRu: "Форма",
+            blocks: gaps,
+          },
+        },
+        bank: [
+          {
+            type: "exercise",
+            id: "bank-a",
+            ruleId: "ps-base-form",
+            kind: "gap",
+            prompt: "They ___ tea. (like)",
+            answer: "like",
+          },
+          {
+            type: "exercise",
+            id: "bank-b",
+            ruleId: "ps-base-form",
+            kind: "gap",
+            prompt: "You ___ tea. (like)",
+            answer: "like",
+          },
+        ],
+      }),
+    ).toThrow(/at least 16 exercises/);
   });
 });

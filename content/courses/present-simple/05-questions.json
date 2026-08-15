@@ -82,6 +82,95 @@
       "kind": "gap",
       "prompt": "___ you need more time? (Do)",
       "answer": "Do"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-07",
+      "ruleId": "ps-question-do",
+      "kind": "choice",
+      "prompt": "___ you play football?",
+      "options": ["Do", "Does", "Are"],
+      "answer": "Do"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-08",
+      "ruleId": "ps-question-does",
+      "kind": "choice",
+      "prompt": "___ Tom work here?",
+      "options": ["Do", "Does", "Is"],
+      "answer": "Does"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-09",
+      "ruleId": "ps-question-do",
+      "kind": "pick-sentence",
+      "prompt": "Which question is correct?",
+      "options": ["Do you lives here?", "Do you live here?"],
+      "answer": "Do you live here?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-10",
+      "ruleId": "ps-question-do",
+      "kind": "transform",
+      "prompt": "Make this a question.",
+      "source": "We play football.",
+      "answer": "Do we play football?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-11",
+      "ruleId": "ps-question-does",
+      "kind": "transform",
+      "prompt": "Make this a question.",
+      "source": "He lives here.",
+      "answer": "Does he live here?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-12",
+      "ruleId": "ps-question-does",
+      "kind": "gap",
+      "prompt": "___ she like tea? (Does)",
+      "answer": "Does"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-13",
+      "ruleId": "ps-question-do",
+      "kind": "choice",
+      "prompt": "___ we need more time?",
+      "options": ["Do", "Does", "Are"],
+      "answer": "Do"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-14",
+      "ruleId": "ps-question-does",
+      "kind": "pick-sentence",
+      "prompt": "Which question is correct?",
+      "options": ["Does Anna play tennis?", "Does Anna plays tennis?"],
+      "answer": "Does Anna play tennis?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-15",
+      "ruleId": "ps-question-do",
+      "kind": "transform",
+      "prompt": "Make this a question.",
+      "source": "You like coffee.",
+      "answer": "Do you like coffee?"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-q-16",
+      "ruleId": "ps-question-does",
+      "kind": "choice",
+      "prompt": "___ it work?",
+      "options": ["Do", "Does", "Is"],
+      "answer": "Does"
     }
   ]
 }

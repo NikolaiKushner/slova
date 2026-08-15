@@ -174,12 +174,12 @@ export function AppSidebar() {
 
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
-          <SidebarGroup key={section.title} className="py-3">
-            <SidebarGroupLabel className="h-6 text-xs tracking-[0.14em] text-brand-soft group-data-[collapsible=icon]:-mt-6">
+          <SidebarGroup key={section.title} className="py-4">
+            <SidebarGroupLabel className="h-7 text-xs tracking-[0.14em] text-brand-soft group-data-[collapsible=icon]:-mt-7">
               {section.title}
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-1">
+              <SidebarMenu className="gap-1.5">
                 {section.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
                   return (
@@ -188,7 +188,7 @@ export function AppSidebar() {
                         render={<Link href={item.href} />}
                         isActive={isNavItemActive(pathname, item.href)}
                         tooltip={`${section.title} \u00b7 ${item.title}`}
-                        className="h-7 py-0 text-base leading-none [&_svg]:size-4"
+                        className="h-8 py-0 text-base leading-none [&_svg]:size-4"
                       >
                         {Icon ? <Icon /> : null}
                         <span>{item.title}</span>
@@ -202,7 +202,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="gap-1 border-t border-sidebar-border px-3 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+      <SidebarFooter className="gap-1 border-t border-sidebar-border px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
         <SidebarUserMenu />
       </SidebarFooter>
       <SidebarRail />

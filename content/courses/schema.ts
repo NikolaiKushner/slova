@@ -7,11 +7,12 @@ import { z } from "zod";
  * split is the same one the lexicon already uses: what everybody shares is
  * reviewed in a PR, and a person's place in a course is not.
  *
- * A lesson is an ordered list of blocks. An exercise always names a `ruleId`,
- * so a miss can later schedule the rule rather than the prompt. Extra
- * exercises for the same rule sit in `bank.json` and must not reuse an id
- * from a lesson — otherwise Practice / Grammar would drill the answer the
- * person just saw.
+ * A lesson is an ordered list of blocks. Exercises in it are a pool: the
+ * player deals eight each visit (the test keeps every item). An exercise
+ * always names a `ruleId`, so a miss can later schedule the rule rather than
+ * the prompt. Extra exercises for the same rule sit in `bank.json` and must
+ * not reuse an id from a lesson — otherwise Practice / Grammar would drill
+ * the answer the person just saw.
  */
 
 export const EXERCISE_KINDS = [

@@ -127,6 +127,75 @@
       "kind": "gap",
       "prompt": "You ___ a new bag. (need)",
       "answer": "need"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-09",
+      "ruleId": "ps-third-person-s",
+      "kind": "choice",
+      "prompt": "The shop ___ at nine.",
+      "options": ["open", "opens"],
+      "answer": "opens"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-10",
+      "ruleId": "ps-base-form",
+      "kind": "choice",
+      "prompt": "We ___ here.",
+      "options": ["live", "lives"],
+      "answer": "live"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-11",
+      "ruleId": "ps-third-person-s",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["Tom work in a school.", "Tom works in a school."],
+      "answer": "Tom works in a school."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-12",
+      "ruleId": "ps-base-form",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["They wants more time.", "They want more time."],
+      "answer": "They want more time."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-13",
+      "ruleId": "ps-third-person-s",
+      "kind": "gap",
+      "prompt": "She ___ tea. (like)",
+      "answer": "likes"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-14",
+      "ruleId": "ps-base-form",
+      "kind": "gap",
+      "prompt": "I ___ to work every day. (walk)",
+      "answer": "walk"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-15",
+      "ruleId": "ps-third-person-s",
+      "kind": "choice",
+      "prompt": "My sister ___ English.",
+      "options": ["speak", "speaks"],
+      "answer": "speaks"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-forms-16",
+      "ruleId": "ps-base-form",
+      "kind": "gap",
+      "prompt": "You ___ football on Sundays. (play)",
+      "answer": "play"
     }
   ]
 }

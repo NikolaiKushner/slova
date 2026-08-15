@@ -85,6 +85,98 @@
       "source": "We like this song.",
       "answer": "We don't like this song.",
       "accept": ["We do not like this song."]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-07",
+      "ruleId": "ps-negative-dont",
+      "kind": "choice",
+      "prompt": "I ___ English.",
+      "options": ["don't speak", "doesn't speak", "don't speaks"],
+      "answer": "don't speak"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-08",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "choice",
+      "prompt": "She ___ here.",
+      "options": ["don't live", "doesn't live", "doesn't lives"],
+      "answer": "doesn't live"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-09",
+      "ruleId": "ps-negative-dont",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["We don't likes it.", "We don't like it."],
+      "answer": "We don't like it."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-10",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "gap",
+      "prompt": "He ___ tea. (doesn't drink)",
+      "answer": "doesn't drink",
+      "accept": ["does not drink"]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-11",
+      "ruleId": "ps-negative-dont",
+      "kind": "transform",
+      "prompt": "Make this negative.",
+      "source": "They play football.",
+      "answer": "They don't play football.",
+      "accept": ["They do not play football."]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-12",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "transform",
+      "prompt": "Make this negative.",
+      "source": "Tom likes coffee.",
+      "answer": "Tom doesn't like coffee.",
+      "accept": ["Tom does not like coffee."]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-13",
+      "ruleId": "ps-negative-dont",
+      "kind": "choice",
+      "prompt": "You ___ more time.",
+      "options": ["don't need", "doesn't need", "don't needs"],
+      "answer": "don't need"
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-14",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "pick-sentence",
+      "prompt": "Which sentence is correct?",
+      "options": ["It don't work.", "It doesn't work."],
+      "answer": "It doesn't work."
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-15",
+      "ruleId": "ps-negative-dont",
+      "kind": "gap",
+      "prompt": "We ___ here. (don't live)",
+      "answer": "don't live",
+      "accept": ["do not live"]
+    },
+    {
+      "type": "exercise",
+      "id": "ps-neg-16",
+      "ruleId": "ps-negative-doesnt",
+      "kind": "choice",
+      "prompt": "Anna ___ here.",
+      "options": ["don't work", "doesn't work", "doesn't works"],
+      "answer": "doesn't work"
     }
   ]
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Delete, Volume2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -344,7 +344,7 @@ function Typed({
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="mx-auto flex w-full max-w-sm items-center gap-2">
       <Input
         value={value}
         onChange={(event) => setValue(event.target.value)}
@@ -362,15 +362,19 @@ function Typed({
         autoCorrect="off"
         spellCheck={false}
         className={cn(
-          "max-w-sm text-center text-base",
+          "h-9 min-w-0 flex-1 text-center text-base",
           done && (right ? "border-primary text-primary" : "border-destructive"),
         )}
       />
-      {!done && (
-        <Button type="button" size="lg" onClick={submit} disabled={!value.trim()}>
-          Check
-        </Button>
-      )}
+      <Button
+        type="button"
+        size="lg"
+        onClick={submit}
+        disabled={done || !value.trim()}
+        className={done ? "invisible" : undefined}
+      >
+        Check
+      </Button>
     </div>
   );
 }
@@ -378,54 +382,75 @@ function Typed({
 /**
  * The verdict, under the question rather than instead of it.
  *
- * The question stays on screen: seeing which option was right, next to the one
- * you picked, is the moment the learning happens, and swapping it for a panel
- * that says "Correct" throws that away — it made the answer disappear at the
- * exact instant it was worth looking at.
- *
- * Right answers say almost nothing. A tick, and the button moves you on. It is
- * a wrong answer that needs words.
+ * Next is already on the right, disabled until there is a verdict, so the
+ * card does not grow when the answer lands. Correct or Incorrect takes the
+ * left of that same row.
  */
 export function AnswerFeedback({
   result,
   answer,
   onNext,
 }: {
-  result: Answered;
+  result: Answered | null;
   answer: string;
   onNext: () => void;
 }) {
-  const right = passed(result.verdict);
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const right = result ? passed(result.verdict) : false;
+
+  useEffect(() => {
+    if (result) nextRef.current?.focus();
+  }, [result]);
 
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <p
-        className={cn(
-          "flex items-center gap-2 text-sm",
-          right ? "text-primary" : "text-destructive",
-        )}
-      >
-        {right ? (
-          <Check className="size-4 shrink-0" />
-        ) : (
-          <X className="size-4 shrink-0" />
-        )}
-        {result.verdict === "correct" ? (
-          "Correct"
-        ) : result.verdict === "almost" ? (
-          <span className="text-brand-soft">
-            Almost — it is <span className="font-medium">{answer}</span>
-          </span>
-        ) : (
-          <span>
-            It is <span className="font-medium">{answer}</span>
-          </span>
-        )}
-      </p>
-
-      <Button type="button" size="lg" onClick={onNext} autoFocus>
-        Next
-      </Button>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <p
+          className={cn(
+            "flex min-h-9 min-w-0 flex-1 items-center gap-2 text-sm",
+            !result
+              ? "invisible"
+              : result.verdict === "almost"
+                ? "text-brand-soft"
+                : right
+                  ? "text-primary"
+                  : "text-destructive",
+          )}
+          aria-live="polite"
+          aria-hidden={!result}
+        >
+          {right ? (
+            <>
+              <Check className="size-4 shrink-0" />
+              Correct
+            </>
+          ) : result?.verdict === "almost" ? (
+            <>
+              <Check className="size-4 shrink-0" />
+              Almost
+            </>
+          ) : (
+            <>
+              <X className="size-4 shrink-0" />
+              Incorrect
+            </>
+          )}
+        </p>
+        <Button
+          ref={nextRef}
+          type="button"
+          size="lg"
+          disabled={!result}
+          onClick={onNext}
+        >
+          Next
+        </Button>
+      </div>
+      {result && !right ? (
+        <p className="text-muted-foreground text-sm">
+          It is <span className="text-foreground font-medium">{answer}</span>
+        </p>
+      ) : null}
     </div>
   );
 }

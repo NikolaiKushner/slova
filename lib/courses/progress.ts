@@ -8,7 +8,7 @@
 
 import { getPrisma } from "@/lib/prisma";
 import { CourseContentError, loadCourse } from "@/lib/courses/load";
-import { isExerciseBlock } from "@/content/courses/schema";
+import { lessonPool, practiceSessionSize } from "@/lib/courses/practice";
 
 export const LESSON_PASS_PERCENT = 80;
 export const TEST_PASS_PERCENT = 90;
@@ -85,7 +85,10 @@ export async function saveLessonProgress(input: {
     );
   }
 
-  const total = lesson.blocks.filter(isExerciseBlock).length;
+  const total = practiceSessionSize(
+    lesson.slug,
+    lessonPool(lesson).length,
+  );
   if (total <= 0) {
     throw new CourseContentError(
       `${input.courseSlug}: lesson "${input.lessonSlug}" has no exercises.`,

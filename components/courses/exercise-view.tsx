@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, X } from "lucide-react";
 
 import type { Exercise, Rule } from "@/content/courses/schema";
@@ -126,7 +126,7 @@ function Typed({
   return (
     <div className="space-y-4">
       <Prompt exercise={exercise} />
-      <div className="flex flex-col items-stretch gap-3 sm:items-center">
+      <div className="mx-auto flex w-full max-w-md items-center gap-2">
         <Input
           value={value}
           onChange={(event) => setValue(event.target.value)}
@@ -144,15 +144,19 @@ function Typed({
           autoCorrect="off"
           spellCheck={false}
           className={cn(
-            "max-w-md text-center text-base",
+            "h-9 min-w-0 flex-1 text-center text-base",
             done && (right ? "border-primary text-primary" : "border-destructive"),
           )}
         />
-        {!done && (
-          <Button type="button" size="lg" onClick={submit} disabled={!value.trim()}>
-            Check
-          </Button>
-        )}
+        <Button
+          type="button"
+          size="lg"
+          onClick={submit}
+          disabled={done || !value.trim()}
+          className={done ? "invisible" : undefined}
+        >
+          Check
+        </Button>
       </div>
     </div>
   );
@@ -183,44 +187,61 @@ export function GrammarFeedback({
   rule,
   onNext,
 }: {
-  result: GrammarAnswered;
+  result: GrammarAnswered | null;
   answer: string;
   rule: Rule | undefined;
   onNext: () => void;
 }) {
-  const right = result.verdict === "correct";
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const right = result?.verdict === "correct";
+
+  useEffect(() => {
+    if (result) nextRef.current?.focus();
+  }, [result]);
 
   return (
     <div className="flex flex-col gap-3">
-      <p
-        className={cn(
-          "flex items-center gap-2 text-sm",
-          right ? "text-primary" : "text-destructive",
-        )}
-      >
-        {right ? (
-          <Check className="size-4 shrink-0" />
-        ) : (
-          <X className="size-4 shrink-0" />
-        )}
-        {right ? (
-          "Correct"
-        ) : (
-          <span>
-            It is <span className="font-medium">{answer}</span>
-          </span>
-        )}
-      </p>
-      {!right && rule ? (
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {mdToNodes(rule.anchorMd)}
+      <div className="flex items-center justify-between gap-3">
+        <p
+          className={cn(
+            "flex min-h-9 min-w-0 flex-1 items-center gap-2 text-sm",
+            !result
+              ? "invisible"
+              : right
+                ? "text-primary"
+                : "text-destructive",
+          )}
+          aria-live="polite"
+          aria-hidden={!result}
+        >
+          {right ? (
+            <>
+              <Check className="size-4 shrink-0" />
+              Correct
+            </>
+          ) : (
+            <>
+              <X className="size-4 shrink-0" />
+              Incorrect
+            </>
+          )}
         </p>
-      ) : null}
-      <div>
-        <Button type="button" size="lg" onClick={onNext} autoFocus>
+        <Button
+          ref={nextRef}
+          type="button"
+          size="lg"
+          disabled={!result}
+          onClick={onNext}
+        >
           Next
         </Button>
       </div>
+      {result && !right ? (
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          It is <span className="text-foreground font-medium">{answer}</span>
+          {rule ? <> · {mdToNodes(rule.anchorMd)}</> : null}
+        </p>
+      ) : null}
     </div>
   );
 }

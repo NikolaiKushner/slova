@@ -20,11 +20,11 @@ Light, calm UI for pasting word lists and studying them. Not a dense dashboard.
 Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 
 - Width **287.5px**; search + collapse sit opposite the Fraunces wordmark (logo hides when collapsed). Search: ⌘K / Ctrl+K.
-- Nav items are **text-base** on a **28px** row — the type stays large, the
-  padding inside the pill is tight. **4px** gaps sit between the items, so
-  the list is not one block. Twelve links plus labels fit an iPad Air (820px)
-  without the menu scrolling. Group labels stay the small sage caps. Collapsed
-  icon mode keeps the compact 32px target.
+- Nav items are **text-base** on a **32px** row — the type stays large, the
+  pill is a little taller than a line of text. **6px** gaps sit between the
+  items, so the list is not one block. Twelve links plus labels fill an iPad
+  Air (820px) without the menu scrolling. Group labels stay the small sage
+  caps. Collapsed icon mode keeps the compact 32px target.
 - Header and footer are hairlined off the scrolling list (`border-sidebar-border` under the wordmark, above the account). They are flex regions, not overlays, so a line is enough. Collapsed, the toggle sits below a short top inset so it is not flush with the edge.
 - Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages, with extra vertical padding between groups so the sections read apart. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active.
 - Nav states: `--sidebar-hover` (lighter) vs `--sidebar-active` (slightly darker) — not the same color.
@@ -49,7 +49,9 @@ Every app page uses `PageHeader`: optional **eyebrow** + Fraunces **title** + mu
 
 A nested course page (a lesson, the lesson list, My courses) ends with `PageBack` — a ghost `lg` button, arrow plus label (`Back to lessons`, `Back to courses`). It is not in the header: the title stays the title, and leaving is a choice after the work.
 
-A grammar lesson is two beats. First the rule on a card, and **Start practice** (the one filled button). Then the drill; the rule leaves the page. **Show the rule** (ghost) opens it again in a shadcn Drawer from the right, so the practice column stays one job.
+A grammar lesson is two beats. First the rule on a card, and **Start practice** (the one filled button). Then the drill; the rule leaves the page. **Show the rule** (ghost) opens it again in a shadcn Drawer from the right, so the practice column stays one job. Under the question, **Next** is already on the right — disabled until there is a verdict — and Correct or Incorrect takes the left of that same row.
+
+A lesson stores a pool of prompts and deals **eight** when practice starts, covering the rules in a new order each time. The course test keeps every item and only shuffles. Extra prompts in `bank.json` are a later drill, not this sitting.
 
 Header actions share **one size** (`lg`). A page has at most one filled button
 — the thing you came to do; everything beside it is `ghost`. Destructive
@@ -236,7 +238,9 @@ with a mouse is a drill people stop doing:
 - multiple choice — options are numbered **1–4**, and those keys pick them;
 - word builder — typing a letter claims the leftmost tile bearing it,
   **Backspace** hands the last one back;
-- typed formats — **Enter** submits, and **Enter** again moves on.
+- typed formats — **Check** sits on the same row as the field (invisible after
+  a verdict, so the card does not jump); **Enter** submits, and **Enter** again
+  moves on.
 
 **Every training asks where its words come from** before the first question —
 Brainstorm included. Once there is more than one list, "practise" stops being
@@ -246,12 +250,14 @@ Several can be chosen at once, and choosing none means everything. Someone with
 no sets never sees the step at all, because it would be a question with one
 answer.
 
-**An answered question stays on screen.** The verdict appears under it — a
-green tick, or a red cross with the right answer — and the button becomes
-Next. Swapping the question for a panel that says "Correct" removed the answer
-at the exact moment it was worth looking at: seeing which option was right,
-beside the one you picked, is where the learning happens. A right answer says
-almost nothing; it is a wrong one that needs words.
+**An answered question stays on screen.** Next sits on the right of the row
+under the question from the start, disabled until there is a verdict, so the
+card does not grow when the answer lands. Correct or Incorrect takes the left
+of that same row — a green tick, or a red cross with the right answer
+underneath. Swapping the question for a panel that says "Correct" removed the
+answer at the exact moment it was worth looking at: seeing which option was
+right, beside the one you picked, is where the learning happens. A right
+answer says almost nothing; it is a wrong one that needs words.
 
 **Brainstorm opens with the words**, all six in one table with their
 translations and a Start button. An introduction buried inside the drill reads
