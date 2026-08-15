@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { FolderMinus, FolderPlus, Trash2, X } from "lucide-react";
 
@@ -54,12 +54,10 @@ export function WordBulkActions({
   const [newTitle, setNewTitle] = useState("");
   const { state, isMobile } = useSidebar();
 
-  useEffect(() => {
-    if (count === 0) {
-      setSetId("");
-      setNewTitle("");
-    }
-  }, [count]);
+  if (count === 0 && (setId !== "" || newTitle !== "")) {
+    setSetId("");
+    setNewTitle("");
+  }
 
   if (count === 0) return null;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -50,8 +50,16 @@ export function LessonPlayer({
       !isExerciseBlock(block),
   );
   const pool = lessonPool(lesson);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [practicing, setPracticing] = useState(false);
+  const startsInPractice = theory.length === 0;
+  const [exercises, setExercises] = useState<Exercise[]>(() =>
+    startsInPractice
+      ? dealLessonPractice(pool, {
+          take: practiceSessionSize(lesson.slug, pool.length),
+          rng: Math.random,
+        })
+      : [],
+  );
+  const [practicing, setPracticing] = useState(startsInPractice);
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<GrammarAnswered | null>(null);
   const [right, setRight] = useState(0);
@@ -68,12 +76,6 @@ export function LessonPlayer({
     );
     setPracticing(true);
   }
-
-  useEffect(() => {
-    if (theory.length === 0) startPractice();
-    // Deal once if there is no rule to read first.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const current = exercises[index];
   const rule = current
