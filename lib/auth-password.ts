@@ -16,22 +16,33 @@ import {
   normalizeEmail,
   passwordIssue,
 } from "@/lib/password";
+import { DEFAULT_LOCALE, isAppLocale } from "@/lib/i18n/locale";
+import { getLocale } from "next-intl/server";
 
 export type AuthActionResult =
   | { ok: true }
   | { ok: false; error: string };
 
+async function requestLocale() {
+  try {
+    const locale = await getLocale();
+    return isAppLocale(locale) ? locale : DEFAULT_LOCALE;
+  } catch {
+    return DEFAULT_LOCALE;
+  }
+}
+
 async function sendConfirmEmail(email: string) {
   const token = await issueToken("verify", email);
   const url = `${appOrigin()}/verify-email?${new URLSearchParams({ email, token })}`;
-  const copy = confirmEmailCopy(url);
+  const copy = confirmEmailCopy(url, await requestLocale());
   await sendAppEmail({ to: email, ...copy });
 }
 
 async function sendResetEmail(email: string) {
   const token = await issueToken("reset", email);
   const url = `${appOrigin()}/reset-password?${new URLSearchParams({ email, token })}`;
-  const copy = resetEmailCopy(url);
+  const copy = resetEmailCopy(url, await requestLocale());
   await sendAppEmail({ to: email, ...copy });
 }
 
@@ -40,7 +51,7 @@ export async function registerAccount(
   password: string,
 ): Promise<AuthActionResult> {
   if (!isEmail(emailRaw)) {
-    return { ok: false, error: "Enter a valid email address." };
+    return { ok: false, error: "invalidEmail" };
   }
   const issue = passwordIssue(password);
   if (issue) return { ok: false, error: issue };
@@ -53,7 +64,7 @@ export async function registerAccount(
   if (plan === "exists" || plan === "google-only") {
     return {
       ok: false,
-      error: "An account with this email already exists. Sign in.",
+      error: "emailExists",
     };
   }
 
@@ -72,7 +83,7 @@ export async function registerAccount(
     } catch {
       return {
         ok: false,
-        error: "An account with this email already exists. Sign in.",
+        error: "emailExists",
       };
     }
   }
@@ -80,7 +91,7 @@ export async function registerAccount(
   try {
     await sendConfirmEmail(email);
   } catch {
-    return { ok: false, error: "Could not send the confirmation email." };
+    return { ok: false, error: "confirmEmailFailed" };
   }
   return { ok: true };
 }
@@ -89,7 +100,7 @@ export async function requestPasswordReset(
   emailRaw: string,
 ): Promise<AuthActionResult> {
   if (!isEmail(emailRaw)) {
-    return { ok: false, error: "Enter a valid email address." };
+    return { ok: false, error: "invalidEmail" };
   }
 
   const email = normalizeEmail(emailRaw);
@@ -98,7 +109,7 @@ export async function requestPasswordReset(
     try {
       await sendResetEmail(email);
     } catch {
-      return { ok: false, error: "Could not send the reset email." };
+      return { ok: false, error: "resetEmailFailed" };
     }
   }
   return { ok: true };
@@ -110,7 +121,7 @@ export async function completePasswordReset(
   password: string,
 ): Promise<AuthActionResult> {
   if (!isEmail(emailRaw) || !token) {
-    return { ok: false, error: "That reset link is invalid." };
+    return { ok: false, error: "resetLinkInvalid" };
   }
   const issue = passwordIssue(password);
   if (issue) return { ok: false, error: issue };
@@ -120,7 +131,7 @@ export async function completePasswordReset(
   if (!used) {
     return {
       ok: false,
-      error: "That reset link has expired. Ask for a new one.",
+      error: "resetLinkExpired",
     };
   }
 
@@ -139,7 +150,7 @@ export async function confirmEmailAddress(
   token: string | undefined,
 ): Promise<AuthActionResult> {
   if (!emailRaw || !token || !isEmail(emailRaw)) {
-    return { ok: false, error: "That confirmation link is invalid." };
+    return { ok: false, error: "confirmLinkInvalid" };
   }
 
   const email = normalizeEmail(emailRaw);
@@ -147,7 +158,7 @@ export async function confirmEmailAddress(
   if (!used) {
     return {
       ok: false,
-      error: "That confirmation link has expired. Create the account again.",
+      error: "confirmLinkExpired",
     };
   }
 

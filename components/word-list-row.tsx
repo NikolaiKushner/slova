@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Pencil, Trash2, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ export function WordListRow({
   onSelect: (selected: boolean) => void;
   onChanged: () => void;
 }) {
+  const t = useTranslations("dictionary");
   const [editing, setEditing] = useState(false);
   const [front, setFront] = useState(word.front);
   const [back, setBack] = useState(word.back);
@@ -60,7 +62,7 @@ export function WordListRow({
   async function save() {
     if (busy) return;
     if (!front.trim() || !back.trim()) {
-      setError("A word needs a translation.");
+      setError(t("needsTranslation"));
       return;
     }
     if (front.trim() === word.front && back.trim() === word.back) {
@@ -79,7 +81,7 @@ export function WordListRow({
 
     if (!response?.ok) {
       const payload = await response?.json().catch(() => null);
-      setError(payload?.error ?? "Could not save this word.");
+      setError(payload?.error ?? t("couldNotSave"));
       return;
     }
 
@@ -97,7 +99,7 @@ export function WordListRow({
     setBusy(false);
 
     if (!response?.ok) {
-      setError("Could not delete this word.");
+      setError(t("couldNotDelete"));
       return;
     }
 
@@ -112,7 +114,7 @@ export function WordListRow({
         <Checkbox
           checked={selected}
           onCheckedChange={(value) => onSelect(value === true)}
-          aria-label={`Select ${word.front}`}
+          aria-label={t("selectWord", { word: word.front })}
         />
       </TableCell>
       <TableCell className="font-medium">
@@ -121,7 +123,7 @@ export function WordListRow({
             value={front}
             onChange={(event) => setFront(event.target.value)}
             onKeyDown={onKeys(save, cancel)}
-            aria-label="English word"
+            aria-label={t("englishWord")}
             disabled={busy}
             className={cellInput}
             autoFocus
@@ -137,7 +139,7 @@ export function WordListRow({
             value={back}
             onChange={(event) => setBack(event.target.value)}
             onKeyDown={onKeys(save, cancel)}
-            aria-label="Russian translation"
+            aria-label={t("russianTranslation")}
             disabled={busy}
             className={cellInput}
           />
@@ -181,7 +183,7 @@ export function WordListRow({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Save word"
+                aria-label={t("saveWord")}
                 disabled={busy}
                 onClick={save}
                 className={ROW_ICON}
@@ -192,7 +194,7 @@ export function WordListRow({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Cancel editing"
+                aria-label={t("cancelEditing")}
                 disabled={busy}
                 onClick={cancel}
                 className={ROW_ICON}
@@ -206,22 +208,22 @@ export function WordListRow({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`Edit ${word.front}`}
+                aria-label={t("editWord", { word: word.front })}
                 onClick={() => setEditing(true)}
                 className={ROW_ICON}
               >
                 <Pencil strokeWidth={1.75} />
               </Button>
               <ConfirmDelete
-                title={`Delete “${word.front}”?`}
-                description="It leaves the dictionary along with everything the scheduler had learned about it, and every set it is in."
+                title={t("deleteWordTitle", { word: word.front })}
+                description={t("deleteWordBody")}
                 onConfirm={remove}
               >
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Delete ${word.front}`}
+                  aria-label={t("deleteWord", { word: word.front })}
                   className={ROW_ICON_DESTROY}
                 >
                   <Trash2 strokeWidth={1.75} />

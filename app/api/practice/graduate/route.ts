@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 import { scheduleGraduation } from "@/lib/srs";
 
@@ -26,12 +27,12 @@ const schema = z.object({
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid result" }, { status: 400 });
+    return jsonError("invalidResult", 400);
   }
 
   const prisma = getPrisma();
@@ -39,12 +40,9 @@ export async function POST(request: Request) {
     where: { id: parsed.data.wordId, userId: session.user.id },
     select: { id: true, introducedAt: true },
   });
-  if (!word) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!word) return jsonError("notFound", 404);
   if (word.introducedAt) {
-    return NextResponse.json(
-      { error: "That word is already in the schedule." },
-      { status: 409 },
-    );
+    return jsonError("alreadyInSchedule", 409);
   }
 
   const now = new Date();

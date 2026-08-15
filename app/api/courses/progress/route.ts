@@ -2,6 +2,7 @@ import { z } from "zod";
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { CourseContentError } from "@/lib/courses/load";
 import { saveLessonProgress } from "@/lib/courses/progress";
 
@@ -15,13 +16,13 @@ const schema = z.object({
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid progress" }, { status: 400 });
+    return jsonError("invalidProgress", 400);
   }
 
   try {
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ record });
   } catch (error) {
     if (error instanceof CourseContentError) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return jsonError("notFound", 404);
     }
     throw error;
   }

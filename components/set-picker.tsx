@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -40,10 +42,11 @@ export function SetPicker({
   onNewTitleChange: (title: string) => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("dictionary");
   const selectedLabel =
     value === NEW_SET
-      ? "New set…"
-      : (sets.find((set) => set.id === value)?.title ?? "No set");
+      ? t("newSetEllipsis")
+      : (sets.find((set) => set.id === value)?.title ?? t("noSet"));
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -52,21 +55,21 @@ export function SetPicker({
         onValueChange={(next) => onValueChange(next ?? NO_SET)}
         disabled={disabled}
       >
-        <SelectTrigger className="sm:w-64" aria-label="Set">
+        <SelectTrigger className="sm:w-64" aria-label={t("set")}>
           {/* The label is chosen here rather than left to the primitive: the
               "new set" option carries a sentinel for a value, and the trigger
               was rendering that sentinel at the user. */}
-          <SelectValue placeholder="No set">{selectedLabel}</SelectValue>
+          <SelectValue placeholder={t("noSet")}>{selectedLabel}</SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={NO_SET}>No set</SelectItem>
+          <SelectItem value={NO_SET}>{t("noSet")}</SelectItem>
           {sets.map((set) => (
             <SelectItem key={set.id} value={set.id}>
               {set.title}
               {typeof set.wordCount === "number" ? ` · ${set.wordCount}` : ""}
             </SelectItem>
           ))}
-          <SelectItem value={NEW_SET}>New set…</SelectItem>
+          <SelectItem value={NEW_SET}>{t("newSetEllipsis")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -74,8 +77,8 @@ export function SetPicker({
         <Input
           value={newTitle}
           onChange={(event) => onNewTitleChange(event.target.value)}
-          placeholder="Name the new set"
-          aria-label="New set name"
+          placeholder={t("nameNewSet")}
+          aria-label={t("newSetName")}
           disabled={disabled}
           className="sm:w-64"
           autoFocus

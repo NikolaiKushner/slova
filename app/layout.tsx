@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -16,12 +18,6 @@ const fraunces = Fraunces({
   axes: ["SOFT", "WONK", "opsz"],
 });
 
-export const metadata: Metadata = {
-  title: "Slova — words and grammar",
-  description:
-    "Paste English words and study them. Grammar courses explain a rule, then drill it.",
-};
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -29,20 +25,32 @@ export const viewport: Viewport = {
   themeColor: "#EEF2F4",
 };
 
-export default function RootLayout({
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${sourceSans.variable} ${fraunces.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning: password managers / extensions inject attrs on body */}
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        <NextIntlClientProvider>
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
         <Analytics />
         <SpeedInsights />
       </body>

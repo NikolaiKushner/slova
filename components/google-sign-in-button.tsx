@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 import { GoogleIcon } from "@/components/google-icon";
 import { Button } from "@/components/ui/button";
 import { SIGNED_IN_HOME } from "@/lib/auth.config";
 
 export function GoogleSignInButton({ disabled }: { disabled?: boolean }) {
+  const t = useTranslations("auth");
   const [pending, setPending] = useState(false);
 
   return (
@@ -23,7 +25,7 @@ export function GoogleSignInButton({ disabled }: { disabled?: boolean }) {
       }}
     >
       <GoogleIcon className="size-5 rounded-sm bg-white p-0.5" />
-      {pending ? "Opening Google…" : "Continue with Google"}
+      {pending ? t("openingGoogle") : t("continueGoogle")}
     </Button>
   );
 }

@@ -25,7 +25,7 @@ describe("password hashing", () => {
   });
 
   it("rejects short passwords before they are stored", () => {
-    expect(passwordIssue("short")).toMatch(/at least 8/i);
+    expect(passwordIssue("short")).toBe("passwordTooShort");
     expect(passwordIssue("long-enough")).toBeNull();
   });
 });
@@ -62,6 +62,7 @@ describe("auth emails", () => {
       body: "Confirm this email.",
       button: "Confirm email",
       url: URL,
+      ignore: "If you did not ask for this, you can ignore the email.",
     });
     expect(html).toContain(`href="${URL.replace(/&/g, "&amp;")}"`);
     const visible = html.replace(/<[^>]+>/g, " ");

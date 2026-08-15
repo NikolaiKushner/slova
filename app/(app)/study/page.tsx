@@ -1,14 +1,17 @@
+import { getTranslations } from "next-intl/server";
 import { StudySession } from "@/components/study-session";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 
-export default function StudyAllPage() {
+export default async function StudyAllPage() {
+  const t = await getTranslations("study");
+
   return (
     <Page>
       <PageHeader
-        eyebrow="Study"
-        title="Due words"
-        description="Review words that are due today. Flip the card, then mark Again or Know it."
+        eyebrow={t("eyebrow")}
+        title={t("dueTitle")}
+        description={t("dueDescription")}
       />
       <StudySession />
     </Page>

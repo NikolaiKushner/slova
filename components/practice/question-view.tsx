@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Delete, Volume2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,7 @@ function Prompt({
   sound: "ok" | "blocked" | "broken";
   onPlay: () => void;
 }) {
+  const t = useTranslations("practice");
   const hasSound = Boolean(question.speak);
   // Sound is dead and the question showed nothing: without the word on screen
   // there is no exercise left, only a dead end. Show it and let them move on.
@@ -94,7 +96,9 @@ function Prompt({
       ) : rescued ? (
         <p className="font-display text-3xl">{question.speak}</p>
       ) : (
-        <p className="text-brand-soft text-xs tracking-widest uppercase">Listen</p>
+        <p className="text-brand-soft text-xs tracking-widest uppercase">
+          {t("listen")}
+        </p>
       )}
 
       {hasSound && !rescued && (
@@ -103,23 +107,19 @@ function Prompt({
           variant="ghost"
           size={question.prompt ? "sm" : "lg"}
           onClick={onPlay}
-          aria-label="Play the word"
+          aria-label={t("playWord")}
         >
           <Volume2 className={question.prompt ? "size-4" : "size-6"} />
-          {question.prompt ? null : "Play"}
+          {question.prompt ? null : t("play")}
         </Button>
       )}
 
       {sound === "blocked" && !question.prompt && (
-        <p className="text-muted-foreground text-xs">
-          Your browser will not play sound on its own — press Play.
-        </p>
+        <p className="text-muted-foreground text-xs">{t("pressPlay")}</p>
       )}
 
       {rescued && (
-        <p className="text-muted-foreground text-xs">
-          No sound on this device, so here is the word instead.
-        </p>
+        <p className="text-muted-foreground text-xs">{t("noSoundShowWord")}</p>
       )}
     </div>
   );
@@ -209,6 +209,8 @@ function Builder({
   question: Extract<Question, { letters: string[] }>;
   onAnswered: (result: Answered) => void;
 }) {
+  const t = useTranslations("practice");
+  const common = useTranslations("common");
   const [picked, setPicked] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const [right, setRight] = useState(false);
@@ -313,10 +315,10 @@ function Builder({
             variant="ghost"
             size="sm"
             onClick={() => setPicked(picked.slice(0, -1))}
-            aria-label="Undo the last letter" 
+            aria-label={t("undoLetter")}
           >
             <Delete className="size-4" />
-            Undo
+            {common("undo")}
           </Button>
         </div>
       )}
@@ -334,6 +336,8 @@ function Typed({
   const [value, setValue] = useState("");
   const [done, setDone] = useState(false);
   const [right, setRight] = useState(false);
+  const t = useTranslations("practice");
+  const common = useTranslations("common");
 
   function submit() {
     if (done || !value.trim()) return;
@@ -354,8 +358,8 @@ function Typed({
             submit();
           }
         }}
-        placeholder="Type the English word"
-        aria-label="Your answer"
+        placeholder={t("typeEnglish")}
+        aria-label={t("yourAnswer")}
         disabled={done}
         autoFocus
         autoCapitalize="off"
@@ -373,7 +377,7 @@ function Typed({
         disabled={done || !value.trim()}
         className={done ? "invisible" : undefined}
       >
-        Check
+        {common("check")}
       </Button>
     </div>
   );
@@ -396,6 +400,7 @@ export function AnswerFeedback({
   onNext: () => void;
 }) {
   const nextRef = useRef<HTMLButtonElement>(null);
+  const common = useTranslations("common");
   const right = result ? passed(result.verdict) : false;
 
   useEffect(() => {
@@ -422,17 +427,17 @@ export function AnswerFeedback({
           {right ? (
             <>
               <Check className="size-4 shrink-0" />
-              Correct
+              {common("correct")}
             </>
           ) : result?.verdict === "almost" ? (
             <>
               <Check className="size-4 shrink-0" />
-              Almost
+              {common("almost")}
             </>
           ) : (
             <>
               <X className="size-4 shrink-0" />
-              Incorrect
+              {common("incorrect")}
             </>
           )}
         </p>
@@ -443,12 +448,16 @@ export function AnswerFeedback({
           disabled={!result}
           onClick={onNext}
         >
-          Next
+          {common("next")}
         </Button>
       </div>
       {result && !right ? (
         <p className="text-muted-foreground text-sm">
-          It is <span className="text-foreground font-medium">{answer}</span>
+          {common.rich("itIs", {
+            answer: () => (
+              <span className="text-foreground font-medium">{answer}</span>
+            ),
+          })}
         </p>
       ) : null}
     </div>

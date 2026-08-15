@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getOwnedSet } from "@/lib/ownership";
 import { notFound } from "next/navigation";
 import { StudySession } from "@/components/study-session";
@@ -9,21 +10,22 @@ type Props = { params: Promise<{ setId: string }> };
 
 export default async function StudySetPage({ params }: Props) {
   const { setId } = await params;
+  const t = await getTranslations("study");
   const set = await getOwnedSet(setId);
   if (!set) notFound();
 
   return (
     <Page>
       <PageHeader
-        eyebrow="Study"
+        eyebrow={t("eyebrow")}
         title={set.title}
-        description="Study due words from this set. Flip the card, then mark Again or Know it."
+        description={t("setDescription")}
         actions={
           <Link
             href={`/dictionary/sets/${set.id}`}
             className="text-sm text-teal-800 hover:underline"
           >
-            Open set
+            {t("openSet")}
           </Link>
         }
       />

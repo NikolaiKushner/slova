@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Section } from "@/components/section";
 import type { Overview } from "@/lib/overview";
@@ -13,60 +14,62 @@ import { cn } from "@/lib/utils";
  * is the shape of the answer to "am I getting anywhere": the green end grows.
  */
 export function OverviewStats({ overview }: { overview: Overview }) {
+  const t = useTranslations("overview");
+
   if (overview.words === 0) {
     return (
-      <Section title="Your words">
+      <Section title={t("yourWords")}>
         <p className="text-muted-foreground text-sm">
-          Nothing yet.{" "}
-          <Link href="/dictionary" className="text-primary underline">
-            Add a few words
-          </Link>{" "}
-          and this fills in.
+          {t.rich("nothingYet", {
+            link: (chunks) => (
+              <Link href="/dictionary" className="text-primary underline">
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
       </Section>
     );
   }
 
   const bands = [
-    { label: "Learned", value: overview.learned, className: "bg-primary" },
-    { label: "Learning", value: overview.learning, className: "bg-brand-soft" },
-    { label: "Not started", value: overview.fresh, className: "bg-border" },
+    { key: "learned" as const, value: overview.learned, className: "bg-primary" },
+    { key: "learning" as const, value: overview.learning, className: "bg-brand-soft" },
+    { key: "notStarted" as const, value: overview.fresh, className: "bg-border" },
   ].filter((band) => band.value > 0);
 
   return (
-    <Section title="Your words" hint={`${overview.words} in the dictionary`}>
+    <Section title={t("yourWords")} hint={t("inDictionary", { count: overview.words })}>
       <div className="space-y-4">
         <div className="bg-border flex h-2 overflow-hidden rounded-full">
           {bands.map((band) => (
             <span
-              key={band.label}
+              key={band.key}
               className={cn("h-full", band.className)}
               style={{ width: `${(band.value / overview.words) * 100}%` }}
-              title={`${band.label}: ${band.value}`}
+              title={`${t(band.key)}: ${band.value}`}
             />
           ))}
         </div>
 
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
           {bands.map((band) => (
-            <span key={band.label} className="flex items-center gap-2">
+            <span key={band.key} className="flex items-center gap-2">
               <span className={cn("size-2 rounded-full", band.className)} />
               <span className="font-medium">{band.value}</span>
-              <span className="text-muted-foreground">{band.label.toLowerCase()}</span>
+              <span className="text-muted-foreground">{t(band.key).toLowerCase()}</span>
             </span>
           ))}
           {overview.sets > 0 && (
             <span className="text-muted-foreground">
-              in {overview.sets} {overview.sets === 1 ? "set" : "sets"}
+              {t("inSets", { count: overview.sets })}
             </span>
           )}
         </div>
 
         {overview.hitRate !== null && (
           <p className="text-muted-foreground text-xs">
-            {Math.round(overview.hitRate * 100)}% of translations came from the
-            shared dictionary rather than being generated — those were instant
-            and cost nothing.
+            {t("hitRate", { percent: Math.round(overview.hitRate * 100) })}
           </p>
         )}
       </div>

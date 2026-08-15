@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const q = (new URL(request.url).searchParams.get("q") ?? "")

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
@@ -18,6 +19,8 @@ export default async function SetPage({ params }: Props) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
+  const t = await getTranslations("dictionary");
+  const chrome = await getTranslations("chrome");
   const { id } = await params;
   const set = await getPrisma().wordSet.findFirst({
     where: { id, userId: session.user.id },
@@ -39,9 +42,14 @@ export default async function SetPage({ params }: Props) {
   return (
     <Page>
       <PageHeader
-        eyebrow="Set"
+        eyebrow={t("setEyebrow")}
         title={set.title}
-        description={setSummary(words.length, dueCount, unseenCount)}
+        description={setSummary(words.length, dueCount, unseenCount, {
+          words: (count) => t("summaryWords", { count }),
+          due: (count) => t("summaryDue", { count }),
+          unseen: (count) => t("summaryNew", { count }),
+          caughtUp: t("summaryCaughtUp"),
+        })}
         actions={
           <>
             {studiable > 0 ? (
@@ -49,7 +57,7 @@ export default async function SetPage({ params }: Props) {
                 href={`/study/${set.id}`}
                 className={cn(buttonVariants({ size: "lg" }))}
               >
-                Study due
+                {t("studyDue")}
               </Link>
             ) : null}
             <DeleteSetButton setId={set.id} />
@@ -58,7 +66,10 @@ export default async function SetPage({ params }: Props) {
       />
 
       <div className="space-y-10">
-        <Section title="Words" hint={`${words.length} saved`}>
+        <Section
+          title={chrome("words")}
+          hint={t("wordsSaved", { count: words.length })}
+        >
           {words.length > 0 ? (
             <SetWords
               setId={set.id}
@@ -70,12 +81,12 @@ export default async function SetPage({ params }: Props) {
             />
           ) : (
             <p className="rounded-2xl border border-dashed border-border bg-white/50 px-3 py-8 text-center text-sm text-muted-foreground">
-              This set is empty. Add words below.
+              {t("emptySet")}
             </p>
           )}
         </Section>
 
-        <Section title="Add more words">
+        <Section title={t("addMore")}>
           <AddWordsPanel setId={set.id} />
         </Section>
       </div>

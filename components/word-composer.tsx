@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,9 @@ export function WordComposer({
   onChange: (rows: ComposerRow[]) => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("dictionary");
+  const common = useTranslations("common");
+
   const edit = (id: string, patch: Partial<ComposerRow>) => {
     onChange(
       withTrailingBlank(
@@ -103,9 +107,9 @@ export function WordComposer({
       <div
         className={cn(WORD_GRID, COLUMN_HEADER)}
       >
-        <span>English</span>
-        <span>Russian</span>
-        <span className="sr-only">Remove</span>
+        <span>{common("english")}</span>
+        <span>{common("russian")}</span>
+        <span className="sr-only">{t("remove")}</span>
       </div>
       {/* Ten rows fit; past that it scrolls rather than pushing the set
           picker and the button off the screen. */}
@@ -114,8 +118,8 @@ export function WordComposer({
           <div key={row.id} className={cn(WORD_GRID, "group")}>
             <Cell
               value={row.front}
-              placeholder={index === rows.length - 1 ? "Type or paste" : ""}
-              aria-label="English word"
+              placeholder={index === rows.length - 1 ? t("typeOrPaste") : ""}
+              aria-label={t("englishWord")}
               disabled={disabled}
               onChange={(front) => edit(row.id, { front })}
               onPasteText={(text) => pasteInto(row.id, text)}
@@ -123,9 +127,9 @@ export function WordComposer({
             <Cell
               value={row.back}
               placeholder={
-                index === rows.length - 1 ? "or leave it to us" : ""
+                index === rows.length - 1 ? t("orLeaveIt") : ""
               }
-              aria-label="Russian translation"
+              aria-label={t("russianTranslation")}
               disabled={disabled}
               muted={row.filled}
               onChange={(back) => edit(row.id, { back })}
@@ -136,7 +140,7 @@ export function WordComposer({
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Remove ${row.front}`}
+                  aria-label={t("removeWord", { word: row.front })}
                   className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100"
                   onClick={() => remove(row.id)}
                 >

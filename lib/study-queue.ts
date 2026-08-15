@@ -31,16 +31,31 @@ export function sessionTotal(
   return dueReviews + Math.min(unseen, allowance);
 }
 
+export type SetSummaryCopy = {
+  words: (count: number) => string;
+  due: (count: number) => string;
+  unseen: (count: number) => string;
+  caughtUp: string;
+};
+
+export const EN_SET_SUMMARY: SetSummaryCopy = {
+  words: (count) => `${count} word${count === 1 ? "" : "s"}`,
+  due: (count) => `${count} due`,
+  unseen: (count) => `${count} new`,
+  caughtUp: "all caught up",
+};
+
 /** One-line state of a set: size, what came back, what has never been seen. */
 export function setSummary(
   total: number,
   dueReviews: number,
   unseen: number,
+  copy: SetSummaryCopy = EN_SET_SUMMARY,
 ): string {
-  const parts = [`${total} word${total === 1 ? "" : "s"}`];
-  if (dueReviews > 0) parts.push(`${dueReviews} due`);
-  if (unseen > 0) parts.push(`${unseen} new`);
-  if (total > 0 && dueReviews === 0 && unseen === 0) parts.push("all caught up");
+  const parts = [copy.words(total)];
+  if (dueReviews > 0) parts.push(copy.due(dueReviews));
+  if (unseen > 0) parts.push(copy.unseen(unseen));
+  if (total > 0 && dueReviews === 0 && unseen === 0) parts.push(copy.caughtUp);
   return parts.join(" · ");
 }
 

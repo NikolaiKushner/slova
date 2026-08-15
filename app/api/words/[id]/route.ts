@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { toWordUpdateData, wordUpdateSchema } from "@/lib/words";
@@ -9,7 +10,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function PATCH(request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const { id } = await params;
@@ -18,16 +19,13 @@ export async function PATCH(request: Request, { params }: Params) {
     select: { id: true },
   });
   if (!existing) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   const body = await request.json().catch(() => null);
   const parsed = wordUpdateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "A word and its translation cannot be empty." },
-      { status: 400 },
-    );
+    return jsonError("emptyPair", 400);
   }
 
   const data = toWordUpdateData(parsed.data);
@@ -41,10 +39,7 @@ export async function PATCH(request: Request, { params }: Params) {
       select: { id: true },
     });
     if (clash) {
-      return NextResponse.json(
-        { error: "You already have that word." },
-        { status: 409 },
-      );
+      return jsonError("alreadyHaveWord", 409);
     }
   }
 
@@ -59,7 +54,7 @@ export async function PATCH(request: Request, { params }: Params) {
 export async function DELETE(_request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const { id } = await params;
@@ -68,7 +63,7 @@ export async function DELETE(_request: Request, { params }: Params) {
     select: { id: true },
   });
   if (!existing) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   await getPrisma().userWord.delete({ where: { id } });

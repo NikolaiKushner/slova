@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
 
 import type { Exercise, Rule } from "@/content/courses/schema";
@@ -114,6 +115,9 @@ function Typed({
   const [value, setValue] = useState("");
   const [done, setDone] = useState(false);
   const [right, setRight] = useState(false);
+  const t = useTranslations("courses");
+  const practice = useTranslations("practice");
+  const common = useTranslations("common");
 
   function submit() {
     if (done || !value.trim()) return;
@@ -136,8 +140,10 @@ function Typed({
               submit();
             }
           }}
-          placeholder={exercise.kind === "transform" ? "Type the new sentence" : "Type the form"}
-          aria-label="Your answer"
+          placeholder={
+            exercise.kind === "transform" ? t("typeSentence") : t("typeForm")
+          }
+          aria-label={practice("yourAnswer")}
           disabled={done}
           autoFocus
           autoCapitalize="off"
@@ -155,7 +161,7 @@ function Typed({
           disabled={done || !value.trim()}
           className={done ? "invisible" : undefined}
         >
-          Check
+          {common("check")}
         </Button>
       </div>
     </div>
@@ -193,6 +199,7 @@ export function GrammarFeedback({
   onNext: () => void;
 }) {
   const nextRef = useRef<HTMLButtonElement>(null);
+  const common = useTranslations("common");
   const right = result?.verdict === "correct";
 
   useEffect(() => {
@@ -217,12 +224,12 @@ export function GrammarFeedback({
           {right ? (
             <>
               <Check className="size-4 shrink-0" />
-              Correct
+              {common("correct")}
             </>
           ) : (
             <>
               <X className="size-4 shrink-0" />
-              Incorrect
+              {common("incorrect")}
             </>
           )}
         </p>
@@ -233,12 +240,16 @@ export function GrammarFeedback({
           disabled={!result}
           onClick={onNext}
         >
-          Next
+          {common("next")}
         </Button>
       </div>
       {result && !right ? (
         <p className="text-muted-foreground text-sm leading-relaxed">
-          It is <span className="text-foreground font-medium">{answer}</span>
+          {common.rich("itIs", {
+            answer: () => (
+              <span className="text-foreground font-medium">{answer}</span>
+            ),
+          })}
           {rule ? <> · {mdToNodes(rule.anchorMd)}</> : null}
         </p>
       ) : null}

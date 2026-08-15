@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,6 +19,8 @@ type Props = {
 };
 
 export function StudySession({ setId }: Props) {
+  const t = useTranslations("study");
+  const common = useTranslations("common");
   const [words, setWords] = useState<StudyWord[]>([]);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -131,22 +134,22 @@ export function StudySession({ setId }: Props) {
   }, [words, done, flipped, index, rate, undo]);
 
   if (loading) {
-    return <p className="text-muted-foreground">Loading words…</p>;
+    return <p className="text-muted-foreground">{t("loading")}</p>;
   }
 
   if (done || !word) {
     return (
       <div className="space-y-4 text-center">
-        <h2 className="font-display text-3xl tracking-tight">Nice work</h2>
+        <h2 className="font-display text-3xl tracking-tight">{t("niceWork")}</h2>
         <p className="text-muted-foreground">
-          Reviewed {reviewed} {reviewed === 1 ? "word" : "words"} this session.
+          {t("reviewedSession", { count: reviewed })}
         </p>
         <div className="flex items-center justify-center gap-3">
           <Link
             href="/tasks/today"
             className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
           >
-            Back home
+            {t("backHome")}
           </Link>
           {history.length > 0 ? (
             <Button
@@ -157,7 +160,7 @@ export function StudySession({ setId }: Props) {
               onClick={undo}
             >
               <Undo2 />
-              Undo last
+              {t("undoLast")}
             </Button>
           ) : null}
         </div>
@@ -171,7 +174,7 @@ export function StudySession({ setId }: Props) {
         <span>
           {index + 1} / {words.length}
         </span>
-        <span>{reviewed} done</span>
+        <span>{t("doneCount", { count: reviewed })}</span>
       </div>
 
       <button
@@ -180,7 +183,7 @@ export function StudySession({ setId }: Props) {
         className="study-card group relative flex min-h-56 w-full flex-col items-center justify-center rounded-2xl border border-border bg-white px-8 py-10 text-center shadow-sm transition duration-300 hover:shadow-md"
       >
         <span className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
-          {flipped ? "Translation" : "Word"}
+          {flipped ? common("translation") : common("word")}
         </span>
         <span className="font-display text-4xl leading-tight tracking-tight text-foreground transition duration-300 sm:text-5xl">
           {flipped ? word.back : word.front}
@@ -189,7 +192,7 @@ export function StudySession({ setId }: Props) {
           <p className="mt-4 text-sm text-muted-foreground">{word.example}</p>
         ) : null}
         <span className="mt-6 text-xs text-muted-foreground">
-          Tap to {flipped ? "hide" : "reveal"}
+          {flipped ? t("tapHide") : t("tapReveal")}
         </span>
       </button>
 
@@ -201,7 +204,7 @@ export function StudySession({ setId }: Props) {
           disabled={!flipped || busy}
           onClick={() => rate("again")}
         >
-          Again
+          {t("again")}
         </Button>
         <Button
           type="button"
@@ -210,7 +213,7 @@ export function StudySession({ setId }: Props) {
           onClick={() => rate("good")}
           className="bg-teal-800 text-white hover:bg-teal-900"
         >
-          Know it
+          {t("knowIt")}
         </Button>
       </div>
 
@@ -223,11 +226,9 @@ export function StudySession({ setId }: Props) {
           onClick={undo}
         >
           <Undo2 />
-          Undo
+          {common("undo")}
         </Button>
-        <span className="hidden sm:block">
-          Space to flip · 1 again · 2 know it · Z undo
-        </span>
+        <span className="hidden sm:block">{t("shortcuts")}</span>
       </div>
     </div>
   );

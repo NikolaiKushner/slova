@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
@@ -16,12 +17,15 @@ export default async function TrainingPage({ params }: Params) {
   const training = trainingBySlug(slug);
   if (!training) notFound();
 
+  const t = await getTranslations("practice");
+  const copy = await getTranslations("trainings");
+
   return (
     <Page>
       <PageHeader
-        eyebrow="Practice"
-        title={training.title}
-        description={training.description}
+        eyebrow={t("eyebrow")}
+        title={copy(`${training.id}.title`)}
+        description={copy(`${training.id}.description`)}
       />
 
       <TrainingRunner training={training} />

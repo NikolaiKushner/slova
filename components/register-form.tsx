@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { LegalLinks } from "@/components/site-chrome";
 import { registerAction } from "@/lib/auth-actions";
+import { formatAuthError } from "@/lib/i18n/auth-error";
 import { MIN_PASSWORD_LENGTH } from "@/lib/password-rules";
 
 export function RegisterForm() {
+  const t = useTranslations("auth");
+  const errors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -20,9 +24,7 @@ export function RegisterForm() {
   if (sentTo) {
     return (
       <div className="space-y-4">
-        <p className="text-base text-foreground">
-          Check {sentTo} and confirm the address. Then you can sign in.
-        </p>
+        <p className="text-base text-foreground">{t("checkEmail", { email: sentTo })}</p>
         <Button
           type="button"
           variant="ghost"
@@ -30,7 +32,7 @@ export function RegisterForm() {
           className="min-h-11 px-4"
           render={<Link href="/login" />}
         >
-          Back to sign in
+          {t("backToSignIn")}
         </Button>
       </div>
     );
@@ -48,21 +50,21 @@ export function RegisterForm() {
           const confirm = String(form.get("confirm") ?? "");
           setError(null);
           if (password !== confirm) {
-            setError("Passwords do not match.");
+            setError(errors("passwordsMismatch"));
             return;
           }
           setPending(true);
           const result = await registerAction(email, password);
           setPending(false);
           if (!result.ok) {
-            setError(result.error);
+            setError(formatAuthError(errors, result.error));
             return;
           }
           setSentTo(email.trim().toLowerCase());
         }}
       >
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("email")}</Label>
           <Input
             id="email"
             name="email"
@@ -76,7 +78,7 @@ export function RegisterForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t("password")}</Label>
           <Input
             id="password"
             name="password"
@@ -88,11 +90,11 @@ export function RegisterForm() {
             disabled={pending}
           />
           <p className="text-xs text-muted-foreground">
-            At least {MIN_PASSWORD_LENGTH} characters.
+            {t("passwordHint", { count: MIN_PASSWORD_LENGTH })}
           </p>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{t("confirmPassword")}</Label>
           <Input
             id="confirm"
             name="confirm"
@@ -111,7 +113,7 @@ export function RegisterForm() {
           className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
           disabled={pending}
         >
-          {pending ? "Creating account…" : "Create account"}
+          {pending ? t("creatingAccount") : t("createAccount")}
         </Button>
       </form>
 
@@ -119,7 +121,7 @@ export function RegisterForm() {
         <Separator />
         <span className="absolute inset-0 flex items-center justify-center">
           <span className="bg-card px-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-            or
+            {t("or")}
           </span>
         </span>
       </div>
@@ -127,10 +129,16 @@ export function RegisterForm() {
       <GoogleSignInButton disabled={pending} />
 
       <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
-          Sign in
-        </Link>
+        {t.rich("alreadyHaveAccount", {
+          link: (chunks) => (
+            <Link
+              href="/login"
+              className="text-foreground underline-offset-4 hover:underline"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
       <LegalLinks className="text-center text-sm text-muted-foreground" />
     </div>

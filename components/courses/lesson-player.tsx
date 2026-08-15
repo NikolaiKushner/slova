@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   isExerciseBlock,
@@ -42,13 +43,23 @@ export function LessonPlayer({
   lesson: Lesson;
   rules: Rule[];
 }) {
+  const t = useTranslations("courses");
+  const common = useTranslations("common");
   const theory = lesson.blocks.filter(
     (block): block is Exclude<typeof block, { type: "exercise" }> =>
       !isExerciseBlock(block),
   );
   const pool = lessonPool(lesson);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [practicing, setPracticing] = useState(false);
+  const startsInPractice = theory.length === 0;
+  const [exercises, setExercises] = useState<Exercise[]>(() =>
+    startsInPractice
+      ? dealLessonPractice(pool, {
+          take: practiceSessionSize(lesson.slug, pool.length),
+          rng: Math.random,
+        })
+      : [],
+  );
+  const [practicing, setPracticing] = useState(startsInPractice);
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<GrammarAnswered | null>(null);
   const [right, setRight] = useState(0);
@@ -65,12 +76,6 @@ export function LessonPlayer({
     );
     setPracticing(true);
   }
-
-  useEffect(() => {
-    if (theory.length === 0) startPractice();
-    // Deal once if there is no rule to read first.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const current = exercises[index];
   const rule = current
@@ -111,11 +116,11 @@ export function LessonPlayer({
 
   if (!practicing && theory.length > 0) {
     return (
-      <Section title="The rule">
+      <Section title={t("theRule")}>
         <TheoryView blocks={theory} />
         <div className="mt-6">
           <Button size="lg" onClick={startPractice}>
-            Start practice
+            {t("startPractice")}
           </Button>
         </div>
       </Section>
@@ -124,11 +129,12 @@ export function LessonPlayer({
 
   if (finished) {
     return (
-      <Section title="This lesson" hint={`${right} of ${exercises.length}`}>
+      <Section
+        title={t("thisLesson")}
+        hint={common("of", { right, total: exercises.length })}
+      >
         <p className="text-muted-foreground">
-          {right === exercises.length
-            ? "Every one right."
-            : "You can go through it again whenever you like."}
+          {right === exercises.length ? t("everyRight") : t("tryAgain")}
         </p>
       </Section>
     );
@@ -136,16 +142,16 @@ export function LessonPlayer({
 
   if (!current) {
     return (
-      <Section title="This lesson">
-        <p className="text-muted-foreground">This lesson has no exercises yet.</p>
+      <Section title={t("thisLesson")}>
+        <p className="text-muted-foreground">{t("noExercises")}</p>
       </Section>
     );
   }
 
   return (
     <Section
-      title="Practice"
-      hint={`${index + 1} of ${exercises.length}`}
+      title={t("practice")}
+      hint={common("of", { right: index + 1, total: exercises.length })}
       action={
         theory.length > 0 ? (
           <RuleDrawer title={lesson.title} blocks={theory} />
@@ -178,14 +184,17 @@ function RuleDrawer({
   title: string;
   blocks: Exclude<Lesson["blocks"][number], { type: "exercise" }>[];
 }) {
+  const t = useTranslations("courses");
+  const common = useTranslations("common");
+
   return (
     <Drawer swipeDirection="right">
       <DrawerTrigger render={<Button variant="ghost" />}>
-        Show the rule
+        {t("showTheRule")}
       </DrawerTrigger>
       <DrawerContent className="data-[swipe-axis=x]:[--drawer-content-width:min(32rem,92vw)]">
         <DrawerHeader className="relative pr-12">
-          <DrawerTitle>The rule</DrawerTitle>
+          <DrawerTitle>{t("theRule")}</DrawerTitle>
           <DrawerDescription>{title}</DrawerDescription>
           <DrawerClose
             render={
@@ -197,7 +206,7 @@ function RuleDrawer({
             }
           >
             <X />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{common("close")}</span>
           </DrawerClose>
         </DrawerHeader>
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">

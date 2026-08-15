@@ -1,15 +1,11 @@
+import { useTranslations } from "next-intl";
+
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
+import type en from "@/messages/en.json";
 
-type Props = {
-  /** The section this page belongs to — Tasks, Practice, Courses. */
-  eyebrow: string;
-  title: string;
-  description: string;
-  /** What this page will hold. Concrete beats "coming soon". */
-  planned: readonly string[];
-};
+type ComingSoonPage = keyof typeof en.comingSoon;
 
 /**
  * The placeholder every unbuilt page uses.
@@ -19,11 +15,19 @@ type Props = {
  * is built from `PageHeader` + `Section` like any real page, so when a page
  * gets its content the frame around it does not change.
  */
-export function ComingSoon({ eyebrow, title, description, planned }: Props) {
+export function ComingSoon({ page }: { page: ComingSoonPage }) {
+  const t = useTranslations(`comingSoon.${page}`);
+  const common = useTranslations("common");
+  const planned = t.raw("planned") as string[];
+
   return (
     <Page>
-      <PageHeader eyebrow={eyebrow} title={title} description={description} />
-      <Section title="Planned">
+      <PageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
+      />
+      <Section title={common("planned")}>
         <ul className="space-y-2 rounded-2xl border border-dashed border-border bg-white/50 px-5 py-6 text-muted-foreground">
           {planned.map((line) => (
             <li key={line} className="flex gap-3">

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 import {
   Sidebar,
@@ -50,6 +51,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { NAV_SECTIONS, isNavItemActive } from "@/lib/nav";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 
 /**
  * Icons are keyed by href instead of living in `lib/nav.ts`, so the nav model
@@ -101,8 +103,9 @@ function SidebarBrandHeader() {
 function SidebarUserMenu() {
   const { data } = useSession();
   const { isMobile } = useSidebar();
+  const t = useTranslations("chrome");
   const email = data?.user?.email ?? "";
-  const name = data?.user?.name || email.split("@")[0] || "Account";
+  const name = data?.user?.name || email.split("@")[0] || t("account");
   const initials = userInitials(data?.user?.name, email);
 
   return (
@@ -153,12 +156,16 @@ function SidebarUserMenu() {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <div className="px-1 py-1">
+          <LocaleSwitcher />
+        </div>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
           onClick={() => signOut({ callbackUrl: "/" })}
         >
           <LogOut />
-          Log out
+          {t("logOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -167,6 +174,7 @@ function SidebarUserMenu() {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
 
   return (
     <Sidebar collapsible="icon" className="h-dvh border-sidebar-border">
@@ -174,24 +182,29 @@ export function AppSidebar() {
 
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
-          <SidebarGroup key={section.title} className="py-4">
+          <SidebarGroup key={section.titleKey} className="py-4">
             <SidebarGroupLabel className="h-7 text-xs tracking-[0.14em] text-brand-soft group-data-[collapsible=icon]:-mt-7">
-              {section.title}
+              {t(section.titleKey)}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-1.5">
                 {section.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
+                  const sectionTitle = t(section.titleKey);
+                  const itemTitle = t(item.titleKey);
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
                         render={<Link href={item.href} />}
                         isActive={isNavItemActive(pathname, item.href)}
-                        tooltip={`${section.title} \u00b7 ${item.title}`}
+                        tooltip={t("sectionItem", {
+                          section: sectionTitle,
+                          item: itemTitle,
+                        })}
                         className="h-8 py-0 text-base leading-none [&_svg]:size-4"
                       >
                         {Icon ? <Icon /> : null}
-                        <span>{item.title}</span>
+                        <span>{itemTitle}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 import { ratingOf } from "@/lib/word-rating";
 import { recordTranslations } from "@/lib/lexicon/write";
@@ -27,7 +28,7 @@ import {
 export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const query = parseWordsQuery(new URL(request.url).searchParams);
@@ -99,31 +100,22 @@ const schema = z.object({
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
   const userId = session.user.id;
   if (!(await allowAttemptDurable(`words:${userId}`, 40, 60 * 60 * 1000))) {
-    return NextResponse.json(
-      { error: "Too many writes. Try again in a while." },
-      { status: 429 },
-    );
+    return jsonError("tooManyWrites", 429);
   }
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Each word needs a word and a translation." },
-      { status: 400 },
-    );
+    return jsonError("eachNeedsPair", 400);
   }
 
   const { words, setId, setTitle, source } = parsed.data;
   if (setId && setTitle) {
-    return NextResponse.json(
-      { error: "Choose an existing set or name a new one, not both." },
-      { status: 400 },
-    );
+    return jsonError("chooseSetOrName", 400);
   }
 
   const prisma = getPrisma();
@@ -137,7 +129,7 @@ export async function POST(request: Request) {
       select: { id: true },
     });
     if (!set) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return jsonError("notFound", 404);
     }
     targetSetId = set.id;
   } else if (setTitle) {
@@ -169,10 +161,7 @@ export async function POST(request: Request) {
   }
 
   if (result.added === 0 && result.alreadyKnown === 0) {
-    return NextResponse.json(
-      { error: "No complete words. Each word needs a translation." },
-      { status: 400 },
-    );
+    return jsonError("noCompleteWords", 400);
   }
 
   return NextResponse.json({ ...result, setId: targetSetId });
@@ -188,12 +177,12 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const parsed = bulkIdsSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Which words?" }, { status: 400 });
+    return jsonError("whichWords", 400);
   }
 
   const { count } = await getPrisma().userWord.deleteMany({
@@ -211,13 +200,13 @@ export async function DELETE(request: Request) {
 export async function PATCH(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
   const userId = session.user.id;
 
   const parsed = filingSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Which words, and where?" }, { status: 400 });
+    return jsonError("whichWordsWhere", 400);
   }
 
   const prisma = getPrisma();
@@ -226,7 +215,7 @@ export async function PATCH(request: Request) {
     select: { id: true },
   });
   if (words.length === 0) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return jsonError("notFound", 404);
   }
 
   let targetSetId: string;
@@ -235,7 +224,7 @@ export async function PATCH(request: Request) {
       where: { id: parsed.data.setId, userId },
       select: { id: true },
     });
-    if (!set) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!set) return jsonError("notFound", 404);
     targetSetId = set.id;
   } else {
     targetSetId = await findOrCreateSet(userId, parsed.data.setTitle!);

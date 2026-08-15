@@ -30,7 +30,7 @@ export async function registerAction(
 ): Promise<AuthActionResult> {
   const ip = await clientIp();
   if (!(await allowAttemptDurable(`register:ip:${ip}`, 8, HOUR_MS))) {
-    return { ok: false, error: "Too many attempts. Try again in a while." };
+    return { ok: false, error: "tooManyAttempts" };
   }
   return registerAccount(email, password);
 }

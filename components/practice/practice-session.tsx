@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,6 +45,7 @@ export function PracticeSession({
   /** Empty means the whole dictionary. */
   setIds: string[];
 }) {
+  const t = useTranslations("practice");
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [voice, setVoice] = useState<boolean | null>(null);
@@ -123,20 +125,15 @@ export function PracticeSession({
   }
 
   if (needsAudio(kind) && voice === false) {
-    return (
-      <Empty
-        title="No English voice on this device"
-        body="This training reads words aloud, and the browser has no English voice installed. The other trainings work without one."
-      />
-    );
+    return <Empty title={t("noVoiceTitle")} body={t("noVoiceBody")} />;
   }
 
   if (words.length === 0) {
     return (
       <Empty
-        title="No words to practise yet"
-        body="Add a few words to your dictionary and they will show up here."
-        action={{ href: "/dictionary", label: "Go to my words" }}
+        title={t("noWordsTitle")}
+        body={t("noWordsBody")}
+        action={{ href: "/dictionary", label: t("goToMyWords") }}
       />
     );
   }
@@ -144,13 +141,9 @@ export function PracticeSession({
   if (index >= words.length) {
     return (
       <Empty
-        title={`${right} of ${words.length} right`}
-        body={
-          right === words.length
-            ? "Every word. The ones you got right come back later; the rest come back sooner."
-            : "The ones you missed come back sooner than the ones you knew."
-        }
-        action={{ href: "/practice", label: "Back to trainings" }}
+        title={t("scoreTitle", { right, total: words.length })}
+        body={right === words.length ? t("allRight") : t("someMissed")}
+        action={{ href: "/practice", label: t("backToTrainings") }}
       />
     );
   }
@@ -158,7 +151,7 @@ export function PracticeSession({
   return (
     <div className="space-y-8">
       <p className="text-brand-soft text-center text-xs tracking-widest uppercase">
-        {title} · {index + 1} of {words.length}
+        {t("progress", { title, current: index + 1, total: words.length })}
       </p>
 
       {/* The question stays put once answered — the coloured option beside

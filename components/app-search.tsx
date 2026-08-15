@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { BookOpen, Library, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ type SearchWord = {
 };
 
 export function AppSearch({ className }: { className?: string }) {
+  const t = useTranslations("chrome");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -108,8 +110,8 @@ export function AppSearch({ className }: { className?: string }) {
           className,
         )}
         onClick={() => onOpenChange(true)}
-        aria-label="Search"
-        title="Search (⌘K)"
+        aria-label={t("search")}
+        title={t("searchTitle")}
       >
         <Search />
       </Button>
@@ -120,15 +122,15 @@ export function AppSearch({ className }: { className?: string }) {
           className="gap-0 overflow-hidden p-0 sm:max-w-lg"
         >
           <DialogHeader className="border-b border-border px-4 py-3 text-left">
-            <DialogTitle className="sr-only">Search</DialogTitle>
+            <DialogTitle className="sr-only">{t("search")}</DialogTitle>
             <DialogDescription className="sr-only">
-              Search your sets and words
+              {t("searchSetsAndWords")}
             </DialogDescription>
             <Input
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search sets and words…"
+              placeholder={t("searchPlaceholder")}
               className="h-10 border-0 bg-transparent shadow-none focus-visible:ring-0"
             />
           </DialogHeader>
@@ -136,27 +138,27 @@ export function AppSearch({ className }: { className?: string }) {
           <div className="max-h-80 overflow-y-auto p-2">
             {!trimmed ? (
               <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-                Type to find a set or word
-                <span className="mt-1 block text-xs">⌘K anytime</span>
+                {t("searchHint")}
+                <span className="mt-1 block text-xs">{t("searchShortcut")}</span>
               </p>
             ) : null}
 
             {loading ? (
               <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-                Searching…
+                {t("searching")}
               </p>
             ) : null}
 
             {empty ? (
               <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-                Nothing found
+                {t("nothingFound")}
               </p>
             ) : null}
 
             {shownSets.length > 0 ? (
               <div className="mb-2">
                 <p className="px-2 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                  Sets
+                  {t("sets")}
                 </p>
                 <ul className="space-y-0.5">
                   {shownSets.map((set) => (
@@ -183,7 +185,7 @@ export function AppSearch({ className }: { className?: string }) {
             {shownWords.length > 0 ? (
               <div>
                 <p className="px-2 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                  Words
+                  {t("words")}
                 </p>
                 <ul className="space-y-0.5">
                   {shownWords.map((word) => (

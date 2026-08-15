@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { AddWordsPanel } from "@/components/add-words-panel";
 import { PageWide } from "@/components/page";
@@ -17,27 +18,23 @@ import { WordListTable } from "@/components/word-list-table";
  * (`<Page>` / `<PageWide>`): 828.5px, the iPad column.
  */
 export default function DictionaryPage() {
-  // Bumped after an add. Used as a `key`, so the list remounts: it starts on
-  // page one with fresh data, which is where a just-added word will be — and
-  // no effect has to reach in and reset it.
+  const t = useTranslations("dictionary");
   const [reloadKey, setReloadKey] = useState(0);
 
   return (
     <PageWide>
       <PageHeader
-        eyebrow="Dictionary"
-        title="My words"
-        description="Type or paste words — translations fill themselves in. Everything you have is listed below."
+        eyebrow={t("eyebrow")}
+        title={t("myWordsTitle")}
+        description={t("myWordsDescription")}
       />
 
       <div className="space-y-10">
-        <Section title="Add words">
+        <Section title={t("addWords")}>
           <AddWordsPanel onAdded={() => setReloadKey((key) => key + 1)} />
         </Section>
 
-        <Section title="All words">
-          {/* The list reads its filters from the URL, and that has to be read
-              inside a boundary so the shell can render before them. */}
+        <Section title={t("allWords")}>
           <Suspense fallback={null}>
             <WordListTable key={reloadKey} />
           </Suspense>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 
 type Params = { params: Promise<{ id: string }> };
@@ -27,16 +28,16 @@ async function ownedSet(setId: string, userId: string) {
 export async function POST(request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const { id } = await params;
   const set = await ownedSet(id, session.user.id);
-  if (!set) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!set) return jsonError("notFound", 404);
 
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Which word?" }, { status: 400 });
+    return jsonError("whichWord", 400);
   }
 
   const prisma = getPrisma();
@@ -45,7 +46,7 @@ export async function POST(request: Request, { params }: Params) {
     where: { id: parsed.data.wordId, userId: session.user.id },
     select: { id: true },
   });
-  if (!word) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!word) return jsonError("notFound", 404);
 
   await prisma.wordSetItem.createMany({
     data: [{ wordId: word.id, setId: set.id }],
@@ -66,16 +67,16 @@ export async function POST(request: Request, { params }: Params) {
 export async function DELETE(request: Request, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonError("unauthorized", 401);
   }
 
   const { id } = await params;
   const set = await ownedSet(id, session.user.id);
-  if (!set) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!set) return jsonError("notFound", 404);
 
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Which word?" }, { status: 400 });
+    return jsonError("whichWord", 400);
   }
 
   const prisma = getPrisma();
@@ -85,7 +86,7 @@ export async function DELETE(request: Request, { params }: Params) {
     where: { id: parsed.data.wordId, userId: session.user.id },
     select: { id: true },
   });
-  if (!word) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!word) return jsonError("notFound", 404);
 
   await prisma.wordSetItem.deleteMany({
     where: { wordId: word.id, setId: set.id },

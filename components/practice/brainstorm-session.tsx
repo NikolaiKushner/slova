@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,6 +46,7 @@ import { Volume2 } from "lucide-react";
 type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 
 export function BrainstormSession({ setIds }: { setIds: string[] }) {
+  const t = useTranslations("practice");
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<BrainstormState | null>(null);
@@ -133,10 +135,10 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
   if (!state || !data?.words.length) {
     return (
       <Done
-        title="No new words waiting"
-        body="Brainstorm takes words you have never studied. Add some to your dictionary and come back."
+        title={t("noNewTitle")}
+        body={t("noNewBody")}
         href="/dictionary"
-        label="Go to my words"
+        label={t("goToMyWords")}
       />
     );
   }
@@ -156,14 +158,10 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
     const parked = state.struggling.length;
     return (
       <Done
-        title={`${learned} learned`}
-        body={
-          parked > 0
-            ? `${parked} put aside for today — those come back tomorrow rather than holding you here.`
-            : "Every word went through the whole ladder. They are in your schedule now."
-        }
+        title={t("learnedCount", { count: learned })}
+        body={parked > 0 ? t("parked", { count: parked }) : t("ladderDone")}
         href="/practice"
-        label="Back to trainings"
+        label={t("backToTrainings")}
       />
     );
   }
@@ -173,7 +171,7 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
   return (
     <div className="space-y-8">
       <p className="text-brand-soft text-center text-xs tracking-widest uppercase">
-        {task.remaining} {task.remaining === 1 ? "word" : "words"} left
+        {t("wordsLeft", { count: task.remaining })}
       </p>
 
       {question && <QuestionView question={question} onAnswered={answer} />}
@@ -210,10 +208,13 @@ function Preview({
   hasVoice: boolean;
   onStart: () => void;
 }) {
+  const t = useTranslations("practice");
+  const common = useTranslations("common");
+
   return (
     <div className="space-y-6">
       <p className="text-brand-soft text-center text-xs tracking-widest uppercase">
-        {words.length} new {words.length === 1 ? "word" : "words"}
+        {t("previewNew", { count: words.length })}
       </p>
 
       <div className="bg-card overflow-hidden rounded-lg border">
@@ -229,7 +230,7 @@ function Preview({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        aria-label={`Listen to ${word.front}`}
+                        aria-label={t("listenTo", { word: word.front })}
                         onClick={() => void speak(word.front, word.audioUrl)}
                       >
                         <Volume2 className="size-4" />
@@ -248,7 +249,7 @@ function Preview({
 
       <div className="flex justify-center">
         <Button type="button" size="lg" onClick={onStart} autoFocus>
-          Start
+          {common("start")}
         </Button>
       </div>
     </div>

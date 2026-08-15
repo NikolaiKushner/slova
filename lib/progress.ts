@@ -61,12 +61,26 @@ export async function getProgress(userId: string, now: Date) {
   };
 }
 
+export type ProgressLineCopy = {
+  reviewed: (count: number) => string;
+  streak: (count: number) => string;
+};
+
+export const EN_PROGRESS_LINE: ProgressLineCopy = {
+  reviewed: (count) => `${count} reviewed today`,
+  streak: (count) => `${count}-day streak`,
+};
+
 /** Wording for the progress line, or null when there is nothing to say yet. */
-export function progressLine(today: number, streak: number): string | null {
+export function progressLine(
+  today: number,
+  streak: number,
+  copy: ProgressLineCopy = EN_PROGRESS_LINE,
+): string | null {
   if (today === 0 && streak === 0) return null;
 
   const parts: string[] = [];
-  if (today > 0) parts.push(`${today} reviewed today`);
-  if (streak > 0) parts.push(`${streak}-day streak`);
+  if (today > 0) parts.push(copy.reviewed(today));
+  if (streak > 0) parts.push(copy.streak(streak));
   return parts.join(" · ");
 }

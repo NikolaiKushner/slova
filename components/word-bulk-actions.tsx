@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FolderMinus, FolderPlus, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,24 +48,24 @@ export function WordBulkActions({
   onClear: () => void;
   busy?: boolean;
 }) {
+  const t = useTranslations("dictionary");
+  const common = useTranslations("common");
   const [setId, setSetId] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const { state, isMobile } = useSidebar();
 
-  useEffect(() => {
-    if (count === 0) {
-      setSetId("");
-      setNewTitle("");
-    }
-  }, [count]);
+  if (count === 0 && (setId !== "" || newTitle !== "")) {
+    setSetId("");
+    setNewTitle("");
+  }
 
   if (count === 0) return null;
 
   const creating = setId === NEW_SET;
   const canFile = creating ? newTitle.trim().length > 0 : Boolean(setId);
   const selectedLabel = creating
-    ? "New set…"
-    : (sets.find((set) => set.id === setId)?.title ?? "Choose a set");
+    ? t("newSetEllipsis")
+    : (sets.find((set) => set.id === setId)?.title ?? t("chooseSet"));
 
   const fileAdd = () => {
     if (creating) onFile({ setTitle: newTitle.trim() }, "add");
@@ -81,7 +82,7 @@ export function WordBulkActions({
   return (
     <div
       role="toolbar"
-      aria-label="Actions for selected words"
+      aria-label={t("actionsAria")}
       className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4"
       style={{
         bottom: "max(1.25rem, env(safe-area-inset-bottom))",
@@ -90,7 +91,7 @@ export function WordBulkActions({
     >
       <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-2 rounded-2xl bg-card px-3 py-2 shadow-sm ring-1 ring-foreground/10">
         <span className="px-1 text-sm font-medium whitespace-nowrap">
-          {count} selected
+          {t("selected", { count })}
         </span>
 
         <Separator orientation="vertical" className="max-sm:hidden" />
@@ -103,8 +104,8 @@ export function WordBulkActions({
           }}
           disabled={busy}
         >
-          <SelectTrigger size="sm" className="w-36 sm:w-40" aria-label="Set">
-            <SelectValue placeholder="Choose a set">{selectedLabel}</SelectValue>
+          <SelectTrigger size="sm" className="w-36 sm:w-40" aria-label={t("set")}>
+            <SelectValue placeholder={t("chooseSet")}>{selectedLabel}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {sets.map((set) => (
@@ -113,7 +114,7 @@ export function WordBulkActions({
               </SelectItem>
             ))}
             {sets.length > 0 ? <SelectSeparator /> : null}
-            <SelectItem value={NEW_SET}>New set…</SelectItem>
+            <SelectItem value={NEW_SET}>{t("newSetEllipsis")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -124,8 +125,8 @@ export function WordBulkActions({
             onKeyDown={(event) => {
               if (event.key === "Enter" && canFile && !busy) fileAdd();
             }}
-            placeholder="Name the new set"
-            aria-label="New set name"
+            placeholder={t("nameNewSet")}
+            aria-label={t("newSetName")}
             disabled={busy}
             autoFocus
             className="h-7 w-36 sm:w-44"
@@ -140,7 +141,7 @@ export function WordBulkActions({
           onClick={fileAdd}
         >
           <FolderPlus className="size-4" />
-          <span className="hidden sm:inline">Also add</span>
+          <span className="hidden sm:inline">{t("alsoAdd")}</span>
         </Button>
         {creating ? null : (
           <Button
@@ -151,15 +152,15 @@ export function WordBulkActions({
             onClick={() => onFile({ setId }, "remove")}
           >
             <FolderMinus className="size-4" />
-            <span className="hidden sm:inline">Take out</span>
+            <span className="hidden sm:inline">{t("takeOut")}</span>
           </Button>
         )}
 
         <Separator orientation="vertical" className="max-sm:hidden" />
 
         <ConfirmDelete
-          title={`Delete ${count} ${count === 1 ? "word" : "words"}?`}
-          description="They leave the dictionary along with everything the scheduler had learned about them. Taking them out of a set instead keeps the words."
+          title={t("deleteNTitle", { count })}
+          description={t("deleteNBody")}
           onConfirm={onDelete}
         >
           <Button
@@ -170,7 +171,7 @@ export function WordBulkActions({
             className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="size-4" />
-            <span className="hidden sm:inline">Delete</span>
+            <span className="hidden sm:inline">{common("delete")}</span>
           </Button>
         </ConfirmDelete>
         <Button
@@ -178,7 +179,7 @@ export function WordBulkActions({
           variant="ghost"
           size="icon-sm"
           onClick={onClear}
-          aria-label="Clear selection"
+          aria-label={t("clearSelection")}
         >
           <X className="size-4" />
         </Button>
