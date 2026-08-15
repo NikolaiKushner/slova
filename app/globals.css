@@ -18,6 +18,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ОТСТУПЛЕНИЕ 5 · Эталон задаёт сенсорные размеры одним правилом в §10 —
+   `min-height: 44px` на любую кнопку. Этого мало: §13 требует у `lg` 52px, а
+   у иконочной 44 при 28 на десктопе, то есть размер зависит от варианта, а не
+   от одного порога. Нужен вариант, которым это выражается в самом примитиве.
+   Отдельным `@custom-variant`, а не встроенным `pointer-coarse:`, чтобы не
+   зависеть от минорной версии Tailwind. */
+@custom-variant coarse (@media (pointer: coarse));
+
 /* ------------------------------------------------------------
    1. ПРИМИТИВЫ
    ------------------------------------------------------------ */
@@ -95,6 +103,13 @@
      будет нечем покрасить. */
   --destructive-bg:        var(--danger-50);
   --destructive-border:    var(--danger-200);
+
+  /* ОТСТУПЛЕНИЕ 6 · §10 требует, чтобы отключённая кнопка была серой —
+     neutral-200 с текстом neutral-500, — а не приглушённо-зелёной: сейчас её
+     жмут. Семантического имени под это в эталоне нет, и без него в примитиве
+     пришлось бы написать `bg-border`, что означало бы совсем другое. */
+  --disabled:              var(--neutral-200);
+  --disabled-foreground:   var(--neutral-500);
 
   --success:               var(--success-600);
   --success-bg:            var(--success-50);
@@ -249,6 +264,8 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-destructive-bg: var(--destructive-bg);
   --color-destructive-border: var(--destructive-border);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
   --color-success: var(--success);
   --color-success-bg: var(--success-bg);
   --color-success-border: var(--success-border);

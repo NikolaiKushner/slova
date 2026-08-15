@@ -66,6 +66,9 @@ export default async function RootLayout({
     <html
       lang={locale}
       className={`${inter.variable} ${literata.variable} h-full antialiased`}
+      // globals.css sets `scroll-behavior: smooth`; without this Next.js warns
+      // and animates every route change as a scroll.
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning: password managers / extensions inject attrs on body */}
