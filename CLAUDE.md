@@ -41,13 +41,22 @@ cheap check moved locally, and the slow ones stayed in CI:
 
 ## Design system
 
-- Read `DESIGN.md` before any UI change.
+Дизайн интерфейса подчиняется `docs/design-system.md`.
+Перед любой правкой UI прочитай этот файл.
+Цвета, размеры, радиусы, тени — только через токены из `app/globals.css`.
+Хардкод hex, произвольные размеры вне типографической шкалы и собственные
+реализации того, что есть в shadcn/ui, — не принимаются.
+
+- `docs/design-system.md` — спецификация, единственный источник правды.
+  Она главнее привычки: если код расходится с документом, переписывается код.
+- `docs/MIGRATION.md` — порядок переделки интерфейса и чеклист готовности
+  экрана. Шаги идут по одному, каждый шаг — отдельный коммит.
+- `docs/tokens.html` — визуальная шпаргалка к токенам, открывается в браузере.
+- `docs/globals.reference.css` — эталон токенов. `app/globals.css` расходится
+  с ним только там, где расхождение помечено комментарием и объяснено.
 - Build UI from shadcn/ui components — never hand-roll a control in raw HTML
   and never write custom CSS to fake one. Missing primitive? Install it with
   `npx shadcn@latest add <name>`.
-- Colors and radii go through design tokens / Tailwind theme — hardcoded hex
-  in components is forbidden unless documented in `DESIGN.md` first.
-- Prefer light, calm layouts: paste → study → due, not dense dashboards.
 
 ## Project notes
 

@@ -1,0 +1,447 @@
+/* ============================================================
+   Slova — токены дизайн-системы
+   Tailwind CSS v4 + shadcn/ui
+   Подключается один раз: app/globals.css
+   ============================================================ */
+
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------
+   1. ПРИМИТИВЫ
+   ------------------------------------------------------------ */
+:root {
+  /* нейтральная шкала — H 165 */
+  --neutral-0:    oklch(100%   0     165);
+  --neutral-25:   oklch(99.0%  0.002 165);
+  --neutral-50:   oklch(97.6%  0.003 165);
+  --neutral-100:  oklch(96.2%  0.003 165);
+  --neutral-150:  oklch(94.4%  0.004 165);
+  --neutral-200:  oklch(92.4%  0.005 165);
+  --neutral-300:  oklch(87.5%  0.006 165);
+  --neutral-400:  oklch(78.0%  0.008 165);
+  --neutral-500:  oklch(66.0%  0.010 165);
+  --neutral-600:  oklch(52.0%  0.010 165);
+  --neutral-700:  oklch(44.0%  0.010 165);
+  --neutral-800:  oklch(34.5%  0.012 165);
+  --neutral-900:  oklch(23.4%  0.008 165);
+
+  /* зелёная шкала — H 172 */
+  --green-50:   oklch(97.2% 0.010 172);
+  --green-100:  oklch(93.0% 0.022 172);
+  --green-200:  oklch(88.0% 0.035 172);
+  --green-300:  oklch(80.0% 0.048 172);
+  --green-400:  oklch(70.5% 0.055 172);
+  --green-500:  oklch(58.0% 0.066 172);
+  --green-600:  oklch(48.5% 0.072 172);
+  --green-700:  oklch(40.7% 0.072 172);
+  --green-800:  oklch(33.0% 0.062 172);
+  --green-900:  oklch(26.0% 0.048 172);
+  --green-950:  oklch(20.0% 0.038 172);
+
+  /* служебные */
+  --success-50:   oklch(95.5% 0.022 155);
+  --success-200:  oklch(88.0% 0.045 155);
+  --success-600:  oklch(52.0% 0.085 155);
+  --danger-50:    oklch(94.5% 0.022 27);
+  --danger-200:   oklch(86.0% 0.045 27);
+  --danger-600:   oklch(52.0% 0.115 27);
+  --warning-50:   oklch(96.0% 0.028 75);
+  --warning-200:  oklch(89.5% 0.055 75);
+  --warning-600:  oklch(52.0% 0.085 75);
+
+  /* ----------------------------------------------------------
+     2. СЕМАНТИКА — светлая тема
+     ---------------------------------------------------------- */
+  --background:            var(--neutral-100);
+  --foreground:            var(--neutral-900);
+
+  --card:                  var(--neutral-0);
+  --card-foreground:       var(--neutral-900);
+  --popover:               var(--neutral-0);
+  --popover-foreground:    var(--neutral-900);
+
+  --primary:               var(--green-700);
+  --primary-foreground:    var(--neutral-0);
+  --primary-hover:         var(--green-800);
+
+  --secondary:             var(--neutral-150);
+  --secondary-foreground:  var(--neutral-900);
+
+  --muted:                 var(--neutral-50);
+  --muted-foreground:      var(--neutral-600);
+
+  --accent:                var(--green-100);
+  --accent-foreground:     var(--green-700);
+
+  --destructive:           var(--danger-600);
+  --destructive-foreground:var(--neutral-0);
+
+  --success:               var(--success-600);
+  --success-bg:            var(--success-50);
+  --success-border:        var(--success-200);
+  --warning:               var(--warning-600);
+  --warning-bg:            var(--warning-50);
+  --warning-border:        var(--warning-200);
+
+  --border:                var(--neutral-200);
+  --border-subtle:         var(--neutral-150);
+  --input:                 var(--neutral-300);
+  --ring:                  var(--green-400);
+
+  --eyebrow:               var(--green-600);
+  --inverse-surface:       var(--green-900);
+  --inverse-foreground:    var(--neutral-0);
+  --inverse-muted:         var(--green-300);
+
+  /* сайдбар (конвенция shadcn) */
+  --sidebar:                     var(--neutral-25);
+  --sidebar-foreground:          var(--neutral-700);
+  --sidebar-border:              var(--neutral-200);
+  --sidebar-accent:              var(--neutral-150);
+  --sidebar-accent-foreground:   var(--neutral-900);
+  --sidebar-primary:             var(--green-700);
+  --sidebar-primary-foreground:  var(--neutral-0);
+  --sidebar-ring:                var(--green-400);
+
+  /* данные / прогресс */
+  --data-learned:      var(--green-700);
+  --data-learning:     var(--green-400);
+  --data-untouched:    var(--neutral-200);
+  --data-track:        var(--neutral-200);
+  --data-missed:       var(--danger-600);
+
+  /* ----------------------------------------------------------
+     3. ГЕОМЕТРИЯ
+     ---------------------------------------------------------- */
+  --radius: 0.625rem;                    /* 10px */
+  --radius-xs: calc(var(--radius) - 6px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 6px);
+
+  --sidebar-width: 268px;
+  --sidebar-width-compact: 240px;
+  --container-prose: 700px;
+  --container-list: 780px;
+  --container-wide: 840px;
+  --container-focus: 540px;
+  --container-marketing: 1120px;
+
+  /* ----------------------------------------------------------
+     4. ТЕНИ
+     ---------------------------------------------------------- */
+  --shadow-xs:      0 1px 2px rgb(20 32 29 / .04);
+  --shadow-sm:      0 1px 2px rgb(20 32 29 / .05), 0 1px 3px rgb(20 32 29 / .04);
+  --shadow-card:    0 1px 2px rgb(20 32 29 / .04), 0 14px 32px -26px rgb(20 32 29 / .30);
+  --shadow-lifted:  0 1px 2px rgb(20 32 29 / .05), 0 18px 42px -22px rgb(20 32 29 / .22);
+  --shadow-pop:     0 1px 2px rgb(20 32 29 / .05), 0 24px 48px -24px rgb(20 32 29 / .35);
+  --shadow-dialog:  0 32px 64px -32px rgb(20 32 29 / .45);
+  --focus-ring:     0 0 0 3px rgb(125 172 156 / .28);
+
+  /* ----------------------------------------------------------
+     5. ДВИЖЕНИЕ
+     ---------------------------------------------------------- */
+  --ease-standard:   cubic-bezier(.4, 0, .2, 1);
+  --ease-emphasized: cubic-bezier(.2, .8, .2, 1);
+  --motion-instant: 120ms;
+  --motion-fast:    180ms;
+  --motion-base:    240ms;
+  --motion-slow:    320ms;
+  --motion-page:    400ms;
+}
+
+/* ------------------------------------------------------------
+   6. ТЁМНАЯ ТЕМА
+   ------------------------------------------------------------ */
+.dark {
+  --background:            oklch(17.5% 0.006 165);
+  --foreground:            oklch(92.0% 0.004 165);
+
+  --card:                  oklch(21.0% 0.006 165);
+  --card-foreground:       var(--foreground);
+  --popover:               oklch(21.0% 0.006 165);
+  --popover-foreground:    var(--foreground);
+
+  --primary:               var(--green-600);
+  --primary-foreground:    oklch(100% 0 165);
+  --primary-hover:         var(--green-500);
+
+  --secondary:             oklch(25.0% 0.006 165);
+  --secondary-foreground:  var(--foreground);
+
+  --muted:                 oklch(25.0% 0.006 165);
+  --muted-foreground:      oklch(66.0% 0.010 165);
+
+  --accent:                var(--green-900);
+  --accent-foreground:     var(--green-300);
+
+  --border:                oklch(31.0% 0.008 165);
+  --border-subtle:         oklch(27.0% 0.007 165);
+  --input:                 oklch(38.0% 0.008 165);
+  --ring:                  var(--green-400);
+
+  --eyebrow:               var(--green-300);
+  --inverse-surface:       oklch(92.0% 0.004 165);
+  --inverse-foreground:    oklch(17.5% 0.006 165);
+  --inverse-muted:         oklch(52.0% 0.010 165);
+
+  --sidebar:                     oklch(19.5% 0.006 165);
+  --sidebar-foreground:          oklch(78.0% 0.008 165);
+  --sidebar-border:              oklch(31.0% 0.008 165);
+  --sidebar-accent:              oklch(25.0% 0.006 165);
+  --sidebar-accent-foreground:   var(--foreground);
+
+  --data-untouched:  oklch(31.0% 0.008 165);
+  --data-track:      oklch(31.0% 0.008 165);
+
+  --shadow-card:   0 1px 2px rgb(0 0 0 / .30), 0 14px 32px -26px rgb(0 0 0 / .60);
+  --shadow-lifted: 0 1px 2px rgb(0 0 0 / .30), 0 18px 42px -22px rgb(0 0 0 / .55);
+  --shadow-pop:    0 1px 2px rgb(0 0 0 / .30), 0 24px 48px -24px rgb(0 0 0 / .70);
+}
+
+/* ------------------------------------------------------------
+   7. РЕГИСТРАЦИЯ В TAILWIND
+   ------------------------------------------------------------ */
+@theme inline {
+  --font-sans:    var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-display), Georgia, "Times New Roman", serif;
+  --font-mono:    ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-border: var(--warning-border);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-eyebrow: var(--eyebrow);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-foreground: var(--inverse-foreground);
+  --color-inverse-muted: var(--inverse-muted);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-data-learned: var(--data-learned);
+  --color-data-learning: var(--data-learning);
+  --color-data-untouched: var(--data-untouched);
+  --color-data-missed: var(--data-missed);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-card: var(--shadow-card);
+  --shadow-lifted: var(--shadow-lifted);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-dialog: var(--shadow-dialog);
+}
+
+/* ------------------------------------------------------------
+   8. БАЗА
+   ------------------------------------------------------------ */
+@layer base {
+  * { @apply border-border; }
+
+  html {
+    -webkit-text-size-adjust: 100%;   /* iPad: не менять кегль при повороте */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11" 1, "ss01" 1;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* iPad: не зумить при фокусе в поле */
+  input, textarea, select { font-size: max(1rem, 16px); }
+
+  button, [role="button"], a { touch-action: manipulation; }
+
+  ::selection { background: var(--accent); color: var(--accent-foreground); }
+}
+
+/* ------------------------------------------------------------
+   9. ТИПОГРАФИЧЕСКИЕ УТИЛИТЫ
+   ------------------------------------------------------------ */
+@layer utilities {
+  .text-display {
+    font-family: var(--font-display);
+    font-size: 2.75rem; line-height: 1.05; letter-spacing: -0.015em; font-weight: 500;
+    font-variation-settings: "opsz" 48;
+  }
+  .text-h1 {
+    font-family: var(--font-display);
+    font-size: 2.25rem; line-height: 1.10; letter-spacing: -0.015em; font-weight: 500;
+    font-variation-settings: "opsz" 32;
+  }
+  .text-h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.010em; font-weight: 500;
+    font-variation-settings: "opsz" 32;
+  }
+  .text-h3 {
+    font-family: var(--font-display);
+    font-size: 1.375rem; line-height: 1.20; letter-spacing: -0.005em; font-weight: 500;
+    font-variation-settings: "opsz" 20;
+  }
+  .text-h4 {
+    font-family: var(--font-display);
+    font-size: 1.125rem; line-height: 1.30; font-weight: 500;
+    font-variation-settings: "opsz" 20;
+  }
+  .text-lead     { font-size: 1.125rem; line-height: 1.55; }
+  .text-body     { font-size: 1rem;     line-height: 1.60; }
+  .text-body-sm  { font-size: 0.9375rem;line-height: 1.50; }
+  .text-caption  { font-size: 0.8125rem;line-height: 1.45; }
+  .text-overline {
+    font-size: 0.6875rem; line-height: 1.30; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .text-token {
+    font-family: var(--font-mono);
+    font-size: 0.875rem; line-height: 1.40; font-weight: 500;
+  }
+  .text-numeral {
+    font-family: var(--font-display);
+    font-size: 2.125rem; line-height: 1; letter-spacing: -0.01em; font-weight: 500;
+    font-variation-settings: "opsz" 32;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  .focus-ring:focus-visible {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: var(--focus-ring);
+  }
+
+  .scrim-panel {
+    background: color-mix(in oklch, var(--sidebar) 82%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .container-prose     { max-width: var(--container-prose);     margin-inline: auto; }
+  .container-list      { max-width: var(--container-list);      margin-inline: auto; }
+  .container-wide      { max-width: var(--container-wide);      margin-inline: auto; }
+  .container-focus     { max-width: var(--container-focus);     margin-inline: auto; }
+  .container-marketing { max-width: var(--container-marketing); margin-inline: auto; }
+}
+
+/* --- планшет --- */
+@media (max-width: 1024px) {
+  .text-display { font-size: 2.5rem; }
+  .text-h1      { font-size: 2rem; }
+  .text-h2      { font-size: 1.625rem; }
+  .text-h3      { font-size: 1.3125rem; }
+  .text-numeral { font-size: 1.875rem; }
+}
+
+/* --- телефон --- */
+@media (max-width: 640px) {
+  .text-display { font-size: 2.125rem; }
+  .text-h1      { font-size: 1.75rem; }
+  .text-h2      { font-size: 1.5rem; }
+  .text-h3      { font-size: 1.25rem; }
+  .text-h4      { font-size: 1.0625rem; }
+  .text-lead    { font-size: 1.0625rem; }
+  .text-numeral { font-size: 1.75rem; }
+}
+
+/* ------------------------------------------------------------
+   10. СЕНСОРНЫЙ ВВОД (iPad)
+   ------------------------------------------------------------ */
+@media (pointer: coarse) {
+  /* минимальная цель 44×44 */
+  button, [role="button"], a[role="button"], .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .option-row { min-height: 56px; padding-block: 1rem; }
+  .letter-tile { width: 48px; height: 48px; }
+  .key-hints { display: none; }        /* подсказки клавиш не нужны без клавиатуры */
+  .row-actions { opacity: 1 !important; }  /* действия строки видны всегда */
+}
+
+@media (hover: none) {
+  .hover-lift:hover { transform: none; box-shadow: none; }
+}
+
+/* ------------------------------------------------------------
+   11. ФОН-ЗЕРНО
+   ------------------------------------------------------------ */
+.grain::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: .5;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.045'/></svg>");
+}
+
+/* верхняя акцентная полоса */
+.top-accent::after {
+  content: "";
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 50;
+  background: linear-gradient(90deg, #F3E4EA 0%, #EFE6F0 40%, #E9EEEE 100%);
+}
+.dark .top-accent::after { opacity: .35; }
+
+/* ------------------------------------------------------------
+   12. СНИЖЕННАЯ АНИМАЦИЯ
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

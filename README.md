@@ -99,7 +99,9 @@ where the file came from and how to replace it if that matters to you.
 ## If you are going to change something
 
 Read **`CLAUDE.md`** first — how work reaches `main`, and what to run before it
-does. Then **`DESIGN.md`**, before touching anything visual; it is the reason
-the screens look like one app. **`plans/`** holds the plan the current work
+does. Then **`docs/design-system.md`**, before touching anything visual; it is
+the reason the screens look like one app, and it outranks the code where the
+two disagree. **`docs/MIGRATION.md`** holds the order the interface is being
+rebuilt in, one step per commit. **`plans/`** holds the plan the current work
 follows and a handoff document with the traps that have already cost someone an
-afternoon.
+afternoon; it predates the design system and refers to the retired `DESIGN.md`.

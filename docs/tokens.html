@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slova — токены</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --n0:#FFFFFF;--n25:#FBFCFB;--n50:#F5F8F6;--n100:#F1F3F2;--n150:#EAEDEC;--n200:#E3E7E5;
+  --n300:#D2D7D5;--n400:#B3B9B6;--n500:#8D9491;--n600:#646B67;--n700:#4E5451;--n800:#343B38;--n900:#1A1F1D;
+  --g50:#EFF8F5;--g100:#DAEDE6;--g200:#C1DFD5;--g300:#9FC8BA;--g400:#7DAC9C;--g500:#4F8776;
+  --g600:#2C6C5A;--g700:#115645;--g800:#033F32;--g900:#032B21;--g950:#011B14;
+  --s50:#E5F5EA;--s200:#C1E1CB;--s600:#3C7753;
+  --d50:#FBE8E5;--d200:#EDC6C1;--d600:#A14B44;
+  --w50:#FDF0DE;--w200:#F2D8B5;--w600:#85612B;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--n100);color:var(--n900);font-family:Inter,sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:56px 32px 96px}
+h1{font-family:Literata,Georgia,serif;font-size:36px;font-weight:500;letter-spacing:-.015em;margin:0 0 6px}
+.sub{color:var(--n600);margin:0 0 48px}
+h2{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--g600);margin:56px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--n200)}
+h3{font-family:Literata,serif;font-size:18px;font-weight:500;margin:26px 0 12px}
+.card{background:#fff;border:1px solid var(--n200);border-radius:var(--radius);padding:20px}
+
+/* цвет */
+.ramp{display:grid;grid-template-columns:repeat(13,1fr);gap:0;border:1px solid var(--n200);border-radius:10px;overflow:hidden}
+.ramp.g{grid-template-columns:repeat(11,1fr)}
+.sw{aspect-ratio:1/1.5;display:flex;flex-direction:column;justify-content:flex-end;padding:6px;font-size:9.5px;line-height:1.25}
+.sw b{font-weight:600;display:block}
+.sw span{opacity:.75;font-size:8.5px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.trio .box{border-radius:10px;padding:16px;border:1px solid}
+
+/* типографика */
+.type-row{display:grid;grid-template-columns:130px 1fr 130px;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--n150)}
+.type-row:last-child{border-bottom:0}
+.tk{font-size:12px;color:var(--g600);font-weight:600;letter-spacing:.04em}
+.meta{font-size:12px;color:var(--n600);text-align:right;font-variant-numeric:tabular-nums}
+.serif{font-family:Literata,Georgia,serif;font-weight:500}
+
+/* геометрия */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.demo{background:#fff;border:1px solid var(--n200);padding:18px;text-align:center;font-size:12px;color:var(--n600)}
+.sq{width:100%;height:56px;background:var(--g100);border:1px solid var(--g200);margin-bottom:10px}
+.sh{width:100%;height:56px;background:#fff;border:1px solid var(--n200);border-radius:10px;margin-bottom:10px}
+
+/* кнопки и состояния */
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 20px;font:inherit;font-size:15px;font-weight:500;cursor:pointer;background:var(--g700);color:#fff;box-shadow:0 1px 2px rgb(20 32 29/.04)}
+.btn.hover{background:var(--g800)}
+.btn.out{background:#fff;border:1px solid var(--n200);color:var(--n900)}
+.btn.ghost{background:transparent;color:var(--n700)}
+.btn.dis{background:var(--n200);color:var(--n500);cursor:not-allowed;box-shadow:none}
+.btn.dan{background:var(--d600)}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--n200);border-radius:10px;background:#fff;font-size:16px;margin-bottom:8px}
+.opt .num{width:22px;height:22px;border-radius:4px;background:var(--n150);color:var(--n600);font-size:11.5px;display:flex;align-items:center;justify-content:center}
+.opt.sel{background:var(--g100);border-color:var(--g200);color:var(--g700)}
+.opt.sel .num{background:var(--g700);color:#fff}
+.opt.ok{background:var(--s50);border-color:var(--s200);color:#274C39}
+.opt.ok .num{background:var(--s600);color:#fff}
+.opt.no{background:var(--d50);border-color:var(--d200);color:#7D3C35}
+.opt.no .num{background:var(--d600);color:#fff}
+.opt.dim{opacity:.4}
+.opt.foc{border-color:var(--g400);box-shadow:0 0 0 3px rgb(125 172 156/.28)}
+
+.bars{display:flex;gap:2px;width:54px}
+.bars i{flex:1;height:5px;border-radius:2px;background:var(--n200);display:block}
+.bars i.f{background:var(--g400)}
+.bars.done i{background:var(--g700)}
+.bars.now i{box-shadow:inset 0 0 0 1px rgba(75,110,96,.25)}
+.pl{font-size:11px;color:#C2C8C5;margin-top:5px;text-align:center;font-variant-numeric:tabular-nums}
+.pl.cur{color:var(--n900);font-weight:600}
+.pl.ok{color:var(--g400)}
+.warn-box{
+  margin-top:16px;background:var(--w50);border:1px solid var(--w200);border-radius:10px;
+  padding:14px 16px;font-size:13.5px;color:#6B5528;line-height:1.55;
+}
+.warn-box code{background:#F3E8D5;color:#6B5528}
+
+.note{font-size:13px;color:var(--n600);margin-top:10px}
+code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;background:var(--n150);border-radius:5px;padding:1px 6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Slova — токены</h1>
+<p class="sub">Визуальная шпаргалка к спецификации. Значения совпадают с <code>globals.css</code>.</p>
+
+<h2>Нейтральная шкала · H 165</h2>
+<div class="ramp">
+  <div class="sw" style="background:var(--n0);color:var(--n700)"><b>0</b><span>#FFFFFF</span></div>
+  <div class="sw" style="background:var(--n25);color:var(--n700)"><b>25</b><span>#FBFCFB</span></div>
+  <div class="sw" style="background:var(--n50);color:var(--n700)"><b>50</b><span>#F5F8F6</span></div>
+  <div class="sw" style="background:var(--n100);color:var(--n700)"><b>100</b><span>#F1F3F2</span></div>
+  <div class="sw" style="background:var(--n150);color:var(--n700)"><b>150</b><span>#EAEDEC</span></div>
+  <div class="sw" style="background:var(--n200);color:var(--n700)"><b>200</b><span>#E3E7E5</span></div>
+  <div class="sw" style="background:var(--n300);color:var(--n800)"><b>300</b><span>#D2D7D5</span></div>
+  <div class="sw" style="background:var(--n400);color:var(--n900)"><b>400</b><span>#B3B9B6</span></div>
+  <div class="sw" style="background:var(--n500);color:#fff"><b>500</b><span>#8D9491</span></div>
+  <div class="sw" style="background:var(--n600);color:#fff"><b>600</b><span>#646B67</span></div>
+  <div class="sw" style="background:var(--n700);color:#fff"><b>700</b><span>#4E5451</span></div>
+  <div class="sw" style="background:var(--n800);color:#fff"><b>800</b><span>#343B38</span></div>
+  <div class="sw" style="background:var(--n900);color:#fff"><b>900</b><span>#1A1F1D</span></div>
+</div>
+<p class="note">100 — фон приложения · 200 — граница · 600 — приглушённый текст · 700 — вторичный · 900 — основной. <b>500 и светлее для текста не использовать.</b></p>
+
+<h2>Зелёная шкала · H 172</h2>
+<div class="ramp g">
+  <div class="sw" style="background:var(--g50);color:var(--g800)"><b>50</b><span>#EFF8F5</span></div>
+  <div class="sw" style="background:var(--g100);color:var(--g800)"><b>100</b><span>#DAEDE6</span></div>
+  <div class="sw" style="background:var(--g200);color:var(--g800)"><b>200</b><span>#C1DFD5</span></div>
+  <div class="sw" style="background:var(--g300);color:var(--g900)"><b>300</b><span>#9FC8BA</span></div>
+  <div class="sw" style="background:var(--g400);color:var(--g900)"><b>400</b><span>#7DAC9C</span></div>
+  <div class="sw" style="background:var(--g500);color:#fff"><b>500</b><span>#4F8776</span></div>
+  <div class="sw" style="background:var(--g600);color:#fff"><b>600</b><span>#2C6C5A</span></div>
+  <div class="sw" style="background:var(--g700);color:#fff"><b>700</b><span>#115645</span></div>
+  <div class="sw" style="background:var(--g800);color:#fff"><b>800</b><span>#033F32</span></div>
+  <div class="sw" style="background:var(--g900);color:#fff"><b>900</b><span>#032B21</span></div>
+  <div class="sw" style="background:var(--g950);color:#fff"><b>950</b><span>#011B14</span></div>
+</div>
+<p class="note">100 — мятная плашка · 400 — фокус и «в работе» · 600 — надзаголовки и ссылки · 700 — основная кнопка · 900 — тёмная полоса.</p>
+
+<h2>Служебные</h2>
+<div class="trio">
+  <div class="box" style="background:var(--s50);border-color:var(--s200);color:var(--s600)">
+    <b>Верно</b><br><span style="font-size:13px">#3C7753 на #E5F5EA · 4.70 AA</span>
+  </div>
+  <div class="box" style="background:var(--d50);border-color:var(--d200);color:var(--d600)">
+    <b>Неверно</b><br><span style="font-size:13px">#A14B44 на #FBE8E5 · 4.93 AA</span>
+  </div>
+  <div class="box" style="background:var(--w50);border-color:var(--w200);color:var(--w600)">
+    <b>Внимание</b><br><span style="font-size:13px">#85612B на #FDF0DE · 5.00 AA</span>
+  </div>
+</div>
+
+<h2>Типографика</h2>
+<div class="card">
+  <div class="type-row"><span class="tk">display</span><span class="serif" style="font-size:44px;line-height:1.05;letter-spacing:-.015em">Вставьте список</span><span class="meta">Literata 500 · 44/1.05</span></div>
+  <div class="type-row"><span class="tk">h1</span><span class="serif" style="font-size:36px;line-height:1.1;letter-spacing:-.015em">Курсы грамматики</span><span class="meta">Literata 500 · 36/1.1</span></div>
+  <div class="type-row"><span class="tk">h2</span><span class="serif" style="font-size:28px;line-height:1.15">Семь способов спросить</span><span class="meta">Literata 500 · 28/1.15</span></div>
+  <div class="type-row"><span class="tk">h3</span><span class="serif" style="font-size:22px">Present Simple</span><span class="meta">Literata 500 · 22/1.2</span></div>
+  <div class="type-row"><span class="tk">h4</span><span class="serif" style="font-size:18px">Spelling · Орфография</span><span class="meta">Literata 500 · 18/1.3</span></div>
+  <div class="type-row"><span class="tk">lead</span><span style="font-size:18px;color:var(--n700)">Печатайте или вставляйте слова — переводы подставятся сами.</span><span class="meta">Inter 400 · 18/1.55</span></div>
+  <div class="type-row"><span class="tk">body</span><span style="font-size:16px;color:var(--n700)">Каждый формат спрашивает те же слова по-другому.</span><span class="meta">Inter 400 · 16/1.6</span></div>
+  <div class="type-row"><span class="tk">body-sm</span><span style="font-size:15px;color:var(--n700)">Мои слова · Мои наборы · Готовые наборы</span><span class="meta">Inter 400 · 15/1.5</span></div>
+  <div class="type-row"><span class="tk">caption</span><span style="font-size:13px;color:var(--n600)">8 повторено сегодня · 5 дней подряд</span><span class="meta">Inter 400 · 13/1.45</span></div>
+  <div class="type-row"><span class="tk">overline</span><span style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--g600)">Практика</span><span class="meta">Inter 600 · 11 · +.14em</span></div>
+  <div class="type-row"><span class="tk">token</span><span style="font-family:ui-monospace,Menlo,monospace;font-size:14px;font-weight:500">work → work<mark style="background:#DFF0E5;color:#2F7D5C;border-radius:3px">s</mark></span><span class="meta">mono 500 · 14</span></div>
+  <div class="type-row"><span class="tk">numeral</span><span class="serif" style="font-size:34px;font-variant-numeric:tabular-nums">8 172</span><span class="meta">Literata 500 · 34</span></div>
+</div>
+
+<h2>Радиусы</h2>
+<div class="grid4">
+  <div class="demo" style="border-radius:10px"><div class="sq" style="border-radius:4px"></div>xs · 4px</div>
+  <div class="demo" style="border-radius:10px"><div class="sq" style="border-radius:6px"></div>sm · 6px</div>
+  <div class="demo" style="border-radius:10px"><div class="sq" style="border-radius:8px"></div>md · 8px</div>
+  <div class="demo" style="border-radius:10px"><div class="sq" style="border-radius:10px"></div>lg · 10px</div>
+</div>
+
+<h2>Тени</h2>
+<div class="grid4">
+  <div class="demo" style="border-radius:10px"><div class="sh" style="box-shadow:0 1px 2px rgb(20 32 29/.04)"></div>xs</div>
+  <div class="demo" style="border-radius:10px"><div class="sh" style="box-shadow:0 1px 2px rgb(20 32 29/.04),0 14px 32px -26px rgb(20 32 29/.30)"></div>card</div>
+  <div class="demo" style="border-radius:10px"><div class="sh" style="box-shadow:0 1px 2px rgb(20 32 29/.05),0 18px 42px -22px rgb(20 32 29/.22)"></div>lifted</div>
+  <div class="demo" style="border-radius:10px"><div class="sh" style="box-shadow:0 1px 2px rgb(20 32 29/.05),0 24px 48px -24px rgb(20 32 29/.35)"></div>pop</div>
+</div>
+
+<h2>Кнопки</h2>
+<div class="card">
+  <div class="row">
+    <button class="btn">Заниматься</button>
+    <button class="btn hover">Ховер</button>
+    <button class="btn out">Вторичная</button>
+    <button class="btn ghost">Тихая</button>
+    <button class="btn dis">Отключена</button>
+    <button class="btn dan">Удалить</button>
+  </div>
+  <p class="note">Отключённая — серая, не бледно-зелёная. Иначе её жмут.</p>
+</div>
+
+<h2>Вариант ответа — все состояния</h2>
+<div class="card">
+  <div class="opt"><span class="num">1</span>по умолчанию</div>
+  <div class="opt foc"><span class="num">2</span>фокус с клавиатуры</div>
+  <div class="opt sel"><span class="num">3</span>выбран</div>
+  <div class="opt ok"><span class="num">4</span>верно ✓</div>
+  <div class="opt no"><span class="num">1</span>неверно ✕</div>
+  <div class="opt dim"><span class="num">2</span>погашен после ответа</div>
+</div>
+
+<h2>Прогресс</h2>
+<div class="card">
+  <div class="row" style="gap:18px">
+    <div><div class="bars"><i class="f"></i><i class="f"></i><i></i><i></i><i></i></div><div class="pl">1</div></div>
+    <div><div class="bars now"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i></div><div class="pl cur">2</div></div>
+    <div><div class="bars done"><i></i><i></i><i></i><i></i><i></i></div><div class="pl ok">✓</div></div>
+    <div><div class="bars"><i class="f"></i><i></i><i></i><i></i><i></i></div><div class="pl">4</div></div>
+    <div><div class="bars"><i></i><i></i><i></i><i></i><i></i></div><div class="pl">5</div></div>
+    <div><div class="bars"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></div><div class="pl">6</div></div>
+    <div style="margin-left:8px;font-size:13px;color:var(--n600)"><b style="color:var(--g700)">1</b> из 6 выучено</div>
+  </div>
+  <p class="note">Лестница брейншторма: сегмент загорается после каждого верного ответа и гаснет после ошибки. Текущее слово помечено обводкой сегментов, завершённое — галочкой.</p>
+  <div class="warn-box">
+    <b>Под столбиками стоят только номера.</b> Подписывать их словами сессии нельзя: правильный ответ всегда одно из этих слов, поэтому подписи показывают ответ прямо на экране — особенно грубо в форматах «собрать из букв» и «перевод → слово». То же касается тултипов, <code>title</code>, <code>aria-label</code> и заголовка вкладки. Состав сессии раскрывается только на стартовом и финальном экранах.
+  </div>
+</div>
+
+</div>
+</body>
+</html>
