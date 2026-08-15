@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FolderInput, FolderMinus, FolderPlus, Trash2, X } from "lucide-react";
+import { FolderMinus, FolderPlus, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete } from "@/components/confirm-delete";
@@ -26,10 +26,11 @@ export type FilingDestination =
  * What to do with the rows that are ticked.
  *
  * A floating pill at the bottom of the screen, not a bar that swaps with the
- * filters: ticking a row should not move the table. Filing offers both "add"
- * and "move" because they are genuinely different intentions. The picker can
- * name a new set as well as pick an existing one — that is how words that
- * arrived with no category get one later, and **Move here** is the usual way.
+ * filters: ticking a row should not move the table. Filing is add or take
+ * out: a word can belong to several lists, so joining one more and leaving
+ * one are the two intentions. The picker can name a new set as well as pick
+ * an existing one — that is how words that arrived with no category get one
+ * later.
  */
 export function WordBulkActions({
   count,
@@ -41,7 +42,7 @@ export function WordBulkActions({
 }: {
   count: number;
   sets: SetOption[];
-  onFile: (destination: FilingDestination, mode: "add" | "move" | "remove") => void;
+  onFile: (destination: FilingDestination, mode: "add" | "remove") => void;
   onDelete: () => void;
   onClear: () => void;
   busy?: boolean;
@@ -65,9 +66,9 @@ export function WordBulkActions({
     ? "New set…"
     : (sets.find((set) => set.id === setId)?.title ?? "Choose a set");
 
-  const file = (mode: "add" | "move") => {
-    if (creating) onFile({ setTitle: newTitle.trim() }, mode);
-    else onFile({ setId }, mode);
+  const fileAdd = () => {
+    if (creating) onFile({ setTitle: newTitle.trim() }, "add");
+    else onFile({ setId }, "add");
   };
 
   const inset =
@@ -92,7 +93,7 @@ export function WordBulkActions({
           {count} selected
         </span>
 
-        <Separator orientation="vertical" className="hidden h-5 sm:block" />
+        <Separator orientation="vertical" className="max-sm:hidden" />
         <Select
           value={setId}
           onValueChange={(next) => {
@@ -121,7 +122,7 @@ export function WordBulkActions({
             value={newTitle}
             onChange={(event) => setNewTitle(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && canFile && !busy) file("move");
+              if (event.key === "Enter" && canFile && !busy) fileAdd();
             }}
             placeholder="Name the new set"
             aria-label="New set name"
@@ -136,17 +137,7 @@ export function WordBulkActions({
           variant="outline"
           size="sm"
           disabled={!canFile || busy}
-          onClick={() => file("move")}
-        >
-          <FolderInput className="size-4" />
-          <span className="hidden sm:inline">Move here</span>
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          disabled={!canFile || busy}
-          onClick={() => file("add")}
+          onClick={fileAdd}
         >
           <FolderPlus className="size-4" />
           <span className="hidden sm:inline">Also add</span>
@@ -154,7 +145,7 @@ export function WordBulkActions({
         {creating ? null : (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             disabled={!setId || busy}
             onClick={() => onFile({ setId }, "remove")}
@@ -164,7 +155,7 @@ export function WordBulkActions({
           </Button>
         )}
 
-        <Separator orientation="vertical" className="hidden h-5 sm:block" />
+        <Separator orientation="vertical" className="max-sm:hidden" />
 
         <ConfirmDelete
           title={`Delete ${count} ${count === 1 ? "word" : "words"}?`}

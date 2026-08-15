@@ -174,14 +174,12 @@ screen rather than taking the place of the filters — a bar that pushes the
 table down moves it out from under the cursor at the exact moment a tick
 goes in. Filters stay where they were.
 
-Filing is three separate verbs, because they are three intentions and guessing
-between them would be wrong: **Move here** (this set and no other, the usual
-one), **Also add** (a word can belong to several lists), **Take out** (leave
-this set, stay in the rest). The picker can name a **new set** as well as pick
-an existing one — the same choice as when adding words. **Move here** then
-creates the deck and files the ticked rows into it, which is how words that
-arrived with no set get one later. **Take out** stays on sets that already
-exist. Deleting asks first, in a shadcn `AlertDialog` — it is the one action nothing
+Filing is two verbs, because a word can belong to several lists: **Also add**
+(join this set, keep the rest), **Take out** (leave this set, stay in the
+rest). The picker can name a **new set** as well as pick an existing one —
+the same choice as when adding words. **Also add** then creates the deck and
+files the ticked rows into it, which is how words that arrived with no set
+get one later. **Take out** stays on sets that already exist. Deleting asks first, in a shadcn `AlertDialog` — it is the one action nothing
 undoes, and `confirm()` looked like the browser talking rather than the app.
 Nothing else asks: a dialog in front of a reversible action teaches people to
 dismiss dialogs. A tick you cannot see is a tick you did not mean, so changing page,

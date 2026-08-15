@@ -195,7 +195,7 @@ export function WordListTable() {
 
   const fileInto = (
     destination: FilingDestination,
-    mode: "add" | "move" | "remove",
+    mode: "add" | "remove",
   ) =>
     act(() =>
       fetch("/api/words", {
