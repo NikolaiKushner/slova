@@ -24,7 +24,7 @@ Authenticated pages use shadcn **Sidebar** (Claude-style shell, Slova colors):
 - Header and footer are hairlined off the scrolling list (`border-sidebar-border` under the wordmark, above the account). They are flex regions, not overlays, so a line is enough.
 - Groups are the four sections of the app — **Tasks**, **Practice**, **Courses**, **Dictionary** — each listing its own pages. The section name is a group label, not a link; the pages inside carry the icons. Order and titles live in `lib/nav.ts`, which is the only place that decides what is active.
 - Nav states: `--sidebar-hover` (lighter) vs `--sidebar-active` (slightly darker) — not the same color.
-- Footer: avatar + name, dropdown opens **up** with Log out.
+- Footer: avatar + name, dropdown opens **to the right** (below on a phone) with Log out.
 
 ## Page width
 
