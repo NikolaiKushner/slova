@@ -1,5 +1,46 @@
 import { z } from "zod";
 
+export const bulkIdsSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1).max(500),
+});
+
+/**
+ * File several words into a set. `setId` is one that already exists; `setTitle`
+ * names one to create (or reuse, if that title is already in the list). The
+ * two together are a contradiction. `remove` only makes sense for a set that
+ * already exists — there is nothing to leave yet.
+ */
+export const filingSchema = bulkIdsSchema
+  .extend({
+    setId: z.string().min(1).optional(),
+    setTitle: z.string().trim().min(1).max(120).optional(),
+    /**
+     * `move` makes this set their only one, `add` files them under one more,
+     * and `remove` takes them out of this one and leaves the rest.
+     */
+    mode: z.enum(["add", "move", "remove"]).default("move"),
+  })
+  .superRefine((value, ctx) => {
+    if (value.setId && value.setTitle) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Choose an existing set or name a new one, not both.",
+      });
+    }
+    if (!value.setId && !value.setTitle) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Which words, and where?",
+      });
+    }
+    if (value.mode === "remove" && !value.setId) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Take out needs an existing set.",
+      });
+    }
+  });
+
 /**
  * Partial word edit. Every field is optional so a caller can touch just one
  * (the word row edits front/back; study may later add a note). Strings are

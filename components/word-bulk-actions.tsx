@@ -1,27 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FolderInput, FolderMinus, FolderPlus, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete } from "@/components/confirm-delete";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
-import type { SetOption } from "@/components/set-picker";
+import { NEW_SET, type SetOption } from "@/components/set-picker";
+
+export type FilingDestination =
+  | { setId: string; setTitle?: undefined }
+  | { setTitle: string; setId?: undefined };
 
 /**
  * What to do with the rows that are ticked.
  *
  * A floating pill at the bottom of the screen, not a bar that swaps with the
  * filters: ticking a row should not move the table. Filing offers both "add"
- * and "move" because they are genuinely different intentions.
+ * and "move" because they are genuinely different intentions. The picker can
+ * name a new set as well as pick an existing one — that is how words that
+ * arrived with no category get one later, and **Move here** is the usual way.
  */
 export function WordBulkActions({
   count,
@@ -33,15 +41,34 @@ export function WordBulkActions({
 }: {
   count: number;
   sets: SetOption[];
-  onFile: (setId: string, mode: "add" | "move" | "remove") => void;
+  onFile: (destination: FilingDestination, mode: "add" | "move" | "remove") => void;
   onDelete: () => void;
   onClear: () => void;
   busy?: boolean;
 }) {
   const [setId, setSetId] = useState("");
+  const [newTitle, setNewTitle] = useState("");
   const { state, isMobile } = useSidebar();
 
+  useEffect(() => {
+    if (count === 0) {
+      setSetId("");
+      setNewTitle("");
+    }
+  }, [count]);
+
   if (count === 0) return null;
+
+  const creating = setId === NEW_SET;
+  const canFile = creating ? newTitle.trim().length > 0 : Boolean(setId);
+  const selectedLabel = creating
+    ? "New set…"
+    : (sets.find((set) => set.id === setId)?.title ?? "Choose a set");
+
+  const file = (mode: "add" | "move") => {
+    if (creating) onFile({ setTitle: newTitle.trim() }, mode);
+    else onFile({ setId }, mode);
+  };
 
   const inset =
     isMobile
@@ -65,60 +92,77 @@ export function WordBulkActions({
           {count} selected
         </span>
 
-        {sets.length > 0 ? (
-          <>
-            <Separator orientation="vertical" className="hidden h-5 sm:block" />
-            <Select
-              value={setId}
-              onValueChange={(next) => setSetId(next ?? "")}
-              disabled={busy}
-            >
-              <SelectTrigger size="sm" className="w-36 sm:w-40" aria-label="Set">
-                <SelectValue placeholder="Choose a set">
-                  {sets.find((set) => set.id === setId)?.title ?? "Choose a set"}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {sets.map((set) => (
-                  <SelectItem key={set.id} value={set.id}>
-                    {set.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <Separator orientation="vertical" className="hidden h-5 sm:block" />
+        <Select
+          value={setId}
+          onValueChange={(next) => {
+            const value = next ?? "";
+            setSetId(value);
+            if (value !== NEW_SET) setNewTitle("");
+          }}
+          disabled={busy}
+        >
+          <SelectTrigger size="sm" className="w-36 sm:w-40" aria-label="Set">
+            <SelectValue placeholder="Choose a set">{selectedLabel}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {sets.map((set) => (
+              <SelectItem key={set.id} value={set.id}>
+                {set.title}
+              </SelectItem>
+            ))}
+            {sets.length > 0 ? <SelectSeparator /> : null}
+            <SelectItem value={NEW_SET}>New set…</SelectItem>
+          </SelectContent>
+        </Select>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!setId || busy}
-              onClick={() => onFile(setId, "move")}
-            >
-              <FolderInput className="size-4" />
-              <span className="hidden sm:inline">Move here</span>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={!setId || busy}
-              onClick={() => onFile(setId, "add")}
-            >
-              <FolderPlus className="size-4" />
-              <span className="hidden sm:inline">Also add</span>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={!setId || busy}
-              onClick={() => onFile(setId, "remove")}
-            >
-              <FolderMinus className="size-4" />
-              <span className="hidden sm:inline">Take out</span>
-            </Button>
-          </>
+        {creating ? (
+          <Input
+            value={newTitle}
+            onChange={(event) => setNewTitle(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && canFile && !busy) file("move");
+            }}
+            placeholder="Name the new set"
+            aria-label="New set name"
+            disabled={busy}
+            autoFocus
+            className="h-7 w-36 sm:w-44"
+          />
         ) : null}
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!canFile || busy}
+          onClick={() => file("move")}
+        >
+          <FolderInput className="size-4" />
+          <span className="hidden sm:inline">Move here</span>
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={!canFile || busy}
+          onClick={() => file("add")}
+        >
+          <FolderPlus className="size-4" />
+          <span className="hidden sm:inline">Also add</span>
+        </Button>
+        {creating ? null : (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={!setId || busy}
+            onClick={() => onFile({ setId }, "remove")}
+          >
+            <FolderMinus className="size-4" />
+            <span className="hidden sm:inline">Take out</span>
+          </Button>
+        )}
 
         <Separator orientation="vertical" className="hidden h-5 sm:block" />
 
