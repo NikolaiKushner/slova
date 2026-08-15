@@ -1,14 +1,15 @@
+import { Layers } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
+import { EmptyState } from "@/components/empty-state";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import { setSummary } from "@/lib/study-queue";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default async function SetsPage() {
   const session = await auth();
@@ -37,10 +38,7 @@ export default async function SetsPage() {
         actions={
           <Link
             href="/dictionary"
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "bg-teal-800 text-white hover:bg-teal-900",
-            )}
+            className={buttonVariants({ size: "lg" })}
           >
             {t("newSet")}
           </Link>
@@ -52,9 +50,16 @@ export default async function SetsPage() {
         hint={sets.length > 0 ? `${sets.length}` : undefined}
       >
         {sets.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-white/50 px-5 py-8 text-muted-foreground">
-            {t("noSets")}
-          </p>
+          <EmptyState
+            icon={Layers}
+            title={t("noSetsTitle")}
+            description={t("noSets")}
+            action={
+              <Button size="lg" render={<Link href="/dictionary" />}>
+                {t("newSet")}
+              </Button>
+            }
+          />
         ) : (
           <ul className="space-y-2">
             {sets.map((set) => {
@@ -70,7 +75,7 @@ export default async function SetsPage() {
                 <li key={set.id}>
                   <Link
                     href={`/dictionary/sets/${set.id}`}
-                    className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-white/80 px-5 py-4 transition hover:border-teal-800/30 hover:bg-white"
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card/80 px-5 py-4 transition hover:border-primary/30 hover:bg-card"
                   >
                     <div>
                       <p className="font-medium text-foreground">{set.title}</p>
@@ -83,7 +88,7 @@ export default async function SetsPage() {
                         })}
                       </p>
                     </div>
-                    <span className="text-sm text-teal-800">{common("open")}</span>
+                    <span className="text-sm text-primary">{common("open")}</span>
                   </Link>
                 </li>
               );

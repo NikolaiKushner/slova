@@ -26,15 +26,6 @@ function AuthHeroTitles() {
   );
 }
 
-export function AuthBackground() {
-  return (
-    <div className="pointer-events-none absolute inset-0 -z-10">
-      <div className="absolute -left-20 top-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute -right-16 bottom-20 h-80 w-80 rounded-full bg-brand-soft/15 blur-3xl" />
-    </div>
-  );
-}
-
 export function AuthCard({
   eyebrow,
   title,
@@ -62,6 +53,13 @@ export function AuthCard({
   );
 }
 
+/**
+ * The doorway: brand and a still on the left, the form on the right.
+ *
+ * Sign in and Create an account both use it. They are the same decision seen
+ * twice — a person who lands on the wrong one should not feel they crossed
+ * into another product — so only the lead sentence differs.
+ */
 export function AuthSplit({
   lead,
   children,
@@ -71,7 +69,6 @@ export function AuthSplit({
 }) {
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
-      <AuthBackground />
       <div className="mx-auto flex w-full max-w-5xl flex-1 items-center px-6 py-12 lg:py-20">
         <div className="grid w-full items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="hidden lg:block">
@@ -104,12 +101,19 @@ export function AuthSplit({
   );
 }
 
+/**
+ * One column, centred. For the errands — reset a password, confirm an address
+ * — where there is nothing to sell and the page is a single instruction.
+ * Sign in and Create an account use `AuthSplit` instead.
+ */
 export function AuthNarrow({ children }: { children: React.ReactNode }) {
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
-      <AuthBackground />
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-12">
-        <Link href="/" className="inline-flex self-start transition hover:opacity-80">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-12 lg:py-20">
+        <Link
+          href="/"
+          className="inline-flex self-start transition hover:opacity-80"
+        >
           <BrandWordmark className="text-3xl" />
         </Link>
         <div className="mt-8">{children}</div>

@@ -25,8 +25,11 @@ cheap check moved locally, and the slow ones stayed in CI:
 - **Run `npm test` before pushing to `main`.** It is vitest over `tests/unit`
   and takes seconds. This is the one local check that is worth its cost, and it
   is now the only thing standing between a typo and production.
-- **Still do not run the dev server, e2e tests, or browsers in agent sessions.**
-  Those are slow, flaky, and CI does them better.
+- **Running the dev server and driving a browser is allowed** — and expected
+  for UI work. A screen that has only been type-checked has not been checked:
+  the layout, the keyboard and the sound all fail in ways `tsc` cannot see.
+  Start `npm run dev`, open the screen, and look at it before saying it works.
+  Automated e2e suites still belong in CI, not in a session.
 - CI (`.github/workflows/ci.yml`) runs on every push to `main`: unit tests →
   Prisma generate → production build. It no longer blocks anything — treat it
   as a smoke alarm. If it goes red, fix forward with another commit.

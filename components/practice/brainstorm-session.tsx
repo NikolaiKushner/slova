@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -268,12 +269,15 @@ function Done({
   label: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-4 py-10 text-center">
-      <p className="font-display text-2xl">{title}</p>
-      <p className="text-muted-foreground max-w-sm text-sm">{body}</p>
-      <Button size="lg" render={<Link href={href} />}>
-        {label}
-      </Button>
-    </div>
+    <EmptyState
+      variant="screen"
+      title={title}
+      description={body}
+      action={
+        <Button size="lg" render={<Link href={href} />}>
+          {label}
+        </Button>
+      }
+    />
   );
 }

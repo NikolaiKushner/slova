@@ -42,7 +42,7 @@ export function VerifyEmailForm({
     return (
       <Button
         size="lg"
-        className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
+        className="min-h-11 w-full"
         render={<Link href="/login" />}
       >
         {t("signIn")}
@@ -71,7 +71,7 @@ export function VerifyEmailForm({
       <Button
         type="submit"
         size="lg"
-        className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
+        className="min-h-11 w-full"
         disabled={pending}
       >
         {pending ? t("confirming") : t("confirmEmail")}

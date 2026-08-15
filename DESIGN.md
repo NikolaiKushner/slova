@@ -39,6 +39,26 @@ The shell no longer picks a width — the page does, via `components/page.tsx`:
   lesson list, My words, Today — every app screen. A phone is narrower, so it
   shrinks. `<PageWide>` is the same width; the name is leftover.
 
+## Empty states
+
+One component, `EmptyState`, built on the shadcn `Empty` primitives. There
+used to be four hand-written versions — a bare sentence under the word list, a
+dashed box on the sets page, and two identical blocks inside the practice
+sessions. Four empty states is four voices telling somebody the same thing:
+that they are early, not that they are lost.
+
+- **`panel`** sits in the slot the missing content would fill — dashed frame,
+  `bg-card/50`, so the page keeps its shape and you can see where things land.
+- **`screen`** is the whole view: a training with no words, the end of a
+  session. Nothing to outline, because nothing is missing from a slot.
+- The icon tile is the landing's (`bg-accent`, teal glyph). A first-run screen
+  and the marketing page should be visibly the same product.
+- **An empty state earns a button only when there is somewhere to go.** The
+  word list with nothing in it says so and stops — the box that fills it is
+  directly above. The word list emptied *by a filter* gets **Clear the filter**,
+  because there the only clue that words still exist is a filter the person has
+  forgotten they set.
+
 ## Placeholders
 
 A page that isn't built yet uses `ComingSoon` — one component, not a dozen hand-written empty states, so the four sections keep reading as one app. It takes the section name as eyebrow and a short list of what will live there; concrete beats "coming soon". It is built from `PageHeader` + `Section`, so the frame doesn't shift when the page gets real content.
@@ -71,6 +91,7 @@ two designs stitched together. Sections are separated by `space-y-10`.
 |------|---------------|-------|-----|
 | Soft sage | `--brand-soft` / `text-brand-soft` | `#5C8680` | Eyebrows (`TODAY`), sidebar group labels, micro-labels on cards (“Word”), section tags |
 | Strong teal | `--primary` / `bg-teal-800` | `#115E59` | Primary CTAs, filled buttons |
+| Forest | `--brand-deep` / `bg-brand-deep` | `#093B32` | The closing band on the landing, and the OG card behind it |
 
 Do **not** use strong teal for quiet labels — that kills the calm look. Soft sage is for orientation; strong teal is for actions.
 
@@ -84,12 +105,23 @@ More places for soft sage later: progress hints, “due” chips, empty-state ac
 | `--foreground` | `#15202B` | Body text |
 | `--brand-soft` | `#5C8680` | Soft green labels (TODAY) |
 | `--primary` / teal | `#115E59` | CTAs, accent links |
+| `--brand-deep` / forest | `#093B32` | Closing band on public pages |
 | `--accent` | `#D7ECE8` | Soft teal wash |
 | `--muted-foreground` | `#5B6B78` | Secondary copy |
 | `--border` | `#D5DEE6` | Hairlines |
+| `--correct` / soft / line | `#3F7D5F` / `#E4F0E7` / `#B9D6C3` | A right answer in a drill |
+| `--wrong` / soft / line | `#A4544B` / `#F6E6E3` / `#E3C3BD` | A wrong one |
 | `--radius` | `0.75rem` | Controls and panels |
 
 Use tokens / Tailwind theme classes — do not hardcode new hex in components unless adding a token here first.
+
+**A palette class is a hardcoded colour too.** `bg-teal-800`, `text-teal-800`
+and `bg-white` were scattered through the app; they happened to match
+`--primary` and `--card` until the day a token moves, and then half the screens
+follow and half do not. They are gone: filled buttons are the default `Button`
+variant, surfaces are `bg-card`, accents are `text-primary`. The one exception
+is the Google mark in `GoogleSignInButton`, which needs a white plate under it
+because it is somebody else's logo, not our surface.
 
 ## Typography
 
@@ -116,25 +148,97 @@ the art goes out as `/og-v2.png`, not over the same URL.
 ## Landing
 
 Quiet editorial: serif titles, mist wash, product stills. No stock photos
-(Big Ben, buses, Scrabble) — absence of pictures is the look.
+(Big Ben, buses, Scrabble) — absence of pictures is the look. The page reads
+top to bottom as one argument: paste → proof → the four moves → dictionary →
+practice → courses → start.
 
-- Full app window (sidebar included) once, in the hero. Later stills crop to
-  the content panel (`ProductFrame chrome="panel"`), or to a fragment
-  (`ProductPanel`) when three formats sit in a row.
-- Vertical rhythm ~120–160px between sections (`py-12` / `lg:py-16`). Text
-  and stills share a top edge (`items-start`). No 50px chessboard offset.
-- Density changes, not new objects: a white band under Practice (`bg-card`),
-  a filled primary band for the closing CTA. That last button is the strongest
-  on the page (light fill on teal), not an outline.
-- One Sign in — in the header. The hero has Create account and a quiet
-  “free · no card” line.
+- **Stills, not screenshots.** Full app window (sidebar included) once, in the
+  hero. Later stills crop to the content panel (`ProductFrame chrome="panel"`),
+  or to a fragment (`ProductPanel`) when three formats sit in a row. Their
+  interior is white (`bg-card`) — the mock is a window onto the app, and the
+  page wash has no business inside it.
+- **Rhythm is whitespace, not rules or bands.** ~96–128px above each band
+  (`pt-24 lg:pt-32`), and nothing below it. Text and stills share a top edge
+  (`items-start`). Splits are 0.86 / 1.14 — the still is the wider column, and
+  it swaps sides between Dictionary and Courses. No 50px chessboard offset.
+- **The proof strip is the one ruled thing**: three numbers between hairlines
+  (`border-y`, `divide-x`), serif and teal, each with one line saying what the
+  number is. It sits directly under the hero because that is where a claim
+  needs backing.
+- **Eyebrows are small**: 11px, semibold, `tracking-[0.16em]`, soft sage. The
+  landing runs finer than the app's `text-sm` micro-labels — the type beside
+  them is bigger, so the label has to be quieter to stay a label.
+- **Chips carry state.** A row of chips names the seven trainings (from
+  `TRAININGS` + the `trainings` catalog, so the page cannot claim a format the
+  app does not have). The three that the stills below show are filled with the
+  accent wash; the rest sit outlined. A chip row where everything is lit says
+  nothing.
+- **Two calls to action, one strongest.** Header: Sign in, quiet. Hero: Create
+  account (filled) with “I already have an account” beside it as a plain link,
+  then a micro-line of facts separated by dots — free · no card · 8,000+ words.
+- **The page ends on forest** (`bg-brand-deep`), and the footer sits *inside*
+  that band (`SiteFooter tone="dark"`) — a strip of mist under a dark band
+  looks like the page fell off. The closing button is light on forest, the
+  strongest fill on the page. The wordmark drops its teal S there
+  (`BrandWordmark tone="light"`), because two greens on green fight.
 - The shared dictionary is quoted as **more than 8,000 words**, not the exact
   seed count (`SHARED_LEXICON_SIZE` in `lib/site.ts`) — that number will drift.
+
+## The page wash
+
+One wash for every public page, on a **fixed pseudo-element** (`body::before`),
+never `background-attachment: fixed` on the body itself. That property paints
+the gradient against the viewport while filling a box the height of the
+document, so any page taller than one screen gets a hard tonal step across its
+full width — it was visible under the heading on Terms. The auth pages had
+their own blurred blobs on top of it; they are gone, because two washes on the
+same site is two sites.
+
+## The doorway — sign in and register
+
+They are **one layout** (`AuthSplit`): brand, headline and a still on the left,
+the card on the right, the pair centred in the window. Only the lead sentence
+differs. Sign in and Create an account are the same decision seen twice, and
+somebody who lands on the wrong one should be able to cross over without
+feeling they changed product. The legal line sits **under** the card on both,
+not inside one of them.
+
+`AuthNarrow` — one centred column, no still — is for the errands: reset a
+password, confirm an address. Nothing is being offered there, so there is
+nothing to put beside it.
+
+## Legal pages
+
+Privacy and Terms share one frame (`LegalPage`), because two documents that
+disagree about their own margins read as two policies.
+
+- The reading column is **anchored to the left edge of the header grid**
+  (`max-w-6xl px-6`), not centred in the window. A centred column under a
+  full-width header lines up with nothing and orphans the logo above it.
+- The measure is **~68 characters** (`max-w-[68ch]`). These are the only pages
+  on the site meant to be read top to bottom; the landing's measure is too wide
+  for prose.
+- Every page carries **the date it was last changed** (`legal.updated` in both
+  catalogues). A legal page with no date gives the reader no way to tell
+  whether it is still true. It is written out rather than formatted from a
+  `Date`, because `Intl` renders Russian as “15 августа 2026 г.” and the “г.”
+  is the one word of officialese on either page. A unit test keeps the two
+  languages naming the same day.
+- **Links in prose look like links** — brand teal with a thin underline
+  (`ProseLink`, used everywhere prose links: legal text, “you agree to the
+  Terms”, “Already have an account?”). Ink a shade darker than the text around
+  it reads as a bold word, and nobody clicks a bold word.
+- Privacy answers the two questions people actually open it for: **what they
+  can ask for** (see it, get it as a file, correct it, delete it) and **where
+  the data physically sits** (Neon `us-east-1`, Vercel in the US, Resend for
+  mail) — named plainly, because a European reader is owed a straight answer.
 
 ## Motion
 
 - Study card enter: `rise-in` ~320ms
 - Prefer opacity/transform; no glow stacks
+- The landing has exactly one moving thing: the caret in the typing still
+  (`caret-blink`). Both animations stop under `prefers-reduced-motion`.
 
 ## Progress on Today
 
@@ -254,6 +358,46 @@ The destructive action differs by surface, and the icon says which:
 
 Every training is the same screen with a different question in it. The prompt
 is Fraunces and large; the answer area is whatever that format needs.
+
+**A running drill is not a page with a header.** The training title and its
+description belong to the step where you choose the words; once questions
+start, the question is the page. What stays is one bar (`DrillBar`): the way
+out, a progress track, and the count split into **right** and **missed** rather
+than shown as a score — "14 / 20" mid-drill reads as a grade to protect, while
+"3 missed" reads as three words that will come back. The menu dims to 45% while
+a question is on screen (`useFocusMode`) and comes back on hover.
+
+**Sound gets the size of the question it is.** On the two formats where the
+sound *is* the prompt, the speaker is a 96px circle in the middle of the screen
+(`AudioPrompt`) and it says whether it is speaking — two rings leave it while
+the word plays. Sound is the one thing on screen with no shape, and a listening
+question that looks identical playing and silent cannot be answered. Beside it,
+**Again** and **Slowly**: a word missed once is missed either because it was not
+heard or because it was not caught, and replaying at the same speed only fixes
+the first. Everywhere else — a written prompt with sound available — the speaker
+stays a small ghost button beside the word, because there it is a second opinion
+about something already visible.
+
+**The word is revealed with the verdict, never before it**, together with its
+transcription when the shared base has one. It is kept in the layout the whole
+time (`invisible`, not unmounted) so nothing jumps at the moment somebody is
+reading which option was right.
+
+**A verdict has its own two colours**, `--correct` and `--wrong` — not
+`--primary` and `--destructive`. A right answer is not a call to action and a
+wrong one is not a warning; both are quieter than the buttons they sit under.
+The chosen and the correct option keep full contrast, and the options that were
+neither step back to 45% rather than disappearing — the one you nearly picked
+is worth seeing beside the one that was right.
+
+**The end of a training is three numbers**, not a sentence: right, missed, and
+how long it took (`DrillSummary`). **Once more** re-runs the training rather
+than replaying the same twenty words — the words just rated are not due any
+more.
+
+**The keys are printed under the question** (`ShortcutHints`), per format, so
+they only ever name keys that work there. A shortcut nobody is told about is a
+shortcut nobody uses. Hidden below `sm`, where there is no keyboard to hint at.
 
 **The whole of it works from the keyboard**, because a drill you can only do
 with a mouse is a drill people stop doing:

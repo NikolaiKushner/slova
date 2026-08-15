@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { ProseLink } from "@/components/prose-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,15 +72,13 @@ export function ForgotPasswordForm() {
       <Button
         type="submit"
         size="lg"
-        className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
+        className="min-h-11 w-full"
         disabled={pending}
       >
         {pending ? t("sending") : t("emailResetLink")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
-        <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
-          {t("backToSignIn")}
-        </Link>
+        <ProseLink href="/login">{t("backToSignIn")}</ProseLink>
       </p>
     </form>
   );

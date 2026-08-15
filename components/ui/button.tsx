@@ -1,3 +1,5 @@
+import * as React from "react"
+
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -44,12 +46,28 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  render,
+  nativeButton,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  /*
+   * `render={<Link/>}` renders an <a>, not a <button>, and Base UI defaults to
+   * assuming a native button — so every button-shaped link in the app logged a
+   * warning about lost button semantics. It is right to warn and wrong about
+   * the fix: a control that navigates *should* be a link. So the answer is to
+   * tell it what is actually being rendered rather than to force a <button>
+   * around a href. Detected here, once, instead of at forty call sites.
+   */
+  const isNative =
+    nativeButton ??
+    (!render || (React.isValidElement(render) && render.type === "button"))
+
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      render={render}
+      nativeButton={isNative}
       {...props}
     />
   )

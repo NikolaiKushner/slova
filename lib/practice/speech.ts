@@ -99,10 +99,22 @@ let interrupting = false;
  * caller falls through to speech, which is refused less often because it is
  * not "media".
  */
-async function playRecording(url: string): Promise<boolean> {
+async function playRecording(
+  url: string,
+  options: SpeakOptions,
+): Promise<boolean> {
   try {
     const audio = new Audio(url);
     audio.preload = "auto";
+    // A recording slowed below about 0.6 turns to mud; the synthesiser copes
+    // better, so "slowly" on a recorded word is 0.7 rather than the 0.6 a
+    // voice gets.
+    if (options.rate && options.rate < 1) audio.playbackRate = 0.7;
+    if (options.onEnd) {
+      const done = options.onEnd;
+      audio.addEventListener("ended", done, { once: true });
+      audio.addEventListener("error", done, { once: true });
+    }
     await audio.play();
     return true;
   } catch {
@@ -110,14 +122,41 @@ async function playRecording(url: string): Promise<boolean> {
   }
 }
 
-export async function speak(text: string, audioUrl?: string | null): Promise<boolean> {
+export type SpeakOptions = {
+  /**
+   * Below 1 is the "slowly" button. Not a separate function, because the only
+   * difference between hearing a word and hearing it again slowly is this
+   * number, and a second code path would drift from the first.
+   */
+  rate?: number;
+  /** Fired when the word has finished — or failed. Always fired exactly once. */
+  onEnd?: () => void;
+};
+
+export async function speak(
+  text: string,
+  audioUrl?: string | null,
+  options: SpeakOptions = {},
+): Promise<boolean> {
+  // Every path below can end the word — the recording ends, the utterance
+  // ends, it errors, or it never starts at all. The caller only wants to be
+  // told once, so the guard lives here rather than in four places.
+  let ended = false;
+  const finish = () => {
+    if (ended) return;
+    ended = true;
+    options.onEnd?.();
+  };
+  const settings: SpeakOptions = { ...options, onEnd: finish };
+
   if (audioUrl && typeof window !== "undefined") {
-    if (await playRecording(audioUrl)) return true;
+    if (await playRecording(audioUrl, settings)) return true;
     // Fall through: a refused recording is still a word that needs saying.
   }
 
   if (!speechAvailable() || !text.trim()) {
     report("unavailable", text);
+    finish();
     return false;
   }
 
@@ -143,7 +182,7 @@ export async function speak(text: string, audioUrl?: string | null): Promise<boo
       utterance.lang = LANG;
       // A shade below normal: a word heard once and typed from memory should
       // not also be a hearing test.
-      utterance.rate = 0.9;
+      utterance.rate = settings.rate ?? 0.9;
 
       const voice = pickVoice();
       if (voice) utterance.voice = voice;
@@ -161,6 +200,7 @@ export async function speak(text: string, audioUrl?: string | null): Promise<boo
 
       const release = () => {
         inFlight.delete(utterance);
+        finish();
       };
 
       utterance.onstart = () => settle(true);
@@ -214,6 +254,9 @@ export async function speak(text: string, audioUrl?: string | null): Promise<boo
 
   if (!started) {
     report(wedged ? "was accepted but never played" : "did not start", text);
+    // Nothing is coming, so the caller's "speaking" state has to be released
+    // here or it stays on forever with the rings turning over silence.
+    finish();
   }
   return started;
 }

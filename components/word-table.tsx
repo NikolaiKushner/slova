@@ -39,7 +39,7 @@ export function WordTable({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-border bg-white/80",
+        "overflow-hidden rounded-2xl border border-border bg-card/80",
         className,
       )}
     >

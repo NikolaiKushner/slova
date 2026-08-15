@@ -75,10 +75,7 @@ export default async function TodayPage() {
         {summary.total > 0 ? (
           <Link
             href="/practice"
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "bg-teal-800 text-white hover:bg-teal-900",
-            )}
+            className={buttonVariants({ size: "lg" })}
           >
             {t("studyNow")}
           </Link>

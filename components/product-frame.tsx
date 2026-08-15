@@ -40,7 +40,7 @@ export function ProductFrame({
         <span className="size-2 rounded-full bg-border" />
         <BrandWordmark className="ml-3 text-sm" />
       </div>
-      <div className="flex bg-background">
+      <div className="flex bg-card">
         {chrome === "window" ? (
           <aside className="hidden w-40 shrink-0 border-r border-sidebar-border bg-sidebar p-3 sm:block">
             <p className="px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
@@ -96,13 +96,19 @@ export function ProductFrame({
   );
 }
 
-/** A cropped fragment — no window chrome, so three can sit in a row. */
+/**
+ * A cropped fragment — no window chrome, so three can sit in a row. The label
+ * says which training it is, because three questions with no names read as one
+ * screen shown three times.
+ */
 export function ProductPanel({
   children,
   className,
+  label,
 }: {
   children: React.ReactNode;
   className?: string;
+  label?: string;
 }) {
   return (
     <div
@@ -112,7 +118,14 @@ export function ProductPanel({
       )}
       aria-hidden
     >
-      <div className="bg-background px-5 py-5">{children}</div>
+      <div className="px-5 py-5">
+        {label ? (
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.15em] text-brand-soft">
+            {label}
+          </p>
+        ) : null}
+        {children}
+      </div>
     </div>
   );
 }
@@ -198,14 +211,11 @@ export function DictionaryScreen() {
             <p className="px-3 py-2.5 text-muted-foreground">{ru}</p>
           </div>
         ))}
-        <div className="grid grid-cols-2 border-t border-border text-sm text-muted-foreground">
+        <div className="grid grid-cols-2 border-t border-border text-sm text-muted-foreground/70">
           <p className="px-3 py-2.5">{t("typeOrPaste")}</p>
           <p className="px-3 py-2.5"> </p>
         </div>
       </div>
-      <span className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground">
-        {t("addWords")}
-      </span>
     </div>
   );
 }
@@ -238,54 +248,73 @@ export function PracticeScreen() {
   );
 }
 
+/** One option row, as the drill draws it. `picked` is the answer being given. */
+function StillOption({
+  children,
+  index,
+  picked = false,
+}: {
+  children: React.ReactNode;
+  index?: number;
+  picked?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm",
+        picked
+          ? "border-primary/30 bg-accent text-foreground"
+          : "border-border bg-card text-muted-foreground",
+      )}
+    >
+      {index === undefined ? null : (
+        <span className="w-3 shrink-0 text-xs text-brand-soft">{index}</span>
+      )}
+      {children}
+    </div>
+  );
+}
+
 export function PracticeChoiceStill() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <p className="font-display text-2xl tracking-tight">hello</p>
       <div className="grid gap-2">
-        {["привет", "пока", "спасибо", "пожалуйста"].map((option, i) => (
-          <div
-            key={option}
-            className={cn(
-              "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm",
-              i === 0
-                ? "border-primary/30 bg-accent text-foreground"
-                : "border-border bg-card text-muted-foreground",
-            )}
-          >
-            <span className="w-4 text-xs text-brand-soft">{i + 1}</span>
+        {["привет", "пока", "спасибо"].map((option, i) => (
+          <StillOption key={option} index={i + 1} picked={i === 0}>
             {option}
-          </div>
+          </StillOption>
         ))}
       </div>
     </div>
   );
 }
 
+/** Bar heights for the waveform — a fixed pattern, not random, so it is stable. */
+const WAVE = [7, 14, 20, 11, 17, 8, 13, 19, 9, 15, 6, 12];
+
 export function PracticeAudioStill() {
-  const t = useTranslations("practice");
   return (
-    <div className="flex flex-col items-center gap-4 text-center">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
-        {t("listen")}
-      </p>
-      <span className="inline-flex h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-foreground">
-        <Volume2 className="size-5 text-brand-soft" />
-        {t("play")}
-      </span>
-      <div className="grid w-full gap-2">
-        {["привет", "пока", "спасибо", "пожалуйста"].map((option, i) => (
-          <div
-            key={option}
-            className={cn(
-              "rounded-lg border px-3 py-2 text-sm",
-              i === 0
-                ? "border-primary/30 bg-accent text-foreground"
-                : "border-border bg-card text-muted-foreground",
-            )}
-          >
+    <div className="space-y-3">
+      <div className="flex items-center gap-3 py-1">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-primary">
+          <Volume2 className="size-4" aria-hidden />
+        </span>
+        <span className="flex h-6 items-center gap-[2.5px]">
+          {WAVE.map((height, i) => (
+            <span
+              key={i}
+              className="w-[2.5px] rounded-full bg-border"
+              style={{ height }}
+            />
+          ))}
+        </span>
+      </div>
+      <div className="grid gap-2">
+        {["хотя", "один"].map((option, i) => (
+          <StillOption key={option} index={i + 1} picked={i === 0}>
             {option}
-          </div>
+          </StillOption>
         ))}
       </div>
     </div>
@@ -293,19 +322,15 @@ export function PracticeAudioStill() {
 }
 
 export function PracticeTypingStill() {
-  const t = useTranslations("practice");
-  const common = useTranslations("common");
+  const t = useTranslations("product");
   return (
-    <div className="space-y-4">
-      <p className="font-display text-2xl tracking-tight">получить</p>
-      <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-muted-foreground">
-          {t("typeEnglish")}
-        </div>
-        <span className="inline-flex h-9 shrink-0 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground">
-          {common("check")}
-        </span>
-      </div>
+    <div className="space-y-3">
+      <p className="font-display text-2xl tracking-tight">потому что</p>
+      <p className="border-b-[1.5px] border-primary px-0.5 py-1.5 text-sm">
+        becau
+        <span className="caret-blink ml-px inline-block h-[15px] w-px translate-y-[3px] bg-primary" />
+      </p>
+      <p className="text-xs text-muted-foreground/80">{t("enterToCheck")}</p>
     </div>
   );
 }

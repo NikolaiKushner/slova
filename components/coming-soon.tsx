@@ -28,7 +28,7 @@ export function ComingSoon({ page }: { page: ComingSoonPage }) {
         description={t("description")}
       />
       <Section title={common("planned")}>
-        <ul className="space-y-2 rounded-2xl border border-dashed border-border bg-white/50 px-5 py-6 text-muted-foreground">
+        <ul className="space-y-2 rounded-2xl border border-dashed border-border bg-card/50 px-5 py-6 text-muted-foreground">
           {planned.map((line) => (
             <li key={line} className="flex gap-3">
               <span aria-hidden className="text-brand-soft">

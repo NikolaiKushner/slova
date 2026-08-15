@@ -23,7 +23,7 @@ export default async function StudySetPage({ params }: Props) {
         actions={
           <Link
             href={`/dictionary/sets/${set.id}`}
-            className="text-sm text-teal-800 hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             {t("openSet")}
           </Link>

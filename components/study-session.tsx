@@ -180,7 +180,7 @@ export function StudySession({ setId }: Props) {
       <button
         type="button"
         onClick={() => setFlipped((f) => !f)}
-        className="study-card group relative flex min-h-56 w-full flex-col items-center justify-center rounded-2xl border border-border bg-white px-8 py-10 text-center shadow-sm transition duration-300 hover:shadow-md"
+        className="study-card group relative flex min-h-56 w-full flex-col items-center justify-center rounded-2xl border border-border bg-card px-8 py-10 text-center shadow-sm transition duration-300 hover:shadow-md"
       >
         <span className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
           {flipped ? common("translation") : common("word")}
@@ -211,7 +211,6 @@ export function StudySession({ setId }: Props) {
           size="lg"
           disabled={!flipped || busy}
           onClick={() => rate("good")}
-          className="bg-teal-800 text-white hover:bg-teal-900"
         >
           {t("knowIt")}
         </Button>

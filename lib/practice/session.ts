@@ -61,33 +61,40 @@ export async function buildPracticeSession(
       });
 
   const pool = await buildPool(userId);
-  return { words: await withAudio(words), pool };
+  return { words: await withLexemeExtras(words), pool };
 }
 
 /**
- * Attaches the shared recording to each word.
+ * Attaches what the shared base knows about each word: the recording, and the
+ * transcription shown beside the answer.
  *
  * Joined by normalised key rather than by `lexemeId`, because that link is
  * soft and may be null on words added before the lexicon existed. The key is
  * the thing both sides agree on — it is what the whole shared base is indexed
  * by.
  */
-async function withAudio(words: PracticeWord[]): Promise<PracticeWord[]> {
+async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> {
   if (words.length === 0) return words;
 
   const keys = words.map((word) => normalizeKey(word.front)).filter(Boolean);
   if (keys.length === 0) return words;
 
   const lexemes = await getPrisma().lexeme.findMany({
-    where: { lang: STUDY_SOURCE_LANG, key: { in: keys }, audioUrl: { not: null } },
-    select: { key: true, audioUrl: true },
+    // No `audioUrl: not null` filter any more: a word can have a transcription
+    // and no recording, and that row is still worth having.
+    where: { lang: STUDY_SOURCE_LANG, key: { in: keys } },
+    select: { key: true, audioUrl: true, transcription: true },
   });
-  const byKey = new Map(lexemes.map((lexeme) => [lexeme.key, lexeme.audioUrl]));
+  const byKey = new Map(lexemes.map((lexeme) => [lexeme.key, lexeme]));
 
-  return words.map((word) => ({
-    ...word,
-    audioUrl: byKey.get(normalizeKey(word.front)) ?? null,
-  }));
+  return words.map((word) => {
+    const lexeme = byKey.get(normalizeKey(word.front));
+    return {
+      ...word,
+      audioUrl: lexeme?.audioUrl ?? null,
+      transcription: lexeme?.transcription ?? null,
+    };
+  });
 }
 
 /**

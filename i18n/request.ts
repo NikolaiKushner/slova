@@ -15,5 +15,8 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: catalogs[locale],
+    // Fixed, so a formatted date is the same on the server and in the browser.
+    // Without it next-intl warns on every date it formats.
+    timeZone: "UTC",
   };
 });

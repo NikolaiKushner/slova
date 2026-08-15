@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, BookText, SearchX } from "lucide-react";
 
 import {
   Pagination,
@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SetOption } from "@/components/set-picker";
 import { WordListFilters } from "@/components/word-list-filters";
@@ -240,9 +241,31 @@ export function WordListTable() {
           ))}
         </div>
       ) : !data || data.total === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          {filtered ? t("nothingMatches") : t("nothingHere")}
-        </p>
+        /*
+         * Two different emptinesses. An unfiltered list is empty because the
+         * person is new — the box that fills it is directly above, so the
+         * state only has to say so. A filtered one is empty because of
+         * something they typed, and the way out is a button: without it the
+         * only clue that words still exist is the filter they have forgotten
+         * they set.
+         */
+        <EmptyState
+          icon={filtered ? SearchX : BookText}
+          title={filtered ? t("nothingMatchesTitle") : t("nothingHereTitle")}
+          description={filtered ? t("nothingMatches") : t("nothingHere")}
+          action={
+            filtered ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => update({ q: "", set: "" })}
+              >
+                {t("clearFilters")}
+              </Button>
+            ) : null
+          }
+        />
       ) : (
         <>
           <div

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Check, Delete, Volume2, X } from "lucide-react";
 
+import { AudioPrompt } from "@/components/practice/audio-prompt";
+import { ShortcutHints } from "@/components/practice/shortcut-hints";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { judge, passed, type Verdict } from "@/lib/practice/answer";
@@ -26,9 +28,12 @@ export type Answered = { verdict: Verdict; given: string };
 export function QuestionView({
   question,
   onAnswered,
+  answered = false,
 }: {
   question: Question;
   onAnswered: (result: Answered) => void;
+  /** The verdict is in. Audio formats use it to reveal the word they hid. */
+  answered?: boolean;
 }) {
   /**
    * `blocked` means the browser refused to talk without being asked — a press
@@ -37,18 +42,12 @@ export function QuestionView({
    */
   const [sound, setSound] = useState<"ok" | "blocked" | "broken">("ok");
 
-  // A sound question should be heard without being asked for; a written one
-  // should not start talking at somebody.
-  useEffect(() => {
-    if (question.kind !== "audio-choice" && question.kind !== "listening") return;
-    let ignore = false;
-    speak(question.speak ?? "", question.audioUrl).then((started) => {
-      if (!ignore && !started) setSound("blocked");
-    });
-    return () => {
-      ignore = true;
-    };
-  }, [question]);
+  /*
+   * The two sound formats no longer autoplay from here — `AudioPrompt` owns
+   * their sound end to end, so that the button it is played from is also the
+   * thing that shows it playing. Two owners meant the word was said twice.
+   * The written formats never spoke on arrival and still do not.
+   */
 
   async function play() {
     const started = await speak(question.speak ?? "", question.audioUrl);
@@ -61,7 +60,14 @@ export function QuestionView({
 
   return (
     <div className="space-y-6">
-      <Prompt question={question} sound={sound} onPlay={play} />
+      <Prompt
+        question={question}
+        sound={sound}
+        onPlay={play}
+        answered={answered}
+        onSilent={(source) => setSound(source === "auto" ? "blocked" : "broken")}
+        onHeard={() => setSound("ok")}
+      />
 
       {"options" in question ? (
         <Choices key={key} question={question} onAnswered={onAnswered} />
@@ -78,10 +84,16 @@ function Prompt({
   question,
   sound,
   onPlay,
+  answered,
+  onSilent,
+  onHeard,
 }: {
   question: Question;
   sound: "ok" | "blocked" | "broken";
   onPlay: () => void;
+  answered: boolean;
+  onSilent: (source: "auto" | "manual") => void;
+  onHeard: () => void;
 }) {
   const t = useTranslations("practice");
   const hasSound = Boolean(question.speak);
@@ -89,33 +101,49 @@ function Prompt({
   // there is no exercise left, only a dead end. Show it and let them move on.
   const rescued = sound === "broken" && !question.prompt;
 
+  /*
+   * Two shapes of prompt, and which one you get is decided by the format, not
+   * by taste. When the sound is the question there is nothing else on screen,
+   * so it gets the big button. When the word or its translation is written up
+   * there, sound is a second opinion about something already visible, and a
+   * small speaker beside it is the right weight.
+   */
+  if (!question.prompt && hasSound && !rescued) {
+    return (
+      <div className="flex flex-col items-center gap-4 text-center">
+        <AudioPrompt
+          word={question.speak ?? ""}
+          audioUrl={question.audioUrl}
+          transcription={question.transcription}
+          reveal={answered}
+          onSilent={onSilent}
+          onHeard={onHeard}
+        />
+        {sound === "blocked" ? (
+          <p className="text-muted-foreground text-xs">{t("pressPlay")}</p>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       {question.prompt ? (
         <p className="font-display text-3xl">{question.prompt}</p>
-      ) : rescued ? (
-        <p className="font-display text-3xl">{question.speak}</p>
       ) : (
-        <p className="text-brand-soft text-xs tracking-widest uppercase">
-          {t("listen")}
-        </p>
+        <p className="font-display text-3xl">{question.speak}</p>
       )}
 
       {hasSound && !rescued && (
         <Button
           type="button"
           variant="ghost"
-          size={question.prompt ? "sm" : "lg"}
+          size="sm"
           onClick={onPlay}
           aria-label={t("playWord")}
         >
-          <Volume2 className={question.prompt ? "size-4" : "size-6"} />
-          {question.prompt ? null : t("play")}
+          <Volume2 className="size-4" />
         </Button>
-      )}
-
-      {sound === "blocked" && !question.prompt && (
-        <p className="text-muted-foreground text-xs">{t("pressPlay")}</p>
       )}
 
       {rescued && (
@@ -169,35 +197,78 @@ function Choices({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [question, chosen, choose]);
 
+  const t = useTranslations("practice");
+  const withSound = question.kind === "audio-choice";
+
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
-      {question.options.map((option, index) => (
-        <Button
-          key={option}
-          type="button"
-          variant="outline"
-          size="lg"
-          className={cn(
-            "h-auto justify-start py-3 text-base whitespace-normal",
-            chosen !== null &&
-              index === question.answerIndex &&
-              "border-primary text-primary",
-            chosen === index &&
-              index !== question.answerIndex &&
-              "border-destructive text-destructive",
-          )}
-          disabled={chosen !== null && index !== chosen && index !== question.answerIndex}
-          onClick={() => choose(index)}
-        >
-          <span
-            aria-hidden
-            className="text-muted-foreground border-border mr-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md border text-xs"
-          >
-            {index + 1}
-          </span>
-          {option}
-        </Button>
-      ))}
+    <div className="space-y-5">
+      <ul className="space-y-2">
+        {question.options.map((option, index) => {
+          const isAnswer = index === question.answerIndex;
+          const decided = chosen !== null;
+          const correct = decided && isAnswer;
+          const wrong = decided && chosen === index && !isAnswer;
+
+          return (
+            <li key={option}>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={decided}
+                onClick={() => choose(index)}
+                className={cn(
+                  "h-auto w-full justify-start gap-3.5 px-4 py-3.5 text-left text-[15px] whitespace-normal transition",
+                  !decided &&
+                    "bg-card hover:border-brand-soft hover:translate-x-0.5",
+                  // A disabled control is normally faded; here the verdict is
+                  // the whole point of the screen, so the two answered states
+                  // keep full contrast and only the bystanders step back.
+                  decided && "disabled:opacity-100",
+                  correct &&
+                    "bg-correct-soft border-correct-line text-correct hover:bg-correct-soft",
+                  wrong &&
+                    "bg-wrong-soft border-wrong-line text-wrong hover:bg-wrong-soft",
+                  decided &&
+                    !correct &&
+                    !wrong &&
+                    "bg-card border-border disabled:opacity-45",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "flex size-[22px] shrink-0 items-center justify-center rounded-[5px] text-[11.5px] transition",
+                    correct
+                      ? "bg-correct text-white"
+                      : wrong
+                        ? "bg-wrong text-white"
+                        : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {index + 1}
+                </span>
+                <span className="min-w-0 flex-1">{option}</span>
+                {correct ? <Check className="size-4 shrink-0" /> : null}
+                {wrong ? <X className="size-4 shrink-0" /> : null}
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <ShortcutHints
+        items={[
+          {
+            keys: ["1", String(question.options.length)],
+            label: t("hintPick"),
+          },
+          ...(withSound
+            ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
+            : []),
+          { keys: [t("keyEnter")], label: t("hintNext") },
+        ]}
+      />
     </div>
   );
 }
@@ -279,7 +350,11 @@ function Builder({
       <div
         className={cn(
           "flex min-h-12 items-center justify-center rounded-lg border border-dashed px-4",
-          done ? (right ? "border-primary" : "border-destructive") : "border-border",
+          done
+            ? right
+              ? "border-primary"
+              : "border-destructive"
+            : "border-border",
         )}
       >
         <span
@@ -288,7 +363,9 @@ function Builder({
             done && (right ? "text-primary" : "text-destructive"),
           )}
         >
-          {assembled || <span className="text-muted-foreground text-base">…</span>}
+          {assembled || (
+            <span className="text-muted-foreground text-base">…</span>
+          )}
         </span>
       </div>
 
@@ -322,6 +399,15 @@ function Builder({
           </Button>
         </div>
       )}
+
+      <ShortcutHints
+        className="justify-center"
+        items={[
+          { keys: [], label: t("hintTypeLetters") },
+          { keys: [t("keyBackspace")], label: t("hintTakeBack") },
+          { keys: [t("keyEnter")], label: t("hintNext") },
+        ]}
+      />
     </div>
   );
 }
@@ -348,37 +434,50 @@ function Typed({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-sm items-center gap-2">
-      <Input
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            submit();
-          }
-        }}
-        placeholder={t("typeEnglish")}
-        aria-label={t("yourAnswer")}
-        disabled={done}
-        autoFocus
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-        className={cn(
-          "h-9 min-w-0 flex-1 text-center text-base",
-          done && (right ? "border-primary text-primary" : "border-destructive"),
-        )}
+    <div className="mx-auto w-full max-w-sm space-y-3">
+      <div className="flex items-center gap-2">
+        <Input
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              submit();
+            }
+          }}
+          placeholder={t("typeEnglish")}
+          aria-label={t("yourAnswer")}
+          disabled={done}
+          autoFocus
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          className={cn(
+            "h-9 min-w-0 flex-1 text-center text-base",
+            done &&
+              (right ? "border-primary text-primary" : "border-destructive"),
+          )}
+        />
+        <Button
+          type="button"
+          size="lg"
+          onClick={submit}
+          disabled={done || !value.trim()}
+          className={done ? "invisible" : undefined}
+        >
+          {common("check")}
+        </Button>
+      </div>
+
+      <ShortcutHints
+        className="justify-center"
+        items={[
+          {
+            keys: [t("keyEnter")],
+            label: done ? t("hintNext") : t("hintCheck"),
+          },
+        ]}
       />
-      <Button
-        type="button"
-        size="lg"
-        onClick={submit}
-        disabled={done || !value.trim()}
-        className={done ? "invisible" : undefined}
-      >
-        {common("check")}
-      </Button>
     </div>
   );
 }

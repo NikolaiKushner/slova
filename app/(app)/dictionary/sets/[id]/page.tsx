@@ -1,3 +1,4 @@
+import { BookText } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
@@ -6,6 +7,7 @@ import { notFound, redirect } from "next/navigation";
 import { SetWords } from "@/components/set-words";
 import { DeleteSetButton } from "@/components/delete-set-button";
 import { AddWordsPanel } from "@/components/add-words-panel";
+import { EmptyState } from "@/components/empty-state";
 import { Page } from "@/components/page";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
@@ -80,9 +82,11 @@ export default async function SetPage({ params }: Props) {
               }))}
             />
           ) : (
-            <p className="rounded-2xl border border-dashed border-border bg-white/50 px-3 py-8 text-center text-sm text-muted-foreground">
-              {t("emptySet")}
-            </p>
+            <EmptyState
+              icon={BookText}
+              title={t("emptySetTitle")}
+              description={t("emptySet")}
+            />
           )}
         </Section>
 

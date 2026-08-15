@@ -168,7 +168,7 @@ export function AppSearch({ className }: { className?: string }) {
                         onClick={() => go(`/dictionary/sets/${set.id}`)}
                         className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-sidebar-hover"
                       >
-                        <Library className="size-4 shrink-0 text-teal-800/80" />
+                        <Library className="size-4 shrink-0 text-primary/80" />
                         <span className="min-w-0 flex-1 truncate font-medium">
                           {set.title}
                         </span>
@@ -201,7 +201,7 @@ export function AppSearch({ className }: { className?: string }) {
                         }
                         className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-sidebar-hover"
                       >
-                        <BookOpen className="size-4 shrink-0 text-teal-800/80" />
+                        <BookOpen className="size-4 shrink-0 text-primary/80" />
                         <span className="min-w-0 flex-1 truncate">
                           <span className="font-medium">{word.front}</span>
                           <span className="text-muted-foreground">
