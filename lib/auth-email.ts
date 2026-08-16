@@ -1,5 +1,5 @@
 /**
- * Transactional email. Colours are the design tokens from DESIGN.md, inlined
+ * Transactional email. Colours are the design-system tokens, inlined
  * because mail clients have no Tailwind. Do not invent new hex here.
  */
 

@@ -275,7 +275,7 @@ function Builder({
    * The tiles, the slots and their keyboard live in LetterTiles now; what
    * stays here is the only part that is about this exercise rather than about
    * letters — judging the guess. `judge` and not a string comparison, because
-   * a word one letter out is "почти" and the session treats it as such.
+   * a word one letter out is "almost" and the session treats it as such.
    */
   const complete = useCallback(
     (given: string) => {
@@ -334,7 +334,7 @@ function Typed({
 
   /*
    * Once judged, the field gives way to the word spelled out. Spelling is the
-   * entire question in these two formats, so "Неверно" beside a box still
+   * entire question in these two formats, so "Incorrect" beside a box still
    * holding the typo asks the learner to diff two strings in their head.
    */
   if (done || answered) {

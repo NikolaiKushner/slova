@@ -8,10 +8,11 @@ import { cn } from "@/lib/utils";
 /**
  * How the dictionary is going, in four numbers and one bar.
  *
- * No charts and no tiles — `DESIGN.md` rules both out, and they would be
- * measuring the wrong thing anyway. The bar is the only picture here because
- * three proportions are genuinely easier to see than to read, and because it
- * is the shape of the answer to "am I getting anywhere": the green end grows.
+ * No charts and no tiles — the design system rules both out, and they would
+ * be measuring the wrong thing anyway. The bar is the only picture here
+ * because three proportions are genuinely easier to see than to read, and
+ * because it is the shape of the answer to "am I getting anywhere": the
+ * green end grows. Colours are the data tokens from §5.3.
  */
 export function OverviewStats({ overview }: { overview: Overview }) {
   const t = useTranslations("overview");
@@ -33,9 +34,9 @@ export function OverviewStats({ overview }: { overview: Overview }) {
   }
 
   const bands = [
-    { key: "learned" as const, value: overview.learned, className: "bg-primary" },
-    { key: "learning" as const, value: overview.learning, className: "bg-brand-soft" },
-    { key: "notStarted" as const, value: overview.fresh, className: "bg-border" },
+    { key: "learned" as const, value: overview.learned, className: "bg-data-learned" },
+    { key: "learning" as const, value: overview.learning, className: "bg-data-learning" },
+    { key: "notStarted" as const, value: overview.fresh, className: "bg-data-untouched" },
   ].filter((band) => band.value > 0);
 
   return (

@@ -28,7 +28,7 @@ export function AnswerFeedback({
   verdict: Verdict | null;
   /** The right answer, shown when the learner did not produce it. */
   answer?: string;
-  /** Session bookkeeping, e.g. "ступень 2 → 3". Never the answer itself. */
+  /** Session bookkeeping, e.g. "rung 2 → 3". Never the answer itself. */
   note?: string;
   className?: string;
 }) {

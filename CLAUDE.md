@@ -41,26 +41,26 @@ cheap check moved locally, and the slow ones stayed in CI:
 
 ## Design system
 
-Дизайн интерфейса подчиняется `docs/design-system.md`.
-Перед любой правкой UI прочитай этот файл.
-Цвета, размеры, радиусы, тени — только через токены из `app/globals.css`.
-Хардкод hex, произвольные размеры вне типографической шкалы и собственные
-реализации того, что есть в shadcn/ui, — не принимаются.
+The interface follows `docs/design-system.md`.
+Read that file before any UI change.
+Colours, sizes, radii, shadows — only through tokens in `app/globals.css`.
+Hardcoded hex, sizes off the type scale, and hand-rolled versions of what
+shadcn/ui already has, are not accepted.
 
-- `docs/design-system.md` — спецификация, единственный источник правды.
-  Она главнее привычки: если код расходится с документом, переписывается код.
-- `docs/MIGRATION.md` — порядок переделки интерфейса и чеклист готовности
-  экрана. Шаги идут по одному, каждый шаг — отдельный коммит.
-- `docs/tokens.html` — визуальная шпаргалка к токенам, открывается в браузере.
-- `docs/globals.reference.css` — эталон токенов. `app/globals.css` расходится
-  с ним только там, где расхождение помечено комментарием и объяснено.
+- `docs/design-system.md` — the specification, the single source of truth.
+  It outranks habit: if the code diverges from the document, rewrite the code.
+- `docs/MIGRATION.md` — record of the interface rebuild and the screen
+  checklist. The rebuild is done; the checklist still applies.
+- `docs/tokens.html` — visual cheat sheet for the tokens, opens in a browser.
+- `docs/globals.reference.css` — token reference. `app/globals.css` diverges
+  from it only where the divergence is marked with a comment and explained.
 - Build UI from shadcn/ui components — never hand-roll a control in raw HTML
   and never write custom CSS to fake one. Missing primitive? Install it with
   `npx shadcn@latest add <name>`.
 
 ## Project notes
 
-- Next.js App Router + Route Handlers + Prisma/SQLite; see README.md.
+- Next.js App Router + Route Handlers + Prisma over Neon Postgres; see README.md.
 - **npm is the package manager.** `package-lock.json` is the only lockfile —
   CI runs `npm ci` and Vercel infers npm from it. Never commit a second
   lockfile: Vercel prefers `pnpm-lock.yaml` when present, which silently

@@ -14,11 +14,11 @@ import { cn } from "@/lib/utils";
  * invent a sixth, which is the whole point of naming them.
  */
 const CONTAINERS = {
-  prose: "container-prose", // 700 — правило урока, юридические страницы
-  list: "container-list", // 780 — мои слова, списки уроков, каталог
-  wide: "container-wide", // 840 — тренировки, дашборд
-  focus: "container-focus", // 540 — экран вопроса
-  marketing: "container-marketing", // 1120 — лендинг
+  prose: "container-prose", // 700 — lesson rule, legal pages
+  list: "container-list", // 780 — my words, lesson lists, catalog
+  wide: "container-wide", // 840 — trainings, dashboard
+  focus: "container-focus", // 540 — question screen
+  marketing: "container-marketing", // 1120 — landing
 } as const;
 
 export type ContainerKind = keyof typeof CONTAINERS;

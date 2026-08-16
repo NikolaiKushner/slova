@@ -5,8 +5,8 @@ export const OG_SIZE = { width: 1200, height: 630 };
 /**
  * Share card. Dark is the default — the same forest as a filled CTA, so it
  * holds in a feed of pale previews. Light exists to match the page wash.
- * Hex is from the OG HTML spec / DESIGN.md; ImageResponse is not on the
- * page cascade.
+ * Hex is from the OG HTML spec / design-system tokens; ImageResponse is not on
+ * the page cascade.
  */
 export type OgVariant = "dark" | "light";
 

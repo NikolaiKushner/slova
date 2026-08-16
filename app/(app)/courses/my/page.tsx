@@ -72,7 +72,7 @@ export default async function MyCoursesPage() {
                           {course.title}
                         </span>
                         {course.done ? (
-                          <span className="text-brand-soft text-[0.65rem] font-medium tracking-widest uppercase">
+                          <span className="text-overline text-eyebrow">
                             {common("done")}
                           </span>
                         ) : null}

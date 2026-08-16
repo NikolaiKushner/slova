@@ -43,10 +43,10 @@ export default function KitPage() {
     <div className="container-wide px-6 py-12">
       <h1 className="text-h1">Training kit</h1>
       <p className="text-muted-foreground mt-2 text-lead">
-        Все состояния компонентов из §14. Страница только для разработки.
+        All §14 component states. Development only.
       </p>
 
-      <Row title="Вариант ответа">
+      <Row title="Answer option">
         <OptionList>
           <li>
             <OptionButton index={0}>по умолчанию</OptionButton>
@@ -73,12 +73,12 @@ export default function KitPage() {
           </li>
         </OptionList>
         <p className="text-muted-foreground mt-3 text-caption">
-          Наведите на первый — граница зеленеет и строка сдвигается на 2px.
-          Пройдите табом — фокусное кольцо одно на весь продукт.
+          Hover the first — the border turns green and the row shifts 2px.
+          Tab to it — the focus ring is the same one the rest of the product uses.
         </p>
       </Row>
 
-      <Row title="Реакция на ответ">
+      <Row title="Answer reaction">
         <div className="divide-border divide-y">
           <AnswerFeedback verdict={null} />
           <AnswerFeedback verdict="correct" note="ступень 2 → 3" />
@@ -90,34 +90,34 @@ export default function KitPage() {
           />
         </div>
         <p className="text-muted-foreground mt-3 text-caption">
-          Первая строка пустая: контейнер держит 44px, поэтому появление реакции
-          не двигает варианты.
+          The first row is empty: the container holds 44px, so a verdict does
+          not move the options.
         </p>
       </Row>
 
-      <Row title="Кнопка звука">
+      <Row title="Sound button">
         <div className="flex items-end gap-8">
           <PlayButton size="lg" playing={playing} onClick={() => setPlaying((p) => !p)} />
           <PlayButton size="sm" playing={playing} onClick={() => setPlaying((p) => !p)} />
           <PlayButton size="sm" disabled />
           <Button variant="outline" size="sm" onClick={() => setPlaying((p) => !p)}>
-            {playing ? "Остановить кольца" : "Пустить кольца"}
+            {playing ? "Stop the rings" : "Start the rings"}
           </Button>
         </div>
       </Row>
 
-      <Row title="Компактное произношение">
+      <Row title="Compact pronunciation">
         <div className="flex flex-wrap items-center gap-8">
           <SpeakButton text="She works here." />
           <SpeakButton text="She works here." disabled />
         </div>
         <p className="text-muted-foreground mt-3 text-caption">
-          Обычная и медленная кнопки используют Web Speech при пустом
-          манифесте. Справа — отключённое состояние.
+          Normal and slow buttons use Web Speech when the manifest is empty.
+          On the right — disabled.
         </p>
       </Row>
 
-      <Row title="Лестница брейншторма">
+      <Row title="Brainstorm ladder">
         <StageRail
           currentId="c"
           words={[
@@ -130,21 +130,21 @@ export default function KitPage() {
           ]}
         />
         <p className="text-muted-foreground mt-4 text-caption">
-          Под столбиками только номера и галочка. Ни одного слова сессии — ни в
-          подписи, ни в <code className="text-token">aria-label</code>: правильный
-          ответ всегда одно из них.
+          Under the columns, only numbers and a tick. No session word — not in
+          the caption, not in <code className="text-token">aria-label</code>:
+          the right answer is always one of them.
         </p>
       </Row>
 
-      <Row title="Шаги урока">
+      <Row title="Lesson steps">
         <div className="flex flex-col gap-4">
-          <ProgressSteps total={6} current={0} label="Шаг 1 из 6" />
-          <ProgressSteps total={6} current={3} label="Шаг 4 из 6" />
-          <ProgressSteps total={6} current={5} label="Шаг 6 из 6" />
+          <ProgressSteps total={6} current={0} label="Step 1 of 6" />
+          <ProgressSteps total={6} current={3} label="Step 4 of 6" />
+          <ProgressSteps total={6} current={5} label="Step 6 of 6" />
         </div>
       </Row>
 
-      <Row title="Собрать слово">
+      <Row title="Assemble the word">
         <LetterTiles
           word="become"
           verdict={built}
@@ -152,16 +152,16 @@ export default function KitPage() {
         />
         <div className="mt-6 flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setBuilt(null)}>
-            Сбросить
+            Reset
           </Button>
         </div>
         <p className="text-muted-foreground mt-3 text-caption">
-          Буквы набираются с клавиатуры, Backspace возвращает последнюю, проверка
-          сама при заполнении последней ячейки.
+          Letters type from the keyboard, Backspace returns the last one,
+          checking happens when the last cell fills.
         </p>
       </Row>
 
-      <Row title="Строка урока">
+      <Row title="Lesson row">
         <Card className="gap-0 py-0">
           <ul className="divide-border-subtle divide-y">
             <li>
@@ -198,12 +198,12 @@ export default function KitPage() {
           </ul>
         </Card>
         <p className="text-muted-foreground mt-3 text-caption">
-          Следующий урок — фон сайдбара, врезка слева и бейдж. Пройденный несёт
-          галочку, не номер.
+          The next lesson — sidebar background, a left inset, and a badge.
+          A finished one carries a tick, not a number.
         </p>
       </Row>
 
-      <Row title="Подсказки клавиш">
+      <Row title="Key hints">
         <KeyHints
           hints={[
             { keys: ["1", "4"], label: "выбрать" },
@@ -214,11 +214,11 @@ export default function KitPage() {
           ]}
         />
         <p className="text-muted-foreground mt-3 text-caption">
-          На сенсорном экране этот блок скрыт целиком.
+          Hidden entirely on a touch screen.
         </p>
       </Row>
 
-      <Row title="Пример в уроке">
+      <Row title="Lesson example">
         <RuleExample
           en={
             <>
@@ -229,13 +229,13 @@ export default function KitPage() {
           speakText="She works here."
         />
         <p className="text-muted-foreground mt-3 text-caption">
-          Левая линейка, английское в Literata, перевод ниже.
+          A left rule, English in Literata, translation below.
         </p>
       </Row>
 
-      <Row title="Форма слова">
+      <Row title="Word form">
         <p className="text-body">
-          После he / she / it:{" "}
+          After he / she / it:{" "}
           <Token>
             work<TokenMark>s</TokenMark>
           </Token>
@@ -251,7 +251,7 @@ export default function KitPage() {
         </p>
       </Row>
 
-      <Row title="Врезка">
+      <Row title="Callout">
         <Callout variant="warning" title="Где обычно ошибаются">
           <p>
             После <strong>he / she / it</strong> глагол не оставляют как в словаре:{" "}

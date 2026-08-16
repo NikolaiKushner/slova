@@ -291,7 +291,7 @@ function Chip({
   );
 }
 
-/** "новые слова · Easy, My words" — the sentence the bar reads out. */
+/** "new words · Easy, My words" — the sentence the bar reads out. */
 function describe(
   t: ReturnType<typeof useTranslations<"practice">>,
   value: Source,

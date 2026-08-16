@@ -127,7 +127,7 @@ export function PracticeSession({
     [word, kind, data],
   );
 
-  /* Per §14 and the mockup: after a verdict only "Enter дальше" remains. */
+  /* Per §14 and the mockup: after a verdict only "Enter next" remains. */
   const hints =
     result !== null
       ? [{ keys: [t("keyEnter")], label: t("hintNext") }]
@@ -154,7 +154,7 @@ export function PracticeSession({
    * Sent and not waited on: a training that pauses between questions to wait
    * for the network is a worse training, and a lost rating costs one interval.
    * The reply is used when it arrives — it carries the real next interval, and
-   * "вернётся через N дней" has to be the schedule's answer rather than a
+   * "comes back in N days" has to be the schedule's answer rather than a
    * plausible-looking number.
    */
   const record = useCallback((wordId: string, correct: boolean) => {
@@ -248,7 +248,7 @@ export function PracticeSession({
             <>
               {/*
                 Right and missed rather than a score: "14 / 20" mid-drill reads
-                as a grade to protect, "3 мимо" reads as three words coming back.
+                as a grade to protect, "3 missed" reads as three words coming back.
               */}
               <span className="text-success text-caption tabular-nums">
                 {t("rightN", { count: right })}

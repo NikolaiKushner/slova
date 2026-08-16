@@ -111,7 +111,7 @@ function SidebarUserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left outline-none transition-colors hover:bg-sidebar-hover focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-sidebar-hover group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0!"
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-sidebar-ring data-popup-open:bg-muted group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0!"
       >
         <Avatar className="size-8 bg-foreground text-background after:border-transparent group-data-[collapsible=icon]:size-7">
           <AvatarFallback className="bg-foreground text-sm font-medium text-background group-data-[collapsible=icon]:text-xs">
@@ -191,7 +191,7 @@ export function AppSidebar() {
              * tallest. So the spacing answers the height of the window rather
              * than picking one compromise for both: roomy above 800, and
              * squeezed below it, where the alternative is a scroll that hides
-             * "Готовые наборы". The gap between items never changes.
+             * "Ready-made sets". The gap between items never changes.
              */
             className="py-2 first:pt-2 last:pb-2 [@media(max-height:800px)]:py-2 [@media(max-height:800px)]:first:pt-1 [@media(max-height:800px)]:last:pb-1"
           >

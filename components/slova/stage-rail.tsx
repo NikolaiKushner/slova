@@ -22,9 +22,9 @@ export type StageRailWord = {
  *
  * The right answer is always one of the words in the session. A rail captioned
  * with them is the answer key, printed above the question — worst of all in
- * "собрать из букв" and "перевод → слово", where it reads out literally. So a
+ * "assemble from letters" and "translation → word", where it reads out literally. So a
  * column is labelled with its ordinal, and a finished one with a tick. The
- * `aria-label` says "Слово 3: 2 из 5 ступеней" and stops there.
+ * `aria-label` says "Word 3: 2 of 5 rungs" (in the UI locale) and stops there.
  *
  * The session's contents are revealed exactly twice: on the start screen,
  * before anything is asked, and on the summary, after everything is.

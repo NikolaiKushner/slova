@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { Eyebrow } from "@/components/slova/eyebrow";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -32,10 +33,8 @@ export function DrillSummary({
 
   return (
     <div className="flex flex-col items-center py-12 text-center">
-      <p className="text-brand-soft text-[11px] font-semibold tracking-[0.16em] uppercase">
-        {t("doneEyebrow")}
-      </p>
-      <h2 className="font-display mt-5 text-4xl tracking-tight">
+      <Eyebrow>{t("doneEyebrow")}</Eyebrow>
+      <h2 className="text-h1 mt-2.5">
         {missed === 0
           ? t("allRightTitle", { total })
           : t("scoreTitle", { right, total })}
@@ -76,9 +75,9 @@ function Score({
       <dd
         className={
           tone === "right"
-            ? "font-display text-correct text-4xl leading-none tabular-nums"
+            ? "font-display text-success text-4xl leading-none tabular-nums"
             : tone === "missed"
-              ? "font-display text-wrong text-4xl leading-none tabular-nums"
+              ? "font-display text-destructive text-4xl leading-none tabular-nums"
               : "font-display text-4xl leading-none tabular-nums"
         }
       >

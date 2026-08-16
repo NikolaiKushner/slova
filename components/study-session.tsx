@@ -182,7 +182,7 @@ export function StudySession({ setId }: Props) {
         onClick={() => setFlipped((f) => !f)}
         className="study-card group relative flex min-h-56 w-full flex-col items-center justify-center rounded-2xl border border-border bg-card px-8 py-10 text-center shadow-sm transition duration-300 hover:shadow-md"
       >
-        <span className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
+        <span className="text-overline text-eyebrow mb-3">
           {flipped ? common("translation") : common("word")}
         </span>
         <span className="font-display text-4xl leading-tight tracking-tight text-foreground transition duration-300 sm:text-5xl">

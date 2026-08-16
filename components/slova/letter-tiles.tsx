@@ -5,14 +5,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * "Собрать слово" — §14.
+ * "Assemble the word" — §14.
  *
  * Slots along the top, one per letter; shuffled tiles below. Checking happens
  * by itself when the last slot fills, so there is no button to hunt for, and
  * Backspace returns the last letter to the pile.
  *
  * The word is spelled out in the slots when the guess is wrong. Being told
- * "неверно" and not shown the spelling teaches nothing, and this is the rung
+ * "incorrect" and not shown the spelling teaches nothing, and this is the rung
  * where spelling is the whole point.
  */
 export function LetterTiles({

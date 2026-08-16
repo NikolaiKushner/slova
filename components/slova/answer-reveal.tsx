@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  * What the word was, letter by letter, after a written answer.
  *
  * The written formats — type it, take dictation, build it from letters — are
- * the only ones where spelling is the whole question, and "Неверно" on its own
+ * the only ones where spelling is the whole question, and "Incorrect" on its own
  * teaches nothing there: the learner is left to spot the difference between
  * what they wrote and what was right by holding both in their head. So the
  * answer is spelled out with the letters that matched in green and the ones

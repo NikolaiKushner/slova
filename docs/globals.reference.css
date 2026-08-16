@@ -1,7 +1,7 @@
 /* ============================================================
-   Slova — токены дизайн-системы
+   Slova — design-system tokens
    Tailwind CSS v4 + shadcn/ui
-   Подключается один раз: app/globals.css
+   Included once from: app/globals.css
    ============================================================ */
 
 @import "tailwindcss";
@@ -10,10 +10,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ------------------------------------------------------------
-   1. ПРИМИТИВЫ
+   1. PRIMITIVES
    ------------------------------------------------------------ */
 :root {
-  /* нейтральная шкала — H 165 */
+  /* neutral scale — H 165 */
   --neutral-0:    oklch(100%   0     165);
   --neutral-25:   oklch(99.0%  0.002 165);
   --neutral-50:   oklch(97.6%  0.003 165);
@@ -28,7 +28,7 @@
   --neutral-800:  oklch(34.5%  0.012 165);
   --neutral-900:  oklch(23.4%  0.008 165);
 
-  /* зелёная шкала — H 172 */
+  /* green scale — H 172 */
   --green-50:   oklch(97.2% 0.010 172);
   --green-100:  oklch(93.0% 0.022 172);
   --green-200:  oklch(88.0% 0.035 172);
@@ -41,7 +41,7 @@
   --green-900:  oklch(26.0% 0.048 172);
   --green-950:  oklch(20.0% 0.038 172);
 
-  /* служебные */
+  /* status */
   --success-50:   oklch(95.5% 0.022 155);
   --success-200:  oklch(88.0% 0.045 155);
   --success-600:  oklch(52.0% 0.085 155);
@@ -53,7 +53,7 @@
   --warning-600:  oklch(52.0% 0.085 75);
 
   /* ----------------------------------------------------------
-     2. СЕМАНТИКА — светлая тема
+     2. SEMANTICS — light theme
      ---------------------------------------------------------- */
   --background:            var(--neutral-100);
   --foreground:            var(--neutral-900);
@@ -96,7 +96,7 @@
   --inverse-foreground:    var(--neutral-0);
   --inverse-muted:         var(--green-300);
 
-  /* сайдбар (конвенция shadcn) */
+  /* sidebar (shadcn convention) */
   --sidebar:                     var(--neutral-25);
   --sidebar-foreground:          var(--neutral-700);
   --sidebar-border:              var(--neutral-200);
@@ -106,7 +106,7 @@
   --sidebar-primary-foreground:  var(--neutral-0);
   --sidebar-ring:                var(--green-400);
 
-  /* данные / прогресс */
+  /* data / progress */
   --data-learned:      var(--green-700);
   --data-learning:     var(--green-400);
   --data-untouched:    var(--neutral-200);
@@ -114,7 +114,7 @@
   --data-missed:       var(--danger-600);
 
   /* ----------------------------------------------------------
-     3. ГЕОМЕТРИЯ
+     3. GEOMETRY
      ---------------------------------------------------------- */
   --radius: 0.625rem;                    /* 10px */
   --radius-xs: calc(var(--radius) - 6px);
@@ -133,7 +133,7 @@
   --container-marketing: 1120px;
 
   /* ----------------------------------------------------------
-     4. ТЕНИ
+     4. SHADOWS
      ---------------------------------------------------------- */
   --shadow-xs:      0 1px 2px rgb(20 32 29 / .04);
   --shadow-sm:      0 1px 2px rgb(20 32 29 / .05), 0 1px 3px rgb(20 32 29 / .04);
@@ -144,7 +144,7 @@
   --focus-ring:     0 0 0 3px rgb(125 172 156 / .28);
 
   /* ----------------------------------------------------------
-     5. ДВИЖЕНИЕ
+     5. MOTION
      ---------------------------------------------------------- */
   --ease-standard:   cubic-bezier(.4, 0, .2, 1);
   --ease-emphasized: cubic-bezier(.2, .8, .2, 1);
@@ -156,7 +156,7 @@
 }
 
 /* ------------------------------------------------------------
-   6. ТЁМНАЯ ТЕМА
+   6. DARK THEME
    ------------------------------------------------------------ */
 .dark {
   --background:            oklch(17.5% 0.006 165);
@@ -205,7 +205,7 @@
 }
 
 /* ------------------------------------------------------------
-   7. РЕГИСТРАЦИЯ В TAILWIND
+   7. TAILWIND REGISTRATION
    ------------------------------------------------------------ */
 @theme inline {
   --font-sans:    var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -269,13 +269,13 @@
 }
 
 /* ------------------------------------------------------------
-   8. БАЗА
+   8. BASE
    ------------------------------------------------------------ */
 @layer base {
   * { @apply border-border; }
 
   html {
-    -webkit-text-size-adjust: 100%;   /* iPad: не менять кегль при повороте */
+    -webkit-text-size-adjust: 100%;   /* iPad: do not change type size on rotate */
     scroll-behavior: smooth;
   }
 
@@ -301,7 +301,7 @@
     outline-offset: 2px;
   }
 
-  /* iPad: не зумить при фокусе в поле */
+  /* iPad: do not zoom on field focus */
   input, textarea, select { font-size: max(1rem, 16px); }
 
   button, [role="button"], a { touch-action: manipulation; }
@@ -310,7 +310,7 @@
 }
 
 /* ------------------------------------------------------------
-   9. ТИПОГРАФИЧЕСКИЕ УТИЛИТЫ
+   9. TYPE UTILITIES
    ------------------------------------------------------------ */
 @layer utilities {
   .text-display {
@@ -377,7 +377,7 @@
   .container-marketing { max-width: var(--container-marketing); margin-inline: auto; }
 }
 
-/* --- планшет --- */
+/* --- tablet --- */
 @media (max-width: 1024px) {
   .text-display { font-size: 2.5rem; }
   .text-h1      { font-size: 2rem; }
@@ -386,7 +386,7 @@
   .text-numeral { font-size: 1.875rem; }
 }
 
-/* --- телефон --- */
+/* --- phone --- */
 @media (max-width: 640px) {
   .text-display { font-size: 2.125rem; }
   .text-h1      { font-size: 1.75rem; }
@@ -398,18 +398,18 @@
 }
 
 /* ------------------------------------------------------------
-   10. СЕНСОРНЫЙ ВВОД (iPad)
+   10. TOUCH INPUT (iPad)
    ------------------------------------------------------------ */
 @media (pointer: coarse) {
-  /* минимальная цель 44×44 */
+  /* minimum target 44×44 */
   button, [role="button"], a[role="button"], .tap-target {
     min-height: 44px;
     min-width: 44px;
   }
   .option-row { min-height: 56px; padding-block: 1rem; }
   .letter-tile { width: 48px; height: 48px; }
-  .key-hints { display: none; }        /* подсказки клавиш не нужны без клавиатуры */
-  .row-actions { opacity: 1 !important; }  /* действия строки видны всегда */
+  .key-hints { display: none; }        /* key hints are unused without a keyboard */
+  .row-actions { opacity: 1 !important; }  /* row actions always visible */
 }
 
 @media (hover: none) {
@@ -417,7 +417,7 @@
 }
 
 /* ------------------------------------------------------------
-   11. ФОН-ЗЕРНО
+   11. GRAIN BACKGROUND
    ------------------------------------------------------------ */
 .grain::before {
   content: "";
@@ -426,7 +426,7 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.045'/></svg>");
 }
 
-/* верхняя акцентная полоса */
+/* top accent bar */
 .top-accent::after {
   content: "";
   position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 50;
@@ -435,7 +435,7 @@
 .dark .top-accent::after { opacity: .35; }
 
 /* ------------------------------------------------------------
-   12. СНИЖЕННАЯ АНИМАЦИЯ
+   12. REDUCED MOTION
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

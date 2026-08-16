@@ -1,99 +1,99 @@
-# Slova — дизайн-система и спецификация интерфейса
+# Slova — design system and interface specification
 
-**Версия 1.0 · август 2026**
-Стек: Next.js (App Router) · Tailwind CSS v4 · shadcn/ui · lucide-react
+**Version 1.0 · August 2026**
+Stack: Next.js (App Router) · Tailwind CSS v4 · shadcn/ui · lucide-react
 
-Этот документ — единственный источник правды по визуальному слою. Всё, что не описано здесь, выводится из принципов в §1. Если реализация и документ расходятся — прав документ.
-
----
-
-## Содержание
-
-1. [Принципы](#1-принципы)
-2. [Шрифты](#2-шрифты)
-3. [Типографическая шкала](#3-типографическая-шкала)
-4. [Цвет: примитивы](#4-цвет-примитивы)
-5. [Цвет: семантические токены](#5-цвет-семантические-токены)
-6. [Радиусы, границы, тени](#6-радиусы-границы-тени)
-7. [Отступы и ритм](#7-отступы-и-ритм)
-8. [Сетка, контейнеры, брейкпоинты](#8-сетка-контейнеры-брейкпоинты)
-9. [iPad и сенсорный ввод](#9-ipad-и-сенсорный-ввод)
-10. [Состояния](#10-состояния)
-11. [Движение](#11-движение)
-12. [Иконки](#12-иконки)
-13. [Компоненты shadcn: карта соответствий](#13-компоненты-shadcn-карта-соответствий)
-14. [Кастомные компоненты](#14-кастомные-компоненты)
-15. [Спецификации экранов](#15-спецификации-экранов)
-16. [Пустые состояния, загрузка, ошибки](#16-пустые-состояния-загрузка-ошибки)
-17. [Текст и тон](#17-текст-и-тон)
-18. [Доступность](#18-доступность)
-19. [Реализация](#19-реализация)
-20. [Чего не делать](#20-чего-не-делать)
+This document is the single source of truth for the visual layer. Everything not described here is derived from the principles in §1. If the implementation and the document diverge — the document is right.
 
 ---
 
-## 1. Принципы
+## Contents
 
-1. **Тихий издательский стиль.** Серифные заголовки, много воздуха, один приглушённый зелёный акцент, никакой декорации. Продукт про слова — типографика и есть оформление.
-2. **Фотографий нет.** Ни стоковых, ни иллюстраций-персонажей. Смысловая графика — только типографика, лёгкое зерно и SVG-иконки.
-3. **Плотность растёт внутрь.** Лендинг просторный, словарь плотный, тренировка сфокусированная. Три режима плотности, а не один.
-4. **Экран не должен прыгать.** Внутри одного сценария (тренировка, урок) зоны имеют фиксированную высоту: смена задания меняет содержимое, а не геометрию.
-5. **Прогресс всегда виден и всегда двигается.** Любой счётчик, который не меняется после действия пользователя, — ошибка проектирования.
-6. **Одна вещь — один вид.** Один и тот же по смыслу экран (вопрос с вариантами) выглядит одинаково везде: в тренировке, в брейншторме, в уроке грамматики.
-7. **Клавиатура — полноценный ввод.** Любая тренировка проходится без мыши. Подсказки клавиш видны.
-8. **Русский — язык интерфейса.** Английский остаётся только внутри учебного материала.
+1. [Principles](#1-principles)
+2. [Fonts](#2-fonts)
+3. [Typographic scale](#3-typographic-scale)
+4. [Color: primitives](#4-color-primitives)
+5. [Color: semantic tokens](#5-color-semantic-tokens)
+6. [Radii, borders, shadows](#6-radii-borders-shadows)
+7. [Spacing and rhythm](#7-spacing-and-rhythm)
+8. [Grid, containers, breakpoints](#8-grid-containers-breakpoints)
+9. [iPad and touch input](#9-ipad-and-touch-input)
+10. [States](#10-states)
+11. [Motion](#11-motion)
+12. [Icons](#12-icons)
+13. [shadcn components: mapping](#13-shadcn-components-mapping)
+14. [Custom components](#14-custom-components)
+15. [Screen specifications](#15-screen-specifications)
+16. [Empty states, loading, errors](#16-empty-states-loading-errors)
+17. [Text and tone](#17-text-and-tone)
+18. [Accessibility](#18-accessibility)
+19. [Implementation](#19-implementation)
+20. [What not to do](#20-what-not-to-do)
 
 ---
 
-## 2. Шрифты
+## 1. Principles
 
-Две гарнитуры. Обе переменные, обе с полной кириллицей, обе есть на Google Fonts и самохостятся через `next/font/google`. Третьей гарнитуры нет: для языковых токенов используется системный моношрифт (нулевой вес загрузки).
+1. **Quiet editorial style.** Serif headings, lots of air, one muted green accent, no decoration. The product is about words — typography is the design.
+2. **No photographs.** Neither stock photos nor character illustrations. Meaningful graphics — only typography, light grain, and SVG icons.
+3. **Density grows inward.** The landing is spacious, the vocabulary is dense, practice is focused. Three density modes, not one.
+4. **The screen must not jump.** Within a single scenario (practice, lesson) zones have a fixed height: changing a task changes the content, not the geometry.
+5. **Progress is always visible and always moves.** Any counter that does not change after a user action is a design error.
+6. **One thing — one look.** The same kind of screen (a question with options) looks the same everywhere: in practice, in brainstorm, in a grammar lesson.
+7. **The keyboard is a full input method.** Any practice session can be completed without a mouse. Key hints are visible.
+8. **Russian is the interface language.** English remains only inside the learning material.
 
-### 2.1 Literata — дисплейная, серифная
+---
 
-Заголовки, слова в тренировках, крупные числа, названия уроков и курсов.
+## 2. Fonts
+
+Two typefaces. Both variable, both with full Cyrillic, both available on Google Fonts and self-hosted via `next/font/google`. There is no third typeface: language tokens use the system monospace (zero load cost).
+
+### 2.1 Literata — display, serif
+
+Headings, words in practice, large numbers, lesson and course titles.
 
 | | |
 |---|---|
-| Источник | Google Fonts, переменный |
-| Оси | `opsz` 7–72, `wght` 200–900 |
-| Субсеты | latin, latin-ext, **cyrillic**, cyrillic-ext, greek, vietnamese |
-| Используемые начертания | 400 (regular), 500 (medium), 600 (semibold — только логотип) |
-| Курсив | есть, отдельными файлами; в интерфейсе не используется |
+| Source | Google Fonts, variable |
+| Axes | `opsz` 7–72, `wght` 200–900 |
+| Subsets | latin, latin-ext, **cyrillic**, cyrillic-ext, greek, vietnamese |
+| Weights used | 400 (regular), 500 (medium), 600 (semibold — logo only) |
+| Italic | available, as separate files; not used in the interface |
 
-**Почему.** Literata сделана для длинного чтения с экрана: умеренный контраст штриха, крупный очковый рост, спокойные засечки. У неё честная кириллица от TypeTogether, а не автоматически достроенная — важно, потому что половина заголовков продукта на русском. Ось оптического размера позволяет одной гарнитурой закрыть и `44px` слово в тренировке, и `18px` название урока в списке: на крупных кеглях `opsz` утончает штрихи, на мелких — усиливает.
+**Why.** Literata was made for long on-screen reading: moderate stroke contrast, large x-height, calm serifs. It has honest Cyrillic from TypeTogether, not automatically filled in — important, because half of the product's headings are in Russian. The optical-size axis lets one typeface cover both a `44px` word in practice and an `18px` lesson title in a list: at large sizes `opsz` thins the strokes, at small ones it strengthens them.
 
-**Настройка `opsz`:** привязывать к кеглю.
+**`opsz` setup:** bind to the size.
 - ≤ 16px → `opsz: 14`
 - 17–24px → `opsz: 20`
 - 25–36px → `opsz: 32`
 - ≥ 37px → `opsz: 48`
 
-### 2.2 Inter — интерфейсная, гротеск
+### 2.2 Inter — interface, sans
 
-Весь остальной текст: абзацы, элементы управления, таблицы, подписи, навигация.
+All remaining text: paragraphs, controls, tables, captions, navigation.
 
 | | |
 |---|---|
-| Источник | Google Fonts, переменный |
-| Оси | `wght` 100–900, `opsz` 14–32 |
-| Субсеты | latin, latin-ext, **cyrillic**, cyrillic-ext, greek, vietnamese |
-| Используемые начертания | 400, 500, 600 |
-| Обязательные фичи | `cv11` (однозначная `1`), `ss01`, `tnum` в числовых колонках |
+| Source | Google Fonts, variable |
+| Axes | `wght` 100–900, `opsz` 14–32 |
+| Subsets | latin, latin-ext, **cyrillic**, cyrillic-ext, greek, vietnamese |
+| Weights used | 400, 500, 600 |
+| Required features | `cv11` (unambiguous `1`), `ss01`, `tnum` in numeric columns |
 
-**Почему.** Inter — шрифт по умолчанию в shadcn/ui, то есть все компоненты уже отрисованы и оттестированы в нём. Кириллица полная и качественная. Нейтральность Inter — достоинство: он не спорит с Literata, а отступает на второй план.
+**Why.** Inter is the default font in shadcn/ui, meaning all components are already drawn and tested in it. Cyrillic is complete and high-quality. Inter's neutrality is a virtue: it does not compete with Literata, it recedes into the background.
 
-### 2.3 Моношрифт — системный стек
+### 2.3 Monospace — system stack
 
-Формы слов в уроках грамматики (`work → works`), буквы в «собрать слово», технические значения.
+Word forms in grammar lessons (`work → works`), letters in «собрать слово», technical values.
 
 ```
 ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace
 ```
 
-Веб-шрифт не подключается. Кириллица здесь не нужна — только латиница и знаки.
+A web font is not loaded. Cyrillic is not needed here — only Latin and symbols.
 
-### 2.4 Подключение
+### 2.4 Setup
 
 ```ts
 // app/fonts.ts
@@ -122,141 +122,141 @@ export const inter = Inter({
 </html>
 ```
 
-**Обязательно:** `-webkit-font-smoothing: antialiased` на `body`, `text-rendering: optimizeLegibility` не ставить (ломает кернинг в Safari на iPad).
+**Required:** `-webkit-font-smoothing: antialiased` on `body`, do not set `text-rendering: optimizeLegibility` (breaks kerning in Safari on iPad).
 
 ---
 
-## 3. Типографическая шкала
+## 3. Typographic scale
 
-Базовый кегль документа — `16px`. Все размеры в `rem`. Три ступени: десктоп (`≥1025px`), планшет (`641–1024px`), телефон (`≤640px`).
+The document's base size is `16px`. All sizes in `rem`. Three steps: desktop (`≥1025px`), tablet (`641–1024px`), phone (`≤640px`).
 
-| Токен | Гарнитура | Вес | Десктоп | Планшет | Телефон | Интерлиньяж | Трекинг | Где |
+| Token | Typeface | Weight | Desktop | Tablet | Phone | Line-height | Tracking | Where |
 |---|---|---|---|---|---|---|---|---|
-| `display` | Literata | 500 | 44 | 40 | 34 | 1.05 | −0.015em | Заголовок лендинга, слово в тренировке |
-| `h1` | Literata | 500 | 36 | 32 | 28 | 1.10 | −0.015em | Заголовок страницы |
-| `h2` | Literata | 500 | 28 | 26 | 24 | 1.15 | −0.010em | Заголовок секции, название курса |
-| `h3` | Literata | 500 | 22 | 21 | 20 | 1.20 | −0.005em | Заголовок карточки, название урока |
-| `h4` | Literata | 500 | 18 | 18 | 17 | 1.30 | 0 | Строка списка (слово, урок) |
-| `lead` | Inter | 400 | 18 | 18 | 17 | 1.55 | 0 | Подзаголовок под h1 |
-| `body` | Inter | 400 | 16 | 16 | 16 | 1.60 | 0 | Основной текст, варианты ответа |
-| `body-sm` | Inter | 400 | 15 | 15 | 15 | 1.50 | 0 | Плотные списки, ячейки таблиц, навигация |
-| `caption` | Inter | 400 | 13 | 13 | 13 | 1.45 | 0 | Подписи, метаданные, подсказки клавиш |
-| `overline` | Inter | 600 | 11 | 11 | 11 | 1.30 | +0.14em | Надзаголовки: `ПРАКТИКА`, `СЛОВАРЬ` — uppercase через CSS |
-| `token` | mono | 500 | 14 | 14 | 14 | 1.40 | 0 | `work → works`, буквы |
-| `numeral` | Literata | 500 | 34 | 30 | 28 | 1.00 | −0.010em | Крупные числа: «8 172», «6 выучено» |
+| `display` | Literata | 500 | 44 | 40 | 34 | 1.05 | −0.015em | Landing heading, word in practice |
+| `h1` | Literata | 500 | 36 | 32 | 28 | 1.10 | −0.015em | Page heading |
+| `h2` | Literata | 500 | 28 | 26 | 24 | 1.15 | −0.010em | Section heading, course title |
+| `h3` | Literata | 500 | 22 | 21 | 20 | 1.20 | −0.005em | Card heading, lesson title |
+| `h4` | Literata | 500 | 18 | 18 | 17 | 1.30 | 0 | List row (word, lesson) |
+| `lead` | Inter | 400 | 18 | 18 | 17 | 1.55 | 0 | Subtitle under h1 |
+| `body` | Inter | 400 | 16 | 16 | 16 | 1.60 | 0 | Body text, answer options |
+| `body-sm` | Inter | 400 | 15 | 15 | 15 | 1.50 | 0 | Dense lists, table cells, navigation |
+| `caption` | Inter | 400 | 13 | 13 | 13 | 1.45 | 0 | Captions, metadata, key hints |
+| `overline` | Inter | 600 | 11 | 11 | 11 | 1.30 | +0.14em | Overlines: `ПРАКТИКА`, `СЛОВАРЬ` — uppercase via CSS |
+| `token` | mono | 500 | 14 | 14 | 14 | 1.40 | 0 | `work → works`, letters |
+| `numeral` | Literata | 500 | 34 | 30 | 28 | 1.00 | −0.010em | Large numbers: «8 172», «6 выучено» |
 
-### Правила
+### Rules
 
-- **Никогда не писать текст капслоком в разметке.** `overline` получает `text-transform: uppercase` из CSS — иначе ломается копирование и скринридер читает по буквам.
-- **Максимальная длина строки — 70 знаков** (`max-w-[68ch]`). Для юридических страниц и правил грамматики — жёстко.
-- Числа в колонках и счётчиках — `font-variant-numeric: tabular-nums`.
-- Заголовок и его подзаголовок разделяются `6–10px`, не больше.
-- `h1` страницы приложения всегда идёт после `overline`, отступ между ними `10px`.
+- **Never write text in caps in the markup.** `overline` gets `text-transform: uppercase` from CSS — otherwise copying breaks and the screen reader reads letter by letter.
+- **Maximum line length — 70 characters** (`max-w-[68ch]`). For legal pages and grammar rules — strictly.
+- Numbers in columns and counters — `font-variant-numeric: tabular-nums`.
+- A heading and its subtitle are separated by `6–10px`, no more.
+- The app page `h1` always comes after `overline`, spacing between them `10px`.
 
 ---
 
-## 4. Цвет: примитивы
+## 4. Color: primitives
 
-Все значения рассчитаны в OKLCh: внутри шкалы одинаковый шаг светлоты, поэтому переходы ровные, а контраст предсказуем. Hex — для дизайнеров, `oklch()` — для кода.
+All values are calculated in OKLCh: within the scale the lightness step is uniform, so transitions are even and contrast is predictable. Hex — for designers, `oklch()` — for code.
 
-### 4.1 Нейтральная шкала (H 165 — холодный серый с зелёным подтоном)
+### 4.1 Neutral scale (H 165 — cool gray with a green undertone)
 
-| Токен | Hex | OKLCh | Назначение |
+| Token | Hex | OKLCh | Purpose |
 |---|---|---|---|
-| `neutral-0` | `#FFFFFF` | `oklch(100% 0 165)` | Карточки, поля ввода, таблицы |
-| `neutral-25` | `#FBFCFB` | `oklch(99% 0.002 165)` | Сайдбар, липкие панели |
-| `neutral-50` | `#F5F8F6` | `oklch(97.6% 0.003 165)` | Шапки таблиц, подложки внутри карточек |
-| `neutral-100` | `#F1F3F2` | `oklch(96.2% 0.003 165)` | **Фон приложения** |
-| `neutral-150` | `#EAEDEC` | `oklch(94.4% 0.004 165)` | Ховер строки, активный пункт меню |
-| `neutral-200` | `#E3E7E5` | `oklch(92.4% 0.005 165)` | **Граница по умолчанию** |
-| `neutral-300` | `#D2D7D5` | `oklch(87.5% 0.006 165)` | Граница контролов, чекбокс в покое |
-| `neutral-400` | `#B3B9B6` | `oklch(78% 0.008 165)` | Отключённые иконки, декоративные разделители |
-| `neutral-500` | `#8D9491` | `oklch(66% 0.010 165)` | Плейсхолдеры, отключённый текст |
-| `neutral-600` | `#646B67` | `oklch(52% 0.010 165)` | **Приглушённый текст** (мин. допустимый для подписей) |
-| `neutral-700` | `#4E5451` | `oklch(44% 0.010 165)` | **Вторичный текст**, абзацы |
-| `neutral-800` | `#343B38` | `oklch(34.5% 0.012 165)` | Аватар, тёмные плашки |
-| `neutral-900` | `#1A1F1D` | `oklch(23.4% 0.008 165)` | **Основной текст** |
+| `neutral-0` | `#FFFFFF` | `oklch(100% 0 165)` | Cards, inputs, tables |
+| `neutral-25` | `#FBFCFB` | `oklch(99% 0.002 165)` | Sidebar, sticky panels |
+| `neutral-50` | `#F5F8F6` | `oklch(97.6% 0.003 165)` | Table headers, backgrounds inside cards |
+| `neutral-100` | `#F1F3F2` | `oklch(96.2% 0.003 165)` | **Application background** |
+| `neutral-150` | `#EAEDEC` | `oklch(94.4% 0.004 165)` | Row hover, active menu item |
+| `neutral-200` | `#E3E7E5` | `oklch(92.4% 0.005 165)` | **Default border** |
+| `neutral-300` | `#D2D7D5` | `oklch(87.5% 0.006 165)` | Control borders, checkbox at rest |
+| `neutral-400` | `#B3B9B6` | `oklch(78% 0.008 165)` | Disabled icons, decorative dividers |
+| `neutral-500` | `#8D9491` | `oklch(66% 0.010 165)` | Placeholders, disabled text |
+| `neutral-600` | `#646B67` | `oklch(52% 0.010 165)` | **Muted text** (minimum allowed for captions) |
+| `neutral-700` | `#4E5451` | `oklch(44% 0.010 165)` | **Secondary text**, paragraphs |
+| `neutral-800` | `#343B38` | `oklch(34.5% 0.012 165)` | Avatar, dark plates |
+| `neutral-900` | `#1A1F1D` | `oklch(23.4% 0.008 165)` | **Primary text** |
 
-### 4.2 Зелёная шкала (H 172 — бренд)
+### 4.2 Green scale (H 172 — brand)
 
-| Токен | Hex | OKLCh | Назначение |
+| Token | Hex | OKLCh | Purpose |
 |---|---|---|---|
-| `green-50` | `#EFF8F5` | `oklch(97.2% 0.010 172)` | Едва заметная подложка |
-| `green-100` | `#DAEDE6` | `oklch(93% 0.022 172)` | **Мятная плашка**: бейджи, иконки, выбранный вариант |
-| `green-200` | `#C1DFD5` | `oklch(88% 0.035 172)` | Граница мятной плашки |
-| `green-300` | `#9FC8BA` | `oklch(80% 0.048 172)` | Акцент на тёмном фоне |
-| `green-400` | `#7DAC9C` | `oklch(70.5% 0.055 172)` | **Фокусное кольцо**, ховер границы, «в работе» |
-| `green-500` | `#4F8776` | `oklch(58% 0.066 172)` | Второй ряд диаграмм |
-| `green-600` | `#2C6C5A` | `oklch(48.5% 0.072 172)` | Надзаголовки, ссылки, иконки на светлом |
-| `green-700` | `#115645` | `oklch(40.7% 0.072 172)` | **Основная кнопка**, заполненный прогресс |
-| `green-800` | `#033F32` | `oklch(33% 0.062 172)` | Ховер основной кнопки |
-| `green-900` | `#032B21` | `oklch(26% 0.048 172)` | **Тёмная полоса** CTA и футера |
-| `green-950` | `#011B14` | `oklch(20% 0.038 172)` | Тёмная тема, глубокий фон |
+| `green-50` | `#EFF8F5` | `oklch(97.2% 0.010 172)` | Barely noticeable background |
+| `green-100` | `#DAEDE6` | `oklch(93% 0.022 172)` | **Mint plate**: badges, icons, selected option |
+| `green-200` | `#C1DFD5` | `oklch(88% 0.035 172)` | Mint plate border |
+| `green-300` | `#9FC8BA` | `oklch(80% 0.048 172)` | Accent on a dark background |
+| `green-400` | `#7DAC9C` | `oklch(70.5% 0.055 172)` | **Focus ring**, border hover, «в работе» |
+| `green-500` | `#4F8776` | `oklch(58% 0.066 172)` | Second row of charts |
+| `green-600` | `#2C6C5A` | `oklch(48.5% 0.072 172)` | Overlines, links, icons on light |
+| `green-700` | `#115645` | `oklch(40.7% 0.072 172)` | **Primary button**, filled progress |
+| `green-800` | `#033F32` | `oklch(33% 0.062 172)` | Primary button hover |
+| `green-900` | `#032B21` | `oklch(26% 0.048 172)` | **Dark bar** of CTA and footer |
+| `green-950` | `#011B14` | `oklch(20% 0.038 172)` | Dark theme, deep background |
 
-### 4.3 Служебные
+### 4.3 Utility
 
-| Роль | 50 (фон) | 200 (граница) | 600 (текст/иконка) |
+| Role | 50 (background) | 200 (border) | 600 (text/icon) |
 |---|---|---|---|
-| Успех / верно | `#E5F5EA` | `#C1E1CB` | `#3C7753` |
-| Ошибка / неверно | `#FBE8E5` | `#EDC6C1` | `#A14B44` |
-| Внимание / частые ошибки | `#FDF0DE` | `#F2D8B5` | `#85612B` |
+| Success / correct | `#E5F5EA` | `#C1E1CB` | `#3C7753` |
+| Error / incorrect | `#FBE8E5` | `#EDC6C1` | `#A14B44` |
+| Attention / frequent mistakes | `#FDF0DE` | `#F2D8B5` | `#85612B` |
 
-> **Важно:** зелёный бренда и зелёный «верно» — разные оттенки намеренно. Бренд — сине-зелёный (H 172), успех — травяной (H 155). Иначе «верно» сливается с обычной кнопкой.
+> **Important:** brand green and “correct” green are different hues on purpose. Brand is blue-green (H 172), success is grassy (H 155). Otherwise “correct” blends with a regular button.
 
-### 4.4 Оверлеи и эффекты
+### 4.4 Overlays and effects
 
-| Токен | Значение |
+| Token | Value |
 |---|---|
-| `overlay` | `rgba(26, 31, 29, 0.42)` — подложка диалогов |
-| `scrim-panel` | `rgba(251, 252, 251, 0.82)` + `backdrop-blur(8px)` — липкие панели |
+| `overlay` | `rgba(26, 31, 29, 0.42)` — dialog backdrop |
+| `scrim-panel` | `rgba(251, 252, 251, 0.82)` + `backdrop-blur(8px)` — sticky panels |
 | `grain` | SVG `feTurbulence`, `baseFrequency 0.8`, `opacity 0.045`, `fixed`, `pointer-events: none` |
-| `top-accent` | `linear-gradient(90deg, #F3E4EA 0%, #EFE6F0 40%, #E9EEEE 100%)`, высота `3px`, только на всю ширину сверху |
+| `top-accent` | `linear-gradient(90deg, #F3E4EA 0%, #EFE6F0 40%, #E9EEEE 100%)`, height `3px`, only full width at the top |
 
 ---
 
-## 5. Цвет: семантические токены
+## 5. Color: semantic tokens
 
-Это то, чем оперирует код. Компоненты никогда не обращаются к примитивам напрямую.
+This is what the code operates with. Components never address primitives directly.
 
-### 5.1 Светлая тема (по умолчанию)
+### 5.1 Light theme (default)
 
-| Семантический токен | Примитив | Комментарий |
+| Semantic token | Primitive | Comment |
 |---|---|---|
-| `background` | `neutral-100` | Фон приложения и страниц |
-| `foreground` | `neutral-900` | Основной текст |
-| `card` / `popover` | `neutral-0` | Карточки, поповеры, диалоги |
+| `background` | `neutral-100` | Application and page background |
+| `foreground` | `neutral-900` | Primary text |
+| `card` / `popover` | `neutral-0` | Cards, popovers, dialogs |
 | `card-foreground` | `neutral-900` | |
-| `muted` | `neutral-50` | Подложка внутри карточки, шапка таблицы |
-| `muted-foreground` | `neutral-600` | Приглушённый текст |
-| `secondary` | `neutral-150` | Вторичные заливки, активный пункт меню |
+| `muted` | `neutral-50` | Background inside a card, table header |
+| `muted-foreground` | `neutral-600` | Muted text |
+| `secondary` | `neutral-150` | Secondary fills, active menu item |
 | `secondary-foreground` | `neutral-900` | |
-| `primary` | `green-700` | Основная кнопка, заполненный прогресс |
+| `primary` | `green-700` | Primary button, filled progress |
 | `primary-foreground` | `neutral-0` | |
 | `primary-hover` | `green-800` | |
-| `accent` | `green-100` | Мятные плашки, выбранный вариант |
+| `accent` | `green-100` | Mint plates, selected option |
 | `accent-foreground` | `green-700` | |
-| `border` | `neutral-200` | Границы по умолчанию |
-| `border-subtle` | `neutral-150` | Разделители внутри карточек и списков |
-| `input` | `neutral-300` | Границы полей ввода |
-| `ring` | `green-400` | Фокус |
+| `border` | `neutral-200` | Default borders |
+| `border-subtle` | `neutral-150` | Dividers inside cards and lists |
+| `input` | `neutral-300` | Input field borders |
+| `ring` | `green-400` | Focus |
 | `destructive` | `danger-600` | |
 | `destructive-foreground` | `neutral-0` | |
 | `success` / `success-bg` / `success-border` | `#3C7753` / `#E5F5EA` / `#C1E1CB` | |
 | `warning` / `warning-bg` / `warning-border` | `#85612B` / `#FDF0DE` / `#F2D8B5` | |
 | `sidebar` | `neutral-25` | |
 | `sidebar-border` | `neutral-200` | |
-| `sidebar-accent` | `neutral-150` | Активный пункт |
+| `sidebar-accent` | `neutral-150` | Active item |
 | `sidebar-accent-foreground` | `neutral-900` | |
-| `eyebrow` | `green-600` | Надзаголовки |
-| `inverse-surface` | `green-900` | Тёмная полоса |
+| `eyebrow` | `green-600` | Overlines |
+| `inverse-surface` | `green-900` | Dark bar |
 | `inverse-foreground` | `neutral-0` | |
-| `inverse-muted` | `green-300` | Текст второго плана на тёмном |
+| `inverse-muted` | `green-300` | Secondary text on dark |
 
-### 5.2 Тёмная тема
+### 5.2 Dark theme
 
-Не обязательна к первому релизу, но токены заданы, чтобы не переделывать.
+Not required for the first release, but the tokens are defined so we don't have to redo them.
 
-| Токен | Hex |
+| Token | Hex |
 |---|---|
 | `background` | `#0E1110` |
 | `card` / `popover` | `#161918` |
@@ -271,68 +271,68 @@ export const inter = Inter({
 | `accent-foreground` | `green-300` `#9FC8BA` |
 | `ring` | `green-400` |
 
-Проверено: `foreground/background` 14.97 · `muted-foreground/background` 6.13 · `white/primary` 6.18.
+Verified: `foreground/background` 14.97 · `muted-foreground/background` 6.13 · `white/primary` 6.18.
 
-### 5.3 Цвета данных (прогресс, диаграммы)
+### 5.3 Data colors (progress, charts)
 
-| Значение | Цвет |
+| Value | Color |
 |---|---|
-| Выучено | `green-700` `#115645` |
-| В работе | `green-400` `#7DAC9C` |
-| Не начато | `neutral-200` `#E3E7E5` |
-| Дорожка прогресса | `neutral-200` |
-| Ошибочные | `danger-600` `#A14B44` |
+| Learned | `green-700` `#115645` |
+| In progress | `green-400` `#7DAC9C` |
+| Not started | `neutral-200` `#E3E7E5` |
+| Progress track | `neutral-200` |
+| Incorrect | `danger-600` `#A14B44` |
 
-Диаграмм в продукте почти нет и не нужно. Прогресс показывается полосами и сегментами, а не круговыми диаграммами.
+There are almost no charts in the product and none are needed. Progress is shown with bars and segments, not pie charts.
 
 ---
 
-## 6. Радиусы, границы, тени
+## 6. Radii, borders, shadows
 
-### Радиусы
+### Radii
 
-Базовая переменная `--radius: 10px`, остальное выводится (конвенция shadcn).
+Base variable `--radius: 10px`, the rest is derived (shadcn convention).
 
-| Токен | Значение | Где |
+| Token | Value | Where |
 |---|---|---|
-| `radius-xs` | 4px | Номерок варианта, мелкие бейджи |
-| `radius-sm` | 6px | Иконочные кнопки, чекбокс, ярлыки |
-| `radius-md` | 8px | Кнопки, поля ввода, селекты |
-| `radius-lg` | 10px | Карточки, варианты ответа, строки списков |
-| `radius-xl` | 12px | Крупные карточки, мокапы, диалоги |
-| `radius-2xl` | 16px | Промо-блоки |
-| `radius-full` | 9999px | Чипсы, аватары, круглая кнопка звука, дорожки прогресса |
+| `radius-xs` | 4px | Option number, small badges |
+| `radius-sm` | 6px | Icon buttons, checkbox, labels |
+| `radius-md` | 8px | Buttons, inputs, selects |
+| `radius-lg` | 10px | Cards, answer options, list rows |
+| `radius-xl` | 12px | Large cards, mockups, dialogs |
+| `radius-2xl` | 16px | Promo blocks |
+| `radius-full` | 9999px | Chips, avatars, round sound button, progress tracks |
 
-### Границы
+### Borders
 
-Всегда `1px`. Толще — никогда, кроме фокуса и подчёркивания ввода.
+Always `1px`. Thicker — never, except focus and input underline.
 
-| Роль | Цвет |
+| Role | Color |
 |---|---|
-| Карточка, панель | `border` `#E3E7E5` |
-| Разделитель внутри карточки/списка | `border-subtle` `#EAEDEC` |
-| Поле ввода | `input` `#D2D7D5` |
-| Ховер интерактивного элемента | `green-400` `#7DAC9C` |
-| Выбранное / верное | `green-200` / `success-border` |
+| Card, panel | `border` `#E3E7E5` |
+| Divider inside a card/list | `border-subtle` `#EAEDEC` |
+| Input field | `input` `#D2D7D5` |
+| Interactive element hover | `green-400` `#7DAC9C` |
+| Selected / correct | `green-200` / `success-border` |
 
-### Тени
+### Shadows
 
-Тени холодные, с зелёным подтоном базового цвета `20 32 29`.
+Shadows are cool, with a green undertone of the base color `20 32 29`.
 
-| Токен | Значение | Где |
+| Token | Value | Where |
 |---|---|---|
-| `shadow-xs` | `0 1px 2px rgb(20 32 29 / .04)` | Кнопка primary |
-| `shadow-sm` | `0 1px 2px rgb(20 32 29 / .05), 0 1px 3px rgb(20 32 29 / .04)` | Мелкие плавающие элементы |
-| `shadow-card` | `0 1px 2px rgb(20 32 29 / .04), 0 14px 32px -26px rgb(20 32 29 / .30)` | Выделенные карточки |
-| `shadow-lifted` | `0 1px 2px rgb(20 32 29 / .05), 0 18px 42px -22px rgb(20 32 29 / .22)` | Мокапы, круглая кнопка звука |
-| `shadow-pop` | `0 1px 2px rgb(20 32 29 / .05), 0 24px 48px -24px rgb(20 32 29 / .35)` | Поповеры, выпадающие панели |
-| `shadow-dialog` | `0 32px 64px -32px rgb(20 32 29 / .45)` | Диалоги, Sheet |
+| `shadow-xs` | `0 1px 2px rgb(20 32 29 / .04)` | Primary button |
+| `shadow-sm` | `0 1px 2px rgb(20 32 29 / .05), 0 1px 3px rgb(20 32 29 / .04)` | Small floating elements |
+| `shadow-card` | `0 1px 2px rgb(20 32 29 / .04), 0 14px 32px -26px rgb(20 32 29 / .30)` | Highlighted cards |
+| `shadow-lifted` | `0 1px 2px rgb(20 32 29 / .05), 0 18px 42px -22px rgb(20 32 29 / .22)` | Mockups, round sound button |
+| `shadow-pop` | `0 1px 2px rgb(20 32 29 / .05), 0 24px 48px -24px rgb(20 32 29 / .35)` | Popovers, dropdown panels |
+| `shadow-dialog` | `0 32px 64px -32px rgb(20 32 29 / .45)` | Dialogs, Sheet |
 
-**Правило:** обычные карточки в списках теней не имеют — только границу. Тень означает «этот слой выше остальных», а не «это карточка».
+**Rule:** ordinary cards in lists have no shadows — only a border. A shadow means “this layer is above the others”, not “this is a card”.
 
-### Фокус
+### Focus
 
-Единый вид фокуса на всём продукте:
+A single focus look across the entire product:
 
 ```css
 outline: none;
@@ -340,223 +340,223 @@ border-color: var(--ring);            /* green-400 */
 box-shadow: 0 0 0 3px rgb(125 172 156 / .28);
 ```
 
-Для элементов без собственной границы (ссылки, иконочные кнопки):
+For elements without their own border (links, icon buttons):
 ```css
 outline: 2px solid var(--ring);
 outline-offset: 2px;
 ```
 
-Использовать `:focus-visible`, не `:focus`.
+Use `:focus-visible`, not `:focus`.
 
 ---
 
-## 7. Отступы и ритм
+## 7. Spacing and rhythm
 
-Шкала кратна 4. Разрешённые значения: `4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 · 64 · 80 · 96 · 128`. Промежуточных нет.
+The scale is a multiple of 4. Allowed values: `4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 · 64 · 80 · 96 · 128`. There are no in-betweens.
 
-### Внутренние отступы
+### Inner padding
 
-| Элемент | Десктоп | Планшет/телефон |
+| Element | Desktop | Tablet/phone |
 |---|---|---|
-| Карточка | 24–28 | 20 |
-| Строка списка / таблицы | 12 × 16 | 14 × 16 |
-| Вариант ответа | 14 × 16 | 16 × 18 |
-| Кнопка md | 10 × 20 | 12 × 20 |
-| Поле ввода | 10 × 12 | 12 × 14 |
-| Сайдбар (контейнер) | 16 × 10 | — |
-| Пункт меню | 8 × 10 | 12 × 12 |
+| Card | 24–28 | 20 |
+| List / table row | 12 × 16 | 14 × 16 |
+| Answer option | 14 × 16 | 16 × 18 |
+| Button md | 10 × 20 | 12 × 20 |
+| Input field | 10 × 12 | 12 × 14 |
+| Sidebar (container) | 16 × 10 | — |
+| Menu item | 8 × 10 | 12 × 12 |
 
-### Вертикальный ритм
+### Vertical rhythm
 
-| Зазор | Десктоп | Планшет | Телефон |
+| Gap | Desktop | Tablet | Phone |
 |---|---|---|---|
-| Между секциями лендинга | 128 | 96 | 72 |
-| Между блоками внутри страницы приложения | 40 | 36 | 32 |
-| Заголовок секции → содержимое | 14 | 14 | 12 |
-| Между строками списка | 0 (разделитель) | 0 | 0 |
-| Между карточками в сетке | 14 | 14 | 12 |
-| Абзацы | 14 | 14 | 14 |
-| Отступ страницы сверху | 46 | 32 | 28 |
-| Нижний отступ страницы | 80 | 64 | 56 |
+| Between landing sections | 128 | 96 | 72 |
+| Between blocks inside an app page | 40 | 36 | 32 |
+| Section heading → content | 14 | 14 | 12 |
+| Between list rows | 0 (divider) | 0 | 0 |
+| Between cards in a grid | 14 | 14 | 12 |
+| Paragraphs | 14 | 14 | 14 |
+| Page top padding | 46 | 32 | 28 |
+| Page bottom padding | 80 | 64 | 56 |
 
-**Правило выравнивания:** в двухколоночных блоках текст и иллюстрация выравниваются по **верхней** линии. Вертикальное центрирование колонок разной высоты запрещено — именно оно даёт ощущение случайности.
+**Alignment rule:** in two-column blocks, text and illustration align to the **top** line. Vertical centering of columns of different heights is forbidden — that is exactly what gives a sense of randomness.
 
 ---
 
-## 8. Сетка, контейнеры, брейкпоинты
+## 8. Grid, containers, breakpoints
 
-### Брейкпоинты
+### Breakpoints
 
-| Имя | Ширина | Устройства |
+| Name | Width | Devices |
 |---|---|---|
-| `sm` | 640 | Телефон в альбоме |
-| `md` | 768 | iPad mini / 9.7″ портрет |
-| `lg` | 1024 | iPad 10.9″/11″ альбом, iPad 12.9″ портрет |
-| `xl` | 1280 | Ноутбук |
-| `2xl` | 1536 | Большой монитор |
+| `sm` | 640 | Phone in landscape |
+| `md` | 768 | iPad mini / 9.7″ portrait |
+| `lg` | 1024 | iPad 10.9″/11″ landscape, iPad 12.9″ portrait |
+| `xl` | 1280 | Laptop |
+| `2xl` | 1536 | Large monitor |
 
-Контрольные ширины iPad, на которых обязательно проверять: **768, 810, 834, 1024, 1112, 1194, 1366**.
+iPad widths that must be checked: **768, 810, 834, 1024, 1112, 1194, 1366**.
 
-### Сайдбар
+### Sidebar
 
-| Ширина окна | Поведение |
+| Window width | Behavior |
 |---|---|
-| ≥ 1280 | Фиксированный, 268px |
-| 1024–1279 | Фиксированный, 240px |
-| < 1024 | Скрыт, открывается как `Sheet` слева по кнопке-гамбургеру; ширина 300px |
+| ≥ 1280 | Fixed, 268px |
+| 1024–1279 | Fixed, 240px |
+| < 1024 | Hidden, opens as `Sheet` from the left via a hamburger button; width 300px |
 
-Сайдбар — `position: sticky; top: 0; height: 100dvh`. Использовать `dvh`, не `vh`: на iPad Safari адресная строка ломает `vh`.
+The sidebar is `position: sticky; top: 0; height: 100dvh`. Use `dvh`, not `vh`: on iPad Safari the address bar breaks `vh`.
 
-### Контейнеры контента
+### Content containers
 
-| Токен | Максимум | Где |
+| Token | Maximum | Where |
 |---|---|---|
-| `container-prose` | 700px | Правило урока, юридические страницы |
-| `container-list` | 780px | Мои слова, список уроков, каталог |
-| `container-wide` | 840px | Тренировки, дашборд |
-| `container-focus` | 540px | Экран вопроса в тренировке |
-| `container-marketing` | 1120px | Лендинг |
+| `container-prose` | 700px | Lesson rule, legal pages |
+| `container-list` | 780px | My words, lesson list, catalog |
+| `container-wide` | 840px | Practice, dashboard |
+| `container-focus` | 540px | Question screen in practice |
+| `container-marketing` | 1120px | Landing |
 
-Контейнер центрируется в области справа от сайдбара. Горизонтальные поля страницы: `40 / 32 / 20` (десктоп / планшет / телефон).
+The container is centered in the area to the right of the sidebar. Page horizontal padding: `40 / 32 / 20` (desktop / tablet / phone).
 
-### Сетки
+### Grids
 
-- Лендинг, «четыре фичи»: 4 колонки → 2 (`<900`) → 1 (`<560`).
-- Каталог курсов, «скоро»: 2 колонки → 1 (`<768`).
-- Режимы тренировок: 2 колонки → 1 (`<900`).
-- Форматы вопросов, варианты ответа: **всегда одна колонка**. Две колонки при разной длине текста заставляют глаз прыгать.
+- Landing, “four features”: 4 columns → 2 (`<900`) → 1 (`<560`).
+- Course catalog, «Скоро»: 2 columns → 1 (`<768`).
+- Practice modes: 2 columns → 1 (`<900`).
+- Question formats, answer options: **always one column**. Two columns with different text lengths make the eye jump.
 
 ---
 
-## 9. iPad и сенсорный ввод
+## 9. iPad and touch input
 
-Отдельный раздел, потому что это основной сценарий занятий.
+A separate section because this is the main study scenario.
 
-### Размеры целей
+### Target sizes
 
-| Правило | Значение |
+| Rule | Value |
 |---|---|
-| Минимальная область нажатия | **44 × 44 pt** |
-| Вариант ответа | высота ≥ 56px на сенсоре |
-| Кнопка md | высота ≥ 44px на сенсоре (десктоп 40) |
-| Иконочная кнопка | 44 × 44 (визуально иконка 18–20, остальное — прозрачное поле) |
-| Буква в «собрать слово» | 48 × 48 |
-| Чипсы, ярлыки | высота ≥ 36, отступ между ними ≥ 8 |
-| Расстояние между соседними целями | ≥ 8px |
+| Minimum tap area | **44 × 44 pt** |
+| Answer option | height ≥ 56px on touch |
+| Button md | height ≥ 44px on touch (desktop 40) |
+| Icon button | 44 × 44 (visually the icon is 18–20, the rest is a transparent field) |
+| Letter in «собрать слово» | 48 × 48 |
+| Chips, labels | height ≥ 36, gap between them ≥ 8 |
+| Distance between adjacent targets | ≥ 8px |
 
-Реализация: `@media (pointer: coarse)` увеличивает паддинги, а не шрифты.
+Implementation: `@media (pointer: coarse)` increases paddings, not fonts.
 
-### Ввод
+### Input
 
-- **Все `input` и `textarea` — минимум `16px`.** Меньше — Safari на iOS автоматически зумит страницу при фокусе. Это не рекомендация, это баг-фикс.
-- `inputmode` и `autocapitalize="none"`, `autocorrect="off"`, `spellcheck="false"` на полях ввода английских слов — иначе iPad подставляет свои варианты и ломает проверку.
-- В тренировке «написать слово» не открывать клавиатуру автоматически при первом вопросе — вместо этого фокус по нажатию. Автофокус на iPad перекрывает половину экрана.
+- **All `input` and `textarea` — minimum `16px`.** Smaller — Safari on iOS automatically zooms the page on focus. This is not a recommendation, this is a bug-fix.
+- `inputmode` and `autocapitalize="none"`, `autocorrect="off"`, `spellcheck="false"` on English-word input fields — otherwise iPad substitutes its own suggestions and breaks checking.
+- In «написать слово» practice do not open the keyboard automatically on the first question — focus on tap instead. Autofocus on iPad covers half the screen.
 
-### Раскладка
+### Layout
 
-- Разворот экрана не должен терять состояние тренировки.
-- В портретной ориентации iPad (768–834) сайдбар скрыт, контент занимает ширину с полями 32.
-- Нижняя липкая панель (урок) на сенсоре: высота 64px + `env(safe-area-inset-bottom)`.
-- `overscroll-behavior: contain` на скроллящихся панелях, чтобы резиновый скролл не тянул всю страницу.
+- Screen rotation must not lose practice session state.
+- In iPad portrait (768–834) the sidebar is hidden, content takes the width with 32 padding.
+- Bottom sticky panel (lesson) on touch: height 64px + `env(safe-area-inset-bottom)`.
+- `overscroll-behavior: contain` on scrolling panels, so rubber-band scroll does not drag the whole page.
 
-### Прочее
+### Other
 
-- `touch-action: manipulation` на всех кнопках — убирает задержку 300ms.
-- `user-select: none` на вариантах ответа и буквах: долгое нажатие не должно выделять текст.
-- Ховеры не должны быть единственным способом узнать о действии: строки таблицы показывают иконки по ховеру на десктопе, но на сенсоре они видны всегда (`@media (hover: none)`).
+- `touch-action: manipulation` on all buttons — removes the 300ms delay.
+- `user-select: none` on answer options and letters: a long press must not select text.
+- Hovers must not be the only way to learn about an action: table rows show icons on hover on desktop, but on touch they are always visible (`@media (hover: none)`).
 
 ---
 
-## 10. Состояния
+## 10. States
 
-Для каждого интерактивного элемента обязаны быть определены все состояния из списка. Отсутствие состояния — дефект.
+For every interactive element all states from the list must be defined. A missing state is a defect.
 
-| Состояние | Как выглядит |
+| State | How it looks |
 |---|---|
-| `default` | Базовый вид |
-| `hover` | Фон `neutral-150` или граница `green-400`; для карточек — `translateY(-1px)` + `shadow-lifted`; только `@media (hover: hover)` |
-| `active` | Возврат `translateY(0)`, фон на ступень темнее |
-| `focus-visible` | Кольцо из §6 |
-| `selected` | Фон `accent` `green-100`, граница `green-200`, текст `accent-foreground` |
-| `disabled` | `opacity: 0.5`, `cursor: not-allowed`, без теней. Для кнопки — фон `neutral-200`, текст `neutral-500` |
-| `loading` | Спиннер 16px вместо иконки, ширина кнопки не меняется, текст остаётся |
-| `correct` | Фон `success-bg`, граница `success-border`, текст `#274C39`, иконка галочки справа |
-| `incorrect` | Фон `danger-bg`, граница `danger-border`, текст `#7D3C35`, иконка крестика справа |
-| `dimmed` | `opacity: 0.4` — невыбранные варианты после ответа |
-| `read-only` | Фон `muted`, граница `border`, курсор обычный |
+| `default` | Base look |
+| `hover` | Background `neutral-150` or border `green-400`; for cards — `translateY(-1px)` + `shadow-lifted`; only `@media (hover: hover)` |
+| `active` | Return `translateY(0)`, background one step darker |
+| `focus-visible` | Ring from §6 |
+| `selected` | Background `accent` `green-100`, border `green-200`, text `accent-foreground` |
+| `disabled` | `opacity: 0.5`, `cursor: not-allowed`, no shadows. For a button — background `neutral-200`, text `neutral-500` |
+| `loading` | 16px spinner instead of the icon, button width does not change, text remains |
+| `correct` | Background `success-bg`, border `success-border`, text `#274C39`, checkmark icon on the right |
+| `incorrect` | Background `danger-bg`, border `danger-border`, text `#7D3C35`, cross icon on the right |
+| `dimmed` | `opacity: 0.4` — unselected options after an answer |
+| `read-only` | Background `muted`, border `border`, normal cursor |
 
-**Про отключённую основную кнопку.** Сейчас в продукте отключённая зелёная кнопка выглядит как чуть блёклая активная — её жмут. Отключённая кнопка должна быть **серой**, а не бледно-зелёной.
+**About the disabled primary button.** Currently in the product the disabled green button looks like a slightly faded active one — people press it. A disabled button must be **gray**, not pale green.
 
 ---
 
-## 11. Движение
+## 11. Motion
 
-| Токен | Длительность | Кривая | Где |
+| Token | Duration | Easing | Where |
 |---|---|---|---|
-| `motion-instant` | 120ms | `cubic-bezier(.4,0,.2,1)` | Ховер, фокус, смена фона |
-| `motion-fast` | 180ms | `cubic-bezier(.4,0,.2,1)` | Кнопки, чипсы, появление реакции |
-| `motion-base` | 240ms | `cubic-bezier(.4,0,.2,1)` | Поповеры, раскрытие панелей |
-| `motion-slow` | 320ms | `cubic-bezier(.2,.8,.2,1)` | Полосы прогресса, сегменты лестницы |
-| `motion-page` | 400ms | `cubic-bezier(.2,.8,.2,1)` | Смена экрана тренировки |
+| `motion-instant` | 120ms | `cubic-bezier(.4,0,.2,1)` | Hover, focus, background change |
+| `motion-fast` | 180ms | `cubic-bezier(.4,0,.2,1)` | Buttons, chips, appearance of feedback |
+| `motion-base` | 240ms | `cubic-bezier(.4,0,.2,1)` | Popovers, panel expansion |
+| `motion-slow` | 320ms | `cubic-bezier(.2,.8,.2,1)` | Progress bars, ladder segments |
+| `motion-page` | 400ms | `cubic-bezier(.2,.8,.2,1)` | Practice screen change |
 
-Правила:
-- Прогресс анимируется **всегда** — это единственная анимация, которую пользователь должен заметить.
-- Смена вопроса: старый уходит `opacity 0 → translateY(-4px)`, новый приходит `opacity 1 ← translateY(6px)`. Не двигать по горизонтали.
-- Пульсирующие кольца у кнопки звука: 1.5s, `ease-out`, два кольца со сдвигом 0.5s, только пока звук играет.
-- `@media (prefers-reduced-motion: reduce)` — все `transition-duration: 0.01ms`, кольца не анимируются, прогресс меняется скачком.
+Rules:
+- Progress is animated **always** — this is the only animation the user should notice.
+- Question change: the old one leaves `opacity 0 → translateY(-4px)`, the new one arrives `opacity 1 ← translateY(6px)`. Do not move horizontally.
+- Pulsing rings on the sound button: 1.5s, `ease-out`, two rings offset by 0.5s, only while sound is playing.
+- `@media (prefers-reduced-motion: reduce)` — all `transition-duration: 0.01ms`, rings are not animated, progress changes instantly.
 
 ---
 
-## 12. Иконки
+## 12. Icons
 
-**Библиотека:** `lucide-react`. Другие наборы не подмешивать.
+**Library:** `lucide-react`. Do not mix in other sets.
 
-| Контекст | Размер | Толщина штриха |
+| Context | Size | Stroke width |
 |---|---|---|
-| В строке текста, ярлыки | 14 | 1.7 |
-| Навигация, строки списков, кнопки | 17 | 1.7 |
-| Иконочные кнопки в шапке | 16 | 1.8 |
-| Шевроны, стрелки | 15 | 1.9 |
-| Галочка/крестик в результате | 17 | 2.3 |
-| Иконка в мятном квадрате (34×34, radius 9) | 17 | 1.8 |
-| Круглая кнопка звука (76–96px) | 26–32 | 1.6 |
+| In a line of text, labels | 14 | 1.7 |
+| Navigation, list rows, buttons | 17 | 1.7 |
+| Icon buttons in the header | 16 | 1.8 |
+| Chevrons, arrows | 15 | 1.9 |
+| Checkmark/cross in the result | 17 | 2.3 |
+| Icon in a mint square (34×34, radius 9) | 17 | 1.8 |
+| Round sound button (76–96px) | 26–32 | 1.6 |
 
-Цвет иконки по умолчанию `muted-foreground`; в активном пункте меню и на мятной плашке — `green-700`.
+Default icon color `muted-foreground`; on an active menu item and on a mint plate — `green-700`.
 
-**Закреплённые иконки:**
+**Pinned icons:**
 
-| Смысл | lucide |
+| Meaning | lucide |
 |---|---|
-| Карта обучения | `map` |
-| Сегодня | `calendar-check` |
-| Мой прогресс | `trending-up` |
-| Тренировки | `repeat-2` |
-| Грамматика (практика) | `a-large-small` |
-| Чтение | `book-open-text` |
-| Грамматика (курс) | `pencil-line` |
-| Темы | `layers` |
-| Мои курсы | `heart` |
-| Мои слова | `library-big` |
-| Мои наборы | `bookmark` |
-| Готовые наборы | `sparkles` |
-| Звук / проиграть | `volume-2` |
-| Повторить | `rotate-ccw` |
-| Медленно | `clock` |
-| Верно | `check` |
-| Неверно | `x` |
-| Внимание | `triangle-alert` |
-| Поиск | `search` |
-| Свернуть панель | `panel-left` |
-| Удалить | `trash-2` |
-| Изменить | `pencil` |
+| Learning map | `map` |
+| Today | `calendar-check` |
+| My progress | `trending-up` |
+| Practice | `repeat-2` |
+| Grammar (practice) | `a-large-small` |
+| Reading | `book-open-text` |
+| Grammar (course) | `pencil-line` |
+| Topics | `layers` |
+| My courses | `heart` |
+| My words | `library-big` |
+| My sets | `bookmark` |
+| Ready-made sets | `sparkles` |
+| Sound / play | `volume-2` |
+| Repeat | `rotate-ccw` |
+| Slow | `clock` |
+| Correct | `check` |
+| Incorrect | `x` |
+| Attention | `triangle-alert` |
+| Search | `search` |
+| Collapse panel | `panel-left` |
+| Delete | `trash-2` |
+| Edit | `pencil` |
 
 ---
 
-## 13. Компоненты shadcn: карта соответствий
+## 13. shadcn components: mapping
 
-**Правило: сначала ищем компонент в shadcn, потом стилизуем токенами, и только если такого примитива нет — пишем свой.** Форк компонента допускается, самописная альтернатива существующему примитиву — нет.
+**Rule: first look for a component in shadcn, then style it with tokens, and only if there is no such primitive — write your own.** Forking a component is allowed, a hand-rolled alternative to an existing primitive is not.
 
-### Установить
+### Install
 
 ```bash
 npx shadcn@latest add button input textarea label select checkbox radio-group \
@@ -565,44 +565,44 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
   alert sonner toggle-group form
 ```
 
-### Соответствия
+### Correspondences
 
-| Элемент интерфейса | Компонент shadcn | Настройка |
+| Interface element | shadcn component | Setup |
 |---|---|---|
-| Основная кнопка | `Button variant="default"` | `bg-primary`, `radius-md`, `shadow-xs` |
-| Вторичная кнопка | `Button variant="outline"` | Белый фон, граница `border` |
-| Тихая кнопка / ссылка-действие | `Button variant="ghost"` | Ховер `secondary` |
-| Иконочная кнопка | `Button variant="ghost" size="icon"` | 28×28 десктоп, 44×44 сенсор |
-| Опасное действие | `Button variant="destructive"` | |
-| Поле ввода | `Input` | `border-input`, ≥16px |
-| Многострочный ввод слов | `Textarea` | Авторост, `max-height: 220px` |
-| Выбор набора, «10 на странице» | `Select` | |
-| Чекбоксы в таблице слов | `Checkbox` | 16×16, `radius-xs` |
-| Выбор «какие слова» | `RadioGroup` | Стилизован как карточки, не как кружки |
-| Бейдж набора, ярлык «нужен звук» | `Badge` | `variant="secondary"` для мятного |
-| Карточка курса, режима, формы | `Card` (+`CardHeader/Content/Footer`) | |
-| Таблица «Мои слова» | `Table` | Шапка `muted`, строки с `border-subtle` |
-| Пагинация | `Pagination` | |
-| Полоса прогресса курса | `Progress` | Высота 5px, `radius-full` |
-| Разделитель | `Separator` | |
-| Мобильный сайдбар | `Sheet side="left"` | |
-| Подтверждение удаления | `Dialog` / `AlertDialog` | |
-| Панель выбора источника | `Popover` | `shadow-pop`, ширина = ширине триггера |
-| Подсказки к иконкам | `Tooltip` | Не показывать на сенсоре |
-| Меню пользователя | `DropdownMenu` | |
-| Аватар | `Avatar` | 32×32, инициалы 11.5px/600 |
-| Уведомления | `Sonner` | Позиция `bottom-right`, десктоп; `top-center` на телефоне |
-| Загрузка списков | `Skeleton` | |
-| Длинные списки | `ScrollArea` | |
-| Поиск по приложению (⌘K) | `Command` | |
-| Частые вопросы | `Accordion` | |
-| Врезка «где ошибаются» | `Alert` | Кастомный вариант `warning` |
-| Переключатель размера сессии (6/10/15) | `ToggleGroup type="single"` | |
-| Формы авторизации | `Form` + `react-hook-form` + `zod` | |
+| Primary button | `Button variant="default"` | `bg-primary`, `radius-md`, `shadow-xs` |
+| Secondary button | `Button variant="outline"` | White background, `border` border |
+| Quiet button / action link | `Button variant="ghost"` | Hover `secondary` |
+| Icon button | `Button variant="ghost" size="icon"` | 28×28 desktop, 44×44 touch |
+| Destructive action | `Button variant="destructive"` | |
+| Input field | `Input` | `border-input`, ≥16px |
+| Multiline word input | `Textarea` | Auto-grow, `max-height: 220px` |
+| Set picker, «10 на странице» | `Select` | |
+| Checkboxes in the words table | `Checkbox` | 16×16, `radius-xs` |
+| «какие слова» picker | `RadioGroup` | Styled as cards, not as circles |
+| Set badge, «нужен звук» label | `Badge` | `variant="secondary"` for mint |
+| Course, mode, form card | `Card` (+`CardHeader/Content/Footer`) | |
+| «Мои слова» table | `Table` | Header `muted`, rows with `border-subtle` |
+| Pagination | `Pagination` | |
+| Course progress bar | `Progress` | Height 5px, `radius-full` |
+| Divider | `Separator` | |
+| Mobile sidebar | `Sheet side="left"` | |
+| Delete confirmation | `Dialog` / `AlertDialog` | |
+| Source picker panel | `Popover` | `shadow-pop`, width = trigger width |
+| Icon hints | `Tooltip` | Do not show on touch |
+| User menu | `DropdownMenu` | |
+| Avatar | `Avatar` | 32×32, initials 11.5px/600 |
+| Notifications | `Sonner` | Position `bottom-right`, desktop; `top-center` on phone |
+| List loading | `Skeleton` | |
+| Long lists | `ScrollArea` | |
+| In-app search (⌘K) | `Command` | |
+| Frequently asked questions | `Accordion` | |
+| «где ошибаются» callout | `Alert` | Custom `warning` variant |
+| Session size toggle (6/10/15) | `ToggleGroup type="single"` | |
+| Auth forms | `Form` + `react-hook-form` + `zod` | |
 
-### Варианты Button — точные размеры
+### Button variants — exact sizes
 
-| size | Высота десктоп | Высота сенсор | Паддинг | Кегль |
+| size | Desktop height | Touch height | Padding | Type size |
 |---|---|---|---|---|
 | `sm` | 32 | 40 | 6 × 14 | 14 |
 | `default` | 40 | 44 | 10 × 20 | 15 |
@@ -611,99 +611,100 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 
 ---
 
-## 14. Кастомные компоненты
+## 14. Custom components
 
-Компоненты, которых в shadcn нет. Собираются из примитивов, живут в `components/slova/`.
+Components that shadcn does not have. Built from primitives, live in `components/slova/`.
 
 ### `<Eyebrow>`
-Надзаголовок раздела. Пропсы: `children`.
-`overline`, цвет `eyebrow`, `uppercase`, `margin-bottom: 10px`.
+Section overline. Props: `children`.
+`overline`, color `eyebrow`, `uppercase`, `margin-bottom: 10px`.
 
 ### `<PageHeader>`
-`Eyebrow` + `h1` + `lead`. Пропсы: `overline`, `title`, `description`, `actions?`.
-Отступ снизу до контента — 40px.
+`Eyebrow` + `h1` + `lead`. Props: `overline`, `title`, `description`, `actions?`.
+The live prop is `eyebrow` (the type style is still overline).
+Spacing below to the content — 40px.
 
-### `<StageRail>` — лестница брейншторма
-Горизонтальный ряд столбиков, по одному на слово сессии.
-Пропсы: `words: { id, en, stage }[]`, `total: number`, `currentId`.
-- Столбик: ширина 54px (десктоп) / 38px (планшет), сегменты по 5px высотой, зазор 2px, `radius: 2px`.
-- Пустой сегмент `neutral-200`; заполненный `green-400`; у завершённого слова все сегменты `green-700`.
-- Переход заливки — `motion-slow`.
+### `<StageRail>` — brainstorm ladder
+Horizontal row of columns, one per session word.
+Props: `words: { id, en, stage }[]`, `total: number`, `currentId`.
+- Column: width 54px (desktop) / 38px (tablet), segments 5px high, gap 2px, `radius: 2px`.
+- Empty segment `neutral-200`; filled `green-400`; for a completed word all segments `green-700`.
+- Fill transition — `motion-slow`.
 
-> **Запрет на подписи словами.** Под столбиком стоит **порядковый номер** (`1`–`6`), у завершённого — галочка. Ни английского слова, ни перевода. Причина: правильный ответ всегда одно из слов сессии, поэтому подписанная лестница показывает ответ прямо на экране — особенно грубо в форматах «собрать из букв» и «перевод → слово», где ответ читается дословно.
+> **Ban on word labels.** Under the column stands an **ordinal number** (`1`–`6`), for a completed one — a checkmark. Neither the English word nor the translation. Reason: the correct answer is always one of the session words, so a labeled ladder shows the answer right on the screen — especially crude in «собрать из букв» and «перевод → слово» formats, where the answer is read verbatim.
 >
-> Это же правило распространяется на любой элемент, видимый во время вопроса: заголовок вкладки браузера, тултипы, `aria-label`, всплывающие подсказки, отладочные панели. `aria-label` столбика — «Слово 3: 2 из 5 ступеней», без содержания.
+> This same rule extends to any element visible during the question: browser tab title, tooltips, `aria-label`, pop-up hints, debug panels. The column `aria-label` is «Слово 3: 2 из 5 ступеней», without the content.
 >
-> Состав сессии раскрывается только дважды: на стартовом экране (до начала) и на финальном (после).
+> The session composition is revealed only twice: on the start screen (before beginning) and on the final one (after).
 
-- Подпись: `11px`, `tabular-nums`, `neutral-400`; текущее слово — `neutral-900/600`; завершённое — галочка цветом `green-400`.
-- Текущий столбик дополнительно помечается внутренней обводкой сегментов, а не цветом подписи, — чтобы работало и для дальтоников.
+- Label: `11px`, `tabular-nums`, `neutral-400`; current word — `neutral-900/600`; completed — checkmark in `green-400`.
+- The current column is additionally marked with an inner outline on the segments, not by the label color — so it also works for color-blind users.
 
-### `<ProgressSteps>` — шаги урока
-Ряд отрезков 26×4px, `radius-full`. Пройден — `green-400`, текущий — `green-700`, будущий — `neutral-200`.
+### `<ProgressSteps>` — lesson steps
+A row of 26×4px segments, `radius-full`. Completed — `green-400`, current — `green-700`, future — `neutral-200`.
 
 ### `<PlayButton>`
-Круглая кнопка звука. Пропсы: `size: 'sm'|'lg'`, `playing`, `onPlay`.
-- `lg` — 96px (тренировка «на слух»), `sm` — 76px (брейншторм).
-- Белый фон, граница `border`, иконка `green-700`, `shadow-lifted`.
-- Во время проигрывания — два расходящихся кольца `green-400`.
-- Ховер `translateY(-2px)`.
+Round sound button. Props: `size: 'sm'|'lg'`, `playing`, `onPlay`.
+- `lg` — 96px (practice «на слух»), `sm` — 76px (brainstorm).
+- White background, `border` border, icon `green-700`, `shadow-lifted`.
+- While playing — two expanding rings `green-400`.
+- Hover `translateY(-2px)`.
 
-### `<OptionButton>` — вариант ответа
-Пропсы: `index`, `children`, `state: 'idle'|'correct'|'incorrect'|'dimmed'`, `disabled`.
-- Одна колонка, ширина 100%, высота ≥ 48 (десктоп) / 56 (сенсор).
-- Слева номерок 22×22, `radius-xs`, фон `secondary`, кегль 11.5. На ховере — фон `accent`.
-- Справа место под иконку результата (17px).
-- Ховер: граница `green-400` + `translateX(2px)`.
-- **Используется во всех тренировках и в практике уроков без исключений.**
+### `<OptionButton>` — answer option
+Props: `index`, `children`, `state: 'idle'|'correct'|'incorrect'|'dimmed'`, `disabled`.
+- One column, width 100%, height ≥ 48 (desktop) / 56 (touch).
+- On the left a 22×22 number, `radius-xs`, background `secondary`, type size 11.5. On hover — background `accent`.
+- On the right space for the result icon (17px).
+- Hover: border `green-400` + `translateX(2px)`.
+- **Used in all practice and in lesson practice with no exceptions.**
 
-### `<LetterTiles>` — собрать слово
-Пропсы: `word`, `onComplete(guess)`.
-- Ячейки по числу букв: 38×46 (сенсор 44×52), нижняя граница 2px `neutral-300`, заполненная — `green-400`, буква `h2` Literata.
-- Плитки букв: 42×42 (сенсор 48×48), `radius-md`, ховер `translateY(-2px)`, использованная — `opacity 0.25`, `disabled`.
-- Ввод с клавиатуры, `Backspace` возвращает последнюю.
-- Проверка автоматически при заполнении последней ячейки.
+### `<LetterTiles>` — assemble a word
+Props: `word`, `onComplete(guess)`.
+- Cells by letter count: 38×46 (touch 44×52), bottom border 2px `neutral-300`, filled — `green-400`, letter `h2` Literata.
+- Letter tiles: 42×42 (touch 48×48), `radius-md`, hover `translateY(-2px)`, used — `opacity 0.25`, `disabled`.
+- Keyboard input, `Backspace` returns the last one.
+- Checking happens automatically when the last cell is filled.
 
 ### `<AnswerFeedback>`
-Строка результата под ответом. Пропсы: `state`, `correctAnswer?`, `note?`.
-Слева бейдж «Верно» / «Неверно» с иконкой, дальше правильный ответ, дальше служебная заметка («ступень 2 → 3»). Появляется за `motion-fast`, не смещая макет: контейнер имеет фиксированную высоту 44px.
+Result row under the answer. Props: `state`, `correctAnswer?`, `note?`.
+On the left a «Верно» / «Неверно» badge with an icon, then the correct answer, then a utility note («ступень 2 → 3»). Appears over `motion-fast`, without shifting the layout: the container has a fixed height of 44px.
 
 ### `<KeyHints>`
-`caption`, `neutral-500`, элементы `<kbd>`: 11px, белый фон, граница, `border-bottom-width: 2px`, `radius-sm`, паддинг 1×6. Скрывать при `pointer: coarse`.
+`caption`, `neutral-500`, `<kbd>` elements: 11px, white background, border, `border-bottom-width: 2px`, `radius-sm`, padding 1×6. Hide at `pointer: coarse`.
 
 ### `<SourceBar>` + `<SourcePanel>`
-Строка выбора источника занятий и раскрывающаяся панель (`Popover`).
-Пропсы: `state`, `sets`, `counts`, `onChange`.
-Счётчики пересчитываются на лету при изменении фильтров. Если результат < 5 слов — показать предупреждение `warning`, но не блокировать.
+Study source picker row and expanding panel (`Popover`).
+Props: `state`, `sets`, `counts`, `onChange`.
+Counters are recalculated on the fly when filters change. If the result is < 5 words — show a `warning` warning, but do not block.
 
 ### `<WordRow>`
-Строка таблицы слов: чекбокс, английское, русское, бейдж набора, шкала «выучено» (5 точек 6px, зазор 4px), действия по ховеру.
+Words table row: checkbox, English, Russian, set badge, «выучено» scale (5 dots 6px, gap 4px), actions on hover.
 
 ### `<LessonRow>`
-Строка урока: маркер (галочка в круге `green-700` / номер в круге), название `h4`, перевод `caption`, время, шеврон. Следующий урок — фон `neutral-25` + врезка слева 2px `green-700` + бейдж «Продолжить».
+Lesson row: marker (checkmark in a `green-700` circle / number in a circle), title `h4`, translation `caption`, time, chevron. Next lesson — background `neutral-25` + 2px left inset `green-700` + «Продолжить» badge.
 
 ### `<RuleExample>`
-Пример в уроке: левая линейка 2px `green-100`, отступ слева 16, английское предложение `h4` Literata, перевод `caption` `muted-foreground`.
+Example in a lesson: 2px left rule `green-100`, left padding 16, English sentence `h4` Literata, translation `caption` `muted-foreground`.
 
 ### `<Token>`
-Форма слова: моношрифт `token`, фон `neutral-150`, `radius-sm`, паддинг 1.5×6. Подсветка окончания внутри — `<mark>` с цветом `#2F7D5C` и фоном `#DFF0E5`.
+Word form: monospace `token`, background `neutral-150`, `radius-sm`, padding 1.5×6. Ending highlight inside — `<mark>` with color `#2F7D5C` and background `#DFF0E5`.
 
 ### `<Callout variant="warning|note">`
-Врезка «Где обычно ошибаются»: фон `warning-bg`, граница `warning-border`, `radius-lg`, паддинг 18×20, заголовок `overline` + иконка `triangle-alert`.
+«Где обычно ошибаются» callout: background `warning-bg`, border `warning-border`, `radius-lg`, padding 18×20, heading `overline` + `triangle-alert` icon.
 
 ### `<GrainOverlay>`
-`position: fixed; inset: 0; z-index: 0; pointer-events: none`, SVG-шум. Один на приложение, в корневом layout.
+`position: fixed; inset: 0; z-index: 0; pointer-events: none`, SVG noise. One per application, in the root layout.
 
 ---
 
-## 15. Спецификации экранов
+## 15. Screen specifications
 
-### 15.1 Общий каркас приложения
+### 15.1 Shared app shell
 
 ```
 ┌────────────┬──────────────────────────────────────┐
-│  Sidebar   │  [ TopBar — только в режимах фокуса ] │
-│  268px     │  Container (по типу страницы)         │
+│  Sidebar   │  [ TopBar — only in focus modes ]     │
+│  268px     │  Container (by page type)             │
 │  sticky    │                                       │
 │            │                                       │
 │  ────────  │                                       │
@@ -711,138 +712,138 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 └────────────┴──────────────────────────────────────┘
 ```
 
-**Сайдбар:** шапка (логотип `h3` Literata 600 + поиск + сворачивание), разделы `Задания / Практика / Курсы / Словарь`, подвал с пользователем. Заголовок раздела — `caption`/`500` цветом `eyebrow`, **не капслоком**. Пункт: 8×10, `radius-sm`, иконка 17px.
+**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Задания / Практика / Курсы / Словарь`, footer with the user. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
 
-### 15.2 Режим фокуса (тренировка, брейншторм, урок)
+### 15.2 Focus mode (practice, brainstorm, lesson)
 
-Отдельный каркас. Обязательные элементы:
+A separate shell. Required elements:
 
-1. **Верхняя панель** (`sticky`, `scrim-panel`, граница снизу): слева выход, по центру прогресс, справа счётчик.
-2. **Сайдбар приглушается** до `opacity: 0.4`, возвращается по наведению. На сенсоре — не приглушается, а скрывается.
-3. **Зона задания фиксированной высоты** — 186px. Меняется содержимое, не геометрия.
-4. **Зона ответа** — минимум 240px, всегда на одной вертикали независимо от формата.
-5. **Подвал результата** — 44px, всегда занимает место, даже пустой.
-6. Контейнер `container-focus` (540px), вертикально по центру области.
+1. **Top bar** (`sticky`, `scrim-panel`, border at the bottom): exit on the left, progress in the center, counter on the right.
+2. **The sidebar is dimmed** to `opacity: 0.4`, returns on hover. On touch — not dimmed, but hidden.
+3. **Fixed-height task zone** — 186px. The content changes, not the geometry.
+4. **Answer zone** — minimum 240px, always on the same vertical regardless of format.
+5. **Result footer** — 44px, always occupies space, even when empty.
+6. Container `container-focus` (540px), vertically centered in the area.
 
-### 15.3 Лендинг
+### 15.3 Landing
 
-Контейнер 1120. Порядок блоков: шапка → hero (текст слева + мокап справа, выравнивание по верху) → полоса с цифрами → четыре фичи → секция «Словарь» → секция «Практика» → секция «Курсы» → тёмная полоса CTA (`inverse-surface`) + футер внутри неё.
+Container 1120. Block order: header → hero (text on the left + mockup on the right, top-aligned) → numbers bar → four features → «Словарь» section → «Практика» section → «Курсы» section → dark CTA bar (`inverse-surface`) + footer inside it.
 
-Требования: минимум один блок с инвертированным фоном; последняя кнопка не слабее первой; каждый мокап отличается кадрированием от соседнего.
+Requirements: at least one block with an inverted background; the last button no weaker than the first; each mockup differs in framing from the neighboring one.
 
-### 15.4 Мои слова
+### 15.4 My words
 
-Контейнер 780. Порядок: `PageHeader` → «Добавить слова» (карточка: шапка с подписями колонок `overline`, два `Textarea` с авторостом, подвал с `Select` набора и кнопкой) → подсказка про формат вставки → «Все слова» (поиск + фильтр набора → панель массового действия → `Table` → `Pagination` + «на странице»).
+Container 780. Order: `PageHeader` → «Добавить слова» (card: header with column labels `overline`, two auto-growing `Textarea`s, footer with a set `Select` and a button) → paste-format hint → «Все слова» (search + set filter → bulk action bar → `Table` → `Pagination` + «на странице»).
 
-### 15.5 Каталог курсов
+### 15.5 Course catalog
 
-Контейнер 780. Работа экрана — **продолжить или начать**, не «походить по библиотеке». Два режима; порог полного: живых курсов **≥ 6** или они занимают **≥ 2** ступени CEFR.
+Container 780. The screen’s job is **continue or start**, not “browse the library”. Two modes; full-catalog threshold: live courses **≥ 6** or they occupy **≥ 2** CEFR steps.
 
-**Малый каталог** (сегодня). Порядок: `PageHeader` (заголовок, без манифеста, без eyebrow-повтора раздела, без карточки «Что такое курс») → полоса уровня (сегмент A1–B2; подпись «откуда уровень», одна короткая строка, только пока источник `assumed`) → плоский список живых курсов выбранного уровня, начатые сверху, в том числе начатый курс другого уровня → «Скоро» выбранного уровня, свёрнуто, в триггере число. Поиска, сортировки и «Все / Мой уровень» нет.
+**Small catalog** (today). Order: `PageHeader` (title, no manifesto, no section eyebrow repeat, no «Что такое курс» card) → level bar (A1–B2 segment; «откуда уровень» label, one short line, only while the source is `assumed`) → flat list of live courses at the selected level, started ones on top, including a started course at another level → «Скоро» at the selected level, collapsed, with a count in the trigger. No search, sorting, or «Все / Мой уровень».
 
-**Полный каталог** (после порога). Порядок: `PageHeader` → полоса уровня → при первом визите карточка «Что такое курс» → тулбар (поиск, сортировка, «Все / Мой уровень») → список, сгруппированный по CEFR (свой уровень открыт, ниже — свёрнут; выше помечаются «выше вашего уровня») → «Скоро» выбранного уровня, свёрнуто. При поиске, сортировке по названию/начатым и фильтре «Мой уровень» список плоский, без полок. Пустой поиск — `Empty` + «Сбросить».
+**Full catalog** (after the threshold). Order: `PageHeader` → level bar → on the first visit a «Что такое курс» card → toolbar (search, sorting, «Все / Мой уровень») → list grouped by CEFR (own level open, below — collapsed; above are marked «выше вашего уровня») → «Скоро» at the selected level, collapsed. On search, sort by title/started, and the «Мой уровень» filter the list is flat, without shelves. Empty search — `Empty` + «Сбросить».
 
-Ряд курса — одно действие с глаголом: не начат → «Начать» на оглавление; в процессе → «Продолжить» на следующий урок; пройден → «Пройден» на оглавление. Отдельной карточки «вы проходите» и отдельной страницы для этого нет: начатые стоят сверху. На выбранном уровне нет живых курсов — `Empty` + действие перейти на уровень, где они есть, а не сетка чужого «Скоро».
+A course row is one action with a verb: not started → «Начать» to the table of contents; in progress → «Продолжить» to the next lesson; completed → «Пройден» to the table of contents. There is no separate “you are taking” card and no separate page for that: started ones sit on top. If the selected level has no live courses — `Empty` + an action to go to a level where they exist, not a grid of someone else’s «Скоро».
 
-### 15.6 Урок
+### 15.6 Lesson
 
-Контейнер 700. Верхняя панель с `ProgressSteps` и «Урок N из M · ~T минут». Тело — секции с `overline`-подзаголовками, разделённые 44px. Липкая нижняя панель: «К урокам» + «Начать практику · N вопросов».
+Container 700. Top bar with `ProgressSteps` and «Урок N из M · ~T минут». Body — sections with `overline` subheadings, separated by 44px. Sticky bottom bar: «К урокам» + «Начать практику · N вопросов».
 
-**Размер сдачи.** Закрепление урока — **10 вопросов** из пула (≥16). Финальный тест курса — **12 вопросов**. Каждый заход сдаётся заново: состав (для урока), порядок и варианты `choice` / `pick-sentence` перемешиваются. Не показывать один и тот же список сверху вниз.
+**Pass size.** Lesson lock-in is **10 questions** from a pool (≥16). Course final test is **12 questions**. Each attempt is taken anew: composition (for a lesson), order, and `choice` / `pick-sentence` options are shuffled. Do not show the same list from top to bottom.
 
 ---
 
-## 16. Пустые состояния, загрузка, ошибки
+## 16. Empty states, loading, errors
 
-| Ситуация | Что показывать |
+| Situation | What to show |
 |---|---|
-| Словарь пуст | Заголовок `h3`, строка объяснения, поле вставки сразу под ним. Не рисовать иллюстрацию. |
-| Поиск ничего не нашёл | Строка в теле таблицы: «Ничего не нашлось. Попробуйте другой запрос или снимите фильтр» + кнопка `ghost` «Сбросить фильтры» |
-| Нет слов к повторению | «На сегодня всё. Следующие слова подойдут <дата>» + вторичное действие «Взять новые» |
-| Загрузка списка | `Skeleton` по форме контента: строки нужной высоты, не спиннер |
-| Загрузка перевода | В ячейке перевода — `Skeleton` шириной 60%, не текст «…» |
-| Ошибка сети | `Alert variant="destructive"` в теле страницы + кнопка «Повторить». Тосты только для фоновых операций |
-| Нет звука у слова | Кнопка звука `disabled` + `Tooltip` «Произношение появится позже» |
-| Сессия меньше 5 слов | Не блокировать, показать предупреждение в панели источника |
+| Vocabulary is empty | Heading `h3`, a line of explanation, paste field immediately below it. Do not draw an illustration. |
+| Search found nothing | A row in the table body: «Ничего не нашлось. Попробуйте другой запрос или снимите фильтр» + `ghost` button «Сбросить фильтры» |
+| No words to review | «На сегодня всё. Следующие слова подойдут <дата>» + secondary action «Взять новые» |
+| List loading | `Skeleton` in the shape of the content: rows of the needed height, not a spinner |
+| Translation loading | In the translation cell — a `Skeleton` 60% wide, not «…» text |
+| Network error | `Alert variant="destructive"` in the page body + «Повторить» button. Toasts only for background operations |
+| Word has no sound | Sound button `disabled` + `Tooltip` «Произношение появится позже» |
+| Session fewer than 5 words | Do not block, show a warning in the source panel |
 
-Каждое сообщение об ошибке отвечает на два вопроса: что случилось и что делать дальше. «Что-то пошло не так» без действия — недопустимо.
-
----
-
-## 17. Текст и тон
-
-- Интерфейс на русском. Английский — только учебный материал и названия грамматических тем (`Present Simple`, `Forms`).
-- Обращение на «вы» со строчной.
-- Буква «ё» ставится.
-- Кавычки «ёлочки», внутри — „лапки“.
-- Тире — длинное, с пробелами. Дефис в словах — короткий, без пробелов.
-- Числа от четырёх знаков — с тонким неразрывным пробелом: `8 172`.
-- Диапазоны через короткое тире без пробелов: `1–4`.
-- Заголовки без точки в конце. Подписи и подсказки — с точкой, если это предложение.
-- Кнопка называет действие глаголом: «Заниматься», «Добавить слова», «Продолжить». Не «ОК», не «Отправить».
-- Не извиняться за технические ограничения в интерфейсе. Вместо «Браузер сам звук не включит» — просто кнопка.
-- Единая терминология: **слово**, **набор**, **тренировка**, **формат**, **курс**, **урок**, **ступень**, **повторение**. Не смешивать «упражнение/задание/тест».
+Every error message answers two questions: what happened and what to do next. «Что-то пошло не так» without an action is unacceptable.
 
 ---
 
-## 18. Доступность
+## 17. Text and tone
 
-### Контраст (проверено)
+- The interface is in Russian. English — only learning material and grammar topic names (`Present Simple`, `Forms`).
+- Address as «вы» with a lowercase letter.
+- The letter «ё» is used.
+- Quotes are «ёлочки», inside — „лапки“.
+- Dash — em dash, with spaces. Hyphen in words — short, without spaces.
+- Numbers from four digits — with a thin non-breaking space: `8 172`.
+- Ranges with an en dash without spaces: `1–4`.
+- Headings without a period at the end. Captions and hints — with a period if it is a sentence.
+- A button names the action with a verb: «Заниматься», «Добавить слова», «Продолжить». Not «ОК», not «Отправить».
+- Do not apologize for technical limitations in the interface. Instead of «Браузер сам звук не включит» — just a button.
+- Unified terminology: **слово**, **набор**, **тренировка**, **формат**, **курс**, **урок**, **ступень**, **повторение**. Do not mix «упражнение/задание/тест».
 
-| Пара | Отношение | Уровень |
+---
+
+## 18. Accessibility
+
+### Contrast (verified)
+
+| Pair | Ratio | Level |
 |---|---|---|
-| `foreground` на `background` | 14.98 | AAA |
-| `neutral-700` на `background` | 6.95 | AA |
-| `muted-foreground` на `background` | 4.91 | AA |
-| `eyebrow` (`green-600`) на `background` | 5.54 | AA |
-| Белый на `primary` (`green-700`) | 8.60 | AAA |
-| `green-700` на `accent` (`green-100`) | 7.06 | AAA |
-| `success-600` на `success-bg` | 4.70 | AA |
-| `danger-600` на `danger-bg` | 4.93 | AA |
-| `warning-600` на `warning-bg` | 5.00 | AA |
+| `foreground` on `background` | 14.98 | AAA |
+| `neutral-700` on `background` | 6.95 | AA |
+| `muted-foreground` on `background` | 4.91 | AA |
+| `eyebrow` (`green-600`) on `background` | 5.54 | AA |
+| White on `primary` (`green-700`) | 8.60 | AAA |
+| `green-700` on `accent` (`green-100`) | 7.06 | AAA |
+| `success-600` on `success-bg` | 4.70 | AA |
+| `danger-600` on `danger-bg` | 4.93 | AA |
+| `warning-600` on `warning-bg` | 5.00 | AA |
 
-`neutral-500` (3.10) — **запрещён для текста**, несущего смысл. Только плейсхолдеры, отключённые элементы, декоративные иконки.
+`neutral-500` (3.10) — **forbidden for text** that carries meaning. Only placeholders, disabled elements, decorative icons.
 
-### Прочее
+### Other
 
-- Правильность/ошибка передаётся не только цветом: обязательна иконка (`check` / `x`) и словесная подпись.
-- Все интерактивные элементы достижимы с клавиатуры, порядок табуляции совпадает с визуальным.
-- `aria-live="polite"` на блоке результата ответа и на счётчике прогресса.
-- Круглая кнопка звука: `aria-label="Прослушать слово"`.
-- Прогресс: `role="progressbar"` с `aria-valuenow/valuemin/valuemax`.
-- Модальные окна возвращают фокус на триггер при закрытии.
-- Язык учебных фрагментов размечается: `<span lang="en">become</span>` — иначе скринридер читает английское слово по-русски.
+- Correctness/error is conveyed not only by color: an icon (`check` / `x`) and a verbal label are required.
+- All interactive elements are reachable from the keyboard, tab order matches the visual.
+- `aria-live="polite"` on the answer result block and on the progress counter.
+- Round sound button: `aria-label="Прослушать слово"`.
+- Progress: `role="progressbar"` with `aria-valuenow/valuemin/valuemax`.
+- Modal windows return focus to the trigger on close.
+- Language of learning fragments is marked: `<span lang="en">become</span>` — otherwise the screen reader reads the English word in Russian.
 
-### Клавиатура
+### Keyboard
 
-| Клавиша | Действие |
+| Key | Action |
 |---|---|
-| `1`–`4` | Выбрать вариант ответа |
-| `Пробел` | Повторить звук (в форматах со звуком) |
-| `Enter` | Проверить / перейти к следующему |
-| `Backspace` | Вернуть букву в «собрать слово» |
-| `Esc` | Выйти из режима фокуса (с подтверждением, если сессия не окончена) |
-| `⌘K` / `Ctrl+K` | Поиск по приложению |
+| `1`–`4` | Choose an answer option |
+| `Пробел` | Repeat sound (in formats with sound) |
+| `Enter` | Check / go to the next |
+| `Backspace` | Return a letter in «собрать слово» |
+| `Esc` | Exit focus mode (with confirmation if the session is not finished) |
+| `⌘K` / `Ctrl+K` | In-app search |
 
 ---
 
-## 19. Реализация
+## 19. Implementation
 
-### 19.1 Токены — `app/globals.css`
+### 19.1 Tokens — `app/globals.css`
 
-Полный файл лежит рядом: **`globals.css`**. Подключается один раз, все компоненты shadcn читают из него.
+The full file sits alongside: **`globals.css`**. Included once, all shadcn components read from it.
 
-### 19.2 Структура
+### 19.2 Structure
 
 ```
 app/
-  layout.tsx            // шрифты, GrainOverlay, ThemeProvider
+  layout.tsx            // fonts, grain class on body, ThemeProvider
   globals.css
 components/
-  ui/                   // shadcn — не править вручную без нужды
-  slova/                // кастомные из §14
+  ui/                   // shadcn — do not edit by hand unless needed
+  page-header.tsx       // PageHeader
+  slova/                // custom from §14
     eyebrow.tsx
-    page-header.tsx
     stage-rail.tsx
     progress-steps.tsx
     play-button.tsx
@@ -857,45 +858,45 @@ components/
     token.tsx
     callout.tsx
   layout/
-    app-shell.tsx       // сайдбар + контейнер
-    focus-shell.tsx     // режим тренировки
+    app-shell.tsx       // sidebar + container
+    focus-shell.tsx     // practice mode
     sidebar.tsx
 lib/
   utils.ts              // cn()
 ```
 
-### 19.3 Правила кода
+### 19.3 Code rules
 
-- Варианты компонентов — через `class-variance-authority`, как в shadcn. Не плодить пропсы-булевы.
-- Цвета в компонентах только через семантические классы Tailwind (`bg-card`, `text-muted-foreground`). Хардкод hex запрещён.
-- Размеры — через шкалу Tailwind. Произвольные значения `[13px]` допустимы только для типографических токенов из §3, оформленных как утилиты (`text-caption`, `text-overline`).
-- Каждый кастомный компонент принимает `className` и прокидывает его через `cn()`.
-- Никаких `localStorage` в компонентах представления; состояние сессии — в сторе/сервере.
+- Component variants — via `class-variance-authority`, as in shadcn. Do not proliferate boolean props.
+- Colors in components only through semantic Tailwind classes (`bg-card`, `text-muted-foreground`). Hardcoded hex is forbidden.
+- Sizes — through the Tailwind scale. Arbitrary values `[13px]` are allowed only for typographic tokens from §3, expressed as utilities (`text-caption`, `text-overline`).
+- Every custom component accepts `className` and forwards it through `cn()`.
+- No `localStorage` in presentational components; session state — in a store/on the server.
 
-### 19.4 Порядок переделки существующего интерфейса
+### 19.4 Order of reworking the existing interface
 
-1. Подключить шрифты и `globals.css`, убрать старые переменные.
-2. Заменить примитивы на shadcn (`Button`, `Input`, `Select`, `Table`, `Badge`, `Card`).
-3. Собрать `AppShell` и `FocusShell`, перевести на них все страницы.
-4. Ввести `OptionButton` и `AnswerFeedback` и заменить ими **все** экраны с вопросами — это устраняет расхождение между тренировками и практикой урока.
-5. Ввести `StageRail` и `ProgressSteps`, убрать статические счётчики.
-6. Пройти по §16: добавить пустые состояния и скелетоны.
-7. Прогнать §9 на ширинах 768 / 834 / 1024 / 1194.
+1. Connect fonts and `globals.css`, remove old variables.
+2. Replace primitives with shadcn (`Button`, `Input`, `Select`, `Table`, `Badge`, `Card`).
+3. Assemble `AppShell` and `FocusShell`, move all pages onto them.
+4. Introduce `OptionButton` and `AnswerFeedback` and replace **all** question screens with them — this eliminates the divergence between practice and lesson practice.
+5. Introduce `StageRail` and `ProgressSteps`, remove static counters.
+6. Go through §16: add empty states and skeletons.
+7. Run through §9 at widths 768 / 834 / 1024 / 1194.
 
 ---
 
-## 20. Чего не делать
+## 20. What not to do
 
-- Не добавлять фотографии, стоковые иллюстрации и трёхмерные объекты.
-- Не вводить второй акцентный цвет. Если нужен ещё один смысл — это оттенок нейтральной шкалы или служебный цвет.
-- Не использовать градиенты, кроме тонкой верхней полосы и подложки шума.
-- Не ставить тени на элементы, которые не всплывают над другими.
-- Не центрировать по вертикали колонки разной высоты.
-- Не показывать счётчик, который не меняется после действия пользователя.
-- Не задавать `font-size` меньше 16px полям ввода.
-- Не полагаться на ховер как на единственный носитель информации.
-- Не писать текст капслоком в разметке.
-- Не смешивать наборы иконок и не рисовать иконки в разной толщине штриха.
-- Не делать варианты ответа в две колонки.
-- Не оставлять отключённую основную кнопку зелёной.
-- **Не показывать во время вопроса ничего, что содержит ответ:** ни подписей на индикаторе прогресса, ни тултипов, ни заголовка вкладки, ни `aria-label` со словом. Проверять каждый новый элемент интерфейса тренировки этим вопросом.
+- Do not add photographs, stock illustrations, or three-dimensional objects.
+- Do not introduce a second accent color. If another meaning is needed — it is a shade of the neutral scale or a utility color.
+- Do not use gradients, except the thin top bar and the grain overlay.
+- Do not put shadows on elements that do not float above others.
+- Do not vertically center columns of different heights.
+- Do not show a counter that does not change after a user action.
+- Do not set `font-size` smaller than 16px on input fields.
+- Do not rely on hover as the only carrier of information.
+- Do not write text in caps in the markup.
+- Do not mix icon sets and do not draw icons with different stroke weights.
+- Do not make answer options in two columns.
+- Do not leave the disabled primary button green.
+- **Do not show during a question anything that contains the answer:** neither labels on the progress indicator, nor tooltips, nor the tab title, nor an `aria-label` with the word. Check every new practice UI element with this question.

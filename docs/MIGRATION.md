@@ -1,361 +1,150 @@
-# Slova — план переделки интерфейса
+# Slova — interface rebuild
 
-Спутник к `design-system.md`. Здесь порядок работ, критерии готовности и готовые промпты для агента.
+Companion to `design-system.md`. The rebuild landed on `landing-redesign` in
+August 2026, one commit per step. This file is the record: the rules that
+still apply, the screen checklist, and the product backlog that was never
+part of the visual work.
 
-**Как пользоваться:** идти сверху вниз, по одному шагу. Промпт из шага копируется агенту целиком, без правок. Не начинать следующий шаг, пока не выполнены критерии готовности предыдущего.
-
-**Отступление от исходного плана (решение владельца, август 2026):** миграция идёт **одним коммитом на шаг в ветке `landing-redesign`**, а не отдельной веткой и PR на каждый шаг. Причина — `main` автодеплоится, и ветка накапливает партию работы целиком; см. «Change flow» в `CLAUDE.md`. Правило «приложение остаётся рабочим после каждого шага» от этого не смягчается, а ужесточается: каждый коммит обязан быть собираемым и проходить `npm test`.
-
----
-
-## Правила на всю миграцию
-
-1. **Токены и вёрстка не едут в одном коммите.** Иначе при поломке не найти причину.
-2. **Перекладка вёрстки и изменение поведения — разные задачи.** «Убрать второй экран выбора набора» — продуктовое решение, оно в §«Отдельный бэклог», а не внутри шага миграции.
-3. **Спецификация главнее привычки.** Если в коде было иначе — переписывается код.
-4. **Ни одного нового хардкоженного цвета.** Только семантические классы.
-5. **Каждый PR проверяется на четырёх ширинах:** 768, 834, 1024, 1194.
-6. **Экраны тренировки проверяются вопросом «не видно ли ответа».**
-7. Приложение остаётся рабочим после каждого шага. Ветка «переделываем всё и месяц не мёржим» запрещена.
+**Owner decision, August 2026:** migration ran as one commit per step on
+`landing-redesign`, not a branch and PR per step. `main` auto-deploys, so the
+branch accumulated the batch. The rule “the app stays working after every
+step” was not relaxed.
 
 ---
 
-## Подготовка
+## Rules that still apply
 
-Положить в репозиторий:
+1. **Tokens and layout do not travel in the same commit.** Otherwise a break
+   has no cause.
+2. **Relayout and behaviour change are different jobs.** “Drop the second
+   set-picker screen” is a product decision — see the backlog, not a
+   migration step.
+3. **The spec outranks habit.** If the code was otherwise — rewrite the code.
+4. **No new hardcoded colours.** Semantic classes only.
+5. **Check every screen at four widths:** 768, 834, 1024, 1194.
+6. **Practice screens pass the question “can you see the answer?”**
+7. The app stays working after every step.
+
+---
+
+## Prep — done
+
+In the repo:
 
 ```
 docs/
-  design-system.md      ← спецификация
-  MIGRATION.md          ← этот файл
-  tokens.html           ← визуальная шпаргалка
-  globals.reference.css ← эталон токенов из §19.1
+  design-system.md      ← specification
+  MIGRATION.md          ← this file
+  tokens.html           ← visual cheat sheet
+  globals.reference.css ← token reference from §19.1
 ```
 
-`globals.reference.css` лежит рядом неизменным, чтобы `app/globals.css` было с чем сверять. Каждое расхождение рабочего файла с эталоном помечается в нём комментарием и объясняется — молча разойтись они не имеют права.
+`globals.reference.css` sits beside the working file so `app/globals.css` has
+something to diff against. Every divergence in the working file is marked
+“Deviation” and explained.
 
-Старый `DESIGN.md` удалён: два источника правды по визуальному слою — это отсутствие источника правды. Он остаётся в истории git, и на него ссылаются документы в `plans/`, написанные до миграции.
+The old `DESIGN.md` was deleted. Two sources of truth for the visual layer is
+no source of truth. It remains in git history.
 
-Агент должен читать `docs/design-system.md` перед каждой задачей. В `CLAUDE.md` / `.cursorrules` добавить:
-
-```md
-Дизайн интерфейса подчиняется docs/design-system.md.
-Перед любой правкой UI прочитай этот файл.
-Цвета, размеры, радиусы, тени — только через токены из app/globals.css.
-Хардкод hex, произвольные размеры вне типографической шкалы и собственные
-реализации того, что есть в shadcn/ui, — не принимаются.
-```
+`CLAUDE.md` points agents at `docs/design-system.md` before any UI change.
 
 ---
 
-## Шаг 0 · Починить гидратацию — ✅ закрыт, кода не потребовалось
+## Steps
 
-**Зачем.** На страницах висел оверлей Next.js: 5 ошибок на «Конфиденциальности», 4 на «Условиях», 3 на авторизации. Переделывать дизайн поверх сломанной гидратации — значит потом гадать, чья это поломка.
-
-**Гипотеза была неверной.** Рассинхрона локали нет. Причина внешняя, в коде приложения ошибок гидратации не было ни одной.
-
-**Что оказалось.** Единственный источник — расширение Chrome **Urban VPN Proxy** (`eppiocemhmnlbhjplcgkofciiegomcon`):
-
-1. Его `ad-blocker/content.js` проставляет атрибут `bis_skin_checked="1"` на каждый `div` страницы. Успевает раньше гидратации — React видит расхождение сервер/клиент. Весь diff в консоли состоит ровно из этих атрибутов.
-2. Его `executors/200.js` кидает `TypeError: Cannot read properties of undefined (reading 'M_ID')` — за сессию таких набралось 126. Оверлей Next.js считает их наравне со своими, отсюда и «5 Issues / 4 Issues», и плавающее число при перезагрузке.
-
-**Как проверено.** Все 18 маршрутов приложения прогнаны в чистом Chrome без расширений (Playwright, свежий профиль, вход через реальную форму), на 1440×900 и 390×844, с перехватом `console.error/warning` и `pageerror`. Ноль ошибок, ноль предупреждений — включая `/privacy`, `/terms`, `/login`, `/register`.
-
-**Вывод для миграции.** `suppressHydrationWarning` на `<html>` и `<body>` в `app/layout.tsx` оставлен: он там ради расширений и менеджеров паролей, а не ради нашей разметки. Если после любого шага миграции в консоли появится ошибка гидратации — она **наша**, и её надо чинить в корне. Перед тем как подозревать код, проверять в браузере без расширений.
-
----
-
-## Шаг 1 · Фундамент: шрифты и токены
-
-**Что делает.** Подключает Literata и Inter через `next/font`, кладёт `globals.css`, удаляет старые переменные.
-
-**Что НЕ делает.** Не трогает ни одного компонента, не меняет разметку.
-
-**Готово, когда:**
-- Шрифты грузятся локально, `next/font`, без обращений к `fonts.googleapis.com` в Network.
-- Старые CSS-переменные удалены, не осталось мёртвого CSS.
-- Все страницы открываются, ничего не съехало критически.
-- Кириллица в заголовках отрисована Literata (проверить в DevTools → Computed → font-family).
-
-```
-Задача: фундамент дизайн-системы. Читай docs/design-system.md, разделы 2–7.
-
-1. Создай app/fonts.ts и подключи Literata (переменная --font-display,
-   subsets latin+cyrillic, ось opsz, веса 400/500/600) и Inter
-   (переменная --font-sans, subsets latin+cyrillic, веса 400/500/600)
-   через next/font/google. Прокинь переменные на <html> в app/layout.tsx.
-2. Замени app/globals.css содержимым из приложенного файла целиком.
-3. Удали все старые CSS-переменные и мёртвые стили, которые он заменяет.
-4. Не меняй разметку и компоненты. Совсем. Это отдельный шаг.
-
-Проверь: приложение собирается, все маршруты открываются, в Network нет
-запросов к fonts.googleapis.com, заголовки отрисованы Literata.
-Покажи список удалённых стилей.
-```
-
----
-
-## Шаг 2 · Примитивы shadcn
-
-**Что делает.** Ставит компоненты, приводит их к спецификации, заменяет самописные аналоги.
-
-**Готово, когда:**
-- Установлены компоненты из §13.
-- Button соответствует таблице размеров: `sm 32/40`, `default 40/44`, `lg 48/52`, `icon 28/44` (десктоп/сенсор).
-- **Отключённая основная кнопка — серая**, а не бледно-зелёная.
-- Самописных кнопок, полей и бейджей в коде не осталось.
-- Фокус у всех примитивов одинаковый и виден.
-
-```
-Задача: примитивы. Читай docs/design-system.md §6, §10, §13.
-
-1. Установи компоненты shadcn из §13 одной командой.
-2. Приведи Button, Input, Textarea, Select, Checkbox, RadioGroup, Badge,
-   Card, Table, Progress, Separator к спецификации: размеры из таблицы
-   в §13, состояния из §10, фокус из §6.
-3. Отключённая основная кнопка должна быть серой (bg-secondary,
-   text-muted-foreground), НЕ приглушённой зелёной — сейчас её жмут.
-4. Найди в коде все самописные кнопки, поля, бейджи и селекты и замени
-   на shadcn. Список замен покажи в описании PR.
-5. Все input и textarea — font-size не меньше 16px (иначе Safari на iPad
-   зумит страницу при фокусе).
-
-Не трогай страницы и раскладку — только примитивы.
-```
-
----
-
-## Шаг 3 · Каркасы
-
-**Что делает.** `AppShell` (сайдбар + контейнер), `FocusShell` (режим тренировки), `Sidebar`. Все страницы переезжают на них.
-
-Это тот шаг, после которого отступы, контейнеры и поведение сайдбара становятся едиными сами собой.
-
-**Готово, когда:**
-- Ни одна страница не задаёт свои отступы и ширину контейнера — только через пропс каркаса.
-- Сайдбар: 268px при ≥1280, 240px при 1024–1279, `Sheet` при <1024.
-- Использован `100dvh`, не `100vh`.
-- На iPad в портрете (768–834) сайдбара нет, есть кнопка вызова.
-
-```
-Задача: каркасы страниц. Читай docs/design-system.md §8, §9, §15.
-
-1. Собери components/layout/app-shell.tsx: сайдбар + область контента
-   с пропсом container: 'prose' | 'list' | 'wide' | 'focus' | 'marketing'.
-   Ширины и поля берутся из §8, задавать их на страницах нельзя.
-2. Собери components/layout/sidebar.tsx по §15.1: разделы Задания /
-   Практика / Курсы / Словарь, заголовки разделов — НЕ капслоком,
-   активный пункт по §5. Иконки lucide по таблице §12.
-   Поведение по ширине: 268px ≥1280, 240px 1024–1279, Sheet <1024.
-   Высота 100dvh, не 100vh.
-3. Собери components/layout/focus-shell.tsx по §15.2: липкая верхняя
-   панель, приглушённый сайдбар на десктопе и скрытый на сенсоре,
-   зона задания фиксированной высоты 186px, зона ответа минимум 240px,
-   подвал результата 44px — они держат высоту, даже когда пустые.
-4. Переведи все страницы на эти каркасы. Удали локальные отступы и
-   контейнеры со страниц.
-
-Проверь на 768, 834, 1024, 1194.
-```
-
----
-
-## Шаг 4 · Ядро тренировок
-
-**Что делает.** Компоненты, которыми потом собираются все экраны с вопросами.
-
-Самый важный шаг: один `OptionButton` закрывает семь форматов тренировок **и** практику внутри урока грамматики. Это устраняет расхождение, из-за которого одинаковые по смыслу экраны выглядят по-разному.
-
-**Готово, когда:**
-- Собраны `OptionButton`, `AnswerFeedback`, `PlayButton`, `KeyHints`, `StageRail`, `ProgressSteps`, `LetterTiles`.
-- `AnswerFeedback` не смещает макет при появлении.
-- `StageRail` не содержит слов сессии ни в подписи, ни в `title`, ни в `aria-label`.
-- Всё управляется с клавиатуры: `1`–`4`, `Пробел`, `Enter`, `Backspace`.
-- Есть Storybook-страница или `/dev/kit` со всеми состояниями.
-
-```
-Задача: ядро тренировок. Читай docs/design-system.md §10, §11, §14, §18.
-
-Собери в components/slova/:
-- option-button.tsx — вариант ответа. Одна колонка, ширина 100%,
-  высота ≥48 десктоп / ≥56 сенсор, номерок слева, место под иконку
-  результата справа. Состояния: idle, hover, focus-visible, correct,
-  incorrect, dimmed, disabled. Это ЕДИНСТВЕННЫЙ компонент варианта
-  ответа во всём продукте.
-- answer-feedback.tsx — строка результата. Контейнер фиксированной
-  высоты 44px, чтобы появление реакции не двигало макет.
-- play-button.tsx — круглая кнопка звука, размеры sm 76 / lg 96,
-  два расходящихся кольца во время проигрывания.
-- key-hints.tsx — подсказки клавиш, скрыты при pointer: coarse.
-- stage-rail.tsx — лестница брейншторма.
-- progress-steps.tsx — шаги урока.
-- letter-tiles.tsx — «собрать слово»: ячейки по числу букв, ввод с
-  клавиатуры, Backspace возвращает букву.
-
-КРИТИЧНО для stage-rail: под столбиками только порядковые номера и
-галочка у завершённых. Никаких слов сессии — ни в подписи, ни в title,
-ни в aria-label, ни в тултипе. Правильный ответ всегда одно из слов
-сессии, поэтому подписи показывают ответ на экране.
-
-Сделай страницу /dev/kit со всеми компонентами во всех состояниях.
-```
-
----
-
-## Шаг 5 · Экраны
-
-Порядок — по частоте использования и переиспользуемости, а не по порядку в меню.
-
-| № | Экран | Почему здесь |
+| Step | What | Status |
 |---|---|---|
-| 5.1 | Экран вопроса (все 7 форматов) | Здесь пользователь проводит почти всё время; один компонент закрывает семь форматов |
-| 5.2 | Brainstorm | Тот же экран вопроса + лестница; проверяет, что ядро универсально |
-| 5.3 | Мои слова | Вторая по посещаемости страница, самая плотная вёрстка |
-| 5.4 | Тренировки (хаб) | Точка входа во всё вышеперечисленное |
-| 5.5 | Курсы, урок, практика урока | Практика урока обязана использовать тот же `OptionButton` |
-| 5.6 | Авторизация | Регистрация и вход приводятся к одному макету |
-| 5.7 | Юридические страницы | Выравнивание колонки, длина строки, дата обновления |
-| 5.8 | Лендинг | Ни от чего не зависит, кроме токенов — можно делать параллельно в любой момент |
+| 0 · Hydration | Overlay was Urban VPN, not our markup | **done** — no code |
+| 1 · Foundation | Literata, Inter, `globals.css` | **done** |
+| 2 · Primitives | shadcn to spec; disabled primary is grey | **done** |
+| 3 · Shells | `AppShell`, `FocusShell`, sidebar; `100dvh` | **done** |
+| 4 · Training kit | `OptionButton` and the rest; `/dev/kit` | **done** |
+| 5.1 · Question screen | Seven formats on `FocusShell` | **done** |
+| 5.2 · Brainstorm | Same question screen + `StageRail` | **done** |
+| 5.3 · My words | Dense list, add panel | **done** |
+| 5.4 · Trainings hub | Source bar on the same page | **done** |
+| 5.5 · Courses / lesson | Practice uses the same `OptionButton` | **done** |
+| 5.6 · Auth | Login and register share `AuthNarrow` | **done** |
+| 5.7 · Legal | Column, measure, updated date | **done** |
+| 5.8 · Landing | Tokens, bilingual, mockups | **done** |
 
-### 5.1 — эталон
+The temporary token bridge (`brand-soft`, `correct`/`wrong`, `font-heading`)
+was removed after the screens moved. `PageHeader` is `Eyebrow` + `text-h1` +
+`text-lead`.
 
-Сделай **этот экран особенно тщательно**. Дальше агенту даётся не только спецификация, но и готовый экран как образец: по образцу агенты работают заметно точнее, чем по описанию.
-
-```
-Задача: экран вопроса в тренировке. Читай docs/design-system.md §15.2, §14.
-
-Собери единый экран вопроса на FocusShell и компонентах из шага 4.
-Он обслуживает все семь форматов: слово→перевод, перевод→слово, на слух,
-собрать слово, диктант, написать слово, карточка.
-
-Требования:
-1. Формат меняет ТОЛЬКО содержимое зоны задания. Зона ответа всегда
-   начинается на одной и той же вертикали. Сейчас в продукте варианты
-   ответа в разных форматах стоят на разной высоте — этого быть не должно.
-2. Вопрос и подписи — на русском. «Which sentence is correct?» на
-   русскоязычном интерфейсе A1 недопустимо.
-3. Прогресс: полоса и «N / M» в верхней панели, плюс счётчики верно/мимо.
-4. После ответа: правильный вариант зеленеет, выбранный неверный краснеет,
-   остальные гаснут; показывается написание слова и транскрипция.
-5. Клавиатура: 1–4 выбрать, Пробел повторить звук, Enter дальше.
-6. Первый вопрос ждёт клика (политика автовоспроизведения), дальше звук
-   играет сам. Строку «браузер сам звук не включит» не показывать.
-
-Проверь на 768, 834, 1024, 1194 и по чеклисту готовности экрана.
-```
-
-### 5.2–5.8
-
-Шаблон промпта, подставляй экран:
-
-```
-Задача: переделать экран <НАЗВАНИЕ>. Читай docs/design-system.md,
-раздел §15.<N>. Эталон вёрстки — <путь к готовому экрану из 5.1>,
-делай в той же манере.
-
-Используй только компоненты из components/ui и components/slova.
-Новых примитивов не создавай — если чего-то не хватает, скажи об этом,
-не изобретай.
-
-Дальше пройди чеклист готовности экрана из docs/MIGRATION.md и приложи
-скриншоты на ширинах 768, 834, 1024, 1194.
-```
+**Step 0 note.** Hydration overlays on Privacy / Terms / auth were
+[Urban VPN Proxy](https://chromewebstore.google.com) injecting
+`bis_skin_checked`. Eighteen routes in a clean Chrome profile: zero errors.
+`suppressHydrationWarning` on `<html>` and `<body>` stays for extensions and
+password managers. A hydration error after a later change is ours — check in
+a browser without extensions first.
 
 ---
 
-## Чеклист готовности экрана
+## Screen checklist
 
-Одинаковый для всех. Агент проходит его сам и отчитывается по пунктам.
+Same for every screen. Still the bar for a visual change.
 
-- [ ] Ни одного hex вне `globals.css`; цвета только семантическими классами
-- [ ] Размеры текста — из шкалы §3, произвольных нет
-- [ ] Все состояния из §10, включая `disabled` и `focus-visible`
-- [ ] Есть пустое состояние, состояние загрузки (`Skeleton`, не спиннер) и состояние ошибки с действием
-- [ ] Проходится с клавиатуры, порядок табуляции совпадает с визуальным
-- [ ] Цели нажатия ≥44×44 на сенсоре, поля ввода ≥16px
-- [ ] Действия строки видны на сенсоре без ховера
-- [ ] Проверено на 768 / 834 / 1024 / 1194
-- [ ] Текст по §17: «вы» строчными, «ё», «ёлочки», длинное тире, `8 172` с неразрывным пробелом
-- [ ] **Для экранов тренировки:** на экране не видно ответа — ни в прогрессе, ни в тултипах, ни в `title`, ни в `aria-label`, ни в заголовке вкладки
-- [ ] Ничего не прыгает при смене состояния (появление реакции, смена формата)
+- [ ] No hex outside `globals.css`; colours only via semantic classes
+- [ ] Type sizes from the §3 scale, no one-offs
+- [ ] Every state from §10, including `disabled` and `focus-visible`
+- [ ] Empty, loading (`Skeleton`, not a spinner), and error-with-action
+- [ ] Keyboard: tab order matches the visual order
+- [ ] Touch targets ≥44×44, inputs ≥16px
+- [ ] Row actions visible on touch without hover
+- [ ] Checked at 768 / 834 / 1024 / 1194
+- [ ] Copy per §17: lowercase «вы», ё, guillemets, em dash, `8 172` with a
+      thin non-breaking space
+- [ ] **Practice screens:** the answer is not visible — not in progress, not
+      in tooltips, not in `title`, not in `aria-label`, not in the tab title
+- [ ] Nothing jumps when a state changes (verdict, format change)
 
 ---
 
-## Гардрейлы
+## Guardrails
 
-Дешёвые проверки, которые ловят регресс без ревью.
+Cheap checks that catch a regression without a review. Not wired into CI yet.
 
-**1. Хардкод цвета.** В CI:
+**1. Hardcoded colour.**
 
 ```bash
-# запрещаем hex вне globals.css и tokens
+# forbid hex outside globals.css and tokens
 ! grep -rnE '#[0-9a-fA-F]{6}\b' --include='*.tsx' --include='*.ts' app components \
   | grep -v 'globals.css'
 ```
 
-**2. Мелкие поля ввода.** Ловит причину зума на iPad:
+Expected leftovers: OG image, auth email HTML, Google icon, `themeColor`.
+
+**2. Small inputs.** Catches the iPad zoom:
 
 ```bash
 ! grep -rnE 'text-(xs|sm)\b[^"]*"' --include='*.tsx' app components \
   | grep -E '<(input|textarea|Input|Textarea)'
 ```
 
-**3. Скриншоты до/после.** Playwright, гоняется вручную перед каждым шагом:
-
-```js
-// scripts/shots.mjs
-import { chromium } from 'playwright'
-const ROUTES = ['/', '/signin', '/signup', '/privacy', '/terms',
-                '/words', '/practice', '/courses', '/courses/present-simple']
-const SIZES = [[1440,900],[1194,834],[1024,768],[834,1112],[768,1024]]
-const tag = process.argv[2] ?? 'before'
-const b = await chromium.launch()
-for (const [w,h] of SIZES) {
-  const p = await b.newPage({ viewport:{width:w,height:h} })
-  for (const r of ROUTES) {
-    await p.goto('http://localhost:3000'+r, { waitUntil:'networkidle' })
-    await p.screenshot({ path:`shots/${tag}/${w}x${h}${r.replace(/\//g,'_')}.png`, fullPage:true })
-  }
-  await p.close()
-}
-await b.close()
-```
-
-Снять `before` до шага 1 — дальше будет с чем сравнивать.
-
 ---
 
-## Отдельный бэклог: продуктовые решения
+## Separate backlog: product decisions
 
-Это **не** часть миграции. Каждый пункт — самостоятельная задача с обсуждением, иначе ревью дизайна превратится в спор о продукте.
+Not part of the rebuild. Each item is its own discussion.
 
-| Решение | Суть | Статус |
+| Decision | What | Status |
 |---|---|---|
-| ~~Убрать экран выбора набора~~ | Выбор источника переехал строкой наверх страницы тренировок, второй экран исчез | **сделано**, август 2026 — решение владельца по макету `slovapractice.html` |
-| ~~Фильтры по состоянию слов~~ | «К повторению / новые / трудные / весь словарь» — в панели источника, вместе с наборами, а не вместо них | **сделано**, август 2026 |
-| Слова без набора | Не запрещать; «Без набора» — обычная строка со счётчиком; выпадающий список запоминает последний набор | предложено |
-| Наборы → метки | Слово может быть в нескольких; «без метки» перестаёт быть особым случаем | обдумать, меняет модель данных |
-| Порядок уроков курса | Свободный или последовательный — от этого зависит вид прогресса и «Продолжить» | **требует решения** |
-| Падение ступени в брейншторме | Сейчас ошибка отбрасывает на ступень назад; риск зацикливания на трудном слове. Варианты: не ниже второй ступени; после трёх промахов показать и продвинуть | **требует решения** |
-| Автопереход после верного ответа | ~1,2 с при верном, ожидание при ошибке. Быстрее в потоке, но отнимает контроль | обдумать |
-| Русская версия лендинга | Аудитория русскоязычная, лендинг английский | предложено, макет есть |
-| Права пользователя в политике | Доступ, выгрузка словаря, регион хранения данных | **юридически желательно** |
-| Дата обновления юридических страниц | | тривиально, но нужно |
-| Тёмная тема | Токены готовы, вёрстки нет | после миграции |
+| ~~Drop the set-picker screen~~ | Source moved to a bar at the top of Trainings | **done**, August 2026 |
+| ~~Filters by word state~~ | Due / new / hard / all dictionary — in the source panel, with sets | **done**, August 2026 |
+| ~~Russian landing~~ | Audience is Russian-speaking; landing is bilingual | **done**, August 2026 |
+| Words with no set | Allow; “No set” is an ordinary row with a count; the dropdown remembers the last set | proposed |
+| Sets → tags | A word can be in several; “no tag” stops being a special case | think — changes the data model |
+| Course lesson order | Free or sequential — this decides how progress and “Continue” look | **needs a decision** |
+| Brainstorm rung drop | A miss currently sends you back a rung; risk of looping on a hard word. Options: not below rung two; after three misses show and advance | **needs a decision** |
+| Auto-advance after a correct answer | ~1.2 s on correct, wait on a miss. Faster in flow, takes away control | think |
+| User rights in the policy | Access, export the dictionary, region | **legally desirable** — copy is in; export is still email |
+| Dark theme | Tokens are ready, no layout | after the rebuild |
 
 ---
 
-## Ориентировочный объём
+## What the agent prompts were
 
-| Шаг | Оценка |
-|---|---|
-| 0 · гидратация | 0,5 дня |
-| 1 · фундамент | 0,5 дня |
-| 2 · примитивы | 1 день |
-| 3 · каркасы | 1–1,5 дня |
-| 4 · ядро тренировок | 1,5–2 дня |
-| 5.1 · эталонный экран | 1 день |
-| 5.2–5.8 · остальные экраны | 3–4 дня |
-| Итого | **9–11 дней** работы с агентом при вдумчивом ревью |
-
-Оценка предполагает, что шаги идут по одному и каждый ревьюится. Попытка сделать всё одним заходом займёт столько же, но результат придётся переделывать.
+Steps 1–5 were executed from the prompts originally in this file, one commit
+each. They are not repeated here: the code is the record, and
+`docs/design-system.md` is the spec those prompts pointed at.

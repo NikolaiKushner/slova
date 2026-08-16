@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Slova — токены</title>
+<title>Slova — tokens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -27,7 +27,7 @@ h2{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
 h3{font-family:Literata,serif;font-size:18px;font-weight:500;margin:26px 0 12px}
 .card{background:#fff;border:1px solid var(--n200);border-radius:var(--radius);padding:20px}
 
-/* цвет */
+/* colour */
 .ramp{display:grid;grid-template-columns:repeat(13,1fr);gap:0;border:1px solid var(--n200);border-radius:10px;overflow:hidden}
 .ramp.g{grid-template-columns:repeat(11,1fr)}
 .sw{aspect-ratio:1/1.5;display:flex;flex-direction:column;justify-content:flex-end;padding:6px;font-size:9.5px;line-height:1.25}
@@ -36,20 +36,20 @@ h3{font-family:Literata,serif;font-size:18px;font-weight:500;margin:26px 0 12px}
 .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .trio .box{border-radius:10px;padding:16px;border:1px solid}
 
-/* типографика */
+/* type */
 .type-row{display:grid;grid-template-columns:130px 1fr 130px;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--n150)}
 .type-row:last-child{border-bottom:0}
 .tk{font-size:12px;color:var(--g600);font-weight:600;letter-spacing:.04em}
 .meta{font-size:12px;color:var(--n600);text-align:right;font-variant-numeric:tabular-nums}
 .serif{font-family:Literata,Georgia,serif;font-weight:500}
 
-/* геометрия */
+/* geometry */
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .demo{background:#fff;border:1px solid var(--n200);padding:18px;text-align:center;font-size:12px;color:var(--n600)}
 .sq{width:100%;height:56px;background:var(--g100);border:1px solid var(--g200);margin-bottom:10px}
 .sh{width:100%;height:56px;background:#fff;border:1px solid var(--n200);border-radius:10px;margin-bottom:10px}
 
-/* кнопки и состояния */
+/* buttons and states */
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn{border:0;border-radius:8px;padding:10px 20px;font:inherit;font-size:15px;font-weight:500;cursor:pointer;background:var(--g700);color:#fff;box-shadow:0 1px 2px rgb(20 32 29/.04)}
 .btn.hover{background:var(--g800)}
@@ -89,10 +89,10 @@ code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;backgroun
 <body>
 <div class="wrap">
 
-<h1>Slova — токены</h1>
-<p class="sub">Визуальная шпаргалка к спецификации. Значения совпадают с <code>globals.css</code>.</p>
+<h1>Slova — tokens</h1>
+<p class="sub">Visual cheat sheet for the specification. Values match <code>globals.css</code>.</p>
 
-<h2>Нейтральная шкала · H 165</h2>
+<h2>Neutral scale · H 165</h2>
 <div class="ramp">
   <div class="sw" style="background:var(--n0);color:var(--n700)"><b>0</b><span>#FFFFFF</span></div>
   <div class="sw" style="background:var(--n25);color:var(--n700)"><b>25</b><span>#FBFCFB</span></div>
@@ -108,9 +108,9 @@ code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;backgroun
   <div class="sw" style="background:var(--n800);color:#fff"><b>800</b><span>#343B38</span></div>
   <div class="sw" style="background:var(--n900);color:#fff"><b>900</b><span>#1A1F1D</span></div>
 </div>
-<p class="note">100 — фон приложения · 200 — граница · 600 — приглушённый текст · 700 — вторичный · 900 — основной. <b>500 и светлее для текста не использовать.</b></p>
+<p class="note">100 — app background · 200 — border · 600 — muted text · 700 — secondary · 900 — primary. <b>Do not use 500 or lighter for text.</b></p>
 
-<h2>Зелёная шкала · H 172</h2>
+<h2>Green scale · H 172</h2>
 <div class="ramp g">
   <div class="sw" style="background:var(--g50);color:var(--g800)"><b>50</b><span>#EFF8F5</span></div>
   <div class="sw" style="background:var(--g100);color:var(--g800)"><b>100</b><span>#DAEDE6</span></div>
@@ -124,22 +124,22 @@ code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;backgroun
   <div class="sw" style="background:var(--g900);color:#fff"><b>900</b><span>#032B21</span></div>
   <div class="sw" style="background:var(--g950);color:#fff"><b>950</b><span>#011B14</span></div>
 </div>
-<p class="note">100 — мятная плашка · 400 — фокус и «в работе» · 600 — надзаголовки и ссылки · 700 — основная кнопка · 900 — тёмная полоса.</p>
+<p class="note">100 — mint chip · 400 — focus and “in progress” · 600 — overlines and links · 700 — primary button · 900 — dark band.</p>
 
-<h2>Служебные</h2>
+<h2>Status</h2>
 <div class="trio">
   <div class="box" style="background:var(--s50);border-color:var(--s200);color:var(--s600)">
-    <b>Верно</b><br><span style="font-size:13px">#3C7753 на #E5F5EA · 4.70 AA</span>
+    <b>Correct</b><br><span style="font-size:13px">#3C7753 на #E5F5EA · 4.70 AA</span>
   </div>
   <div class="box" style="background:var(--d50);border-color:var(--d200);color:var(--d600)">
-    <b>Неверно</b><br><span style="font-size:13px">#A14B44 на #FBE8E5 · 4.93 AA</span>
+    <b>Incorrect</b><br><span style="font-size:13px">#A14B44 на #FBE8E5 · 4.93 AA</span>
   </div>
   <div class="box" style="background:var(--w50);border-color:var(--w200);color:var(--w600)">
-    <b>Внимание</b><br><span style="font-size:13px">#85612B на #FDF0DE · 5.00 AA</span>
+    <b>Warning</b><br><span style="font-size:13px">#85612B на #FDF0DE · 5.00 AA</span>
   </div>
 </div>
 
-<h2>Типографика</h2>
+<h2>Typography</h2>
 <div class="card">
   <div class="type-row"><span class="tk">display</span><span class="serif" style="font-size:44px;line-height:1.05;letter-spacing:-.015em">Вставьте список</span><span class="meta">Literata 500 · 44/1.05</span></div>
   <div class="type-row"><span class="tk">h1</span><span class="serif" style="font-size:36px;line-height:1.1;letter-spacing:-.015em">Курсы грамматики</span><span class="meta">Literata 500 · 36/1.1</span></div>
@@ -155,7 +155,7 @@ code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;backgroun
   <div class="type-row"><span class="tk">numeral</span><span class="serif" style="font-size:34px;font-variant-numeric:tabular-nums">8 172</span><span class="meta">Literata 500 · 34</span></div>
 </div>
 
-<h2>Радиусы</h2>
+<h2>Radii</h2>
 <div class="grid4">
   <div class="demo" style="border-radius:10px"><div class="sq" style="border-radius:4px"></div>xs · 4px</div>
   <div class="demo" style="border-radius:10px"><div class="sq" style="border-radius:6px"></div>sm · 6px</div>
@@ -163,7 +163,7 @@ code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;backgroun
   <div class="demo" style="border-radius:10px"><div class="sq" style="border-radius:10px"></div>lg · 10px</div>
 </div>
 
-<h2>Тени</h2>
+<h2>Shadows</h2>
 <div class="grid4">
   <div class="demo" style="border-radius:10px"><div class="sh" style="box-shadow:0 1px 2px rgb(20 32 29/.04)"></div>xs</div>
   <div class="demo" style="border-radius:10px"><div class="sh" style="box-shadow:0 1px 2px rgb(20 32 29/.04),0 14px 32px -26px rgb(20 32 29/.30)"></div>card</div>
@@ -171,30 +171,30 @@ code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;backgroun
   <div class="demo" style="border-radius:10px"><div class="sh" style="box-shadow:0 1px 2px rgb(20 32 29/.05),0 24px 48px -24px rgb(20 32 29/.35)"></div>pop</div>
 </div>
 
-<h2>Кнопки</h2>
+<h2>Buttons</h2>
 <div class="card">
   <div class="row">
-    <button class="btn">Заниматься</button>
-    <button class="btn hover">Ховер</button>
-    <button class="btn out">Вторичная</button>
-    <button class="btn ghost">Тихая</button>
-    <button class="btn dis">Отключена</button>
-    <button class="btn dan">Удалить</button>
+    <button class="btn">Study now</button>
+    <button class="btn hover">Hover</button>
+    <button class="btn out">Secondary</button>
+    <button class="btn ghost">Quiet</button>
+    <button class="btn dis">Disabled</button>
+    <button class="btn dan">Delete</button>
   </div>
-  <p class="note">Отключённая — серая, не бледно-зелёная. Иначе её жмут.</p>
+  <p class="note">Disabled is grey, not faded green. Otherwise people press it.</p>
 </div>
 
-<h2>Вариант ответа — все состояния</h2>
+<h2>Answer option — every state</h2>
 <div class="card">
-  <div class="opt"><span class="num">1</span>по умолчанию</div>
-  <div class="opt foc"><span class="num">2</span>фокус с клавиатуры</div>
-  <div class="opt sel"><span class="num">3</span>выбран</div>
-  <div class="opt ok"><span class="num">4</span>верно ✓</div>
-  <div class="opt no"><span class="num">1</span>неверно ✕</div>
-  <div class="opt dim"><span class="num">2</span>погашен после ответа</div>
+  <div class="opt"><span class="num">1</span>idle</div>
+  <div class="opt foc"><span class="num">2</span>keyboard focus</div>
+  <div class="opt sel"><span class="num">3</span>selected</div>
+  <div class="opt ok"><span class="num">4</span>correct ✓</div>
+  <div class="opt no"><span class="num">1</span>incorrect ✕</div>
+  <div class="opt dim"><span class="num">2</span>dimmed after the answer</div>
 </div>
 
-<h2>Прогресс</h2>
+<h2>Progress</h2>
 <div class="card">
   <div class="row" style="gap:18px">
     <div><div class="bars"><i class="f"></i><i class="f"></i><i></i><i></i><i></i></div><div class="pl">1</div></div>
@@ -203,11 +203,11 @@ code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;backgroun
     <div><div class="bars"><i class="f"></i><i></i><i></i><i></i><i></i></div><div class="pl">4</div></div>
     <div><div class="bars"><i></i><i></i><i></i><i></i><i></i></div><div class="pl">5</div></div>
     <div><div class="bars"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></div><div class="pl">6</div></div>
-    <div style="margin-left:8px;font-size:13px;color:var(--n600)"><b style="color:var(--g700)">1</b> из 6 выучено</div>
+    <div style="margin-left:8px;font-size:13px;color:var(--n600)"><b style="color:var(--g700)">1</b> of 6 learned</div>
   </div>
-  <p class="note">Лестница брейншторма: сегмент загорается после каждого верного ответа и гаснет после ошибки. Текущее слово помечено обводкой сегментов, завершённое — галочкой.</p>
+  <p class="note">Brainstorm ladder: a segment lights after each correct answer and goes out after a miss. The current word is marked by an inset on its segments, a finished one by a tick.</p>
   <div class="warn-box">
-    <b>Под столбиками стоят только номера.</b> Подписывать их словами сессии нельзя: правильный ответ всегда одно из этих слов, поэтому подписи показывают ответ прямо на экране — особенно грубо в форматах «собрать из букв» и «перевод → слово». То же касается тултипов, <code>title</code>, <code>aria-label</code> и заголовка вкладки. Состав сессии раскрывается только на стартовом и финальном экранах.
+    <b>Only numbers under the columns.</b> Do not label them with session words: the right answer is always one of those words, so the labels would print the answer on the screen — worst in “assemble from letters” and “translation → word”. The same goes for tooltips, <code>title</code>, <code>aria-label</code>, and the tab title. The session contents are revealed only on the start and finish screens.
   </div>
 </div>
 

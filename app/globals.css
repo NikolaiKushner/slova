@@ -1,36 +1,36 @@
 /* ============================================================
-   Slova — токены дизайн-системы
+   Slova — design-system tokens
    Tailwind CSS v4 + shadcn/ui
 
-   Эталон: docs/globals.reference.css (§19.1 спецификации).
-   Каждое расхождение с ним помечено «ОТСТУПЛЕНИЕ» и объяснено.
+   Reference: docs/globals.reference.css (§19.1 of the spec).
+   Every divergence from it is marked “Deviation” and explained.
    ============================================================ */
 
-/* ОТСТУПЛЕНИЕ 1 · Эталон подключает `@plugin "tailwindcss-animate"` — это
-   плагин для Tailwind v3, в проекте его нет и не будет. Здесь установлен
-   `tw-animate-css`, его аналог для v4.
-   `shadcn/tailwind.css` обязателен: он даёт варианты `data-open`/`data-closed`
-   и утилиты `no-scrollbar` / `scroll-fade`, на которых стоят примитивы
-   base-nova. Без него ломается сайдбар. */
+/* Deviation 1 · The reference imports `@plugin "tailwindcss-animate"` — a
+   Tailwind v3 plugin we do not have and will not add. `tw-animate-css` is
+   the v4 equivalent.
+   `shadcn/tailwind.css` is required: it supplies `data-open`/`data-closed`
+   variants and `no-scrollbar` / `scroll-fade`, which the base-nova primitives
+   sit on. Without it the sidebar breaks. */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* ОТСТУПЛЕНИЕ 5 · Эталон задаёт сенсорные размеры одним правилом в §10 —
-   `min-height: 44px` на любую кнопку. Этого мало: §13 требует у `lg` 52px, а
-   у иконочной 44 при 28 на десктопе, то есть размер зависит от варианта, а не
-   от одного порога. Нужен вариант, которым это выражается в самом примитиве.
-   Отдельным `@custom-variant`, а не встроенным `pointer-coarse:`, чтобы не
-   зависеть от минорной версии Tailwind. */
+/* Deviation 5 · The reference sets touch sizes with one §10 rule —
+   `min-height: 44px` on every button. That is not enough: §13 wants `lg` at
+   52px and the icon button at 44 on touch / 28 on desktop, so size depends
+   on the variant, not one floor. The primitive itself needs a variant.
+   A dedicated `@custom-variant`, not the built-in `pointer-coarse:`, so we
+   do not depend on a Tailwind minor. */
 @custom-variant coarse (@media (pointer: coarse));
 
 /* ------------------------------------------------------------
-   1. ПРИМИТИВЫ
+   1. PRIMITIVES
    ------------------------------------------------------------ */
 :root {
-  /* нейтральная шкала — H 165 */
+  /* neutral scale — H 165 */
   --neutral-0:    oklch(100%   0     165);
   --neutral-25:   oklch(99.0%  0.002 165);
   --neutral-50:   oklch(97.6%  0.003 165);
@@ -45,7 +45,7 @@
   --neutral-800:  oklch(34.5%  0.012 165);
   --neutral-900:  oklch(23.4%  0.008 165);
 
-  /* зелёная шкала — H 172 */
+  /* green scale — H 172 */
   --green-50:   oklch(97.2% 0.010 172);
   --green-100:  oklch(93.0% 0.022 172);
   --green-200:  oklch(88.0% 0.035 172);
@@ -58,7 +58,7 @@
   --green-900:  oklch(26.0% 0.048 172);
   --green-950:  oklch(20.0% 0.038 172);
 
-  /* служебные */
+  /* status */
   --success-50:   oklch(95.5% 0.022 155);
   --success-200:  oklch(88.0% 0.045 155);
   --success-600:  oklch(52.0% 0.085 155);
@@ -70,7 +70,7 @@
   --warning-600:  oklch(52.0% 0.085 75);
 
   /* ----------------------------------------------------------
-     2. СЕМАНТИКА — светлая тема
+     2. SEMANTICS — light theme
      ---------------------------------------------------------- */
   --background:            var(--neutral-100);
   --foreground:            var(--neutral-900);
@@ -92,27 +92,27 @@
 
   --accent:                var(--green-100);
   --accent-foreground:     var(--green-700);
-  /* ОТСТУПЛЕНИЕ 7 · §5.1 требует у выбранного варианта границу green-200, но
-     имени ей не даёт — в отличие от success/warning/destructive, у которых
-     тройка полная. Достраиваю тройку, иначе OptionButton пришлось бы красить
-     примитивом напрямую, что §5 запрещает. */
+  /* Deviation 7 · §5.1 wants a green-200 border on a selected option, but
+     gives it no name — unlike success/warning/destructive, which have a full
+     trio. Completing the trio here, otherwise OptionButton would have to
+     paint with a primitive, which §5 forbids. */
   --accent-border:         var(--green-200);
 
   --destructive:           var(--danger-600);
   --destructive-foreground:var(--neutral-0);
 
-  /* ОТСТУПЛЕНИЕ 2 · В эталоне у «неверно» есть только --destructive, тогда как
-     §10 требует для состояния `incorrect` фон и границу — по аналогии с
-     success/warning. Примитивы --danger-50/--danger-200 в эталоне уже заданы,
-     но никуда не подключены. Достраиваю пару, иначе OptionButton на шаге 4
-     будет нечем покрасить. */
+  /* Deviation 2 · The reference only gives “incorrect” --destructive, while
+     §10 wants a background and border for `incorrect` — same as
+     success/warning. --danger-50/--danger-200 already exist in the reference
+     but are wired nowhere. Completing the pair, otherwise OptionButton has
+     nothing to paint with. */
   --destructive-bg:        var(--danger-50);
   --destructive-border:    var(--danger-200);
 
-  /* ОТСТУПЛЕНИЕ 6 · §10 требует, чтобы отключённая кнопка была серой —
-     neutral-200 с текстом neutral-500, — а не приглушённо-зелёной: сейчас её
-     жмут. Семантического имени под это в эталоне нет, и без него в примитиве
-     пришлось бы написать `bg-border`, что означало бы совсем другое. */
+  /* Deviation 6 · §10 wants the disabled button grey — neutral-200 with
+     neutral-500 text — not a faded green: people press it. The reference has
+     no semantic name for that, and without one the primitive would use
+     `bg-border`, which means something else. */
   --disabled:              var(--neutral-200);
   --disabled-foreground:   var(--neutral-500);
 
@@ -123,9 +123,10 @@
   --warning-bg:            var(--warning-50);
   --warning-border:        var(--warning-200);
 
-  /* ОТСТУПЛЕНИЕ · §14 Token задаёт отдельные hex для подсветки окончания.
-     Success (H 155) и бренд (H 172) — другие зелёные; если взять их, `-s`
-     сольётся с кнопкой «верно». Живут только здесь, не в компонентах. */
+  /* Deviation · §14 Token wants its own hex for the ending highlight.
+     Success (H 155) and the brand (H 172) are different greens; using them
+     would make `-s` collide with the “correct” button. Live only here, not
+     in components. */
   --token-mark:            #DFF0E5;
   --token-mark-foreground: #2F7D5C;
 
@@ -139,7 +140,7 @@
   --inverse-foreground:    var(--neutral-0);
   --inverse-muted:         var(--green-300);
 
-  /* сайдбар (конвенция shadcn) */
+  /* sidebar (shadcn convention) */
   --sidebar:                     var(--neutral-25);
   --sidebar-foreground:          var(--neutral-700);
   --sidebar-border:              var(--neutral-200);
@@ -149,7 +150,7 @@
   --sidebar-primary-foreground:  var(--neutral-0);
   --sidebar-ring:                var(--green-400);
 
-  /* данные / прогресс */
+  /* data / progress */
   --data-learned:      var(--green-700);
   --data-learning:     var(--green-400);
   --data-untouched:    var(--neutral-200);
@@ -157,7 +158,7 @@
   --data-missed:       var(--danger-600);
 
   /* ----------------------------------------------------------
-     3. ГЕОМЕТРИЯ
+     3. GEOMETRY
      ---------------------------------------------------------- */
   --radius: 0.625rem;                    /* 10px */
   --radius-xs: calc(var(--radius) - 6px);
@@ -175,15 +176,15 @@
   --container-focus: 540px;
   --container-marketing: 1120px;
 
-  /* Поля страницы из §7 и §8. Переменными, а не классами на каркасе, потому
-     что режим фокуса обязан их погасить ровно — верхняя панель §15.2 идёт от
-     края до края области содержимого. Числа сказаны один раз. */
+  /* Page padding from §7 and §8. Variables, not classes on the shell,
+     because focus mode has to cancel them exactly — the §15.2 top bar runs
+     edge to edge of the content area. The numbers are said once. */
   --page-px: 20px;
   --page-pt: 28px;
   --page-pb: 56px;
 
   /* ----------------------------------------------------------
-     4. ТЕНИ
+     4. SHADOWS
      ---------------------------------------------------------- */
   --shadow-xs:      0 1px 2px rgb(20 32 29 / .04);
   --shadow-sm:      0 1px 2px rgb(20 32 29 / .05), 0 1px 3px rgb(20 32 29 / .04);
@@ -194,7 +195,7 @@
   --focus-ring:     0 0 0 3px rgb(125 172 156 / .28);
 
   /* ----------------------------------------------------------
-     5. ДВИЖЕНИЕ
+     5. MOTION
      ---------------------------------------------------------- */
   --ease-standard:   cubic-bezier(.4, 0, .2, 1);
   --ease-emphasized: cubic-bezier(.2, .8, .2, 1);
@@ -212,17 +213,17 @@
   :root { --page-px: 40px; --page-pt: 46px; --page-pb: 80px; }
 }
 
-/* §8 · Ширина сайдбара: 268px от 1280, 240px на 1024–1279. Ниже 1024 он
-   становится `Sheet`, и эта переменная его уже не касается. Живёт здесь, а не
-   в компоненте: инлайновое объявление в `SidebarProvider` перебило бы
-   медиазапрос и заморозило одну ширину. */
+/* §8 · Sidebar width: 268px from 1280, 240px at 1024–1279. Below 1024 it
+   becomes a `Sheet`, and this variable no longer applies. Lives here, not
+   on the component: an inline declaration in `SidebarProvider` would beat
+   the media query and freeze one width. */
 @media (max-width: 1279px) {
   :root { --sidebar-width: var(--sidebar-width-compact); }
 }
 
 /* ------------------------------------------------------------
-   6. ТЁМНАЯ ТЕМА
-   Вёрстки под неё пока нет (§5.2) — токены заданы, чтобы не переделывать.
+   6. DARK THEME
+   No layout for it yet (§5.2) — tokens are set so we do not redo this.
    ------------------------------------------------------------ */
 .dark {
   --background:            oklch(17.5% 0.006 165);
@@ -272,7 +273,7 @@
 }
 
 /* ------------------------------------------------------------
-   7. РЕГИСТРАЦИЯ В TAILWIND
+   7. TAILWIND REGISTRATION
    ------------------------------------------------------------ */
 @theme inline {
   --font-sans:    var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -328,10 +329,10 @@
   --color-data-track: var(--data-track);
   --color-data-missed: var(--data-missed);
 
-  /* ОТСТУПЛЕНИЕ 3 · Эталон объявляет --sidebar-primary / --sidebar-ring, но не
-     регистрирует их в теме, а `components/ui/sidebar.tsx` пользуется
-     `ring-sidebar-ring` в шести местах. Без регистрации класс молча исчезает.
-     Это не новый токен, а достройка того же набора. */
+  /* Deviation 3 · The reference declares --sidebar-primary / --sidebar-ring
+     but does not register them on the theme, and `components/ui/sidebar.tsx`
+     uses `ring-sidebar-ring` in six places. Without registration the class
+     silently vanishes. Not a new token — completing the same set. */
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -352,13 +353,13 @@
 }
 
 /* ------------------------------------------------------------
-   8. БАЗА
+   8. BASE
    ------------------------------------------------------------ */
 @layer base {
   * { @apply border-border; }
 
   html {
-    -webkit-text-size-adjust: 100%;   /* iPad: не менять кегль при повороте */
+    -webkit-text-size-adjust: 100%;   /* iPad: do not change type size on rotate */
     scroll-behavior: smooth;
   }
 
@@ -384,7 +385,7 @@
     outline-offset: 2px;
   }
 
-  /* iPad: не зумить при фокусе в поле */
+  /* iPad: do not zoom on field focus */
   input, textarea, select { font-size: max(1rem, 16px); }
 
   button, [role="button"], a { touch-action: manipulation; }
@@ -393,7 +394,7 @@
 }
 
 /* ------------------------------------------------------------
-   9. ТИПОГРАФИЧЕСКИЕ УТИЛИТЫ
+   9. TYPE UTILITIES
    ------------------------------------------------------------ */
 @layer utilities {
   .text-display {
@@ -468,7 +469,7 @@
   .container-marketing { max-width: var(--container-marketing); margin-inline: auto; }
 }
 
-/* --- планшет --- */
+/* --- tablet --- */
 @media (max-width: 1024px) {
   .text-display { font-size: 2.5rem; }
   .text-h1      { font-size: 2rem; }
@@ -477,7 +478,7 @@
   .text-numeral { font-size: 1.875rem; }
 }
 
-/* --- телефон --- */
+/* --- phone --- */
 @media (max-width: 640px) {
   .text-display { font-size: 2.125rem; }
   .text-h1      { font-size: 1.75rem; }
@@ -489,18 +490,18 @@
 }
 
 /* ------------------------------------------------------------
-   10. СЕНСОРНЫЙ ВВОД (iPad)
+   10. TOUCH INPUT (iPad)
    ------------------------------------------------------------ */
 @media (pointer: coarse) {
-  /* минимальная цель 44×44 */
+  /* minimum target 44×44 */
   button, [role="button"], a[role="button"], .tap-target {
     min-height: 44px;
     min-width: 44px;
   }
   .option-row { min-height: 56px; padding-block: 1rem; }
   .letter-tile { width: 48px; height: 48px; }
-  .key-hints { display: none; }        /* подсказки клавиш не нужны без клавиатуры */
-  .row-actions { opacity: 1 !important; }  /* действия строки видны всегда */
+  .key-hints { display: none; }        /* key hints are unused without a keyboard */
+  .row-actions { opacity: 1 !important; }  /* row actions always visible */
 }
 
 @media (hover: none) {
@@ -508,7 +509,7 @@
 }
 
 /* ------------------------------------------------------------
-   11. ФОН-ЗЕРНО
+   11. GRAIN BACKGROUND
    ------------------------------------------------------------ */
 .grain::before {
   content: "";
@@ -517,7 +518,7 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.045'/></svg>");
 }
 
-/* верхняя акцентная полоса */
+/* top accent bar */
 .top-accent::after {
   content: "";
   position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 50;
@@ -526,7 +527,7 @@
 .dark .top-accent::after { opacity: .35; }
 
 /* ------------------------------------------------------------
-   12. СНИЖЕННАЯ АНИМАЦИЯ
+   12. REDUCED MOTION
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -538,57 +539,15 @@
 }
 
 /* ============================================================
-   ОТСТУПЛЕНИЕ 4 · ВРЕМЕННЫЙ МОСТ К СТАРЫМ ИМЕНАМ
+   BEHAVIOURAL CSS
 
-   Этого блока нет в эталоне, и в конце миграции он исчезает целиком.
-
-   Шаг 1 меняет только фундамент — компоненты он не трогает (так написано в
-   docs/MIGRATION.md). Но семьдесят с лишним мест в коде ссылаются на токены
-   старой палитры, и если просто выложить новый файл, эти классы не исчезнут
-   с экрана — Tailwind перестанет их генерировать, и текст останется чёрным
-   там, где был зелёным. Правило «приложение остаётся рабочим после каждого
-   шага» это нарушает молча, а молчаливые поломки и есть худший сорт.
-
-   Поэтому старые имена остаются как псевдонимы новых — и ни один из них не
-   тянет за собой старый цвет: каждый указывает в новую шкалу. Шаги 2–5
-   вычищают их по мере переделки экранов, и блок сокращается до нуля.
-
-   Счётчик использований на момент написания — в комментарии у каждой строки.
-   ============================================================ */
-@theme inline {
-  /* → --eyebrow (green-600). Надзаголовки и подписи «СЕГОДНЯ». 41 место. */
-  --color-brand-soft: var(--eyebrow);
-  /* → --inverse-surface (green-900). Тёмная полоса на публичных страницах. 2 места. */
-  --color-brand-deep: var(--inverse-surface);
-
-  /* Вердикты → служебные цвета §4.3. 9 мест. */
-  --color-correct:      var(--success);
-  --color-correct-soft: var(--success-bg);
-  --color-correct-line: var(--success-border);
-  --color-wrong:        var(--destructive);
-  --color-wrong-soft:   var(--destructive-bg);
-  --color-wrong-line:   var(--destructive-border);
-
-  /* Состояния пункта меню. В shadcn это один --sidebar-accent, старый код
-     различал ховер и активный. 15 мест. */
-  --color-sidebar-hover:  var(--neutral-100);
-  --color-sidebar-active: var(--sidebar-accent);
-
-  /* `font-heading` пользуются шесть примитивов в components/ui. Уйдёт на
-     шаге 2 вместе с переборкой примитивов. */
-  --font-heading: var(--font-display), Georgia, "Times New Roman", serif;
-}
-
-/* ============================================================
-   ПОВЕДЕНЧЕСКИЙ CSS
-
-   Не токены: это движение и режимы, которые нечем заменить в теме. Перенесён
-   из прежнего globals.css и перецелен на новые переменные.
+   Not tokens: motion and modes the theme cannot express. Carried over from
+   the previous globals.css and retargeted at the new variables.
    ============================================================ */
 
-/* Логотип. Прежний вариант крутил оси SOFT и WONK — они есть у Fraunces,
-   которого больше нет. У Literata начертание 600 отведено ровно под логотип
-   (§2.1), крупный opsz утончает штрих. */
+/* Logo. The old cut spun SOFT and WONK axes — those belong to Fraunces,
+   which is gone. Literata 600 is reserved for the wordmark (§2.1); a large
+   opsz thins the stroke. */
 @utility font-logo {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
@@ -612,7 +571,7 @@
   }
 }
 
-/* Единственное движущееся на лендинге: каретка в макете «напечатать слово». */
+/* The only motion on the landing: the caret in the “type the word” still. */
 .caret-blink {
   animation: caret-blink 1.1s steps(1, end) infinite;
 }
@@ -624,12 +583,11 @@
 }
 
 /*
- * Два кольца, уходящие от кнопки звука, пока слово произносится (§14).
+ * Two rings leaving the sound button while the word is spoken (§14).
  *
- * У звука нет формы, и упражнение на слух, которое выглядит одинаково молча и
- * во время проигрывания, не поддаётся ответу — не отличить «подожди» от «не
- * сыграло». Нарисованы псевдоэлементами, чтобы под состояние не заводить узлов
- * в DOM.
+ * Sound has no shape, and a listening drill that looks the same silent and
+ * playing cannot be answered — wait versus “it did not play” is invisible.
+ * Drawn with pseudo-elements so the state does not add DOM nodes.
  */
 .sound-ring::before,
 .sound-ring::after {
@@ -661,9 +619,9 @@
 }
 
 /*
- * Режим фокуса (§15.2). Пока идёт тренировка, меню никуда не девается — один
- * взгляд, одно наведение, — но перестаёт спорить с вопросом за внимание.
- * Задаётся на `body`, потому что сайдбар лежит выше тренировки по дереву.
+ * Focus mode (§15.2). During a drill the menu stays put — one glance, one
+ * hover — but it stops competing with the question for attention. Set on
+ * `body` because the sidebar sits above the drill in the tree.
  */
 body[data-drill="on"] [data-slot="sidebar"] {
   opacity: 0.4;

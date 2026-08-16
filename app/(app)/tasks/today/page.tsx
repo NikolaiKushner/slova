@@ -52,9 +52,7 @@ export default async function TodayPage() {
       />
 
       {progressText ? (
-        <p className="-mt-4 text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          {progressText}
-        </p>
+        <p className="text-overline text-eyebrow -mt-4">{progressText}</p>
       ) : null}
 
       <div className="mt-10">
