@@ -207,3 +207,48 @@ export async function saveLessonProgress(input: {
 
   return next;
 }
+
+export async function loadCourseProgressMap(
+  userId: string,
+  slugs: string[],
+): Promise<Map<string, { completedLessons: string[]; completed: boolean }>> {
+  const map = new Map<
+    string,
+    { completedLessons: string[]; completed: boolean }
+  >();
+  if (slugs.length === 0) return map;
+
+  const prisma = getPrisma();
+  const [lessons, courses] = await Promise.all([
+    prisma.userLesson.findMany({
+      where: {
+        userId,
+        courseSlug: { in: slugs },
+        status: "completed",
+      },
+      select: { courseSlug: true, lessonSlug: true },
+    }),
+    prisma.userCourse.findMany({
+      where: { userId, courseSlug: { in: slugs } },
+      select: { courseSlug: true, completedAt: true },
+    }),
+  ]);
+
+  for (const slug of slugs) {
+    map.set(slug, { completedLessons: [], completed: false });
+  }
+
+  for (const row of lessons) {
+    const entry = map.get(row.courseSlug);
+    if (!entry) continue;
+    entry.completedLessons.push(row.lessonSlug);
+  }
+
+  for (const row of courses) {
+    const entry = map.get(row.courseSlug);
+    if (!entry) continue;
+    entry.completed = row.completedAt !== null;
+  }
+
+  return map;
+}

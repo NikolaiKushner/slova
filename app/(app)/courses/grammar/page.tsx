@@ -1,27 +1,36 @@
-import Link from "next/link";
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { ChevronRight } from "lucide-react";
 
+import { GrammarCatalog } from "@/components/courses/grammar-catalog";
 import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
-import { Section } from "@/components/section";
+import { auth } from "@/lib/auth";
+import { grammarCatalog } from "@/lib/courses/catalog";
+import { withProgress } from "@/lib/courses/catalog-view";
 import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  grammarCatalog,
-  type CatalogCourse,
-} from "@/lib/courses/catalog";
-import { cn } from "@/lib/utils";
+  CEFR_LEVEL_COOKIE,
+  CEFR_SOURCE_COOKIE,
+  parseCefrLevel,
+  parseLevelSource,
+} from "@/lib/courses/cefr";
+import { loadCourseProgressMap } from "@/lib/courses/progress";
 
 export default async function CoursesGrammarPage() {
   const t = await getTranslations("courses");
-  const common = await getTranslations("common");
-  const groups = grammarCatalog();
+  const store = await cookies();
+  const { available, coming } = grammarCatalog();
+
+  const session = await auth();
+  const progress = session?.user?.id
+    ? await loadCourseProgressMap(
+        session.user.id,
+        available.map((course) => course.slug),
+      )
+    : new Map();
+
+  const courses = available.map((course) =>
+    withProgress(course, progress.get(course.slug)),
+  );
 
   return (
     <PageContainer container="list">
@@ -29,91 +38,14 @@ export default async function CoursesGrammarPage() {
         eyebrow={t("eyebrow")}
         title={t("grammarTitle")}
         description={t("grammarDescription")}
+        className="mb-0"
       />
-
-      <div className="space-y-10">
-        {groups.map((group) => (
-          <Section key={group.id} title={group.title} hint={group.titleRu}>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {group.courses.map((course) => (
-                <li key={course.slug} className="min-h-0">
-                  <CourseTile
-                    course={course}
-                    coming={common("coming")}
-                    levelLessons={
-                      course.level && course.lessonCount !== null
-                        ? t("levelLessons", {
-                            level: course.level,
-                            count: course.lessonCount,
-                          })
-                        : null
-                    }
-                  />
-                </li>
-              ))}
-            </ul>
-          </Section>
-        ))}
-      </div>
+      <GrammarCatalog
+        courses={courses}
+        coming={coming}
+        initialLevel={parseCefrLevel(store.get(CEFR_LEVEL_COOKIE)?.value)}
+        initialSource={parseLevelSource(store.get(CEFR_SOURCE_COOKIE)?.value)}
+      />
     </PageContainer>
-  );
-}
-
-function CourseTile({
-  course,
-  coming,
-  levelLessons,
-}: {
-  course: CatalogCourse;
-  coming: string;
-  levelLessons: string | null;
-}) {
-  const inner = (
-    <Card
-      className={cn(
-        "h-full gap-0 py-0",
-        course.href && "transition-colors hover:bg-muted/50",
-      )}
-    >
-      <CardHeader className="flex-1 gap-1.5 py-5">
-        <CardTitle
-          className={cn(
-            "font-display min-h-[1.75em] text-2xl font-normal tracking-tight",
-            !course.href && "text-muted-foreground",
-          )}
-        >
-          {course.title}
-        </CardTitle>
-        <CardDescription>{course.titleRu}</CardDescription>
-      </CardHeader>
-      <CardFooter className="mt-auto min-h-11 justify-between text-sm">
-        {course.status === "available" && levelLessons ? (
-          <>
-            <span>{levelLessons}</span>
-            <ChevronRight
-              className="size-4 text-muted-foreground/40"
-              aria-hidden
-            />
-          </>
-        ) : (
-          <span className="text-brand-soft text-[0.65rem] font-medium tracking-widest uppercase">
-            {coming}
-          </span>
-        )}
-      </CardFooter>
-    </Card>
-  );
-
-  if (!course.href) {
-    return <div className="h-full">{inner}</div>;
-  }
-
-  return (
-    <Link
-      href={course.href}
-      className="block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-    >
-      {inner}
-    </Link>
   );
 }
