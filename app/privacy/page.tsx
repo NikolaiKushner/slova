@@ -1,9 +1,17 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { LegalPage } from "@/components/legal-page";
+import {
+  LegalItem,
+  LegalList,
+  LegalPage,
+  LegalSection,
+  legalRich,
+} from "@/components/legal-page";
+import { Callout } from "@/components/slova/callout";
 import { MailLink, ProseLink } from "@/components/prose-link";
-import { Section } from "@/components/section";
+import { SITE_ORIGIN } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("legal");
@@ -15,6 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PrivacyPage() {
   const t = await getTranslations("legal");
+  const rich = {
+    ...legalRich(),
+    email: () => <MailLink />,
+    site: (chunks: ReactNode) => (
+      <ProseLink href={SITE_ORIGIN}>{chunks}</ProseLink>
+    ),
+  };
 
   return (
     <LegalPage
@@ -22,62 +37,71 @@ export default async function PrivacyPage() {
       title={t("privacyTitle")}
       description={t("privacyDescription")}
       updated={t("updated")}
-      footer={<ProseLink href="/terms">{t("termsOfUse")}</ProseLink>}
+      effective={t("effective")}
+      footer={
+        <>
+          <ProseLink href="/terms">{t("termsOfUse")} →</ProseLink>
+          <MailLink />
+        </>
+      }
     >
-      <Section title={t("whoTitle")}>
-        <p className="text-muted-foreground">
-          {t.rich("whoBody", { email: () => <MailLink /> })}
-        </p>
-      </Section>
+      <LegalSection title={t("whoTitle")}>
+        <p>{t.rich("whoBody", rich)}</p>
+      </LegalSection>
 
-      <Section title={t("storeTitle")}>
-        <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
-          <li>{t("store1")}</li>
-          <li>{t("store2")}</li>
-          <li>{t("store3")}</li>
-          <li>{t("store4")}</li>
-        </ul>
-      </Section>
+      <LegalSection title={t("storeTitle")}>
+        <LegalList>
+          <LegalItem>{t.rich("store1", rich)}</LegalItem>
+          <LegalItem>{t.rich("store2", rich)}</LegalItem>
+          <LegalItem>{t.rich("store3", rich)}</LegalItem>
+          <LegalItem>{t.rich("store4", rich)}</LegalItem>
+        </LegalList>
+        <p>{t("storeElse")}</p>
+      </LegalSection>
 
-      <Section title={t("elseTitle")}>
-        <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
-          <li>{t("else1")}</li>
-          <li>{t("else2")}</li>
-          <li>{t("else3")}</li>
-          <li>{t("else4")}</li>
-          <li>{t("else5")}</li>
-        </ul>
-      </Section>
+      <LegalSection title={t("elseTitle")}>
+        <p>{t("elseIntro")}</p>
+        <LegalList>
+          <LegalItem>{t.rich("else1", rich)}</LegalItem>
+          <LegalItem>{t.rich("else2", rich)}</LegalItem>
+          <LegalItem>{t.rich("else3", rich)}</LegalItem>
+          <LegalItem>{t.rich("else4", rich)}</LegalItem>
+          <LegalItem>{t.rich("else5", rich)}</LegalItem>
+        </LegalList>
+        <p>{t("elseOutro")}</p>
+      </LegalSection>
 
-      <Section title={t("whereTitle")}>
-        <p className="text-muted-foreground">{t("whereBody")}</p>
-      </Section>
+      <LegalSection title={t("whereTitle")}>
+        <p>{t("whereBody")}</p>
+      </LegalSection>
 
-      <Section title={t("rightsTitle")}>
-        <p className="text-muted-foreground">
-          {t.rich("rightsIntro", { email: () => <MailLink /> })}
-        </p>
-        <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
-          <li>{t("rights1")}</li>
-          <li>{t("rights2")}</li>
-          <li>{t("rights3")}</li>
-          <li>{t("rights4")}</li>
-        </ul>
-      </Section>
+      <LegalSection title={t("rightsTitle")}>
+        <LegalList>
+          <LegalItem>{t.rich("rights1", rich)}</LegalItem>
+          <LegalItem>{t.rich("rights2", rich)}</LegalItem>
+          <LegalItem>{t.rich("rights3", rich)}</LegalItem>
+          <LegalItem>{t.rich("rights4", rich)}</LegalItem>
+        </LegalList>
+        <Callout variant="note" title={t("sharedNoteTitle")}>
+          <p>{t.rich("sharedNote", rich)}</p>
+        </Callout>
+      </LegalSection>
 
-      <Section title={t("cookiesTitle")}>
-        <p className="text-muted-foreground">{t("cookiesBody")}</p>
-      </Section>
+      <LegalSection title={t("howLongTitle")}>
+        <p>{t.rich("howLongBody", rich)}</p>
+      </LegalSection>
 
-      <Section title={t("howLongTitle")}>
-        <p className="text-muted-foreground">
-          {t.rich("howLongBody", { email: () => <MailLink /> })}
-        </p>
-      </Section>
+      <LegalSection title={t("cookiesTitle")}>
+        <p>{t("cookiesBody")}</p>
+      </LegalSection>
 
-      <Section title={t("childrenTitle")}>
-        <p className="text-muted-foreground">{t("childrenBody")}</p>
-      </Section>
+      <LegalSection title={t("childrenTitle")}>
+        <p>{t("childrenBody")}</p>
+      </LegalSection>
+
+      <LegalSection title={t("changesTitle")}>
+        <p>{t("privacyChanges")}</p>
+      </LegalSection>
     </LegalPage>
   );
 }

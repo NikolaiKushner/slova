@@ -29,56 +29,54 @@ export function ProductFrame({
   return (
     <div
       className={cn(
-        "pointer-events-none overflow-hidden rounded-xl border border-border bg-card shadow-sm select-none",
+        "pointer-events-none overflow-hidden rounded-xl border border-border-subtle bg-card shadow-lifted select-none",
         className,
       )}
       aria-hidden
     >
-      <div className="flex items-center gap-1.5 border-b border-border px-4 py-2.5">
+      <div className="flex items-center gap-1.5 border-b border-border-subtle bg-card px-3.5 py-2.5">
         <span className="size-2 rounded-full bg-border" />
         <span className="size-2 rounded-full bg-border" />
         <span className="size-2 rounded-full bg-border" />
-        <BrandWordmark className="ml-3 text-sm" />
+        <BrandWordmark className="ml-1.5 text-sm" />
       </div>
       <div className="flex bg-card">
         {chrome === "window" ? (
-          <aside className="hidden w-40 shrink-0 border-r border-sidebar-border bg-sidebar p-3 sm:block">
-            <p className="px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
-              {t("tasks")}
-            </p>
+          <aside className="hidden w-[150px] shrink-0 border-r border-border-subtle bg-card p-2.5 sm:block">
+            <p className="text-overline text-muted-foreground px-2">{t("tasks")}</p>
             <p
               className={cn(
-                "rounded-md px-2 py-1 text-sm",
+                "rounded-sm px-2 py-1.5 text-sm",
                 active === "today"
-                  ? "bg-sidebar-active"
-                  : "text-muted-foreground",
+                  ? "bg-secondary font-medium text-foreground"
+                  : "text-foreground/80",
               )}
             >
               {t("today")}
             </p>
-            <p className="mt-3 px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
+            <p className="text-overline text-muted-foreground mt-3 px-2">
               {t("practice")}
             </p>
-            <p className="px-2 py-1 text-sm text-muted-foreground">
+            <p className="px-2 py-1.5 text-sm text-foreground/80">
               {t("trainings")}
             </p>
-            <p className="mt-3 px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
+            <p className="text-overline text-muted-foreground mt-3 px-2">
               {t("courses")}
             </p>
             <p
               className={cn(
-                "rounded-md px-2 py-1 text-sm",
+                "rounded-sm px-2 py-1.5 text-sm",
                 active === "courses"
-                  ? "bg-sidebar-active"
-                  : "text-muted-foreground",
+                  ? "bg-secondary font-medium text-foreground"
+                  : "text-foreground/80",
               )}
             >
               {t("grammar")}
             </p>
-            <p className="mt-3 px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-brand-soft">
+            <p className="text-overline text-muted-foreground mt-3 px-2">
               {t("dictionary")}
             </p>
-            <p className="px-2 py-1 text-sm text-muted-foreground">
+            <p className="px-2 py-1.5 text-sm text-foreground/80">
               {t("myWords")}
             </p>
           </aside>
@@ -86,7 +84,7 @@ export function ProductFrame({
         <div
           className={cn(
             "min-w-0 flex-1",
-            compact ? "px-5 py-5" : "px-6 py-6 sm:px-8 sm:py-7",
+            compact ? "px-5 py-5" : "px-6 py-6",
           )}
         >
           {children}
@@ -113,16 +111,14 @@ export function ProductPanel({
   return (
     <div
       className={cn(
-        "pointer-events-none overflow-hidden rounded-xl border border-border bg-card shadow-sm select-none",
+        "pointer-events-none overflow-hidden rounded-lg border border-border-subtle bg-card shadow-card select-none",
         className,
       )}
       aria-hidden
     >
-      <div className="px-5 py-5">
+      <div className="px-4 py-4">
         {label ? (
-          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.15em] text-brand-soft">
-            {label}
-          </p>
+          <p className="text-overline text-muted-foreground mb-3">{label}</p>
         ) : null}
         {children}
       </div>
@@ -133,47 +129,33 @@ export function ProductPanel({
 export function TodayScreen() {
   const t = useTranslations("product");
   return (
-    <div className="space-y-6">
-      <header className="space-y-2">
-        <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          {t("todayEyebrow")}
-        </p>
-        <p className="font-display text-3xl tracking-tight sm:text-4xl">
-          {t("todayTitle")}
-        </p>
-        <p className="text-sm text-muted-foreground">{t("todayBody")}</p>
-      </header>
-      <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-        {t("todayProgress")}
-      </p>
-      <div className="space-y-3">
-        <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          {t("yourWords")}
-        </p>
-        <div className="flex h-2 overflow-hidden rounded-full bg-border">
-          <span className="h-full w-[35%] bg-primary" />
-          <span className="h-full w-[40%] bg-brand-soft" />
-          <span className="h-full w-[25%] bg-border" />
-        </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-          <span className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-primary" />
-            <span className="font-medium">14</span>
-            <span className="text-muted-foreground">{t("learned")}</span>
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-brand-soft" />
-            <span className="font-medium">16</span>
-            <span className="text-muted-foreground">{t("learning")}</span>
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-border" />
-            <span className="font-medium">10</span>
-            <span className="text-muted-foreground">{t("notStarted")}</span>
-          </span>
-        </div>
+    <div>
+      <p className="text-overline text-muted-foreground">{t("todayEyebrow")}</p>
+      <p className="text-h2 mt-2">{t("todayTitle")}</p>
+      <p className="text-caption mt-1.5 text-muted-foreground">{t("todayBody")}</p>
+      <p className="text-overline text-muted-foreground mt-5">{t("yourWords")}</p>
+      <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-border">
+        <span className="bg-data-learned h-full w-[35%]" />
+        <span className="bg-data-learning h-full w-[40%]" />
       </div>
-      <span className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+        <span className="flex items-center gap-1.5">
+          <span className="bg-data-learned size-1.5 rounded-full" />
+          <span className="font-semibold">14</span>
+          <span className="text-foreground/80">{t("learned")}</span>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="bg-data-learning size-1.5 rounded-full" />
+          <span className="font-semibold">16</span>
+          <span className="text-foreground/80">{t("learning")}</span>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="bg-data-untouched size-1.5 rounded-full" />
+          <span className="font-semibold">10</span>
+          <span className="text-foreground/80">{t("notStarted")}</span>
+        </span>
+      </div>
+      <span className="bg-primary text-primary-foreground mt-5 inline-flex min-h-10 items-center rounded-md px-5 text-sm font-medium">
         {t("studyNow")}
       </span>
     </div>
@@ -190,30 +172,30 @@ const WORDS = [
 export function DictionaryScreen() {
   const t = useTranslations("product");
   return (
-    <div className="space-y-5">
-      <header className="space-y-2">
-        <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          {t("myWords")}
-        </p>
-        <p className="font-display text-3xl tracking-tight">{t("addWords")}</p>
-      </header>
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
-        <div className="grid grid-cols-2 gap-px bg-border text-xs font-medium uppercase tracking-[0.14em] text-brand-soft">
-          <p className="bg-card px-3 py-2">{t("english")}</p>
-          <p className="bg-card px-3 py-2">{t("russian")}</p>
+    <div>
+      <p className="text-overline text-muted-foreground">{t("myWords")}</p>
+      <p className="text-h2 mt-2 mb-4">{t("addWords")}</p>
+      <div className="overflow-hidden rounded-md border border-border-subtle">
+        <div className="text-overline text-muted-foreground grid grid-cols-2">
+          <p className="px-3.5 py-2">{t("english")}</p>
+          <p className="border-l border-border-subtle px-3.5 py-2">
+            {t("russian")}
+          </p>
         </div>
         {WORDS.map(([en, ru]) => (
           <div
             key={en}
-            className="grid grid-cols-2 border-t border-border text-sm"
+            className="grid grid-cols-2 border-t border-border-subtle text-sm"
           >
-            <p className="px-3 py-2.5">{en}</p>
-            <p className="px-3 py-2.5 text-muted-foreground">{ru}</p>
+            <p className="px-3.5 py-2.5" lang="en">
+              {en}
+            </p>
+            <p className="border-l border-border-subtle px-3.5 py-2.5">{ru}</p>
           </div>
         ))}
-        <div className="grid grid-cols-2 border-t border-border text-sm text-muted-foreground/70">
-          <p className="px-3 py-2.5">{t("typeOrPaste")}</p>
-          <p className="px-3 py-2.5"> </p>
+        <div className="text-muted-foreground grid grid-cols-2 border-t border-border-subtle text-sm">
+          <p className="px-3.5 py-2.5">{t("typeOrPaste")}</p>
+          <p className="border-l border-border-subtle px-3.5 py-2.5"> </p>
         </div>
       </div>
     </div>
@@ -223,25 +205,16 @@ export function DictionaryScreen() {
 export function PracticeScreen() {
   const t = useTranslations("product");
   return (
-    <div className="space-y-6">
-      <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-        {t("word")}
+    <div>
+      <p className="text-overline text-muted-foreground">{t("word")}</p>
+      <p className="text-h2 mt-2" lang="en">
+        hello
       </p>
-      <p className="font-display text-4xl tracking-tight sm:text-5xl">hello</p>
-      <div className="grid gap-2">
+      <div className="mt-4 grid gap-1.5">
         {["привет", "пока", "спасибо", "пожалуйста"].map((option, i) => (
-          <div
-            key={option}
-            className={cn(
-              "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm",
-              i === 0
-                ? "border-primary/30 bg-accent text-foreground"
-                : "border-border bg-card text-muted-foreground",
-            )}
-          >
-            <span className="w-4 text-xs text-brand-soft">{i + 1}</span>
+          <StillOption key={option} index={i + 1} picked={i === 0}>
             {option}
-          </div>
+          </StillOption>
         ))}
       </div>
     </div>
@@ -261,14 +234,16 @@ function StillOption({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg border px-3 py-2 text-sm",
+        "flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm",
         picked
-          ? "border-primary/30 bg-accent text-foreground"
-          : "border-border bg-card text-muted-foreground",
+          ? "border-accent bg-accent text-accent-foreground"
+          : "border-border-subtle bg-card text-foreground/80",
       )}
     >
       {index === undefined ? null : (
-        <span className="w-3 shrink-0 text-xs text-brand-soft">{index}</span>
+        <span className="text-overline w-2.5 shrink-0 text-muted-foreground">
+          {index}
+        </span>
       )}
       {children}
     </div>
@@ -277,9 +252,11 @@ function StillOption({
 
 export function PracticeChoiceStill() {
   return (
-    <div className="space-y-3">
-      <p className="font-display text-2xl tracking-tight">hello</p>
-      <div className="grid gap-2">
+    <div>
+      <p className="text-h3" lang="en">
+        hello
+      </p>
+      <div className="mt-3 grid gap-1.5">
         {["привет", "пока", "спасибо"].map((option, i) => (
           <StillOption key={option} index={i + 1} picked={i === 0}>
             {option}
@@ -295,10 +272,10 @@ const WAVE = [7, 14, 20, 11, 17, 8, 13, 19, 9, 15, 6, 12];
 
 export function PracticeAudioStill() {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-3 py-1">
+    <div>
+      <div className="flex items-center gap-2.5 py-1">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-primary">
-          <Volume2 className="size-4" aria-hidden />
+          <Volume2 className="size-3.5" strokeWidth={1.8} aria-hidden />
         </span>
         <span className="flex h-6 items-center gap-[2.5px]">
           {WAVE.map((height, i) => (
@@ -310,10 +287,10 @@ export function PracticeAudioStill() {
           ))}
         </span>
       </div>
-      <div className="grid gap-2">
-        {["хотя", "один"].map((option, i) => (
+      <div className="mt-2.5 grid gap-1.5">
+        {["although", "alone"].map((option, i) => (
           <StillOption key={option} index={i + 1} picked={i === 0}>
-            {option}
+            <span lang="en">{option}</span>
           </StillOption>
         ))}
       </div>
@@ -324,20 +301,21 @@ export function PracticeAudioStill() {
 export function PracticeTypingStill() {
   const t = useTranslations("product");
   return (
-    <div className="space-y-3">
-      <p className="font-display text-2xl tracking-tight">потому что</p>
-      <p className="border-b-[1.5px] border-primary px-0.5 py-1.5 text-sm">
+    <div>
+      <p className="text-h3">потому что</p>
+      <p className="mt-3 border-b-2 border-primary px-0.5 py-1.5 text-sm" lang="en">
         becau
         <span className="caret-blink ml-px inline-block h-[15px] w-px translate-y-[3px] bg-primary" />
       </p>
-      <p className="text-xs text-muted-foreground/80">{t("enterToCheck")}</p>
+      <p className="text-caption mt-3 text-muted-foreground">{t("enterToCheck")}</p>
     </div>
   );
 }
 
+/** Same order as content/courses/present-simple/course.json. */
 const LESSONS = [
   ["Forms", "Форма"],
-  ["Use", "Когда"],
+  ["Use", "Употребление"],
   ["Spelling", "-s / -es / -ies"],
   ["Negatives", "Отрицание"],
   ["Questions", "Вопросы"],
@@ -347,27 +325,27 @@ const LESSONS = [
 export function CourseScreen() {
   const t = useTranslations("product");
   return (
-    <div className="space-y-5">
-      <header className="space-y-2">
-        <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          {t("courses")}
-        </p>
-        <p className="font-display text-3xl tracking-tight">Present Simple</p>
-        <p className="text-sm text-muted-foreground">Простое настоящее</p>
-      </header>
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div>
+      <p className="text-overline text-muted-foreground">{t("courses")}</p>
+      <p className="text-h2 mt-2" lang="en">
+        Present Simple
+      </p>
+      <p className="text-caption mb-4 text-muted-foreground">
+        Простое настоящее
+      </p>
+      <div className="grid gap-1.5">
         {LESSONS.map(([en, ru], index) => (
           <div
             key={en}
-            className="flex items-baseline gap-3 border-t border-border px-3 py-2.5 first:border-t-0"
+            className="flex items-baseline gap-3 rounded-md border border-border-subtle bg-card px-3.5 py-2.5 text-sm"
           >
-            <span className="w-4 shrink-0 text-sm tabular-nums text-muted-foreground">
+            <span className="text-overline w-2.5 shrink-0 text-muted-foreground">
               {index + 1}
             </span>
-            <span className="min-w-0">
-              <span className="font-display text-base leading-snug">{en}</span>
-              <span className="ml-2 text-sm text-muted-foreground">{ru}</span>
+            <span className="text-h4 min-w-0" lang="en">
+              {en}
             </span>
+            <span className="text-caption text-muted-foreground">{ru}</span>
           </div>
         ))}
       </div>

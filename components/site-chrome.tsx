@@ -4,23 +4,38 @@ import { useTranslations } from "next-intl";
 import { BrandWordmark } from "@/components/brand-mark";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ProseLink } from "@/components/prose-link";
-import { Button } from "@/components/ui/button";
 import { CONTACT_EMAIL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export function SiteHeader() {
+/** Marketing measure: 1120, fields 32 / 20. Shared by landing, legal, auth. */
+export const MARKETING =
+  "container-marketing w-full px-8 max-sm:px-5";
+
+export function SiteHeader({
+  action = "signIn",
+}: {
+  /** Complementary quiet link. Landing and most auth pages offer sign-in;
+   *  the login page offers create-account instead, so the header is not a
+   *  second copy of the form's own button. */
+  action?: "signIn" | "register";
+}) {
   const t = useTranslations("chrome");
+  const href = action === "register" ? "/register" : "/login";
+  const label = action === "register" ? t("createAccount") : t("signIn");
 
   return (
-    <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-      <Link href="/" className="inline-flex transition hover:opacity-80">
-        <BrandWordmark className="text-3xl" />
+    <header className={cn(MARKETING, "flex items-center justify-between pt-6")}>
+      <Link href="/" className="focus-ring inline-flex rounded-sm">
+        <BrandWordmark className="text-2xl" />
       </Link>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-4">
         <LocaleSwitcher />
-        <Button variant="ghost" size="lg" render={<Link href="/login" />}>
-          {t("signIn")}
-        </Button>
+        <Link
+          href={href}
+          className="focus-ring rounded-sm text-sm text-foreground/80 transition-colors duration-(--motion-instant) hover:text-primary"
+        >
+          {label}
+        </Link>
       </div>
     </header>
   );
@@ -39,41 +54,52 @@ export function SiteFooter({ tone = "light" }: { tone?: "light" | "dark" }) {
     <footer
       className={cn(
         "mt-auto border-t",
-        dark ? "border-primary-foreground/10" : "border-border",
+        dark ? "border-inverse-foreground/10" : "border-border",
       )}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
-        <Link href="/" className="inline-flex transition hover:opacity-80">
+      <div
+        className={cn(
+          MARKETING,
+          "flex flex-col gap-4 py-8 sm:flex-row sm:items-center sm:justify-between",
+        )}
+      >
+        <Link href="/" className="focus-ring inline-flex rounded-sm">
           <BrandWordmark
-            className={cn("text-xl", dark && "text-primary-foreground")}
+            className={cn("text-xl", dark && "text-inverse-foreground")}
             tone={dark ? "light" : "brand"}
           />
         </Link>
         <nav
           className={cn(
             "flex flex-wrap items-center gap-x-6 gap-y-2 text-sm",
-            dark ? "text-primary-foreground/65" : "text-muted-foreground",
+            dark ? "text-inverse-muted" : "text-muted-foreground",
           )}
         >
           <Link
             href="/privacy"
-            className={dark ? "hover:text-primary-foreground" : "hover:text-foreground"}
+            className={
+              dark ? "hover:text-inverse-foreground" : "hover:text-foreground"
+            }
           >
             {t("privacy")}
           </Link>
           <Link
             href="/terms"
-            className={dark ? "hover:text-primary-foreground" : "hover:text-foreground"}
+            className={
+              dark ? "hover:text-inverse-foreground" : "hover:text-foreground"
+            }
           >
             {t("terms")}
           </Link>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className={dark ? "hover:text-primary-foreground" : "hover:text-foreground"}
+            className={
+              dark ? "hover:text-inverse-foreground" : "hover:text-foreground"
+            }
           >
             {CONTACT_EMAIL}
           </a>
-          <LocaleSwitcher className="-ml-2" tone={dark ? "dark" : "light"} />
+          <LocaleSwitcher tone={dark ? "dark" : "light"} />
         </nav>
       </div>
     </footer>

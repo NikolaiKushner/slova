@@ -157,7 +157,7 @@ function SidebarUserMenu() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <div className="px-1 py-1">
-          <LocaleSwitcher />
+          <LocaleSwitcher variant="plain" />
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem

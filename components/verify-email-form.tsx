@@ -40,13 +40,16 @@ export function VerifyEmailForm({
 
   if (result === "ok") {
     return (
-      <Button
-        size="lg"
-        className="min-h-11 w-full"
-        render={<Link href="/login" />}
-      >
-        {t("signIn")}
-      </Button>
+      <div className="space-y-4">
+        <p className="text-base text-foreground">{t("confirmOk")}</p>
+        <Button
+          size="lg"
+          className="min-h-11 w-full"
+          render={<Link href="/login" />}
+        >
+          {t("signIn")}
+        </Button>
+      </div>
     );
   }
 

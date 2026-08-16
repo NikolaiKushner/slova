@@ -117,7 +117,7 @@ export function LoginForm({
       <div className="relative">
         <Separator />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="bg-card px-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="bg-card text-overline text-muted-foreground px-3">
             {t("or")}
           </span>
         </span>

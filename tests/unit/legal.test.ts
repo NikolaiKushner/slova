@@ -17,4 +17,15 @@ describe("legal pages", () => {
     expect(digits(en.legal.updated)).toEqual(digits(ru.legal.updated));
     expect(digits(en.legal.updated)).toHaveLength(2);
   });
+
+  it("say the same effective day and year in both languages", () => {
+    const digits = (line: string) => line.match(/\d+/g) ?? [];
+
+    expect(digits(en.legal.effective)).toEqual(digits(ru.legal.effective));
+    expect(digits(en.legal.effective)).toHaveLength(2);
+  });
+
+  it("keeps the same keys in both catalogues", () => {
+    expect(Object.keys(en.legal).sort()).toEqual(Object.keys(ru.legal).sort());
+  });
 });

@@ -16,7 +16,8 @@ import {
   ProductPanel,
   TodayScreen,
 } from "@/components/product-frame";
-import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { MARKETING, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { Eyebrow } from "@/components/slova/eyebrow";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -35,17 +36,8 @@ const STEPS: {
 /** The three trainings the stills under the chip row show. */
 const SHOWN_TRAININGS = ["word-to-translation", "audio-choice", "typing"];
 
-const CONTAINER = "mx-auto w-full max-w-6xl px-6";
 /** Between two content bands: the whitespace is the section divider. */
 const BAND = "pt-24 lg:pt-32";
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-soft">
-      {children}
-    </p>
-  );
-}
 
 /** `free · no card · takes a minute` — small facts, separated by dots. */
 function MicroLine({
@@ -60,7 +52,7 @@ function MicroLine({
   return (
     <p
       className={cn(
-        "flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px]",
+        "text-caption flex flex-wrap items-center gap-x-2.5 gap-y-1",
         className,
       )}
     >
@@ -108,29 +100,29 @@ export default async function LandingPage() {
 
       <section
         className={cn(
-          CONTAINER,
-          "grid items-start gap-12 pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-20 lg:pt-20",
+          MARKETING,
+          "grid items-start gap-12 pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-20 lg:pt-24",
         )}
       >
         <div>
           <Eyebrow>{t("eyebrow")}</Eyebrow>
-          <h1 className="mt-5 max-w-[13ch] font-display text-[clamp(2.5rem,5.4vw,3.75rem)] leading-[1.06] tracking-[-0.012em] text-foreground">
+          <h1 className="text-display max-w-[13ch]">
             {t("heroTitle1")} {t("heroTitle2")}
           </h1>
-          <p className="mt-6 max-w-[44ch] text-[16.5px] leading-[1.62] text-muted-foreground">
+          <p className="text-lead mt-6 max-w-[44ch] text-foreground/80">
             {t("heroBody")}
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
             <Button
               size="lg"
-              className="min-h-11 px-6"
+              className="min-h-12 px-6"
               render={<Link href="/register" />}
             >
               {t("createAccount")}
             </Button>
             <Link
               href="/login"
-              className="text-sm text-muted-foreground transition hover:text-primary"
+              className="focus-ring rounded-sm text-sm text-foreground/80 transition-colors duration-(--motion-instant) hover:text-primary"
             >
               {t("haveAccount")}
             </Link>
@@ -146,7 +138,7 @@ export default async function LandingPage() {
         </ProductFrame>
       </section>
 
-      <div className={cn(CONTAINER, "mt-20 lg:mt-28")}>
+      <div className={cn(MARKETING, "mt-16 lg:mt-24")}>
         <dl className="grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {[
             [t("statLexiconValue"), t("statLexicon")],
@@ -157,10 +149,8 @@ export default async function LandingPage() {
               key={caption}
               className="py-7 sm:pr-8 sm:pl-8 sm:first:pl-0 sm:last:pr-0"
             >
-              <dt className="font-display text-[34px] leading-none tracking-tight text-primary tabular-nums">
-                {value}
-              </dt>
-              <dd className="mt-2.5 max-w-[30ch] text-[13.5px] leading-relaxed text-muted-foreground">
+              <dt className="text-numeral text-primary">{value}</dt>
+              <dd className="text-caption mt-2 max-w-[30ch] text-muted-foreground">
                 {caption}
               </dd>
             </div>
@@ -170,21 +160,21 @@ export default async function LandingPage() {
 
       <ul
         className={cn(
-          CONTAINER,
-          "mt-16 grid gap-9 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4",
+          MARKETING,
+          "mt-14 grid gap-8 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4",
         )}
       >
         {STEPS.map((step) => {
           const Icon = step.icon;
           return (
             <li key={step.title}>
-              <span className="mb-3.5 flex size-8 items-center justify-center rounded-md bg-accent text-primary">
-                <Icon className="size-4" aria-hidden />
+              <span className="mb-3.5 flex size-8 items-center justify-center rounded-[9px] bg-accent text-primary">
+                <Icon className="size-4" strokeWidth={1.8} aria-hidden />
               </span>
-              <p className="font-display text-[17px] leading-snug">
+              <p className="text-[1.0625rem] leading-snug font-semibold">
                 {t(step.title)}
               </p>
-              <p className="mt-1.5 text-[13.5px] leading-[1.55] text-muted-foreground">
+              <p className="text-caption mt-1.5 leading-[1.55] text-muted-foreground">
                 {t(step.body)}
               </p>
             </li>
@@ -194,17 +184,15 @@ export default async function LandingPage() {
 
       <section
         className={cn(
-          CONTAINER,
+          MARKETING,
           BAND,
-          "grid items-start gap-12 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:gap-20",
+          "grid items-start gap-12 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:gap-16",
         )}
       >
         <div>
           <Eyebrow>{t("dictionaryEyebrow")}</Eyebrow>
-          <h2 className="mt-5 font-display text-[clamp(1.75rem,3.4vw,2.375rem)] leading-[1.12] tracking-[-0.012em]">
-            {t("dictionaryTitle")}
-          </h2>
-          <p className="mt-5 max-w-[44ch] text-[16.5px] leading-[1.62] text-muted-foreground">
+          <h2 className="text-h2">{t("dictionaryTitle")}</h2>
+          <p className="text-lead mt-4 max-w-[44ch] text-foreground/80">
             {t("dictionaryBody")}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -217,17 +205,13 @@ export default async function LandingPage() {
         </ProductFrame>
       </section>
 
-      <section className={cn(CONTAINER, BAND)}>
+      <section className={cn(MARKETING, BAND)}>
         <div className="max-w-[52ch]">
           <Eyebrow>{t("practiceEyebrow")}</Eyebrow>
-          <h2 className="mt-5 font-display text-[clamp(1.75rem,3.4vw,2.375rem)] leading-[1.12] tracking-[-0.012em]">
-            {t("practiceTitle")}
-          </h2>
-          <p className="mt-5 text-[16.5px] leading-[1.62] text-muted-foreground">
-            {t("practiceBody")}
-          </p>
+          <h2 className="text-h2">{t("practiceTitle")}</h2>
+          <p className="text-lead mt-4 text-foreground/80">{t("practiceBody")}</p>
         </div>
-        <ul className="mt-7 flex flex-wrap gap-2">
+        <ul className="mt-6 flex flex-wrap gap-2">
           {TRAININGS.map((training) => (
             <li key={training.id}>
               <Chip on={SHOWN_TRAININGS.includes(training.id)}>
@@ -236,7 +220,7 @@ export default async function LandingPage() {
             </li>
           ))}
         </ul>
-        <div className="mt-7 grid gap-4 sm:grid-cols-3">
+        <div className="mt-7 grid gap-3.5 sm:grid-cols-3">
           <ProductPanel label={trainings("word-to-translation.title")}>
             <PracticeChoiceStill />
           </ProductPanel>
@@ -251,9 +235,9 @@ export default async function LandingPage() {
 
       <section
         className={cn(
-          CONTAINER,
+          MARKETING,
           BAND,
-          "grid items-start gap-12 lg:grid-cols-[minmax(0,1.14fr)_minmax(0,0.86fr)] lg:gap-20",
+          "grid items-start gap-12 lg:grid-cols-[minmax(0,1.14fr)_minmax(0,0.86fr)] lg:gap-16",
         )}
       >
         <div className="order-2 lg:order-1">
@@ -263,38 +247,34 @@ export default async function LandingPage() {
         </div>
         <div className="order-1 lg:order-2">
           <Eyebrow>{t("coursesEyebrow")}</Eyebrow>
-          <h2 className="mt-5 font-display text-[clamp(1.75rem,3.4vw,2.375rem)] leading-[1.12] tracking-[-0.012em]">
-            {t("coursesTitle")}
-          </h2>
-          <p className="mt-5 max-w-[44ch] text-[16.5px] leading-[1.62] text-muted-foreground">
+          <h2 className="text-h2">{t("coursesTitle")}</h2>
+          <p className="text-lead mt-4 max-w-[44ch] text-foreground/80">
             {t("coursesBody")}
           </p>
         </div>
       </section>
 
-      <section className="mt-24 bg-brand-deep text-primary-foreground lg:mt-32">
+      <section className="bg-inverse-surface text-inverse-foreground mt-24 lg:mt-32">
         <div
           className={cn(
-            CONTAINER,
-            "grid gap-10 pt-20 pb-20 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end lg:pt-28 lg:pb-24",
+            MARKETING,
+            "grid gap-10 pt-16 pb-16 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end lg:pt-24 lg:pb-20",
           )}
         >
           <div>
-            <h2 className="max-w-[22ch] font-display text-[clamp(1.75rem,3.4vw,2.375rem)] leading-[1.12] tracking-[-0.012em]">
-              {t("closeTitle")}
-            </h2>
-            <p className="mt-4 max-w-[46ch] text-[15.5px] leading-relaxed text-primary-foreground/70">
+            <h2 className="text-h2 max-w-[22ch]">{t("closeTitle")}</h2>
+            <p className="text-inverse-muted mt-3.5 max-w-[46ch]">
               {t("closeBody")}
             </p>
             <MicroLine
-              className="mt-7 text-primary-foreground/55"
-              dotClassName="bg-primary-foreground/25"
+              className="text-inverse-muted mt-5"
+              dotClassName="bg-inverse-muted/40"
               items={[t("microFree"), t("microNoCard"), t("microMinute")]}
             />
           </div>
           <Button
             size="lg"
-            className="min-h-11 justify-self-start bg-primary-foreground px-6 text-brand-deep hover:bg-accent sm:justify-self-end"
+            className="min-h-12 justify-self-start bg-inverse-foreground px-6 text-inverse-surface hover:bg-accent sm:justify-self-end"
             render={<Link href="/register" />}
           >
             {t("createAccount")}

@@ -72,10 +72,12 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning: password managers / extensions inject attrs on body */}
-      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
-        <NextIntlClientProvider>
-          <Providers>{children}</Providers>
-        </NextIntlClientProvider>
+      <body className="grain flex min-h-full flex-col font-sans" suppressHydrationWarning>
+        <div className="relative z-[1] flex min-h-full flex-1 flex-col">
+          <NextIntlClientProvider>
+            <Providers>{children}</Providers>
+          </NextIntlClientProvider>
+        </div>
         <Analytics />
         <SpeedInsights />
       </body>
