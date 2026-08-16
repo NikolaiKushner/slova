@@ -307,7 +307,7 @@
     "playWord": "Play the word",
     "pressPlay": "Your browser will not play sound on its own — press Play.",
     "noSoundShowWord": "No sound on this device, so here is the word instead.",
-    "typeEnglish": "Type the English word",
+    "typeEnglish": "the English word",
     "yourAnswer": "Your answer",
     "undoLetter": "Undo the last letter",
     "rightCount": "{count} right",
@@ -375,36 +375,52 @@
     "brainstormBody": "New words through every format until each one is right. Nothing leaves the session unlearned.",
     "brainstormAction": "Take new ones",
     "sessionMeta": "{count, plural, one {# word} other {# words}} · ~{minutes} min",
-    "oneSourceNote": "Every format starts from the same choice above — there is no second screen any more."
+    "oneSourceNote": "Every format starts from the same choice above — there is no second screen any more.",
+    "youWrote": "you wrote <given></given>",
+    "youBuilt": "you built <given></given>",
+    "wordOf": "word {current} of {total}",
+    "rightN": "{count} right",
+    "missedN": "{count} missed",
+    "backIn": "back in {days, plural, one {# day} other {# days}}",
+    "backToday": "back today",
+    "progressOf": "{current} of {total}",
+    "heardWord": "what you heard"
   },
   "trainings": {
     "brainstorm": {
       "title": "Brainstorm",
-      "description": "New words, drilled through every format until each one is right. Nothing leaves the session unlearned."
+      "description": "New words, drilled through every format until each one is right. Nothing leaves the session unlearned.",
+      "task": "Brainstorm"
     },
     "word-to-translation": {
       "title": "Word → translation",
-      "description": "See the English word, pick what it means."
+      "description": "See the English word, pick what it means.",
+      "task": "What does it mean"
     },
     "translation-to-word": {
       "title": "Translation → word",
-      "description": "See the meaning, pick the English word. Harder than it sounds."
+      "description": "See the meaning, pick the English word. Harder than it sounds.",
+      "task": "How do you say it"
     },
     "audio-choice": {
       "title": "Audio challenge",
-      "description": "Hear a word with nothing on screen, pick what it means."
+      "description": "Hear a word with nothing on screen, pick what it means.",
+      "task": "Listen and pick the meaning"
     },
     "builder": {
       "title": "Word builder",
-      "description": "Assemble the English word letter by letter from its meaning."
+      "description": "Assemble the English word letter by letter from its meaning.",
+      "task": "Build the word from its letters"
     },
     "listening": {
       "title": "Dictation",
-      "description": "Hear a word and write it. Spelling counts, near misses do not."
+      "description": "Hear a word and write it. Spelling counts, near misses do not.",
+      "task": "Write down what you hear"
     },
     "typing": {
       "title": "Type the word",
-      "description": "See the meaning and write the English word from memory."
+      "description": "See the meaning and write the English word from memory.",
+      "task": "Write the word from memory"
     }
   },
   "courses": {

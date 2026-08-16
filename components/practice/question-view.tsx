@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Volume2, X } from "lucide-react";
+import { Volume2 } from "lucide-react";
 
 import { AudioPrompt } from "@/components/practice/audio-prompt";
-import { KeyHints } from "@/components/slova/key-hints";
+import { AnswerReveal } from "@/components/slova/answer-reveal";
 import { LetterTiles } from "@/components/slova/letter-tiles";
 import { OptionButton, OptionList } from "@/components/slova/option-button";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { judge, passed, type Verdict } from "@/lib/practice/answer";
 import type { Question } from "@/lib/practice/question";
 import { speak } from "@/lib/practice/speech";
-import { cn } from "@/lib/utils";
 
 /**
  * One question, whichever format it is.
@@ -74,7 +73,6 @@ export function QuestionView({
       question={question}
       sound={sound}
       onPlay={play}
-      answered={answered}
       onSilent={(source) => setSound(source === "auto" ? "blocked" : "broken")}
       onHeard={() => setSound("ok")}
     />
@@ -86,7 +84,7 @@ export function QuestionView({
     ) : "letters" in question ? (
       <Builder key={key} question={question} onAnswered={onAnswered} />
     ) : (
-      <Typed key={key} question={question} onAnswered={onAnswered} />
+      <Typed key={key} question={question} onAnswered={onAnswered} answered={answered} />
     ));
 
   if (part !== "all") return <>{prompt || answer}</>;
@@ -103,14 +101,12 @@ function Prompt({
   question,
   sound,
   onPlay,
-  answered,
   onSilent,
   onHeard,
 }: {
   question: Question;
   sound: "ok" | "blocked" | "broken";
   onPlay: () => void;
-  answered: boolean;
   onSilent: (source: "auto" | "manual") => void;
   onHeard: () => void;
 }) {
@@ -129,19 +125,18 @@ function Prompt({
    */
   if (!question.prompt && hasSound && !rescued) {
     return (
-      <div className="flex flex-col items-center gap-4 text-center">
-        <AudioPrompt
-          word={question.speak ?? ""}
-          audioUrl={question.audioUrl}
-          transcription={question.transcription}
-          reveal={answered}
-          onSilent={onSilent}
-          onHeard={onHeard}
-        />
-        {sound === "blocked" ? (
-          <p className="text-muted-foreground text-xs">{t("pressPlay")}</p>
-        ) : null}
-      </div>
+      /*
+       * No "the browser will not speak on its own" line. §17 rules out
+       * apologising for a technical limitation in the interface — the button
+       * is the answer — and the line also changed the height of the prompt,
+       * which put the options lower on an audio question than on any other.
+       */
+      <AudioPrompt
+        word={question.speak ?? ""}
+        audioUrl={question.audioUrl}
+        onSilent={onSilent}
+        onHeard={onHeard}
+      />
     );
   }
 
@@ -216,12 +211,13 @@ function Choices({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [question, chosen, choose]);
 
-  const t = useTranslations("practice");
-  const withSound = question.kind === "audio-choice";
-
+  /*
+   * No key hints here. The screen renders them once, under the footer, where
+   * the mockup puts them — drawn here as well they appeared twice and made the
+   * answer zone taller on a choice question than on a written one.
+   */
   return (
-    <div className="space-y-5">
-      <OptionList>
+    <OptionList>
         {question.options.map((option, index) => {
           const isAnswer = index === question.answerIndex;
           const decided = chosen !== null;
@@ -252,18 +248,7 @@ function Choices({
             </li>
           );
         })}
-      </OptionList>
-
-      <KeyHints
-        hints={[
-          { keys: ["1", String(question.options.length)], label: t("hintPick") },
-          ...(withSound
-            ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
-            : []),
-          { keys: [t("keyEnter")], label: t("hintNext") },
-        ]}
-      />
-    </div>
+    </OptionList>
   );
 }
 
@@ -274,8 +259,8 @@ function Builder({
   question: Extract<Question, { letters: string[] }>;
   onAnswered: (result: Answered) => void;
 }) {
-  const t = useTranslations("practice");
   const [verdict, setVerdict] = useState<"correct" | "incorrect" | null>(null);
+  const [built, setBuilt] = useState("");
 
   /*
    * The tiles, the slots and their keyboard live in LetterTiles now; what
@@ -286,39 +271,43 @@ function Builder({
   const complete = useCallback(
     (given: string) => {
       const result = judge(given, question.answer);
+      setBuilt(given);
       setVerdict(passed(result) ? "correct" : "incorrect");
       onAnswered({ verdict: result, given });
     },
     [question, onAnswered],
   );
 
-  return (
-    <div className="space-y-6">
-      <LetterTiles
-        word={question.answer}
-        letters={question.letters}
-        verdict={verdict}
-        onComplete={complete}
+  if (verdict) {
+    return (
+      <AnswerReveal
+        answer={question.answer}
+        given={verdict === "correct" ? undefined : built}
+        note={question.transcription ?? undefined}
+        correct={verdict === "correct"}
+        built
       />
+    );
+  }
 
-      <KeyHints
-        className="justify-center"
-        hints={[
-          { keys: [], label: t("hintTypeLetters") },
-          { keys: [t("keyBackspace")], label: t("hintTakeBack") },
-          { keys: [t("keyEnter")], label: t("hintNext") },
-        ]}
-      />
-    </div>
+  return (
+    <LetterTiles
+      word={question.answer}
+      letters={question.letters}
+      verdict={verdict}
+      onComplete={complete}
+    />
   );
 }
 
 function Typed({
   question,
   onAnswered,
+  answered,
 }: {
   question: Extract<Question, { answer: string; letters?: never }>;
   onAnswered: (result: Answered) => void;
+  answered?: boolean;
 }) {
   const [value, setValue] = useState("");
   const [done, setDone] = useState(false);
@@ -334,9 +323,30 @@ function Typed({
     onAnswered({ verdict, given: value });
   }
 
+  /*
+   * Once judged, the field gives way to the word spelled out. Spelling is the
+   * entire question in these two formats, so "Неверно" beside a box still
+   * holding the typo asks the learner to diff two strings in their head.
+   */
+  if (done || answered) {
+    return (
+      <AnswerReveal
+        answer={question.answer}
+        given={right ? undefined : value}
+        note={[question.transcription, question.kind === "listening" ? question.prompt : null]
+          .filter(Boolean)
+          .join(" · ")}
+        correct={right}
+      />
+    );
+  }
+
   return (
-    <div className="mx-auto w-full max-w-sm space-y-3">
-      <div className="flex items-center gap-2">
+    /* Mockup: the field is 330 wide with the button beside it. It used to sit
+       in a 384px row shared with the button, which left ~250 for the field and
+       cut the placeholder in half. */
+    <div className="w-full">
+      <div className="flex items-center justify-center gap-2.5">
         <Input
           value={value}
           onChange={(event) => setValue(event.target.value)}
@@ -346,120 +356,24 @@ function Typed({
               submit();
             }
           }}
-          placeholder={t("typeEnglish")}
+          placeholder={question.kind === "listening" ? t("heardWord") : t("typeEnglish")}
           aria-label={t("yourAnswer")}
-          disabled={done}
           autoFocus
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
-          className={cn(
-            "h-9 min-w-0 flex-1 text-center text-base",
-            done &&
-              (right ? "border-primary text-primary" : "border-destructive"),
-          )}
+          className="font-display h-[52px] min-w-0 max-w-[330px] flex-1 rounded-lg text-center text-[1.0625rem] placeholder:font-sans placeholder:text-body-sm"
         />
         <Button
           type="button"
           size="lg"
+          className="h-[52px]"
           onClick={submit}
-          disabled={done || !value.trim()}
-          className={done ? "invisible" : undefined}
+          disabled={!value.trim()}
         >
           {common("check")}
         </Button>
       </div>
-
-      <KeyHints
-        className="justify-center"
-        hints={[
-          {
-            keys: [t("keyEnter")],
-            label: done ? t("hintNext") : t("hintCheck"),
-          },
-        ]}
-      />
-    </div>
-  );
-}
-
-/**
- * The verdict, under the question rather than instead of it.
- *
- * Next is already on the right, disabled until there is a verdict, so the
- * card does not grow when the answer lands. Correct or Incorrect takes the
- * left of that same row.
- */
-export function AnswerFeedback({
-  result,
-  answer,
-  onNext,
-}: {
-  result: Answered | null;
-  answer: string;
-  onNext: () => void;
-}) {
-  const nextRef = useRef<HTMLButtonElement>(null);
-  const common = useTranslations("common");
-  const right = result ? passed(result.verdict) : false;
-
-  useEffect(() => {
-    if (result) nextRef.current?.focus();
-  }, [result]);
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <p
-          className={cn(
-            "flex min-h-9 min-w-0 flex-1 items-center gap-2 text-sm",
-            !result
-              ? "invisible"
-              : result.verdict === "almost"
-                ? "text-brand-soft"
-                : right
-                  ? "text-primary"
-                  : "text-destructive",
-          )}
-          aria-live="polite"
-          aria-hidden={!result}
-        >
-          {right ? (
-            <>
-              <Check className="size-4 shrink-0" />
-              {common("correct")}
-            </>
-          ) : result?.verdict === "almost" ? (
-            <>
-              <Check className="size-4 shrink-0" />
-              {common("almost")}
-            </>
-          ) : (
-            <>
-              <X className="size-4 shrink-0" />
-              {common("incorrect")}
-            </>
-          )}
-        </p>
-        <Button
-          ref={nextRef}
-          type="button"
-          size="lg"
-          disabled={!result}
-          onClick={onNext}
-        >
-          {common("next")}
-        </Button>
-      </div>
-      {result && !right ? (
-        <p className="text-muted-foreground text-sm">
-          {common.rich("itIs", {
-            answer: () => (
-              <span className="text-foreground font-medium">{answer}</span>
-            ),
-          })}
-        </p>
-      ) : null}
     </div>
   );
 }

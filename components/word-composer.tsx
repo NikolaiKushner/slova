@@ -218,14 +218,15 @@ export function WordComposer({
               onChange={(back) => edit(row.id, { back })}
               onKeyDown={(event) => onKeyDown(event, index, "back")}
             />
-            <div className="row-actions flex justify-end max-sm:row-start-1 max-sm:col-start-2">
+            <div className="flex justify-end max-sm:col-start-2 max-sm:row-start-1">
               {rows.length > 1 && !disabled ? (
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t("removeRow", { row: index + 1 })}
-                  className="text-disabled-foreground hover:bg-destructive-bg hover:text-destructive opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                  /* `row-actions` keeps it visible where there is no hover — see globals.css. */
+                  className="row-actions text-disabled-foreground hover:bg-destructive-bg hover:text-destructive opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                   onClick={() => remove(row.id)}
                 >
                   <X />

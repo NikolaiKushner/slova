@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { PlayButton } from "@/components/slova/play-button";
 import { Button } from "@/components/ui/button";
 import { speak } from "@/lib/practice/speech";
-import { cn } from "@/lib/utils";
 
 /** How much slower "Slowly" is. Under about 0.5 the voice stops being speech. */
 const SLOW_RATE = 0.6;
@@ -29,15 +28,11 @@ export function AudioPrompt({
   word,
   audioUrl,
   /** Shown once the answer is in: the word that was being said, and its IPA. */
-  reveal,
-  transcription,
   onSilent,
   onHeard,
 }: {
   word: string;
   audioUrl?: string | null;
-  reveal: boolean;
-  transcription?: string | null;
   /**
    * Nothing was heard. `auto` is the browser refusing to speak unprompted,
    * which a press of Play fixes; `manual` is it refusing the press too, and
@@ -133,16 +128,13 @@ export function AudioPrompt({
       </div>
 
       {/*
-        The word appears only with the verdict. Kept in the layout at all times
-        — `invisible`, not unmounted — so the options do not jump down the
-        screen at the moment somebody is reading which one was right.
+        The word is not reserved space here any more. Holding an invisible
+        44px line for it made the audio prompt 217px against 150 for every
+        written format, so the options started lower on a listening question
+        than on any other — the one thing §15.2 exists to prevent. Dictation
+        spells the word out in the answer zone once judged; a listening choice
+        marks the right option, which is the answer to what it asked.
       */}
-      <div className={cn("text-center", reveal ? "visible" : "invisible")}>
-        <p className="font-display text-4xl leading-tight">{word}</p>
-        <p className="text-muted-foreground min-h-5 text-sm">
-          {transcription ?? ""}
-        </p>
-      </div>
     </div>
   );
 }

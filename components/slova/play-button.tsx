@@ -29,13 +29,13 @@ export function PlayButton({
       data-speaking={playing}
       className={cn(
         "sound-ring focus-ring text-primary bg-card border-border shadow-lifted relative flex items-center justify-center rounded-full border transition-transform duration-(--motion-fast) hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none",
-        size === "lg" ? "size-24" : "size-19",
+        size === "lg" ? "size-22" : "size-19",
         className,
       )}
       {...props}
     >
       <Volume2
-        className={size === "lg" ? "size-8" : "size-[26px]"}
+        className={size === "lg" ? "size-[30px]" : "size-[26px]"}
         strokeWidth={1.6}
       />
     </button>

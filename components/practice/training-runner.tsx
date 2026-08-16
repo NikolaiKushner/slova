@@ -2,10 +2,8 @@
 
 import { BrainstormSession } from "@/components/practice/brainstorm-session";
 import { PracticeSession } from "@/components/practice/practice-session";
-import { PageContainer } from "@/components/layout/app-shell";
 import type { Training } from "@/lib/practice/catalog";
 import type { Source } from "@/components/slova/source-bar";
-import { useTranslations } from "next-intl";
 
 /**
  * A training, from its address to the last question.
@@ -22,19 +20,14 @@ export function TrainingRunner({
   training: Training;
   source: Source;
 }) {
-  const trainings = useTranslations("trainings");
-  const title = trainings(`${training.id}.title`);
-
   /*
-   * Brainstorm is on FocusShell and owns its own width (§15.2). The other
-   * trainings are not there yet — 5.1 rebuilds the question screen and moves
-   * them — so they keep a page container until they do.
+   * No page container: every session is focus mode now (§15.2) and the shell
+   * owns its own width, so the session bar reaches the edges of the content
+   * area instead of floating inside a page margin.
    */
   return training.id === "brainstorm" ? (
     <BrainstormSession source={source} />
   ) : (
-    <PageContainer>
-      <PracticeSession kind={training.id} title={title} source={source} />
-    </PageContainer>
+    <PracticeSession kind={training.id} source={source} />
   );
 }

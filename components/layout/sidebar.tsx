@@ -83,7 +83,7 @@ function userInitials(name?: string | null, email?: string | null) {
 
 function SidebarBrandHeader() {
   return (
-    <SidebarHeader className="min-h-14 justify-center border-b border-sidebar-border px-3 pt-[env(safe-area-inset-top)] group-data-[collapsible=icon]:min-h-16 group-data-[collapsible=icon]:pt-4">
+    <SidebarHeader className="min-h-16 justify-center border-b border-sidebar-border px-3 pt-[env(safe-area-inset-top)] group-data-[collapsible=icon]:min-h-16 group-data-[collapsible=icon]:pt-4">
       <div className="flex h-10 items-center gap-1.5">
         <Link
           href="/tasks/today"
@@ -182,8 +182,20 @@ export function AppSidebar() {
 
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
-          <SidebarGroup key={section.titleKey} className="py-4">
-            <SidebarGroupLabel className="text-caption h-7 font-medium text-eyebrow group-data-[collapsible=icon]:-mt-7">
+          <SidebarGroup
+            key={section.titleKey}
+            /*
+             * Twelve items, four headings, a 64px header and a footer do not
+             * fit an iPad in landscape at a comfortable rhythm — and the
+             * shortest of them (a mini at 744) is 90px tighter than the
+             * tallest. So the spacing answers the height of the window rather
+             * than picking one compromise for both: roomy above 800, and
+             * squeezed below it, where the alternative is a scroll that hides
+             * "Готовые наборы". The gap between items never changes.
+             */
+            className="py-2 first:pt-2 last:pb-2 [@media(max-height:800px)]:py-2 [@media(max-height:800px)]:first:pt-1 [@media(max-height:800px)]:last:pb-1"
+          >
+            <SidebarGroupLabel className="text-caption mb-1 h-6 font-medium text-eyebrow group-data-[collapsible=icon]:-mt-6 [@media(max-height:800px)]:mb-0.5">
               {t(section.titleKey)}
             </SidebarGroupLabel>
             <SidebarGroupContent>

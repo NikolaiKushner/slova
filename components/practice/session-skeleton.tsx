@@ -52,29 +52,58 @@ export function BrainstormStartSkeleton() {
   );
 }
 
-/** A single-format drill: the bar, the prompt, four options, the verdict line. */
+/**
+ * A single-format drill: the bar, the prompt, four options, the verdict line.
+ *
+ * It cancels the page padding exactly as FocusShell does, because the bar it
+ * stands in for runs edge to edge and is 64px tall. Inset by a page margin
+ * instead, the placeholder bar sat lower and narrower than the real one and
+ * the whole screen shifted when the words arrived.
+ */
 export function DrillSkeleton() {
   return (
-    <div aria-busy aria-live="polite">
-      <div className="border-border flex items-center gap-4 border-b pb-3">
-        <Skeleton className="h-8 w-28" />
-        <Skeleton className="h-1.5 flex-1 rounded-full" />
-        <Skeleton className="h-4 w-28" />
+    <div
+      className="-mx-(--page-px) -mt-(--page-pt) -mb-(--page-pb) flex min-h-0 flex-1 flex-col"
+      aria-busy
+      aria-live="polite"
+    >
+      <div className="border-border flex min-h-16 shrink-0 items-center gap-6 border-b px-4 md:px-8">
+        <Skeleton className="h-5 w-24 sm:min-w-[150px]" />
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
+          <Skeleton className="h-[5px] w-full max-w-[420px] rounded-full" />
+          <Skeleton className="h-3 w-16" />
+        </div>
+        <Skeleton className="h-4 w-28 sm:min-w-[150px]" />
       </div>
 
-      <div className="mx-auto max-w-[520px] space-y-8 py-10">
-        <div className="flex flex-col items-center gap-4">
-          <Skeleton className="h-3 w-32" />
-          <Skeleton className="h-10 w-56" />
-        </div>
+      <div className="flex flex-1 items-center justify-center px-4 pt-8 pb-18 md:px-8">
+        <div className="container-focus w-full">
+          {/* Heights track the real lines: overline 14, caption 19. */}
+          <div className="mb-5 flex flex-col items-center gap-1.5">
+            <Skeleton className="h-3.5 w-44" />
+            <Skeleton className="h-[19px] w-24" />
+          </div>
 
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 4 }, (_, option) => (
-            <Skeleton key={option} className="h-12 w-full rounded-lg" />
-          ))}
-        </div>
+          <div className="flex min-h-[150px] flex-col items-center justify-center">
+            <Skeleton className="h-11 w-56" />
+          </div>
 
-        <Skeleton className="h-11 w-full" />
+          <div className="mt-5 flex min-h-[232px] flex-col justify-center gap-2">
+            {Array.from({ length: 4 }, (_, option) => (
+              <Skeleton key={option} className="h-[52px] w-full rounded-lg" />
+            ))}
+          </div>
+
+          <div className="mt-5 flex min-h-[52px] items-center justify-between">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-12 w-28 rounded-md" />
+          </div>
+
+          {/* The key hints line, which the real screen always draws. */}
+          <div className="mt-4 flex justify-center">
+            <Skeleton className="h-[21px] w-40" />
+          </div>
+        </div>
       </div>
     </div>
   );

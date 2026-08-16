@@ -10,15 +10,19 @@ import { cn } from "@/lib/utils";
  * Its whole reason to exist is principle §1.4: the screen must not jump. Every
  * zone below holds its height whether or not it has anything in it, so
  * changing the question format changes the contents and never the geometry.
- * The answer options therefore start on the same line in all seven formats,
- * which is the thing the product gets wrong today.
+ * The answer options therefore start on the same line in all seven formats.
  *
- * Not yet wired into the running drills: moving practice-session, brainstorm
- * and the lesson exercise onto it is step 5.1, where the question screen is
- * rebuilt against it as the reference implementation.
+ * Heights come from the drill mockup: prompt 150, answer 158, footer 52.
  */
 
-/** Sticky top bar: exit on the left, progress in the middle, tally on the right. */
+/**
+ * The session bar — one bar for every session, brainstorm or single format.
+ *
+ * Three slots with the sides pinned to the same width, so whatever sits in the
+ * middle is centred against the screen rather than against whatever happens to
+ * be to its left. Brainstorm puts the ladder there, a single format puts a
+ * progress bar; that is the only difference between them.
+ */
 export function FocusTopBar({
   leading,
   progress,
@@ -33,15 +37,17 @@ export function FocusTopBar({
   return (
     <header
       className={cn(
-        "scrim-panel sticky top-0 z-20 flex min-h-14 shrink-0 items-center gap-4 border-b border-border px-5 md:px-8",
+        "scrim-panel border-border sticky top-0 z-20 flex min-h-16 shrink-0 items-center gap-6 border-b px-4 md:px-8",
         className,
       )}
     >
-      <div className="flex min-w-0 shrink-0 items-center gap-2">{leading}</div>
+      <div className="flex shrink-0 items-center gap-2 sm:min-w-[150px]">
+        {leading}
+      </div>
       <div className="flex min-w-0 flex-1 items-center justify-center">
         {progress}
       </div>
-      <div className="flex shrink-0 items-center justify-end gap-2">
+      <div className="flex shrink-0 items-center justify-end gap-3.5 text-right sm:min-w-[150px]">
         {trailing}
       </div>
     </header>
@@ -49,7 +55,68 @@ export function FocusTopBar({
 }
 
 /**
- * The prompt. Fixed at 186px: a word, a sentence and a play button are wildly
+ * How far through a single-format session — a filled track and a count.
+ *
+ * A proportion is right here and wrong in brainstorm: this session has a known
+ * length and ends when it runs out, while brainstorm ends when every word is
+ * learned. Showing a percentage there would turn it into a number to push.
+ */
+export function LinearProgress({
+  current,
+  total,
+  label,
+}: {
+  /** 1-based — it reads like the question number it is. */
+  current: number;
+  total: number;
+  label: string;
+}) {
+  const done = Math.max(0, Math.min(current - 1, total));
+
+  return (
+    <div className="flex w-full max-w-[420px] flex-col gap-1.5">
+      <div
+        className="bg-data-track h-[5px] overflow-hidden rounded-full"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={done}
+        aria-label={label}
+      >
+        <div
+          className="bg-primary h-full rounded-full transition-[width] duration-(--motion-slow) ease-(--ease-emphasized)"
+          style={{ width: `${total > 0 ? (done / total) * 100 : 0}%` }}
+        />
+      </div>
+      <p className="text-disabled-foreground text-center text-xs tabular-nums">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+/** The task name and where you are — the two lines above every question. */
+export function FocusHead({
+  task,
+  step,
+}: {
+  task: string;
+  step?: React.ReactNode;
+}) {
+  return (
+    <header className="mb-5 text-center">
+      <p className="text-overline text-eyebrow">{task}</p>
+      {step ? (
+        <p className="text-disabled-foreground mt-1.5 text-caption tabular-nums">
+          {step}
+        </p>
+      ) : null}
+    </header>
+  );
+}
+
+/**
+ * The prompt. Fixed at 150px: a word, a sentence and a play button are wildly
  * different shapes, and letting them size the box is what moves everything
  * underneath them.
  */
@@ -64,7 +131,7 @@ export function FocusPrompt({
     <div
       data-slot="focus-prompt"
       className={cn(
-        "flex h-[186px] shrink-0 flex-col items-center justify-center gap-3 text-center",
+        "flex min-h-[150px] shrink-0 flex-col items-center justify-center gap-3.5 text-center",
         className,
       )}
     >
@@ -73,7 +140,17 @@ export function FocusPrompt({
   );
 }
 
-/** The answer area — at least 240px, always starting on the same line. */
+/**
+ * The answer area — a fixed height, so it always starts on the same line.
+ *
+ * The mockup says `min-height: 158px`, and that number cannot hold what it is
+ * asked to: four options at 52px with 8px between them are 232. Under a
+ * vertically centred scene the shorter written formats then re-centre and the
+ * options land 60px lower on one question than on the last — which is the
+ * exact thing §15.2 exists to forbid, in a session that changes format every
+ * word. So the zone is 232: tall enough for the tallest format, identical for
+ * all of them, and the footer under it does not move either.
+ */
 export function FocusAnswer({
   className,
   children,
@@ -84,7 +161,10 @@ export function FocusAnswer({
   return (
     <div
       data-slot="focus-answer"
-      className={cn("flex min-h-60 flex-col gap-2", className)}
+      className={cn(
+        "mt-5 flex min-h-[232px] flex-col justify-center",
+        className,
+      )}
     >
       {children}
     </div>
@@ -92,8 +172,8 @@ export function FocusAnswer({
 }
 
 /**
- * The verdict line. 44px whether or not anything is in it, so the reaction
- * appearing does not shove the options up the screen.
+ * The verdict line, and the way on. 52px whether or not anything is in it, so
+ * the reaction appearing does not shove the answer up the screen.
  */
 export function FocusFooter({
   className,
@@ -105,8 +185,10 @@ export function FocusFooter({
   return (
     <div
       data-slot="focus-footer"
-      aria-live="polite"
-      className={cn("flex h-11 shrink-0 items-center", className)}
+      className={cn(
+        "mt-5 flex min-h-[52px] items-center justify-between gap-4",
+        className,
+      )}
     >
       {children}
     </div>
@@ -114,7 +196,7 @@ export function FocusFooter({
 }
 
 /**
- * Wraps the three zones. Sets `data-drill` on the body, which is what dims the
+ * Wraps the zones. Sets `data-drill` on the body, which is what dims the
  * sidebar to 0.4 on the desktop (globals.css) and what hides it on touch.
  */
 export function FocusShell({
@@ -135,9 +217,9 @@ export function FocusShell({
 
   return (
     /*
-     * Bleeds out of the page padding AppShell applies, so the sticky bar in
-     * §15.2 runs edge to edge across the content area instead of floating
-     * inside a margin. Cancels --page-* rather than repeating the numbers.
+     * Bleeds out of the page padding AppShell applies, so the sticky bar runs
+     * edge to edge across the content area instead of floating inside a
+     * margin. Cancels --page-* rather than repeating the numbers.
      */
     <div
       className={cn(
@@ -146,10 +228,9 @@ export function FocusShell({
       )}
     >
       {topBar}
-      <div className="flex flex-1 items-center justify-center px-5 py-8 md:px-8">
-        <div className="container-focus flex w-full flex-col gap-6">
-          {children}
-        </div>
+      {/* The scene is centred in whatever height is left under the bar. */}
+      <div className="flex flex-1 items-center justify-center px-4 pt-8 pb-18 md:px-8">
+        <div className="container-focus w-full">{children}</div>
       </div>
     </div>
   );

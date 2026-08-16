@@ -170,11 +170,14 @@ export function WordListRow({
       <TableCell className="w-[78px] pe-3 text-right">
         <span
           className={cn(
-            "flex justify-end gap-1 transition-opacity",
-            // Quiet until wanted — and always visible where there is no hover.
+            // `row-actions` is the escape hatch from globals.css: under
+            // `pointer: coarse` it forces these visible. The width query it
+            // replaces only covered phones, so on an iPad — no hover and 1024
+            // wide — the row had no visible actions at all.
+            "row-actions flex justify-end gap-1 transition-opacity",
             editing
               ? "opacity-100"
-              : "opacity-0 group-hover:opacity-100 focus-within:opacity-100 max-md:opacity-100",
+              : "opacity-0 group-hover:opacity-100 focus-within:opacity-100",
           )}
         >
           {editing ? (

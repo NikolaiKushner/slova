@@ -317,6 +317,7 @@
   --color-data-learned: var(--data-learned);
   --color-data-learning: var(--data-learning);
   --color-data-untouched: var(--data-untouched);
+  --color-data-track: var(--data-track);
   --color-data-missed: var(--data-missed);
 
   /* ОТСТУПЛЕНИЕ 3 · Эталон объявляет --sidebar-primary / --sidebar-ring, но не

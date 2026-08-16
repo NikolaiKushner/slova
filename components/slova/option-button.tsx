@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
  * the eye jump between them looking for the shorter one (§8).
  */
 const optionVariants = cva(
-  "focus-ring group/option relative flex w-full items-center gap-3.5 rounded-lg border px-4 py-3.5 text-left text-base transition-all select-none coarse:min-h-14 coarse:py-4 disabled:cursor-default",
+  "focus-ring group/option relative flex min-h-[52px] w-full items-center gap-3.5 rounded-lg border px-4 py-[13px] text-left text-base leading-6 transition-all select-none coarse:min-h-[58px] coarse:py-4 disabled:cursor-default",
   {
     variants: {
       state: {
@@ -32,7 +32,7 @@ const optionVariants = cva(
 );
 
 const numberVariants = cva(
-  "flex size-[22px] shrink-0 items-center justify-center rounded-xs text-[11.5px] font-medium tabular-nums transition-colors",
+  "flex size-[22px] shrink-0 items-center justify-center rounded-sm text-[11.5px] font-medium tabular-nums transition-colors",
   {
     variants: {
       state: {
@@ -64,7 +64,7 @@ export function OptionButton({
       type="button"
       data-slot="option-button"
       data-state={state}
-      className={cn(optionVariants({ state }), "min-h-12", className)}
+      className={cn(optionVariants({ state }), className)}
       {...props}
     >
       <span aria-hidden className={cn(numberVariants({ state }))}>

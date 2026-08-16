@@ -4,17 +4,24 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { ChevronLeft } from "lucide-react";
+
+import {
+  FocusAnswer,
+  FocusFooter,
+  FocusHead,
+  FocusPrompt,
+  FocusShell,
+  FocusTopBar,
+  LinearProgress,
+} from "@/components/layout/focus-shell";
+import { AnswerFeedback } from "@/components/slova/answer-feedback";
+import { KeyHints } from "@/components/slova/key-hints";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { DrillSkeleton } from "@/components/practice/session-skeleton";
-import { DrillBar } from "@/components/practice/drill-bar";
 import { DrillSummary } from "@/components/practice/drill-summary";
-import { useFocusMode } from "@/components/practice/use-focus-mode";
-import {
-  AnswerFeedback,
-  QuestionView,
-  type Answered,
-} from "@/components/practice/question-view";
+import { QuestionView, type Answered } from "@/components/practice/question-view";
 import { passed } from "@/lib/practice/answer";
 import {
   buildQuestion,
@@ -41,20 +48,22 @@ type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 
 export function PracticeSession({
   kind,
-  title,
   source,
 }: {
   kind: ExerciseKind;
-  title: string;
   /** Empty means the whole dictionary. */
   source: Source;
 }) {
   const t = useTranslations("practice");
+  const trainings = useTranslations("trainings");
+  const common = useTranslations("common");
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [voice, setVoice] = useState<boolean | null>(null);
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<Answered | null>(null);
+  /** Days until this word is due again, straight from the scheduler. */
+  const [interval, setInterval_] = useState<number | null>(null);
   const [right, setRight] = useState(0);
   // Bumped by "Once more". It re-runs the fetch, so the second sitting asks
   // whatever is due *now* — the words just rated are not due any more, and
@@ -97,10 +106,6 @@ export function PracticeSession({
 
   const words = data?.words ?? [];
   const word = words[index];
-  const running = !loading && words.length > 0 && index < words.length;
-
-  // The menu steps back while a question is on screen — see globals.css.
-  useFocusMode(running);
 
   const question = useMemo(
     () =>
@@ -110,18 +115,53 @@ export function PracticeSession({
     [word, kind, data],
   );
 
+  /* Per §14 and the mockup: after a verdict only "Enter дальше" remains. */
+  const hints =
+    result !== null
+      ? [{ keys: [t("keyEnter")], label: t("hintNext") }]
+      : question && "options" in question
+        ? [
+            { keys: ["1", String(question.options.length)], label: t("hintPick") },
+            ...(kind === "audio-choice"
+              ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
+              : []),
+          ]
+        : question && "letters" in question
+          ? [
+              { keys: [], label: t("hintTypeLetters") },
+              { keys: [t("keyBackspace")], label: t("hintTakeBack") },
+            ]
+          : [
+              { keys: [t("keyEnter")], label: t("hintCheck") },
+              ...(kind === "listening"
+                ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
+                : []),
+            ];
+
+  /*
+   * Sent and not waited on: a training that pauses between questions to wait
+   * for the network is a worse training, and a lost rating costs one interval.
+   * The reply is used when it arrives — it carries the real next interval, and
+   * "вернётся через N дней" has to be the schedule's answer rather than a
+   * plausible-looking number.
+   */
   const record = useCallback((wordId: string, correct: boolean) => {
-    // Sent and forgotten: a training that pauses between questions to wait for
-    // the network is a worse training, and a lost rating costs one interval.
     void fetch("/api/study/review", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ wordId, rating: correct ? "good" : "again" }),
-    }).catch(() => {});
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { word?: { intervalDays?: number } } | null) => {
+        const days = payload?.word?.intervalDays;
+        if (typeof days === "number") setInterval_(days);
+      })
+      .catch(() => {});
   }, []);
 
   function answer(given: Answered) {
     if (!word) return;
+    setInterval_(null);
     setResult(given);
     if (passed(given.verdict)) setRight((count) => count + 1);
     record(word.id, passed(given.verdict));
@@ -176,44 +216,99 @@ export function PracticeSession({
   }
 
   return (
-    <div>
-      <DrillBar
-        current={index + 1}
-        total={words.length}
-        right={right}
-        missed={index - right}
+    <FocusShell
+      topBar={
+        <FocusTopBar
+          leading={
+            <Button variant="ghost" size="sm" render={<Link href="/practice" />}>
+              <ChevronLeft />
+              {t("title")}
+            </Button>
+          }
+          progress={
+            <LinearProgress
+              current={index + 1}
+              total={words.length}
+              label={t("progressOf", { current: index + 1, total: words.length })}
+            />
+          }
+          trailing={
+            <>
+              {/*
+                Right and missed rather than a score: "14 / 20" mid-drill reads
+                as a grade to protect, "3 мимо" reads as three words coming back.
+              */}
+              <span className="text-success text-caption tabular-nums">
+                {t("rightN", { count: right })}
+              </span>
+              <span className="text-destructive text-caption tabular-nums">
+                {t("missedN", { count: index - right })}
+              </span>
+            </>
+          }
+        />
+      }
+    >
+      <FocusHead
+        task={trainings(`${kind}.task` as "typing.task")}
+        step={t("wordOf", { current: index + 1, total: words.length })}
       />
 
-      <div className="mx-auto max-w-[520px] space-y-8 py-10">
-        {/* The training's own name, over its question. On an audio format it
-            is the only thing that says what is being asked of you. */}
-        <p className="text-brand-soft text-center text-[11px] font-semibold tracking-[0.16em] uppercase">
-          {title}
-        </p>
+      {question && (
+        <>
+          <FocusPrompt>
+            <QuestionView
+              question={question}
+              answered={result !== null}
+              onAnswered={() => {}}
+              part="prompt"
+            />
+          </FocusPrompt>
 
-        {/* The question stays put once answered — the coloured option beside
-            the one you picked is the part worth looking at. */}
-        {question && (
-          <QuestionView
-            question={question}
-            onAnswered={answer}
-            answered={result !== null}
-          />
-        )}
+          <FocusAnswer>
+            <QuestionView
+              question={question}
+              answered={result !== null}
+              onAnswered={answer}
+              part="answer"
+            />
+          </FocusAnswer>
 
-        {question && (
-          <AnswerFeedback
-            result={result}
-            answer={
-              "answer" in question
-                ? question.answer
-                : question.options[question.answerIndex]
-            }
-            onNext={next}
-          />
-        )}
-      </div>
-    </div>
+          <FocusFooter>
+            <AnswerFeedback
+              verdict={
+                result === null
+                  ? null
+                  : result.verdict === "correct"
+                    ? "correct"
+                    : result.verdict === "almost"
+                      ? "almost"
+                      : "incorrect"
+              }
+              /* Blank until the schedule answers, rather than a guess. */
+              note={
+                result === null || interval === null
+                  ? undefined
+                  : interval >= 1
+                    ? t("backIn", { days: Math.round(interval) })
+                    : t("backToday")
+              }
+              className="min-w-0 flex-1"
+            />
+            <Button
+              size="lg"
+              onClick={next}
+              autoFocus
+              className={result === null ? "invisible" : undefined}
+            >
+              {common("next")}
+            </Button>
+          </FocusFooter>
+
+          <KeyHints className="mt-4 justify-center" hints={hints} />
+        </>
+      )}
+    </FocusShell>
   );
 }
 

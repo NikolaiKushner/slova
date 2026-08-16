@@ -118,7 +118,7 @@ export function LetterTiles({
             <span
               key={slot}
               className={cn(
-                "font-display flex h-[46px] w-[38px] items-center justify-center border-b-2 text-2xl transition-colors coarse:h-[52px] coarse:w-11",
+                "font-display flex h-12 w-10 items-center justify-center border-b-2 text-[1.625rem] transition-colors coarse:h-[52px] coarse:w-11",
                 verdict === "correct"
                   ? "border-success text-success"
                   : verdict === "incorrect"
@@ -142,7 +142,7 @@ export function LetterTiles({
             lang="en"
             disabled={locked || placed.includes(tile)}
             onClick={() => place(tile)}
-            className="letter-tile focus-ring font-display border-border bg-card size-[42px] rounded-md border text-xl transition-all hover:-translate-y-0.5 hover:border-ring disabled:pointer-events-none disabled:opacity-25"
+            className="letter-tile focus-ring font-display border-border bg-card h-11 min-w-11 rounded-md border px-2 text-xl transition-all hover:-translate-y-0.5 hover:border-ring disabled:pointer-events-none disabled:opacity-25"
           >
             {letter}
           </button>

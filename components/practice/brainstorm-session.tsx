@@ -7,10 +7,12 @@ import { useTranslations } from "next-intl";
 
 import { AnswerFeedback } from "@/components/slova/answer-feedback";
 import { Eyebrow } from "@/components/slova/eyebrow";
+import { KeyHints } from "@/components/slova/key-hints";
 import { StageRail, type StageRailWord } from "@/components/slova/stage-rail";
 import {
   FocusAnswer,
   FocusFooter,
+  FocusHead,
   FocusPrompt,
   FocusShell,
   FocusTopBar,
@@ -57,6 +59,7 @@ type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 export function BrainstormSession({ source }: { source: Source }) {
   const t = useTranslations("practice");
   const common = useTranslations("common");
+  const trainings = useTranslations("trainings");
 
   const [size, setSize] = useState<number>(SESSION_SIZE);
   const [data, setData] = useState<Payload | null>(null);
@@ -220,13 +223,17 @@ export function BrainstormSession({ source }: { source: Source }) {
         />
       }
     >
+      {/* Same head as a single-format session: what is being asked, then where
+          you are. The rung replaces the word count; nothing else differs. */}
+      <FocusHead
+        task={trainings(`${task.step}.task` as "typing.task")}
+        step={t("stageOf", {
+          stage: (current?.pos ?? 0) + 1,
+          total: current?.ladder.length ?? 0,
+        })}
+      />
+
       <FocusPrompt>
-        <Eyebrow className="mb-0">
-          {t("stageOf", {
-            stage: (current?.pos ?? 0) + 1,
-            total: current?.ladder.length ?? 0,
-          })}
-        </Eyebrow>
         <QuestionView
           question={question}
           answered={result !== null}
@@ -268,6 +275,27 @@ export function BrainstormSession({ source }: { source: Source }) {
           </Button>
         ) : null}
       </FocusFooter>
+
+      <KeyHints
+        className="mt-4 justify-center"
+        hints={
+          result !== null
+            ? [{ keys: [t("keyEnter")], label: t("hintNext") }]
+            : "options" in question
+              ? [
+                  { keys: ["1", String(question.options.length)], label: t("hintPick") },
+                  ...(question.kind === "audio-choice"
+                    ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
+                    : []),
+                ]
+              : "letters" in question
+                ? [
+                    { keys: [], label: t("hintTypeLetters") },
+                    { keys: [t("keyBackspace")], label: t("hintTakeBack") },
+                  ]
+                : [{ keys: [t("keyEnter")], label: t("hintCheck") }]
+        }
+      />
     </FocusShell>
   );
 }
