@@ -131,6 +131,8 @@ export const lessonSchema = z.object({
   slug: nonEmpty,
   title: nonEmpty,
   titleRu: nonEmpty,
+  /** Sitting length on the course outline. Falls back by lesson kind if omitted. */
+  estMinutes: z.number().int().positive().optional(),
   blocks: z.array(blockSchema).min(1),
 });
 

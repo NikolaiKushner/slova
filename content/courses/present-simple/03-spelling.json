@@ -2,6 +2,7 @@
   "slug": "spelling",
   "title": "Spelling",
   "titleRu": "Орфография",
+  "estMinutes": 4,
   "blocks": [
     {
       "type": "explanation",

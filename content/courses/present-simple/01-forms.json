@@ -2,6 +2,7 @@
   "slug": "forms",
   "title": "Forms",
   "titleRu": "Форма",
+  "estMinutes": 4,
   "blocks": [
     {
       "type": "explanation",

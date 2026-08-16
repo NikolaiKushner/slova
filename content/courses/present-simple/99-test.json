@@ -1,7 +1,8 @@
 {
   "slug": "test",
   "title": "Test",
-  "titleRu": "Проверка",
+  "titleRu": "Проверка всего курса",
+  "estMinutes": 6,
   "blocks": [
     {
       "type": "explanation",

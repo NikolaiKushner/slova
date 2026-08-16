@@ -21,6 +21,10 @@ describe("present-simple pack", () => {
       "questions",
       "test",
     ]);
+    expect(loaded.lessons.map((lesson) => lesson.estMinutes)).toEqual([
+      4, 5, 4, 4, 4, 6,
+    ]);
+    expect(loaded.lessons[5]?.titleRu).toBe("Проверка всего курса");
     expect(loaded.rules.map((rule) => rule.id).sort()).toEqual([
       "ps-base-form",
       "ps-negative-doesnt",

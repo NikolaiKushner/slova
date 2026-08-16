@@ -2,6 +2,7 @@
   "slug": "questions",
   "title": "Questions",
   "titleRu": "Вопросы",
+  "estMinutes": 4,
   "blocks": [
     {
       "type": "explanation",

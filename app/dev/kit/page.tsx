@@ -5,12 +5,14 @@ import { useState } from "react";
 import { AnswerFeedback } from "@/components/slova/answer-feedback";
 import { Eyebrow } from "@/components/slova/eyebrow";
 import { KeyHints } from "@/components/slova/key-hints";
+import { LessonRow } from "@/components/slova/lesson-row";
 import { LetterTiles } from "@/components/slova/letter-tiles";
 import { OptionButton, OptionList } from "@/components/slova/option-button";
 import { PlayButton } from "@/components/slova/play-button";
 import { ProgressSteps } from "@/components/slova/progress-steps";
 import { StageRail } from "@/components/slova/stage-rail";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 /**
  * Every state of the training kit on one page (§14, step 4 of the migration).
@@ -141,6 +143,48 @@ export default function KitPage() {
         <p className="text-muted-foreground mt-3 text-caption">
           Буквы набираются с клавиатуры, Backspace возвращает последнюю, проверка
           сама при заполнении последней ячейки.
+        </p>
+      </Row>
+
+      <Row title="Строка урока">
+        <Card className="gap-0 py-0">
+          <ul className="divide-border-subtle divide-y">
+            <li>
+              <LessonRow
+                index={1}
+                title="Forms"
+                titleRu="Форма"
+                href="#forms"
+                minutesLabel="~4 мин"
+                kind="done"
+                statusLabel="Готово"
+              />
+            </li>
+            <li>
+              <LessonRow
+                index={2}
+                title="Use"
+                titleRu="Употребление"
+                href="#use"
+                minutesLabel="~5 мин"
+                kind="next"
+                badgeLabel="Продолжить"
+              />
+            </li>
+            <li>
+              <LessonRow
+                index={3}
+                title="Questions"
+                titleRu="Вопросы"
+                href="#questions"
+                minutesLabel="~4 мин"
+              />
+            </li>
+          </ul>
+        </Card>
+        <p className="text-muted-foreground mt-3 text-caption">
+          Следующий урок — фон сайдбара, врезка слева и бейдж. Пройденный несёт
+          галочку, не номер.
         </p>
       </Row>
 

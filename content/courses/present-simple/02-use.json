@@ -2,6 +2,7 @@
   "slug": "use",
   "title": "Use",
   "titleRu": "Употребление",
+  "estMinutes": 5,
   "blocks": [
     {
       "type": "explanation",
