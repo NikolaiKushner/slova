@@ -16,10 +16,11 @@ import {
 } from "@/lib/courses/catalog-view";
 
 describe("grammarCatalog", () => {
-  it("puts Present Simple live and the rest on the coming shelf", () => {
+  it("puts Present Simple and to be live, the rest on the coming shelf", () => {
     const catalog = grammarCatalog();
     expect(catalog.available.map((course) => course.slug)).toEqual([
       "present-simple",
+      "to-be-present",
     ]);
     expect(catalog.available[0]).toMatchObject({
       href: "/courses/grammar/present-simple",
@@ -27,9 +28,18 @@ describe("grammarCatalog", () => {
       lessonCount: 6,
       estMinutes: 40,
     });
+    expect(catalog.available[1]).toMatchObject({
+      href: "/courses/grammar/to-be-present",
+      title: "to be",
+      titleRu: "am / is / are",
+      level: "A1",
+      lessonCount: 5,
+      estMinutes: 30,
+    });
     expect(catalog.available[0]?.outcomes.length).toBeGreaterThan(0);
+    expect(catalog.available[1]?.outcomes.length).toBeGreaterThan(0);
     expect(catalog.coming[0]).toMatchObject({
-      slug: "to-be-present",
+      slug: "there-is",
       status: "coming",
       level: "A1",
     });

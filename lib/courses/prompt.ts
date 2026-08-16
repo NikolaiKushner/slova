@@ -1,3 +1,5 @@
+import { acceptedAnswers, type Exercise } from "@/content/courses/schema";
+
 /**
  * How a grammar prompt is drawn: a sentence with a gap, or a whole line.
  *
@@ -52,6 +54,21 @@ export function endingAgainst(answer: string, others: readonly string[]): {
   if (best <= 0 || best >= answer.length) return null;
   if (best < 2 || answer.length - best > 4) return null;
   return { stem: answer.slice(0, best), ending: answer.slice(best) };
+}
+
+/**
+ * Dictionary-form cue for a typed gap. Null when there is no hint, or when
+ * the hint is the answer itself — that would print the key in the box.
+ */
+export function typedPlaceholderHint(
+  exercise: Extract<Exercise, { kind: "gap" }>,
+): string | null {
+  const { hint } = splitGapPrompt(exercise.prompt);
+  if (!hint) return null;
+  const leaked = acceptedAnswers(exercise).some(
+    (item) => item.trim().toLowerCase() === hint.trim().toLowerCase(),
+  );
+  return leaked ? null : hint;
 }
 
 function sharedPrefixLength(a: string, b: string): number {

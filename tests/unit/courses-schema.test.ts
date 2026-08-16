@@ -7,7 +7,8 @@ import {
   loadCourse,
   parsePack,
 } from "@/lib/courses/load";
-import { LESSON_PRACTICE_POOL_MIN } from "@/lib/courses/practice";
+import { LESSON_PRACTICE_POOL_MIN, TEST_SITTING_SIZE } from "@/lib/courses/practice";
+import { typedPlaceholderHint } from "@/lib/courses/prompt";
 
 describe("present-simple pack", () => {
   it("parses and satisfies the bank rule", () => {
@@ -76,10 +77,92 @@ describe("present-simple pack", () => {
   });
 });
 
+describe("to-be-present pack", () => {
+  it("parses and satisfies the bank rule", () => {
+    const loaded = loadCourse("to-be-present");
+    expect(loaded.course.title).toBe("to be");
+    expect(loaded.course.titleRu).toBe("am / is / are");
+    expect(loaded.lessons.map((lesson) => lesson.slug)).toEqual([
+      "forms",
+      "use",
+      "negatives",
+      "questions",
+      "test",
+    ]);
+    expect(loaded.lessons.map((lesson) => lesson.estMinutes)).toEqual([
+      4, 5, 4, 5, 6,
+    ]);
+    expect(loaded.lessons[4]?.titleRu).toBe("Проверка всего курса");
+    expect(loaded.rules.map((rule) => rule.id).sort()).toEqual([
+      "tb-form-am",
+      "tb-form-are",
+      "tb-form-is",
+      "tb-negative",
+      "tb-question",
+      "tb-short-answer",
+      "tb-use-description",
+      "tb-use-location",
+    ]);
+  });
+
+  it("resolves every exercise ruleId", () => {
+    const loaded = loadCourse("to-be-present");
+    const ruleIds = new Set(loaded.rules.map((rule) => rule.id));
+    for (const lesson of loaded.lessons) {
+      for (const block of lesson.blocks) {
+        if (block.type !== "exercise") continue;
+        expect(ruleIds.has(block.ruleId)).toBe(true);
+      }
+    }
+    for (const item of loaded.bank) {
+      expect(ruleIds.has(item.ruleId)).toBe(true);
+    }
+  });
+
+  it("keeps lesson ids out of the bank, so a drill is a new prompt", () => {
+    const loaded = loadCourse("to-be-present");
+    const lessonIds = new Set(
+      loaded.lessons.flatMap((lesson) =>
+        lesson.blocks
+          .filter((block) => block.type === "exercise")
+          .map((block) => block.id),
+      ),
+    );
+    for (const item of loaded.bank) {
+      expect(lessonIds.has(item.id)).toBe(false);
+    }
+  });
+
+  it("gives each regular lesson a pool larger than one sitting", () => {
+    const loaded = loadCourse("to-be-present");
+    for (const lesson of loaded.lessons) {
+      if (lesson.slug === "test") continue;
+      const pool = lesson.blocks.filter((block) => block.type === "exercise");
+      expect(pool.length).toBeGreaterThanOrEqual(LESSON_PRACTICE_POOL_MIN);
+    }
+  });
+
+  it("mixes every rule into the test", () => {
+    const loaded = loadCourse("to-be-present");
+    const test = loaded.lessons.find((lesson) => lesson.slug === "test");
+    const inTest = new Set(
+      test?.blocks
+        .filter((block) => block.type === "exercise")
+        .map((block) => block.ruleId),
+    );
+    expect([...inTest].sort()).toEqual(
+      loaded.rules.map((rule) => rule.id).sort(),
+    );
+  });
+});
+
 describe("catalog", () => {
-  it("lists present-simple as the only available course", () => {
+  it("lists present-simple and to-be-present as available", () => {
     const catalog = loadCatalog();
-    expect(listedAvailableSlugs(catalog)).toEqual(["present-simple"]);
+    expect(listedAvailableSlugs(catalog)).toEqual([
+      "present-simple",
+      "to-be-present",
+    ]);
     expect(catalog.groups.map((group) => group.id)).toEqual(["a1", "a2", "b1"]);
     expect(catalog.groups[0]?.courses.map((entry) => entry.slug)).toEqual([
       "present-simple",
@@ -91,6 +174,41 @@ describe("catalog", () => {
       "have-got",
       "articles-a-the",
     ]);
+  });
+
+  it("has a pack for every available catalog slug", () => {
+    for (const slug of listedAvailableSlugs()) {
+      expect(() => loadCourse(slug)).not.toThrow();
+    }
+  });
+
+  it("gives each live test at least twelve items", () => {
+    for (const slug of listedAvailableSlugs()) {
+      const loaded = loadCourse(slug);
+      const test = loaded.lessons.find((lesson) => lesson.slug === "test");
+      const pool = test?.blocks.filter((block) => block.type === "exercise") ?? [];
+      expect(pool.length, slug).toBeGreaterThanOrEqual(TEST_SITTING_SIZE);
+    }
+  });
+
+  it("does not put the answer in a gap placeholder", () => {
+    for (const slug of listedAvailableSlugs()) {
+      const loaded = loadCourse(slug);
+      const exercises = [
+        ...loaded.lessons.flatMap((lesson) =>
+          lesson.blocks.filter((block) => block.type === "exercise"),
+        ),
+        ...loaded.bank,
+      ];
+      for (const exercise of exercises) {
+        if (exercise.kind !== "gap") continue;
+        const hint = typedPlaceholderHint(exercise);
+        if (!hint) continue;
+        expect(hint.toLowerCase(), `${slug}:${exercise.id}`).not.toBe(
+          exercise.answer.toLowerCase(),
+        );
+      }
+    }
   });
 });
 

@@ -9,8 +9,8 @@ import { z } from "zod";
  *
  * A lesson is an ordered list of blocks: a lead, headed sections (examples,
  * form tables, tagged rules, a recap), a pitfall, then a pool of exercises.
- * Exercises are a pool: the player deals eight each visit (the test keeps
- * every item). An exercise always names a `ruleId`, so a miss can later
+ * Exercises are a pool: the player deals ten each visit, shuffled. The
+ * course test deals twelve. An exercise always names a `ruleId`, so a miss can later
  * schedule the rule rather than the prompt. Extra exercises for the same rule
  * sit in `bank.json` and must not reuse an id from a lesson — otherwise
  * Practice / Grammar would drill the answer the person just saw.

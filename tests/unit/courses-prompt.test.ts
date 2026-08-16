@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { endingAgainst, splitGapPrompt } from "@/lib/courses/prompt";
+import { endingAgainst, splitGapPrompt, typedPlaceholderHint } from "@/lib/courses/prompt";
 
 describe("splitGapPrompt", () => {
   it("splits on underscores and lifts a trailing hint", () => {
@@ -30,6 +30,45 @@ describe("splitGapPrompt", () => {
       hint: null,
       hasGap: false,
     });
+  });
+});
+
+describe("typedPlaceholderHint", () => {
+  it("keeps a dictionary form that is not the answer", () => {
+    expect(
+      typedPlaceholderHint({
+        type: "exercise",
+        id: "x",
+        ruleId: "ps-third-person-s",
+        kind: "gap",
+        prompt: "She ___ here. (live)",
+        answer: "lives",
+      }),
+    ).toBe("live");
+  });
+
+  it("hides a hint that already is the answer", () => {
+    expect(
+      typedPlaceholderHint({
+        type: "exercise",
+        id: "x",
+        ruleId: "tb-form-are",
+        kind: "gap",
+        prompt: "You ___ a teacher. (are)",
+        answer: "are",
+      }),
+    ).toBeNull();
+    expect(
+      typedPlaceholderHint({
+        type: "exercise",
+        id: "y",
+        ruleId: "ps-negative-dont",
+        kind: "gap",
+        prompt: "I ___ football. (do not play)",
+        answer: "don't play",
+        accept: ["do not play"],
+      }),
+    ).toBeNull();
   });
 });
 

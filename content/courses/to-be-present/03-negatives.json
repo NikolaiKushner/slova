@@ -1,0 +1,217 @@
+{
+  "slug": "negatives",
+  "title": "Negatives",
+  "titleRu": "Отрицание",
+  "estMinutes": 4,
+  "ruleCard": {
+    "rows": [
+      { "label": "I", "form": "am not / I'm not", "ruleId": "tb-negative" },
+      { "label": "he / she / it", "form": "isn't", "ruleId": "tb-negative" },
+      { "label": "you / we / they", "form": "aren't", "ruleId": "tb-negative" }
+    ],
+    "note": "**not** стоит после **be**. **don't / doesn't** сюда не ставятся."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Отрицание у **be** — это **not** сразу после формы. Не **don't** и не **doesn't**: они для обычного глагола."
+    },
+    {
+      "type": "heading",
+      "title": "Формы"
+    },
+    {
+      "type": "explanation",
+      "md": "**I am not** (или **I'm not**). **he / she / it** берут **isn't** (или **is not**). **you / we / they** берут **aren't** (или **are not**).\n\nПолные формы значат то же самое. В разговоре почти всегда I'm not, isn't, aren't."
+    },
+    {
+      "type": "table",
+      "headers": ["Кто", "Отрицание"],
+      "rows": [
+        ["I", "am not / I'm not"],
+        ["he / she / it", "isn't / is not"],
+        ["you / we / they", "aren't / are not"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I'm not a teacher.",
+      "ru": "Я не учитель."
+    },
+    {
+      "type": "example",
+      "en": "She isn't tired.",
+      "ru": "Она не устала."
+    },
+    {
+      "type": "example",
+      "en": "They aren't at home.",
+      "ru": "Их нет дома."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "tb-negative",
+      "md": "Порядок такой: **be + not**. Не `She not is tired` и не `She doesn't is tired`.\n\n**don't / doesn't** уже заняты Present Simple. Здесь **isn't / aren't**."
+    },
+    {
+      "type": "heading",
+      "title": "Коротко"
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "I", "v": "`am not` / `I'm not`" },
+        { "k": "he / she / it", "v": "`isn't`" },
+        { "k": "you / we / they", "v": "`aren't`" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-01",
+      "ruleId": "tb-negative",
+      "kind": "choice",
+      "prompt": "She ___ tired.",
+      "options": ["isn't", "doesn't", "not is"],
+      "answer": "isn't"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-02",
+      "ruleId": "tb-negative",
+      "kind": "choice",
+      "prompt": "They ___ at home.",
+      "options": ["aren't", "isn't", "don't"],
+      "answer": "aren't"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-03",
+      "ruleId": "tb-negative",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["She not is tired.", "She isn't tired."],
+      "answer": "She isn't tired."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-04",
+      "ruleId": "tb-negative",
+      "kind": "gap",
+      "prompt": "I ___ a teacher. (be)",
+      "answer": "am not",
+      "accept": ["I'm not"]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-05",
+      "ruleId": "tb-negative",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "She is tired.",
+      "answer": "She isn't tired.",
+      "accept": ["She is not tired.", "She's not tired."]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-06",
+      "ruleId": "tb-negative",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "They are here.",
+      "answer": "They aren't here.",
+      "accept": ["They are not here.", "They're not here."]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-07",
+      "ruleId": "tb-negative",
+      "kind": "choice",
+      "prompt": "I ___ from London.",
+      "options": ["am not", "isn't", "don't"],
+      "answer": "am not"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-08",
+      "ruleId": "tb-negative",
+      "kind": "choice",
+      "prompt": "Tom ___ a student.",
+      "options": ["isn't", "aren't", "doesn't"],
+      "answer": "isn't"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-09",
+      "ruleId": "tb-negative",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["We don't are at home.", "We aren't at home."],
+      "answer": "We aren't at home."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-10",
+      "ruleId": "tb-negative",
+      "kind": "gap",
+      "prompt": "He ___ happy. (be)",
+      "answer": "isn't",
+      "accept": ["is not"]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-11",
+      "ruleId": "tb-negative",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "I am a teacher.",
+      "answer": "I'm not a teacher.",
+      "accept": ["I am not a teacher."]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-12",
+      "ruleId": "tb-negative",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "You are tired.",
+      "answer": "You aren't tired.",
+      "accept": ["You are not tired.", "You're not tired."]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-13",
+      "ruleId": "tb-negative",
+      "kind": "choice",
+      "prompt": "It ___ cold.",
+      "options": ["isn't", "aren't", "doesn't"],
+      "answer": "isn't"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-14",
+      "ruleId": "tb-negative",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["Anna isn't from Berlin.", "Anna not is from Berlin."],
+      "answer": "Anna isn't from Berlin."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-15",
+      "ruleId": "tb-negative",
+      "kind": "gap",
+      "prompt": "We ___ in the park. (be)",
+      "answer": "aren't",
+      "accept": ["are not"]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-neg-16",
+      "ruleId": "tb-negative",
+      "kind": "choice",
+      "prompt": "My parents ___ at work.",
+      "options": ["aren't", "isn't", "don't"],
+      "answer": "aren't"
+    }
+  ]
+}

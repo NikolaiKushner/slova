@@ -6,12 +6,7 @@
       "titleRu": "Начальный",
       "courses": [
         { "slug": "present-simple", "status": "available" },
-        {
-          "slug": "to-be-present",
-          "status": "coming",
-          "title": "to be",
-          "titleRu": "am / is / are"
-        },
+        { "slug": "to-be-present", "status": "available" },
         {
           "slug": "there-is",
           "status": "coming",

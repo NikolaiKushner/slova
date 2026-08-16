@@ -8,6 +8,14 @@ import presentSimpleNegatives from "@/content/courses/present-simple/04-negative
 import presentSimpleQuestions from "@/content/courses/present-simple/05-questions.json";
 import presentSimpleTest from "@/content/courses/present-simple/99-test.json";
 import presentSimpleRules from "@/content/courses/present-simple/rules.json";
+import toBePresentBank from "@/content/courses/to-be-present/bank.json";
+import toBePresentCourse from "@/content/courses/to-be-present/course.json";
+import toBePresentForms from "@/content/courses/to-be-present/01-forms.json";
+import toBePresentUse from "@/content/courses/to-be-present/02-use.json";
+import toBePresentNegatives from "@/content/courses/to-be-present/03-negatives.json";
+import toBePresentQuestions from "@/content/courses/to-be-present/04-questions.json";
+import toBePresentTest from "@/content/courses/to-be-present/99-test.json";
+import toBePresentRules from "@/content/courses/to-be-present/rules.json";
 import {
   acceptedAnswers,
   bankSchema,
@@ -22,7 +30,7 @@ import {
   type Lesson,
   type Rule,
 } from "@/content/courses/schema";
-import { LESSON_PRACTICE_POOL_MIN } from "@/lib/courses/practice";
+import { LESSON_PRACTICE_POOL_MIN, TEST_SITTING_SIZE } from "@/lib/courses/practice";
 
 /**
  * Courses on disk, parsed and checked.
@@ -54,6 +62,18 @@ const PACKS: Record<string, CoursePackJson> = {
       test: presentSimpleTest,
     },
     bank: presentSimpleBank,
+  },
+  "to-be-present": {
+    course: toBePresentCourse,
+    rules: toBePresentRules,
+    lessons: {
+      forms: toBePresentForms,
+      use: toBePresentUse,
+      negatives: toBePresentNegatives,
+      questions: toBePresentQuestions,
+      test: toBePresentTest,
+    },
+    bank: toBePresentBank,
   },
 };
 
@@ -211,8 +231,15 @@ function assertCourse(slug: string, loaded: LoadedCourse): void {
   }
 
   for (const lesson of loaded.lessons) {
-    if (lesson.slug === "test") continue;
     const inLesson = lesson.blocks.filter(isExerciseBlock).length;
+    if (lesson.slug === "test") {
+      if (inLesson < TEST_SITTING_SIZE) {
+        throw new CourseContentError(
+          `${slug}: test needs at least ${TEST_SITTING_SIZE} exercises, has ${inLesson}.`,
+        );
+      }
+      continue;
+    }
     if (inLesson < LESSON_PRACTICE_POOL_MIN) {
       throw new CourseContentError(
         `${slug}: lesson "${lesson.slug}" needs at least ${LESSON_PRACTICE_POOL_MIN} exercises to deal a sitting, has ${inLesson}.`,

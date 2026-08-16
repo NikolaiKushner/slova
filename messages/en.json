@@ -431,7 +431,7 @@
     "grammarDescription": "Longer than a drill, shorter than a textbook. A rule explained — then used right away.",
     "levelLessons": "{level} · {count, plural, one {# lesson} other {# lessons}}",
     "whatIsACourse": "What a course is",
-    "whatIsACourseBody": "A handful of short lessons. Each one is a rule on a single page, then practice of eight questions. A course takes an evening, and you can come back any time.",
+    "whatIsACourseBody": "A handful of short lessons. Each one is a rule on a single page, then practice of ten questions. A course takes an evening, and you can come back any time.",
     "yourLevel": "Your level",
     "levelSource": {
       "assumed": "unknown",

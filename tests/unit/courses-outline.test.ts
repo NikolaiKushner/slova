@@ -3,6 +3,7 @@ import {
   courseOutline,
   lessonMinutes,
 } from "@/lib/courses/course-view";
+import { loadCourse } from "@/lib/courses/load";
 
 const presentSimple = [
   { slug: "forms", title: "Forms", titleRu: "Форма", estMinutes: 4 },
@@ -73,5 +74,19 @@ describe("courseOutline", () => {
     expect(view.next).toBeNull();
     expect(view.testHref).toBe("/courses/grammar/present-simple/test");
     expect(view.lessons.every((row) => row.kind === "done")).toBe(true);
+  });
+
+  it("points the live to-be pack at its own lesson urls", () => {
+    const loaded = loadCourse("to-be-present");
+    const view = courseOutline("to-be-present", loaded.lessons, []);
+    expect(view.next?.slug).toBe("forms");
+    expect(view.lessons.map((row) => row.href)).toEqual([
+      "/courses/grammar/to-be-present/forms",
+      "/courses/grammar/to-be-present/use",
+      "/courses/grammar/to-be-present/negatives",
+      "/courses/grammar/to-be-present/questions",
+      "/courses/grammar/to-be-present/test",
+    ]);
+    expect(view.testHref).toBe("/courses/grammar/to-be-present/test");
   });
 });

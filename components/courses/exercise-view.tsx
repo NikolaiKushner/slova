@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { gradeExercise, type GrammarVerdict } from "@/lib/courses/answer";
 import { resolveCourseAudio } from "@/lib/courses/audio";
-import { endingAgainst, splitGapPrompt } from "@/lib/courses/prompt";
+import { endingAgainst, splitGapPrompt, typedPlaceholderHint } from "@/lib/courses/prompt";
 import { speakText } from "@/lib/courses/speak-text";
 import { cn } from "@/lib/utils";
 
@@ -219,7 +219,6 @@ function Typed({
   const t = useTranslations("courses");
   const practice = useTranslations("practice");
   const common = useTranslations("common");
-  const gap = splitGapPrompt(exercise.prompt);
 
   function submit() {
     if (answered || !value.trim()) return;
@@ -256,7 +255,7 @@ function Typed({
         placeholder={
           exercise.kind === "transform"
             ? t("typeSentence")
-            : (gap.hint ?? t("typeForm"))
+            : (typedPlaceholderHint(exercise) ?? t("typeForm"))
         }
         aria-label={practice("yourAnswer")}
         autoFocus
