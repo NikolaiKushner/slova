@@ -40,13 +40,16 @@ export function VerifyEmailForm({
 
   if (result === "ok") {
     return (
-      <Button
-        size="lg"
-        className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
-        render={<Link href="/login" />}
-      >
-        {t("signIn")}
-      </Button>
+      <div className="space-y-4">
+        <p className="text-base text-foreground">{t("confirmOk")}</p>
+        <Button
+          size="lg"
+          className="min-h-11 w-full"
+          render={<Link href="/login" />}
+        >
+          {t("signIn")}
+        </Button>
+      </div>
     );
   }
 
@@ -71,7 +74,7 @@ export function VerifyEmailForm({
       <Button
         type="submit"
         size="lg"
-        className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
+        className="min-h-11 w-full"
         disabled={pending}
       >
         {pending ? t("confirming") : t("confirmEmail")}

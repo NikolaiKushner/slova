@@ -35,6 +35,10 @@ export type PracticeWord = {
   back: string;
   /** A recording of it, when the shared base has one. */
   audioUrl?: string | null;
+  /** A purpose-made slower recording, when available. */
+  audioSlowUrl?: string | null;
+  /** IPA from the shared base, when it has any. Shown with the answer. */
+  transcription?: string | null;
 };
 
 export type Question =
@@ -47,6 +51,10 @@ export type Question =
       speak?: string;
       /** A recording of it, preferred over the browser's own voice. */
       audioUrl?: string | null;
+      /** A purpose-made slower recording, preferred by the slow control. */
+      audioSlowUrl?: string | null;
+      /** IPA, revealed with the answer — never before it. */
+      transcription?: string | null;
       options: string[];
       answerIndex: number;
     }
@@ -56,6 +64,8 @@ export type Question =
       prompt: string;
       speak?: string;
       audioUrl?: string | null;
+      audioSlowUrl?: string | null;
+      transcription?: string | null;
       /** Shuffled letters of the answer, exactly those and no others. */
       letters: string[];
       answer: string;
@@ -66,6 +76,8 @@ export type Question =
       prompt: string;
       speak?: string;
       audioUrl?: string | null;
+      audioSlowUrl?: string | null;
+      transcription?: string | null;
       answer: string;
     };
 
@@ -92,6 +104,8 @@ export function buildQuestion(
         prompt: kind === "audio-choice" ? "" : word.front,
         speak: word.front,
         audioUrl: word.audioUrl ?? null,
+        audioSlowUrl: word.audioSlowUrl ?? null,
+        transcription: word.transcription ?? null,
         options,
         answerIndex,
       };
@@ -103,6 +117,7 @@ export function buildQuestion(
         kind,
         wordId: word.id,
         prompt: word.back,
+        transcription: word.transcription ?? null,
         options,
         answerIndex,
       };
@@ -115,6 +130,8 @@ export function buildQuestion(
         prompt: word.back,
         speak: word.front,
         audioUrl: word.audioUrl ?? null,
+        audioSlowUrl: word.audioSlowUrl ?? null,
+        transcription: word.transcription ?? null,
         letters: scramble(word.front, rng),
         answer: word.front,
       };
@@ -129,6 +146,8 @@ export function buildQuestion(
         prompt: "",
         speak: word.front,
         audioUrl: word.audioUrl ?? null,
+        audioSlowUrl: word.audioSlowUrl ?? null,
+        transcription: word.transcription ?? null,
         answer: word.front,
       };
     }
@@ -138,6 +157,7 @@ export function buildQuestion(
         kind,
         wordId: word.id,
         prompt: word.back,
+        transcription: word.transcription ?? null,
         answer: word.front,
       };
     }

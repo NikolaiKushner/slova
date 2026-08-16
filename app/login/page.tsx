@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { AuthCard, AuthSplit } from "@/components/auth-shell";
+import { AuthCard, AuthNarrow } from "@/components/auth-shell";
 import { LoginForm } from "@/components/login-form";
 import { LegalLinks } from "@/components/site-chrome";
 
@@ -13,7 +13,7 @@ export default async function LoginPage({
   const t = await getTranslations("auth");
 
   return (
-    <AuthSplit lead={t("signInLead")}>
+    <AuthNarrow headerAction="register">
       <AuthCard
         eyebrow={t("welcome")}
         title={t("signInTitle")}
@@ -21,7 +21,7 @@ export default async function LoginPage({
       >
         <LoginForm error={error} code={code} />
       </AuthCard>
-      <LegalLinks className="mt-6 text-center text-sm text-muted-foreground lg:text-left" />
-    </AuthSplit>
+      <LegalLinks className="mt-6 text-center text-sm text-muted-foreground" />
+    </AuthNarrow>
   );
 }

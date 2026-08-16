@@ -4,11 +4,11 @@ import { getPrisma } from "@/lib/prisma";
 /**
  * The few numbers worth putting on the first screen.
  *
- * Deliberately few. A dashboard of tiles is the thing `DESIGN.md` says this
- * app is not, and most study statistics measure effort rather than progress —
- * minutes spent, cards flipped, days in a row. These four answer questions
- * somebody actually has: how much do I know, how much is waiting, how much of
- * it is still new, and is any of this getting easier.
+ * Deliberately few. A dashboard of tiles is the thing the design system says
+ * this app is not, and most study statistics measure effort rather than
+ * progress — minutes spent, cards flipped, days in a row. These four answer
+ * questions somebody actually has: how much do I know, how much is waiting,
+ * how much of it is still new, and is any of this getting easier.
  */
 
 export type Overview = {

@@ -100,6 +100,19 @@ export const STRUGGLE_LIMIT = 6;
  */
 export const SESSION_SIZE = 6;
 
+/**
+ * The sittings on offer. Six is the default for the reason above; ten and
+ * fifteen exist because somebody who has read the opening table twice knows
+ * their own appetite better than this constant does.
+ */
+export const SESSION_SIZES = [6, 10, 15] as const;
+
+export function clampSessionSize(value: number | null): number {
+  return SESSION_SIZES.includes(value as (typeof SESSION_SIZES)[number])
+    ? value!
+    : SESSION_SIZE;
+}
+
 export function startBrainstorm(
   words: readonly PracticeWord[],
   ladder: BrainstormStep[] = DEFAULT_LADDER,

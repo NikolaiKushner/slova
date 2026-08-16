@@ -4,67 +4,133 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/lib/auth";
+import { TRAININGS } from "@/lib/practice/catalog";
 import { redirect } from "next/navigation";
 import {
   CourseScreen,
   DictionaryScreen,
-  PracticeScreen,
+  PracticeAudioStill,
+  PracticeChoiceStill,
+  PracticeTypingStill,
   ProductFrame,
+  ProductPanel,
   TodayScreen,
 } from "@/components/product-frame";
-import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { MARKETING, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { Eyebrow } from "@/components/slova/eyebrow";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-const STEPS: { icon: LucideIcon; title: "stepPasteTitle" | "stepStudyTitle" | "stepRuleTitle" | "stepDueTitle"; body: "stepPasteBody" | "stepStudyBody" | "stepRuleBody" | "stepDueBody" }[] = [
+const STEPS: {
+  icon: LucideIcon;
+  title: "stepPasteTitle" | "stepStudyTitle" | "stepRuleTitle" | "stepDueTitle";
+  body: "stepPasteBody" | "stepStudyBody" | "stepRuleBody" | "stepDueBody";
+}[] = [
   { icon: ListPlus, title: "stepPasteTitle", body: "stepPasteBody" },
   { icon: Repeat, title: "stepStudyTitle", body: "stepStudyBody" },
   { icon: BookOpen, title: "stepRuleTitle", body: "stepRuleBody" },
   { icon: CalendarCheck, title: "stepDueTitle", body: "stepDueBody" },
 ];
 
+/** The three trainings the stills under the chip row show. */
+const SHOWN_TRAININGS = ["word-to-translation", "audio-choice", "typing"];
+
+/** Between two content bands: the whitespace is the section divider. */
+const BAND = "pt-24 lg:pt-32";
+
+/** `free · no card · takes a minute` — small facts, separated by dots. */
+function MicroLine({
+  items,
+  className,
+  dotClassName,
+}: {
+  items: string[];
+  className?: string;
+  dotClassName?: string;
+}) {
+  return (
+    <p
+      className={cn(
+        "text-caption flex flex-wrap items-center gap-x-2.5 gap-y-1",
+        className,
+      )}
+    >
+      {items.map((item, index) => (
+        <span key={item} className="flex items-center gap-x-2.5">
+          {index > 0 ? (
+            <span
+              className={cn("size-[3px] rounded-full bg-border", dotClassName)}
+              aria-hidden
+            />
+          ) : null}
+          {item}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+function Chip({ on = false, children }: { on?: boolean; children: string }) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "h-auto rounded-full px-3 py-1.5 text-[13px] font-normal",
+        on
+          ? "border-primary/20 bg-accent font-medium text-accent-foreground"
+          : "bg-card/60 text-muted-foreground",
+      )}
+    >
+      {children}
+    </Badge>
+  );
+}
+
 export default async function LandingPage() {
   const session = await auth();
   if (session?.user) redirect("/tasks/today");
 
   const t = await getTranslations("landing");
+  const trainings = await getTranslations("trainings");
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -left-24 top-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -right-20 top-40 h-96 w-96 rounded-full bg-brand-soft/15 blur-3xl" />
-      </div>
-
       <SiteHeader />
 
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pb-8 pt-4 lg:grid-cols-2 lg:gap-16 lg:pb-20 lg:pt-10">
-        <div className="flex flex-col">
-          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-4 max-w-xl font-display text-4xl leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            {t("heroTitle1")}
-            <br />
-            {t("heroTitle2")}
+      <section
+        className={cn(
+          MARKETING,
+          "grid items-start gap-12 pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.06fr)] lg:gap-20 lg:pt-24",
+        )}
+      >
+        <div>
+          <Eyebrow>{t("eyebrow")}</Eyebrow>
+          <h1 className="text-display max-w-[13ch]">
+            {t("heroTitle1")} {t("heroTitle2")}
           </h1>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
+          <p className="text-lead mt-6 max-w-[44ch] text-foreground/80">
             {t("heroBody")}
           </p>
-          <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
             <Button
               size="lg"
-              className="min-h-11 bg-teal-800 px-5 text-white hover:bg-teal-900"
+              className="min-h-12 px-6"
               render={<Link href="/register" />}
             >
               {t("createAccount")}
             </Button>
             <Link
               href="/login"
-              className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              className="focus-ring rounded-sm text-sm text-foreground/80 transition-colors duration-(--motion-instant) hover:text-primary"
             >
-              {t("signIn")}
+              {t("haveAccount")}
             </Link>
           </div>
+          <MicroLine
+            className="mt-7 text-muted-foreground"
+            items={[t("microFree"), t("microNoCard"), t("microLexicon")]}
+          />
         </div>
 
         <ProductFrame>
@@ -72,90 +138,151 @@ export default async function LandingPage() {
         </ProductFrame>
       </section>
 
-      <ol className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={cn(MARKETING, "mt-16 lg:mt-24")}>
+        <dl className="grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {[
+            [t("statLexiconValue"), t("statLexicon")],
+            [String(TRAININGS.length), t("statFormats")],
+            [t("statRequestValue"), t("statRequest")],
+          ].map(([value, caption]) => (
+            <div
+              key={caption}
+              className="py-7 sm:pr-8 sm:pl-8 sm:first:pl-0 sm:last:pr-0"
+            >
+              <dt className="text-numeral text-primary">{value}</dt>
+              <dd className="text-caption mt-2 max-w-[30ch] text-muted-foreground">
+                {caption}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <ul
+        className={cn(
+          MARKETING,
+          "mt-14 grid gap-8 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4",
+        )}
+      >
         {STEPS.map((step) => {
           const Icon = step.icon;
           return (
-            <li key={step.title} className="flex gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-brand-soft">
-                <Icon className="size-4" aria-hidden />
+            <li key={step.title}>
+              <span className="mb-3.5 flex size-8 items-center justify-center rounded-[9px] bg-accent text-primary">
+                <Icon className="size-4" strokeWidth={1.8} aria-hidden />
               </span>
-              <div>
-                <p className="font-display text-lg leading-snug">{t(step.title)}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {t(step.body)}
-                </p>
-              </div>
+              <p className="text-[1.0625rem] leading-snug font-semibold">
+                {t(step.title)}
+              </p>
+              <p className="text-caption mt-1.5 leading-[1.55] text-muted-foreground">
+                {t(step.body)}
+              </p>
             </li>
           );
         })}
-      </ol>
+      </ul>
 
-      <section className="mx-auto grid w-full max-w-6xl gap-16 px-6 pb-24 lg:grid-cols-2">
-        <div className="space-y-4">
-          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            {t("dictionaryEyebrow")}
-          </p>
-          <h2 className="font-display text-3xl tracking-tight">
-            {t("dictionaryTitle")}
-          </h2>
-          <p className="max-w-sm text-muted-foreground">
+      <section
+        className={cn(
+          MARKETING,
+          BAND,
+          "grid items-start gap-12 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:gap-16",
+        )}
+      >
+        <div>
+          <Eyebrow>{t("dictionaryEyebrow")}</Eyebrow>
+          <h2 className="text-h2">{t("dictionaryTitle")}</h2>
+          <p className="text-lead mt-4 max-w-[44ch] text-foreground/80">
             {t("dictionaryBody")}
           </p>
-          <ProductFrame>
-            <DictionaryScreen />
-          </ProductFrame>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Chip>{t("dictionaryPillList")}</Chip>
+            <Chip on>{t("dictionaryPillRequest")}</Chip>
+          </div>
         </div>
-        <div className="space-y-4 lg:pt-16">
-          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            {t("practiceEyebrow")}
-          </p>
-          <h2 className="font-display text-3xl tracking-tight">
-            {t("practiceTitle")}
-          </h2>
-          <p className="max-w-sm text-muted-foreground">
-            {t("practiceBody")}
-          </p>
-          <ProductFrame>
-            <PracticeScreen />
-          </ProductFrame>
-        </div>
-      </section>
-
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 pb-24 lg:grid-cols-2 lg:gap-16">
-        <div className="space-y-4">
-          <p className="text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-            {t("coursesEyebrow")}
-          </p>
-          <h2 className="font-display text-3xl tracking-tight">
-            {t("coursesTitle")}
-          </h2>
-          <p className="max-w-sm text-muted-foreground">
-            {t("coursesBody")}
-          </p>
-        </div>
-        <ProductFrame active="courses">
-          <CourseScreen />
+        <ProductFrame chrome="panel">
+          <DictionaryScreen />
         </ProductFrame>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pb-24">
-        <p className="font-display text-3xl tracking-tight sm:text-4xl">
-          {t("closeTitle")}
-        </p>
-        <div className="mt-6">
+      <section className={cn(MARKETING, BAND)}>
+        <div className="max-w-[52ch]">
+          <Eyebrow>{t("practiceEyebrow")}</Eyebrow>
+          <h2 className="text-h2">{t("practiceTitle")}</h2>
+          <p className="text-lead mt-4 text-foreground/80">{t("practiceBody")}</p>
+        </div>
+        <ul className="mt-6 flex flex-wrap gap-2">
+          {TRAININGS.map((training) => (
+            <li key={training.id}>
+              <Chip on={SHOWN_TRAININGS.includes(training.id)}>
+                {trainings(`${training.id}.title`)}
+              </Chip>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-7 grid gap-3.5 sm:grid-cols-3">
+          <ProductPanel label={trainings("word-to-translation.title")}>
+            <PracticeChoiceStill />
+          </ProductPanel>
+          <ProductPanel label={trainings("audio-choice.title")}>
+            <PracticeAudioStill />
+          </ProductPanel>
+          <ProductPanel label={trainings("typing.title")}>
+            <PracticeTypingStill />
+          </ProductPanel>
+        </div>
+      </section>
+
+      <section
+        className={cn(
+          MARKETING,
+          BAND,
+          "grid items-start gap-12 lg:grid-cols-[minmax(0,1.14fr)_minmax(0,0.86fr)] lg:gap-16",
+        )}
+      >
+        <div className="order-2 lg:order-1">
+          <ProductFrame chrome="panel" active="courses">
+            <CourseScreen />
+          </ProductFrame>
+        </div>
+        <div className="order-1 lg:order-2">
+          <Eyebrow>{t("coursesEyebrow")}</Eyebrow>
+          <h2 className="text-h2">{t("coursesTitle")}</h2>
+          <p className="text-lead mt-4 max-w-[44ch] text-foreground/80">
+            {t("coursesBody")}
+          </p>
+        </div>
+      </section>
+
+      <section className="bg-inverse-surface text-inverse-foreground mt-24 lg:mt-32">
+        <div
+          className={cn(
+            MARKETING,
+            "grid gap-10 pt-16 pb-16 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end lg:pt-24 lg:pb-20",
+          )}
+        >
+          <div>
+            <h2 className="text-h2 max-w-[22ch]">{t("closeTitle")}</h2>
+            <p className="text-inverse-muted mt-3.5 max-w-[46ch]">
+              {t("closeBody")}
+            </p>
+            <MicroLine
+              className="text-inverse-muted mt-5"
+              dotClassName="bg-inverse-muted/40"
+              items={[t("microFree"), t("microNoCard"), t("microMinute")]}
+            />
+          </div>
           <Button
             size="lg"
-            variant="outline"
-            className="min-h-11 px-5"
+            className="min-h-12 justify-self-start bg-inverse-foreground px-6 text-inverse-surface hover:bg-accent sm:justify-self-end"
             render={<Link href="/register" />}
           >
             {t("createAccount")}
           </Button>
         </div>
-      </section>
 
-      <SiteFooter />
+        <SiteFooter tone="dark" />
+      </section>
     </main>
   );
 }

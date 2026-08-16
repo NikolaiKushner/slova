@@ -1,0 +1,42 @@
+[
+  {
+    "id": "tb-form-am",
+    "title": "I am",
+    "anchorMd": "После **I** только **am**: I am a student, I'm tired. Не I is и не I are."
+  },
+  {
+    "id": "tb-form-is",
+    "title": "he / she / it is",
+    "anchorMd": "После **he, she, it** — **is**: she is tired, he is a teacher. Имя вроде Anna или my brother считается как she / he. Это не **-s** у обычного глагола — у **be** своя форма."
+  },
+  {
+    "id": "tb-form-are",
+    "title": "you / we / they are",
+    "anchorMd": "После **you, we, they** — **are**: you are here, they are students. Несколько людей или предметов работают как **they**: my parents are, the shops are."
+  },
+  {
+    "id": "tb-use-description",
+    "title": "Who / what someone is",
+    "anchorMd": "**be** говорит, кто человек и какой он: She is a teacher, I am tired, He is from Berlin. Это не действие. Действие — обычный глагол: She works in a school."
+  },
+  {
+    "id": "tb-use-location",
+    "title": "Where someone is",
+    "anchorMd": "**be** говорит, где человек или вещь: They are at home, The shop is in London. Не They live at home, если речь про «сейчас здесь», и не They are live here."
+  },
+  {
+    "id": "tb-negative",
+    "title": "am not / isn't / aren't",
+    "anchorMd": "Отрицание ставит **not** после **be**: I am not, she isn't, they aren't. Не she not is и не she doesn't is — **do / does** сюда не ставятся."
+  },
+  {
+    "id": "tb-question",
+    "title": "Am / Is / Are … ?",
+    "anchorMd": "Вопрос начинается с **Am / Is / Are**, затем человек: Are you at home? Is she a teacher? Не Do you are… и не Are you live here? — **do** для обычного глагола, **be** сам выходит вперёд."
+  },
+  {
+    "id": "tb-short-answer",
+    "title": "Yes, I am / No, she isn't",
+    "anchorMd": "Краткий ответ повторяет **be**, не **do**: Yes, I am. No, she isn't. Не Yes, I do на вопрос Are you…? И не Yes, I'm — в коротком «да» **am / is / are** не сокращают."
+  }
+]

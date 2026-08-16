@@ -1,10 +1,10 @@
 /**
  * A lesson stores a pool; the player deals a sitting from it.
  *
- * Eight is enough to cover the rules without turning practice into an exam.
- * The pool is larger, and a new deal is drawn each visit, so the first prompt
- * is not a sequence you can learn by heart. The course test is the exception:
- * it keeps every item, only the order moves.
+ * Practice is ten questions, drawn fresh each visit. The pool is larger, so
+ * the first prompt is not a sequence you can learn by heart: items, order
+ * and choice options all shuffle. The course test is twelve questions —
+ * the whole mix, still in a new order each attempt.
  *
  * `bank.json` is a different pile — later drills, not this sitting — so a
  * prompt from the lesson does not come back the next day as "practice".
@@ -13,16 +13,21 @@
 import { isExerciseBlock, type Exercise, type Lesson } from "@/content/courses/schema";
 import { shuffle, type Rng } from "@/lib/practice/random";
 
-export const LESSON_PRACTICE_SIZE = 8;
+export const LESSON_PRACTICE_SIZE = 10;
 export const LESSON_PRACTICE_POOL_MIN = 16;
+export const TEST_SITTING_SIZE = 12;
+
+export function isTestLesson(lessonSlug: string): boolean {
+  return lessonSlug === "test";
+}
 
 export function lessonPool(lesson: Lesson): Exercise[] {
   return lesson.blocks.filter(isExerciseBlock);
 }
 
 export function practiceSessionSize(lessonSlug: string, poolLength: number): number {
-  if (lessonSlug === "test") return poolLength;
-  return Math.min(LESSON_PRACTICE_SIZE, poolLength);
+  const cap = isTestLesson(lessonSlug) ? TEST_SITTING_SIZE : LESSON_PRACTICE_SIZE;
+  return Math.min(cap, poolLength);
 }
 
 export function dealLessonPractice(

@@ -1,7 +1,13 @@
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { LEXICON_VERSION } from "@/lib/lexicon/lookup";
-import { SESSION_SIZE } from "@/lib/practice/brainstorm";
+import { clampSessionSize } from "@/lib/practice/brainstorm";
+import {
+  DEFAULT_SOURCE_STATE,
+  setFilter,
+  stateFilter,
+  type SourceState,
+} from "@/lib/practice/source";
 import type { PracticeWord } from "@/lib/practice/question";
 import { getPrisma } from "@/lib/prisma";
 
@@ -29,65 +35,95 @@ export type PracticeSession = {
 
 export async function buildPracticeSession(
   userId: string,
-  options: { setIds?: readonly string[]; brainstorm?: boolean } = {},
+  options: {
+    setIds?: readonly string[];
+    brainstorm?: boolean;
+    /** Which words qualify — see lib/practice/source.ts. */
+    state?: SourceState;
+    /** Brainstorm only; other trainings run at TRAINING_SIZE. */
+    size?: number;
+  } = {},
 ): Promise<PracticeSession> {
   const prisma = getPrisma();
   // Several sets at once, because a session is a choice of material rather
   // than a folder: "verbs and the medical list, nothing else" is a normal
   // thing to want and awkward to express one set at a time.
   const setIds = options.setIds?.filter(Boolean) ?? [];
-  const where = {
-    userId,
-    ...(setIds.length > 0 ? { sets: { some: { setId: { in: setIds } } } } : {}),
-  };
+  const where = { userId, ...setFilter(setIds) };
 
-  const limit = options.brainstorm ? SESSION_SIZE : TRAINING_SIZE;
+  const limit = options.brainstorm
+    ? clampSessionSize(options.size ?? null)
+    : TRAINING_SIZE;
 
-  // Brainstorm exists for words that have never been studied; every other
-  // training is practice, so it takes what is due first and then whatever is
-  // least settled.
+  /*
+   * Which words qualify comes from the source bar on the trainings page, and
+   * the same filter answers the count shown there — so the promise the bar
+   * makes and the session that follows cannot disagree.
+   *
+   * Brainstorm is the exception, and not a configurable one: it exists for
+   * words never studied, so it always takes "new" whatever the query says.
+   */
+  const now = new Date();
+  const state = options.brainstorm
+    ? "new"
+    : (options.state ?? DEFAULT_SOURCE_STATE);
+  const scope = { ...where, ...stateFilter(state, now) };
+
   const words = options.brainstorm
     ? await prisma.userWord.findMany({
-        where: { ...where, introducedAt: null },
+        where: scope,
         orderBy: { createdAt: "asc" },
         take: limit,
         select: { id: true, front: true, back: true },
       })
     : await prisma.userWord.findMany({
-        where,
+        where: scope,
         orderBy: [{ dueAt: "asc" }, { intervalDays: "asc" }],
         take: limit,
         select: { id: true, front: true, back: true },
       });
 
   const pool = await buildPool(userId);
-  return { words: await withAudio(words), pool };
+  return { words: await withLexemeExtras(words), pool };
 }
 
 /**
- * Attaches the shared recording to each word.
+ * Attaches what the shared base knows about each word: the recording, and the
+ * transcription shown beside the answer.
  *
  * Joined by normalised key rather than by `lexemeId`, because that link is
  * soft and may be null on words added before the lexicon existed. The key is
  * the thing both sides agree on — it is what the whole shared base is indexed
  * by.
  */
-async function withAudio(words: PracticeWord[]): Promise<PracticeWord[]> {
+async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> {
   if (words.length === 0) return words;
 
   const keys = words.map((word) => normalizeKey(word.front)).filter(Boolean);
   if (keys.length === 0) return words;
 
   const lexemes = await getPrisma().lexeme.findMany({
-    where: { lang: STUDY_SOURCE_LANG, key: { in: keys }, audioUrl: { not: null } },
-    select: { key: true, audioUrl: true },
+    // No `audioUrl: not null` filter any more: a word can have a transcription
+    // and no recording, and that row is still worth having.
+    where: { lang: STUDY_SOURCE_LANG, key: { in: keys } },
+    select: {
+      key: true,
+      audioUrl: true,
+      audioSlowUrl: true,
+      transcription: true,
+    },
   });
-  const byKey = new Map(lexemes.map((lexeme) => [lexeme.key, lexeme.audioUrl]));
+  const byKey = new Map(lexemes.map((lexeme) => [lexeme.key, lexeme]));
 
-  return words.map((word) => ({
-    ...word,
-    audioUrl: byKey.get(normalizeKey(word.front)) ?? null,
-  }));
+  return words.map((word) => {
+    const lexeme = byKey.get(normalizeKey(word.front));
+    return {
+      ...word,
+      audioUrl: lexeme?.audioUrl ?? null,
+      audioSlowUrl: lexeme?.audioSlowUrl ?? null,
+      transcription: lexeme?.transcription ?? null,
+    };
+  });
 }
 
 /**

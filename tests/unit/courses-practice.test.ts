@@ -4,6 +4,7 @@ import type { Exercise } from "@/content/courses/schema";
 import {
   dealLessonPractice,
   LESSON_PRACTICE_SIZE,
+  TEST_SITTING_SIZE,
   practiceSessionSize,
 } from "@/lib/courses/practice";
 import { seededRng } from "@/lib/practice/random";
@@ -36,10 +37,11 @@ function choice(
 }
 
 describe("practiceSessionSize", () => {
-  it("caps a regular lesson at eight and keeps the whole test", () => {
+  it("caps a regular lesson at ten and the test at twelve", () => {
     expect(practiceSessionSize("forms", 16)).toBe(LESSON_PRACTICE_SIZE);
     expect(practiceSessionSize("forms", 6)).toBe(6);
-    expect(practiceSessionSize("test", 12)).toBe(12);
+    expect(practiceSessionSize("test", 12)).toBe(TEST_SITTING_SIZE);
+    expect(practiceSessionSize("test", 20)).toBe(TEST_SITTING_SIZE);
   });
 });
 
@@ -49,16 +51,15 @@ describe("dealLessonPractice", () => {
     ...Array.from({ length: 8 }, (_, i) => gap(`b-${i}`, "rule-b")),
   ];
 
-  it("deals eight, covering both rules", () => {
+  it("deals ten, covering both rules", () => {
     const dealt = dealLessonPractice(pool, {
-      take: 8,
       rng: seededRng(1),
     });
-    expect(dealt).toHaveLength(8);
+    expect(dealt).toHaveLength(LESSON_PRACTICE_SIZE);
     const rules = new Set(dealt.map((item) => item.ruleId));
     expect(rules).toEqual(new Set(["rule-a", "rule-b"]));
-    expect(dealt.filter((item) => item.ruleId === "rule-a")).toHaveLength(4);
-    expect(dealt.filter((item) => item.ruleId === "rule-b")).toHaveLength(4);
+    expect(dealt.filter((item) => item.ruleId === "rule-a")).toHaveLength(5);
+    expect(dealt.filter((item) => item.ruleId === "rule-b")).toHaveLength(5);
   });
 
   it("draws the same sitting from the same seed, a different sitting from another", () => {

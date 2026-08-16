@@ -5,11 +5,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { ProseLink } from "@/components/prose-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { LegalLinks } from "@/components/site-chrome";
 import { registerAction } from "@/lib/auth-actions";
 import { formatAuthError } from "@/lib/i18n/auth-error";
 import { MIN_PASSWORD_LENGTH } from "@/lib/password-rules";
@@ -110,7 +110,7 @@ export function RegisterForm() {
         <Button
           type="submit"
           size="lg"
-          className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
+          className="min-h-11 w-full"
           disabled={pending}
         >
           {pending ? t("creatingAccount") : t("createAccount")}
@@ -120,7 +120,7 @@ export function RegisterForm() {
       <div className="relative">
         <Separator />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="bg-card px-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="bg-card text-overline text-muted-foreground px-3">
             {t("or")}
           </span>
         </span>
@@ -131,16 +131,10 @@ export function RegisterForm() {
       <p className="text-center text-sm text-muted-foreground">
         {t.rich("alreadyHaveAccount", {
           link: (chunks) => (
-            <Link
-              href="/login"
-              className="text-foreground underline-offset-4 hover:underline"
-            >
-              {chunks}
-            </Link>
+            <ProseLink href="/login">{chunks}</ProseLink>
           ),
         })}
       </p>
-      <LegalLinks className="text-center text-sm text-muted-foreground" />
     </div>
   );
 }

@@ -1,12 +1,19 @@
 import { cn } from "@/lib/utils";
 
 /**
- * The Slova logotype: Fraunces, with the S in brand teal.
+ * The Slova logotype: Literata 600, with the S in brand teal.
  *
  * It is a word, not a tile. Headings stay `font-display`; this cut is slightly
- * heavier, tighter, and wonkier so the name does not look like a page title.
+ * heavier and tighter so the name does not look like a page title.
  */
-export function BrandWordmark({ className }: { className?: string }) {
+export function BrandWordmark({
+  className,
+  tone = "brand",
+}: {
+  className?: string;
+  /** `light` drops the teal S — on a forest band the two greens fight. */
+  tone?: "brand" | "light";
+}) {
   return (
     <span
       className={cn(
@@ -14,7 +21,9 @@ export function BrandWordmark({ className }: { className?: string }) {
         className,
       )}
     >
-      <span className="text-[1.08em] text-primary">S</span>
+      <span className={cn("text-[1.08em]", tone === "brand" && "text-primary")}>
+        S
+      </span>
       lova
     </span>
   );

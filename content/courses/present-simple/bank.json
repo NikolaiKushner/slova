@@ -13,7 +13,7 @@
     "id": "ps-bank-02",
     "ruleId": "ps-base-form",
     "kind": "pick-sentence",
-    "prompt": "Which sentence is correct?",
+    "prompt": "Какое предложение верное?",
     "options": ["I lives in Berlin.", "I live in Berlin."],
     "answer": "I live in Berlin."
   },
@@ -39,7 +39,7 @@
     "id": "ps-bank-05",
     "ruleId": "ps-third-person-s",
     "kind": "pick-sentence",
-    "prompt": "Which sentence is correct?",
+    "prompt": "Какое предложение верное?",
     "options": ["My sister like tea.", "My sister likes tea."],
     "answer": "My sister likes tea."
   },
@@ -65,7 +65,7 @@
     "id": "ps-bank-08",
     "ruleId": "ps-use-habits",
     "kind": "pick-sentence",
-    "prompt": "Which sentence is a habit?",
+    "prompt": "Какое предложение про привычку?",
     "options": [
       "He plays football on Sundays.",
       "He playing football on Sundays."
@@ -120,7 +120,7 @@
     "id": "ps-bank-14",
     "ruleId": "ps-negative-dont",
     "kind": "transform",
-    "prompt": "Make this negative.",
+    "prompt": "Сделайте отрицание.",
     "source": "I need more time.",
     "answer": "I don't need more time.",
     "accept": ["I do not need more time."]
@@ -130,7 +130,7 @@
     "id": "ps-bank-15",
     "ruleId": "ps-negative-doesnt",
     "kind": "pick-sentence",
-    "prompt": "Which sentence is correct?",
+    "prompt": "Какое предложение верное?",
     "options": ["It doesn't works.", "It doesn't work."],
     "answer": "It doesn't work."
   },
@@ -157,7 +157,7 @@
     "id": "ps-bank-18",
     "ruleId": "ps-question-do",
     "kind": "transform",
-    "prompt": "Make this a question.",
+    "prompt": "Сделайте вопрос.",
     "source": "You like this song.",
     "answer": "Do you like this song?"
   },
@@ -166,7 +166,7 @@
     "id": "ps-bank-19",
     "ruleId": "ps-question-does",
     "kind": "pick-sentence",
-    "prompt": "Which question is correct?",
+    "prompt": "Какой вопрос верный?",
     "options": ["Does Anna live here?", "Does Anna lives here?"],
     "answer": "Does Anna live here?"
   },

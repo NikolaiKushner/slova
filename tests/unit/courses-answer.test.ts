@@ -46,12 +46,29 @@ describe("gradeExercise", () => {
       id: "t-tr",
       ruleId: "ps-negative-doesnt",
       kind: "transform",
-      prompt: "Make this negative.",
+      prompt: "Сделайте отрицание.",
       source: "She works here.",
       answer: "She doesn't work here.",
       accept: ["She does not work here."],
     } satisfies Exercise;
     expect(gradeExercise(transform, "She doesn't work here")).toBe("correct");
     expect(gradeExercise(transform, "She does not work here")).toBe("correct");
+  });
+
+  it("accepts be-contraction variants listed on the item", () => {
+    const transform = {
+      type: "exercise",
+      id: "t-be-neg",
+      ruleId: "tb-negative",
+      kind: "transform",
+      prompt: "Сделайте отрицание.",
+      source: "She is tired.",
+      answer: "She isn't tired.",
+      accept: ["She is not tired.", "She's not tired."],
+    } satisfies Exercise;
+    expect(gradeExercise(transform, "She isn't tired")).toBe("correct");
+    expect(gradeExercise(transform, "She is not tired")).toBe("correct");
+    expect(gradeExercise(transform, "She's not tired")).toBe("correct");
+    expect(gradeExercise(transform, "She doesn't is tired")).toBe("wrong");
   });
 });

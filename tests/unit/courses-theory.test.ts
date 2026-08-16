@@ -2,24 +2,23 @@ import { describe, expect, it } from "vitest";
 import { groupTheoryBlocks } from "@/components/courses/block-view";
 
 describe("groupTheoryBlocks", () => {
-  it("keeps examples with the explanation above them", () => {
+  it("keeps the lead together until a heading, pitfall or recap", () => {
     const groups = groupTheoryBlocks([
-      { type: "explanation", md: "habits" },
+      { type: "explanation", md: "lead" },
       { type: "example", en: "I walk.", ru: "Я хожу." },
-      { type: "example", en: "She plays.", ru: "Она играет." },
+      { type: "heading", title: "Facts" },
       { type: "explanation", md: "facts" },
       { type: "example", en: "Water freezes.", ru: "Вода замерзает." },
+      { type: "pitfall", md: "slip" },
+      { type: "heading", title: "Коротко" },
+      { type: "recap", items: [{ k: "a", v: "b" }] },
     ]);
 
-    expect(groups).toHaveLength(2);
-    expect(groups[0]?.map((block) => block.type)).toEqual([
-      "explanation",
-      "example",
-      "example",
-    ]);
-    expect(groups[1]?.map((block) => block.type)).toEqual([
-      "explanation",
-      "example",
+    expect(groups.map((group) => group.map((block) => block.type))).toEqual([
+      ["explanation", "example"],
+      ["heading", "explanation", "example"],
+      ["pitfall"],
+      ["heading", "recap"],
     ]);
   });
 });

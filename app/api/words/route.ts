@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
+import { normalizeRow } from "@/lib/normalize";
 import { ratingOf } from "@/lib/word-rating";
 import { recordTranslations } from "@/lib/lexicon/write";
 import { allowAttemptDurable } from "@/lib/rate-limit";
@@ -113,10 +114,23 @@ export async function POST(request: Request) {
     return jsonError("eachNeedsPair", 400);
   }
 
-  const { words, setId, setTitle, source } = parsed.data;
+  const { setId, setTitle, source } = parsed.data;
   if (setId && setTitle) {
     return jsonError("chooseSetOrName", 400);
   }
+
+  /*
+   * Case is folded here, at the boundary, because both things that follow have
+   * to agree on it: the row in this person's dictionary and the entry offered
+   * to the shared base. A word capitalised only because it began a pasted line
+   * or because a phone capitalised it is not spelled that way, and the spelling
+   * on the screen is the one that gets memorised. Acronyms and phrases holding
+   * a name keep their capitals — see lib/normalize.
+   */
+  const words = parsed.data.words.map((word) => ({
+    ...word,
+    ...normalizeRow(word.front, word.back),
+  }));
 
   const prisma = getPrisma();
   let targetSetId: string | null = null;

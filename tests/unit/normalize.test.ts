@@ -117,4 +117,30 @@ describe("normalizeRow", () => {
       back: "спасение жизней",
     });
   });
+
+  /*
+   * The reason the add path folds case with this rather than toLowerCase: a
+   * capital that belongs to the word is part of its spelling, and the spelling
+   * shown in the dictionary is the one that gets learned.
+   */
+  it("keeps the capitals that belong to the words", () => {
+    expect(normalizeRow("MRI scan", "МРТ")).toEqual({
+      front: "MRI scan",
+      back: "МРТ",
+    });
+    expect(normalizeRow("New York", "Нью-Йорк")).toEqual({
+      front: "New York",
+      back: "Нью-Йорк",
+    });
+  });
+
+  it("drops the capital a phone keyboard added to the translation", () => {
+    expect(normalizeRow("cat", "Кот")).toEqual({ front: "cat", back: "кот" });
+  });
+
+  /** Adding a word a second time must not walk its spelling further. */
+  it("leaves an already normalised row alone", () => {
+    const once = normalizeRow("Medical records", "Медицинские записи");
+    expect(normalizeRow(once.front, once.back)).toEqual(once);
+  });
 });

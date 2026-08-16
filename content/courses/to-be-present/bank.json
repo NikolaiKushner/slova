@@ -1,0 +1,145 @@
+[
+  {
+    "type": "exercise",
+    "id": "tb-bank-01",
+    "ruleId": "tb-form-am",
+    "kind": "choice",
+    "prompt": "I ___ old.",
+    "options": ["am", "is", "are"],
+    "answer": "am"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-02",
+    "ruleId": "tb-form-am",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение верное?",
+    "options": ["I are a teacher.", "I am a teacher."],
+    "answer": "I am a teacher."
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-03",
+    "ruleId": "tb-form-is",
+    "kind": "choice",
+    "prompt": "The shop ___ closed.",
+    "options": ["am", "is", "are"],
+    "answer": "is"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-04",
+    "ruleId": "tb-form-is",
+    "kind": "gap",
+    "prompt": "My sister ___ a student. (be)",
+    "answer": "is"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-05",
+    "ruleId": "tb-form-are",
+    "kind": "choice",
+    "prompt": "You ___ late.",
+    "options": ["am", "is", "are"],
+    "answer": "are"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-06",
+    "ruleId": "tb-form-are",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение верное?",
+    "options": ["The shops is open.", "The shops are open."],
+    "answer": "The shops are open."
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-07",
+    "ruleId": "tb-use-description",
+    "kind": "choice",
+    "prompt": "Anna ___ a student.",
+    "options": ["is", "works", "are"],
+    "answer": "is"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-08",
+    "ruleId": "tb-use-description",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение про то, какой он?",
+    "options": ["He is tired.", "He is work."],
+    "answer": "He is tired."
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-09",
+    "ruleId": "tb-use-location",
+    "kind": "gap",
+    "prompt": "Tom ___ in the park. (be)",
+    "answer": "is"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-10",
+    "ruleId": "tb-use-location",
+    "kind": "choice",
+    "prompt": "We ___ at work.",
+    "options": ["are", "is", "live"],
+    "answer": "are"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-11",
+    "ruleId": "tb-negative",
+    "kind": "choice",
+    "prompt": "I ___ tired.",
+    "options": ["am not", "isn't", "don't"],
+    "answer": "am not"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-12",
+    "ruleId": "tb-negative",
+    "kind": "transform",
+    "prompt": "Сделайте отрицание.",
+    "source": "The shop is open.",
+    "answer": "The shop isn't open.",
+    "accept": ["The shop is not open.", "The shop's not open."]
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-13",
+    "ruleId": "tb-question",
+    "kind": "choice",
+    "prompt": "___ they from London?",
+    "options": ["Are", "Do", "Is"],
+    "answer": "Are"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-14",
+    "ruleId": "tb-question",
+    "kind": "transform",
+    "prompt": "Сделайте вопрос.",
+    "source": "He is a teacher.",
+    "answer": "Is he a teacher?"
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-15",
+    "ruleId": "tb-short-answer",
+    "kind": "pick-sentence",
+    "prompt": "Какой краткий ответ верный?",
+    "options": ["Are you a student? — Yes, I am.", "Are you a student? — Yes, I do."],
+    "answer": "Are you a student? — Yes, I am."
+  },
+  {
+    "type": "exercise",
+    "id": "tb-bank-16",
+    "ruleId": "tb-short-answer",
+    "kind": "choice",
+    "prompt": "Is it cold? — ___",
+    "options": ["Yes, it is.", "Yes, it does.", "Yes, it's."],
+    "answer": "Yes, it is."
+  }
+]

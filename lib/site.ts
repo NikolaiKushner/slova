@@ -6,3 +6,9 @@
 export const MAIL_FROM = "hello@slova.study";
 export const CONTACT_EMAIL = "contact@slova.study";
 export const SITE_ORIGIN = "https://slova.study";
+
+/**
+ * Unique English words in the seeded shared dictionary (translations + audio).
+ * Public copy says “more than 8,000”, not this exact seed count — it will drift.
+ */
+export const SHARED_LEXICON_SIZE = 8172;

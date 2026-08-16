@@ -1,12 +1,15 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { Page } from "@/components/page";
-import { PageHeader } from "@/components/page-header";
-import { Section } from "@/components/section";
-import { SiteFooter, SiteHeader } from "@/components/site-chrome";
-import { CONTACT_EMAIL } from "@/lib/site";
+import {
+  LegalItem,
+  LegalList,
+  LegalPage,
+  LegalSection,
+  legalRich,
+} from "@/components/legal-page";
+import { MailLink, ProseLink } from "@/components/prose-link";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("legal");
@@ -16,57 +19,76 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function MailLink() {
-  return (
-    <a
-      href={`mailto:${CONTACT_EMAIL}`}
-      className="text-foreground underline-offset-4 hover:underline"
-    >
-      {CONTACT_EMAIL}
-    </a>
-  );
-}
-
 export default async function TermsPage() {
   const t = await getTranslations("legal");
+  const rich = {
+    ...legalRich(),
+    email: () => <MailLink />,
+    privacy: (chunks: ReactNode) => (
+      <ProseLink href="/privacy">{chunks}</ProseLink>
+    ),
+  };
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <SiteHeader />
-      <Page className="flex-1 px-6 pb-16">
-        <PageHeader
-          eyebrow={t("eyebrow")}
-          title={t("termsTitle")}
-          description={t("termsDescription")}
-        />
+    <LegalPage
+      eyebrow={t("eyebrow")}
+      title={t("termsTitle")}
+      description={t("termsDescription")}
+      updated={t("updated")}
+      effective={t("effective")}
+      footer={
+        <>
+          <ProseLink href="/privacy">← {t("privacyTitle")}</ProseLink>
+          <MailLink />
+        </>
+      }
+    >
+      <LegalSection title={t("theAppTitle")}>
+        <p>{t("theAppBody")}</p>
+      </LegalSection>
 
-        <div className="space-y-10 text-base leading-relaxed">
-          <Section title={t("theAppTitle")}>
-            <p className="text-muted-foreground">{t("theAppBody")}</p>
-          </Section>
+      <LegalSection title={t("accountsTitle")}>
+        <LegalList>
+          <LegalItem>{t("account1")}</LegalItem>
+          <LegalItem>{t("account2")}</LegalItem>
+          <LegalItem>{t.rich("account3", rich)}</LegalItem>
+        </LegalList>
+      </LegalSection>
 
-          <Section title={t("yourWordsTitle")}>
-            <p className="text-muted-foreground">{t("yourWordsBody")}</p>
-          </Section>
+      <LegalSection title={t("yourWordsTitle")}>
+        <p>{t("yourWordsBody")}</p>
+        <p>{t.rich("yourWordsException", rich)}</p>
+      </LegalSection>
 
-          <Section title={t("accountsTitle")}>
-            <p className="text-muted-foreground">
-              {t.rich("accountsBody", { email: () => <MailLink /> })}
-            </p>
-          </Section>
+      <LegalSection title={t("forbiddenTitle")}>
+        <LegalList>
+          <LegalItem>{t("forbidden1")}</LegalItem>
+          <LegalItem>{t("forbidden2")}</LegalItem>
+          <LegalItem>{t("forbidden3")}</LegalItem>
+          <LegalItem>{t("forbidden4")}</LegalItem>
+        </LegalList>
+        <p>{t("forbiddenOutro")}</p>
+      </LegalSection>
 
-          <Section title={t("warrantyTitle")}>
-            <p className="text-muted-foreground">{t("warrantyBody")}</p>
-          </Section>
-        </div>
+      <LegalSection title={t("translationsTitle")}>
+        <p>{t.rich("translationsBody", rich)}</p>
+      </LegalSection>
 
-        <p className="mt-12 text-sm text-muted-foreground">
-          <Link href="/privacy" className="underline-offset-4 hover:underline">
-            {t("privacyTitle")}
-          </Link>
-        </p>
-      </Page>
-      <SiteFooter />
-    </div>
+      <LegalSection title={t("availabilityTitle")}>
+        <p>{t("availabilityBody")}</p>
+      </LegalSection>
+
+      <LegalSection title={t("liabilityTitle")}>
+        <p>{t.rich("liabilityBody", rich)}</p>
+      </LegalSection>
+
+      <LegalSection title={t("sourcesTitle")}>
+        <p>{t.rich("sourcesBody", rich)}</p>
+      </LegalSection>
+
+      <LegalSection title={t("changesTitle")}>
+        <p>{t("termsChanges")}</p>
+      </LegalSection>
+    </LegalPage>
   );
 }

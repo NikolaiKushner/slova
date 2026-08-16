@@ -20,7 +20,7 @@ export const COLUMN_LABEL =
 export const ROW_ICON =
   "cursor-pointer text-muted-foreground hover:text-foreground";
 export const ROW_ICON_DESTROY =
-  "cursor-pointer text-muted-foreground hover:text-destructive";
+  "cursor-pointer text-muted-foreground hover:bg-destructive-bg hover:text-destructive";
 
 export const COLUMN_HEADER = cn(
   "border-b border-border bg-muted/50 px-3 py-2",
@@ -39,7 +39,7 @@ export function WordTable({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-border bg-white/80",
+        "overflow-hidden rounded-2xl border border-border bg-card/80",
         className,
       )}
     >

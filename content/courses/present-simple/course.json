@@ -5,5 +5,10 @@
   "level": "A1",
   "order": 1,
   "estMinutes": 40,
-  "lessons": ["forms", "use", "spelling", "negatives", "questions", "test"]
+  "lessons": ["forms", "use", "spelling", "negatives", "questions", "test"],
+  "outcomes": [
+    "Ставить **-s** там, где нужно: **she works**, но **they work**",
+    "Задавать вопросы и строить отрицания с **do / does**",
+    "Не путать **-s**, **-es** и **-ies** в написании"
+  ]
 }

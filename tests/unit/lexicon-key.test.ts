@@ -57,6 +57,10 @@ describe("normalizeKey", () => {
 describe("audioObjectKey", () => {
   it("names a recording after the key", () => {
     expect(audioObjectKey("monitor")).toBe("audio/en/monitor.mp3");
+    expect(audioObjectKey("monitor", "normal")).toBe("audio/en/monitor.mp3");
+    expect(audioObjectKey("monitor", "slow")).toBe(
+      "audio/en/slow/monitor.mp3",
+    );
   });
 
   it("refuses traversal and turns slashes into underscores", () => {

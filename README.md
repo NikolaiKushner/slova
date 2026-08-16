@@ -2,15 +2,16 @@
 
 A vocabulary app for one direction: **English word, Russian translation.** You
 paste a list, the translations fill themselves in, and then you practise until
-the words stick.
+the words stick. Grammar courses sit beside the dictionary: short rules, then
+the same kind of question the trainings use.
 
 The part worth explaining is the middle one. Translating a pasted list used to
 mean one HTTP request per word to a free translation service, with a deliberate
 pause between them — forty round trips and about five seconds of sleeping for a
 typical lesson. Now a list is answered in **one** request, and most of the time
 in none at all: the words come out of a shared dictionary that already holds
-**8,172 English words with translations and recorded pronunciations**, and only
-what is missing reaches a model.
+**more than 8,000 English words with translations and recorded pronunciations**,
+and only what is missing reaches a model.
 
 ## How it works
 
@@ -30,16 +31,28 @@ answer goes into the shared base, so the next list containing that word is free.
 Seeding the frequency core cost about a dollar; a miss costs a hundredth of a
 cent.
 
+**On-demand pronunciation is off by default.** When
+`TTS_ON_DEMAND_ENABLED=true`, the authenticated `/api/audio` endpoint accepts
+one explicit text of at most 200 characters. It checks `Lexeme` first, then
+atomically reserves a small daily request-and-character budget before calling
+OpenAI and uploading to R2. Failed paid-path attempts stay reserved, so retries
+cannot turn a provider outage into an unlimited bill.
+
 **The scheduler is FSRS.** Three numbers per word — how long the memory lasts,
 how hard that word is for you, how likely you are to recall it now — instead of
 one ease factor and a fixed multiplier.
+
+**The chrome is bilingual.** Russian or English, remembered in a cookie, no
+locale in the URL. Teaching material stays as it is: English words, Russian
+grammar explanations.
 
 ## Screens
 
 | Where | What |
 |---|---|
 | **Today** | What is due, and how the dictionary is going |
-| **Trainings** | Six formats plus Brainstorm; each asks which sets to draw on |
+| **Trainings** | Six formats plus Brainstorm. The source (sets and due/new/hard) is chosen once, at the top of the page |
+| **Grammar courses** | Present Simple and *to be*; the rest of the A1–B1 shelf is Coming soon |
 | **My words** | Everything you have — search, filter, sort, edit, bulk actions |
 | **My sets** | Sets as tags, not folders |
 
@@ -50,6 +63,9 @@ let one go until it has been through cleanly.
 
 Everything runs from the keyboard: `1`–`4` pick an option, letters build a
 word, `Enter` submits and moves on.
+
+Map, reading practice, topic courses, and ready-made sets are listed in the
+sidebar as Coming soon.
 
 ## Running it
 
@@ -64,9 +80,14 @@ npm run dev
 Demo account from the seed: `demo@slova.app`. Sign in with that email
 (Google, or register a password), or run `SEED_EMAIL=you@gmail.com npm run db:seed`.
 
-`.env.example` documents every variable. `ANTHROPIC_API_KEY` is required —
-`npm run check:env` fails with the name of anything missing rather than letting
-it surface later as an opaque error.
+`.env.example` documents every variable. `ANTHROPIC_API_KEY` is required.
+OpenAI and R2 credentials are required by `npm run check:env` only when
+`TTS_ON_DEMAND_ENABLED=true`; they remain server-only and must never use a
+`NEXT_PUBLIC_*` name.
+
+CI and Vercel install with **npm 10** (Node 22). A lockfile written by npm 11
+fails `npm ci` there. After clone, `npm install` turns on a pre-commit hook
+that checks the lockfile the way CI does, then runs `npm test`.
 
 ## Scripts
 
@@ -84,9 +105,10 @@ records where the word list came from and under what terms.
 
 ## Stack
 
-Next.js App Router, Prisma over Neon Postgres, NextAuth with Google and email/password, shadcn/ui
-on base-ui. Claude Haiku 4.5 for translation, OpenAI `tts-1` for pronunciation,
-Cloudflare R2 for the audio files. Deployed on Vercel from `main`.
+Next.js App Router, Prisma over Neon Postgres, NextAuth with Google and
+email/password, next-intl, shadcn/ui on base-ui. Claude Haiku 4.5 for
+translation, OpenAI `tts-1` for pronunciation, Cloudflare R2 for the audio
+files. Deployed on Vercel from `main` (`slova.study`).
 
 ## Licence
 
@@ -99,7 +121,7 @@ where the file came from and how to replace it if that matters to you.
 ## If you are going to change something
 
 Read **`CLAUDE.md`** first — how work reaches `main`, and what to run before it
-does. Then **`DESIGN.md`**, before touching anything visual; it is the reason
-the screens look like one app. **`plans/`** holds the plan the current work
-follows and a handoff document with the traps that have already cost someone an
-afternoon.
+does. Then **`docs/design-system.md`**, before touching anything visual; it is
+the reason the screens look like one app, and it outranks the code where the
+two disagree. **`docs/MIGRATION.md`** is the record of the interface rebuild
+and the checklist a screen still has to pass.

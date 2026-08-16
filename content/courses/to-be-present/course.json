@@ -1,0 +1,14 @@
+{
+  "slug": "to-be-present",
+  "title": "to be",
+  "titleRu": "am / is / are",
+  "level": "A1",
+  "order": 2,
+  "estMinutes": 30,
+  "lessons": ["forms", "use", "negatives", "questions", "test"],
+  "outcomes": [
+    "Ставить **am / is / are** по лицу: **I am**, **she is**, **they are**",
+    "Говорить, кто человек и где он, без обычного глагола: **She is a teacher**, **They are at home**",
+    "Строить отрицания и вопросы с **be**, не с **do / does**"
+  ]
+}

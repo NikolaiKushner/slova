@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import type en from "@/messages/en.json";
@@ -21,17 +21,17 @@ export function ComingSoon({ page }: { page: ComingSoonPage }) {
   const planned = t.raw("planned") as string[];
 
   return (
-    <Page>
+    <PageContainer container="list">
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("title")}
         description={t("description")}
       />
       <Section title={common("planned")}>
-        <ul className="space-y-2 rounded-2xl border border-dashed border-border bg-white/50 px-5 py-6 text-muted-foreground">
+        <ul className="space-y-2 rounded-2xl border border-dashed border-border bg-card/50 px-5 py-6 text-muted-foreground">
           {planned.map((line) => (
             <li key={line} className="flex gap-3">
-              <span aria-hidden className="text-brand-soft">
+              <span aria-hidden className="text-eyebrow">
                 &bull;
               </span>
               <span>{line}</span>
@@ -39,6 +39,6 @@ export function ComingSoon({ page }: { page: ComingSoonPage }) {
           ))}
         </ul>
       </Section>
-    </Page>
+    </PageContainer>
   );
 }

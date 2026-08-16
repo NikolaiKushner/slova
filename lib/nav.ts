@@ -2,7 +2,7 @@
  * The four sections of the app and the pages inside them, in sidebar order.
  *
  * This lives apart from the sidebar component on purpose. Route matching used
- * to be a chain of pathname-and-hash special cases inside `app-sidebar.tsx`,
+ * to be a chain of pathname-and-hash special cases inside the sidebar,
  * which nothing could test and which quietly got the nested cases wrong. Here
  * it is a pure function over a path.
  *

@@ -1,9 +1,14 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  activeGlobalLimits,
   activeLimits,
+  BudgetExceededError,
   checkBudget,
+  DEFAULT_GLOBAL_LIMITS,
   DEFAULT_LIMITS,
+  GLOBAL_LLM_USAGE_USER_ID,
   secondsUntilReset,
+  tryReserveRequest,
   utcDay,
 } from "@/lib/llm/budget";
 
@@ -17,6 +22,8 @@ function used(counts: Partial<typeof LIMITS> = {}) {
 afterEach(() => {
   delete process.env.LLM_DAILY_REQUESTS;
   delete process.env.LLM_DAILY_OUTPUT_TOKENS;
+  delete process.env.LLM_GLOBAL_DAILY_REQUESTS;
+  delete process.env.LLM_GLOBAL_DAILY_OUTPUT_TOKENS;
 });
 
 describe("checkBudget", () => {
@@ -128,5 +135,84 @@ describe("activeLimits", () => {
     expect(activeLimits().requests).toBe(DEFAULT_LIMITS.requests);
     process.env.LLM_DAILY_REQUESTS = "-1";
     expect(activeLimits().requests).toBe(DEFAULT_LIMITS.requests);
+  });
+});
+
+describe("activeGlobalLimits", () => {
+  it("falls back to one personal allowance for the whole app", () => {
+    expect(activeGlobalLimits()).toEqual(DEFAULT_LIMITS);
+    expect(activeGlobalLimits()).toEqual(DEFAULT_GLOBAL_LIMITS);
+  });
+
+  it("takes an override from the environment", () => {
+    process.env.LLM_GLOBAL_DAILY_REQUESTS = "7";
+    expect(activeGlobalLimits().requests).toBe(7);
+  });
+});
+
+describe("tryReserveRequest", () => {
+  const now = new Date("2026-08-16T12:00:00.000Z");
+  const empty = { requests: 0, inputTokens: 0, outputTokens: 0 };
+
+  function usageMock(updateCounts: number[]) {
+    const updateMany = vi.fn();
+    for (const count of updateCounts) {
+      updateMany.mockResolvedValueOnce({ count });
+    }
+    return {
+      upsert: vi.fn().mockResolvedValue({}),
+      findUnique: vi.fn().mockResolvedValue(empty),
+      updateMany,
+    };
+  }
+
+  it("reserves the app-wide slot before the person's", async () => {
+    const usage = usageMock([1, 1]);
+
+    await tryReserveRequest("user-1", now, {
+      limits: { requests: 5, inputTokens: 1000, outputTokens: 1000 },
+      globalLimits: { requests: 50, inputTokens: 10_000, outputTokens: 10_000 },
+      dependencies: {
+        usage,
+        transaction: (operation) => operation(usage),
+      },
+    });
+
+    expect(usage.updateMany).toHaveBeenNthCalledWith(1, {
+      where: {
+        userId: GLOBAL_LLM_USAGE_USER_ID,
+        day: "2026-08-16",
+        requests: { lt: 50 },
+      },
+      data: { requests: { increment: 1 } },
+    });
+    expect(usage.updateMany).toHaveBeenNthCalledWith(2, {
+      where: {
+        userId: "user-1",
+        day: "2026-08-16",
+        requests: { lt: 5 },
+      },
+      data: { requests: { increment: 1 } },
+    });
+  });
+
+  it("stops extra accounts when the shared pot is empty", async () => {
+    const usage = usageMock([0]);
+
+    await expect(
+      tryReserveRequest("user-1", now, {
+        limits: { requests: 5, inputTokens: 1000, outputTokens: 1000 },
+        globalLimits: { requests: 50, inputTokens: 10_000, outputTokens: 10_000 },
+        dependencies: { usage },
+      }),
+    ).rejects.toBeInstanceOf(BudgetExceededError);
+    expect(usage.updateMany).toHaveBeenCalledTimes(1);
+    expect(usage.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId: GLOBAL_LLM_USAGE_USER_ID,
+        }),
+      }),
+    );
   });
 });

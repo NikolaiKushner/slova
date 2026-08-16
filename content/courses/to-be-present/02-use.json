@@ -1,0 +1,228 @@
+{
+  "slug": "use",
+  "title": "Use",
+  "titleRu": "Употребление",
+  "estMinutes": 5,
+  "ruleCard": {
+    "rows": [
+      { "label": "Кто / какой", "form": "She is a teacher", "ruleId": "tb-use-description" },
+      { "label": "Где", "form": "They are at home", "ruleId": "tb-use-location" }
+    ],
+    "note": "Действие — обычный глагол: **She works**. Состояние и место — **be**: **She is tired**, **She is at work**."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "**be** не описывает действие. Он говорит, кто человек, какой он и где находится. Действие уже умеет Present Simple: She works, they live."
+    },
+    {
+      "type": "heading",
+      "title": "Кто и какой"
+    },
+    {
+      "type": "explanation",
+      "ruleId": "tb-use-description",
+      "md": "Профессия, возраст, настроение, откуда человек: `a student`, `a teacher`, `tired`, `happy`, `from Berlin`. Это не то, что он делает, а то, какой он."
+    },
+    {
+      "type": "example",
+      "en": "I am a student.",
+      "ru": "Я студент."
+    },
+    {
+      "type": "example",
+      "en": "She is a teacher.",
+      "ru": "Она учитель."
+    },
+    {
+      "type": "example",
+      "en": "He is tired. It is cold.",
+      "ru": "Он устал. Холодно."
+    },
+    {
+      "type": "explanation",
+      "md": "Рядом легко поставить обычный глагол — и смысл меняется. **She is a teacher** — кто она. **She works in a school** — что делает."
+    },
+    {
+      "type": "example",
+      "en": "She is a teacher. She works in a school.",
+      "ru": "Она учитель. Она работает в школе."
+    },
+    {
+      "type": "heading",
+      "title": "Где"
+    },
+    {
+      "type": "explanation",
+      "ruleId": "tb-use-location",
+      "md": "Место тоже через **be**: `at home`, `in London`, `here`, `in the park`. Не `They are live here` — либо **are** (где сейчас), либо **live** (где живут)."
+    },
+    {
+      "type": "example",
+      "en": "They are at home.",
+      "ru": "Они дома."
+    },
+    {
+      "type": "example",
+      "en": "The shop is in London.",
+      "ru": "Магазин в Лондоне."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "tb-use-description",
+      "md": "Русскоязычные часто клеят **be** к обычному глаголу: `She is work` → либо **She is a teacher**, либо **She works**.\n\n**be** и действие в одном слоте не живут. Выбери одно."
+    },
+    {
+      "type": "heading",
+      "title": "Коротко"
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "Кто / какой", "v": "`She is a teacher`, `I am tired`" },
+        { "k": "Где", "v": "`They are at home`" },
+        { "k": "Действие", "v": "`She works` — уже не **be**" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-01",
+      "ruleId": "tb-use-description",
+      "kind": "choice",
+      "prompt": "She ___ a teacher.",
+      "options": ["is", "works", "are"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-02",
+      "ruleId": "tb-use-description",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение про то, кто она?",
+      "options": ["She is a teacher.", "She is work."],
+      "answer": "She is a teacher."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-03",
+      "ruleId": "tb-use-description",
+      "kind": "gap",
+      "prompt": "I ___ a student. (be)",
+      "answer": "am"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-04",
+      "ruleId": "tb-use-location",
+      "kind": "choice",
+      "prompt": "They ___ at home.",
+      "options": ["are", "live", "is"],
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-05",
+      "ruleId": "tb-use-location",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение про место?",
+      "options": ["They are live here.", "They are here."],
+      "answer": "They are here."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-06",
+      "ruleId": "tb-use-location",
+      "kind": "gap",
+      "prompt": "The shop ___ in London. (be)",
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-07",
+      "ruleId": "tb-use-description",
+      "kind": "choice",
+      "prompt": "He ___ tired.",
+      "options": ["is", "works", "are"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-08",
+      "ruleId": "tb-use-description",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["Tom is from Berlin.", "Tom from Berlin."],
+      "answer": "Tom is from Berlin."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-09",
+      "ruleId": "tb-use-location",
+      "kind": "choice",
+      "prompt": "Anna ___ in the park.",
+      "options": ["is", "are", "lives"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-10",
+      "ruleId": "tb-use-location",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["We are at home.", "We is at home."],
+      "answer": "We are at home."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-11",
+      "ruleId": "tb-use-description",
+      "kind": "gap",
+      "prompt": "My sister ___ happy. (be)",
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-12",
+      "ruleId": "tb-use-location",
+      "kind": "gap",
+      "prompt": "You ___ here. (be)",
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-13",
+      "ruleId": "tb-use-description",
+      "kind": "choice",
+      "prompt": "It ___ hot.",
+      "options": ["is", "are", "am"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-14",
+      "ruleId": "tb-use-description",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение про действие, не про **be**?",
+      "options": ["She works in a bank.", "She is work in a bank."],
+      "answer": "She works in a bank."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-15",
+      "ruleId": "tb-use-location",
+      "kind": "choice",
+      "prompt": "My parents ___ in London.",
+      "options": ["are", "is", "am"],
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-use-16",
+      "ruleId": "tb-use-description",
+      "kind": "choice",
+      "prompt": "I ___ from Berlin.",
+      "options": ["am", "is", "are"],
+      "answer": "am"
+    }
+  ]
+}

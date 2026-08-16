@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { ProseLink } from "@/components/prose-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -106,7 +107,7 @@ export function LoginForm({
         <Button
           type="submit"
           size="lg"
-          className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
+          className="min-h-11 w-full"
           disabled={pending}
         >
           {pending ? t("signingIn") : t("signIn")}
@@ -116,7 +117,7 @@ export function LoginForm({
       <div className="relative">
         <Separator />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="bg-card px-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="bg-card text-overline text-muted-foreground px-3">
             {t("or")}
           </span>
         </span>
@@ -127,12 +128,7 @@ export function LoginForm({
       <p className="text-center text-sm text-muted-foreground">
         {t.rich("newHere", {
           link: (chunks) => (
-            <Link
-              href="/register"
-              className="text-foreground underline-offset-4 hover:underline"
-            >
-              {chunks}
-            </Link>
+            <ProseLink href="/register">{chunks}</ProseLink>
           ),
         })}
       </p>

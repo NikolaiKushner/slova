@@ -15,7 +15,7 @@ and exercise sentences stay in the books.
 
 The PDFs are not in this repository.
 
-The live catalog is grouped by CEFR in `catalog.json`. Only Present Simple
-is written; the rest are Coming. A1 follows the owner's tense line first,
-then the other beginner constructions. A2 and B1 are the next shelves, not
-this course's JSON yet.
+The live catalog is grouped by CEFR in `catalog.json`. Present Simple and
+to be (am / is / are) are written; the rest are Coming. A1 follows the
+owner's tense line first, then the other beginner constructions. A2 and B1
+are the next shelves, not this course's JSON yet.

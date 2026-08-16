@@ -98,7 +98,7 @@ export function ResetPasswordForm({
       <Button
         type="submit"
         size="lg"
-        className="min-h-11 w-full bg-teal-800 text-white hover:bg-teal-900"
+        className="min-h-11 w-full"
         disabled={pending}
       >
         {pending ? t("saving") : t("savePassword")}

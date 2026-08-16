@@ -1,0 +1,242 @@
+{
+  "slug": "questions",
+  "title": "Questions",
+  "titleRu": "Вопросы",
+  "estMinutes": 5,
+  "ruleCard": {
+    "rows": [
+      { "label": "I", "form": "Am I … ?", "ruleId": "tb-question" },
+      { "label": "he / she / it", "form": "Is she … ?", "ruleId": "tb-question" },
+      { "label": "you / we / they", "form": "Are they … ?", "ruleId": "tb-question" }
+    ],
+    "note": "Краткий ответ: **Yes, I am / No, she isn't**. **do / does** — для обычного глагола."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Вопрос с **be** не берёт **do / does**. Форма **am / is / are** сама выходит в начало."
+    },
+    {
+      "type": "heading",
+      "title": "Порядок"
+    },
+    {
+      "type": "explanation",
+      "md": "**Am** — только с I. **Is** — с he / she / it. **Are** — с you / we / they. Затем человек, затем остальное.\n\nНе You are tired? как обычный вопрос — так можно уточнить, но учебный вопрос начинается с **Are**."
+    },
+    {
+      "type": "table",
+      "headers": ["Утверждение", "Вопрос"],
+      "rows": [
+        ["I am tired.", "Am I tired?"],
+        ["She is a teacher.", "Is she a teacher?"],
+        ["They are at home.", "Are they at home?"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "Are you from Berlin?",
+      "ru": "Ты из Берлина?"
+    },
+    {
+      "type": "example",
+      "en": "Is she at home?",
+      "ru": "Она дома?"
+    },
+    {
+      "type": "heading",
+      "title": "Не путать с Do / Does"
+    },
+    {
+      "type": "explanation",
+      "md": "Если спрашиваешь про действие — **Do / Does**. Если про то, кто человек или где он — **Am / Is / Are**."
+    },
+    {
+      "type": "example",
+      "en": "Are you at work?",
+      "ru": "Ты на работе? — место"
+    },
+    {
+      "type": "example",
+      "en": "Do you work here?",
+      "ru": "Ты здесь работаешь? — действие"
+    },
+    {
+      "type": "heading",
+      "title": "Краткий ответ"
+    },
+    {
+      "type": "explanation",
+      "ruleId": "tb-short-answer",
+      "md": "Ответ повторяет **be**: **Yes, I am. No, she isn't. Yes, they are.**\n\nВ коротком «да» форму не сокращают: **Yes, I am**, не Yes, I'm. На вопрос **Are you…?** не отвечают **Yes, I do**."
+    },
+    {
+      "type": "table",
+      "headers": ["Вопрос", "Да", "Нет"],
+      "rows": [
+        ["Are you tired?", "Yes, I am.", "No, I'm not."],
+        ["Is she a teacher?", "Yes, she is.", "No, she isn't."],
+        ["Are they here?", "Yes, they are.", "No, they aren't."]
+      ]
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "tb-question",
+      "md": "Не `Do you are tired?` и не `Are you live here?`.\n\n**Are you at work?** — где. **Do you work?** — что делаешь. Это два разных вопроса, не варианты одного."
+    },
+    {
+      "type": "heading",
+      "title": "Коротко"
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "Вопрос", "v": "`Am / Is / Are` + кто … ?" },
+        { "k": "Действие", "v": "`Do / Does` — как в Present Simple" },
+        { "k": "Кратко", "v": "`Yes, I am` / `No, she isn't`" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-01",
+      "ruleId": "tb-question",
+      "kind": "choice",
+      "prompt": "___ you from Berlin?",
+      "options": ["Are", "Do", "Is"],
+      "answer": "Are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-02",
+      "ruleId": "tb-question",
+      "kind": "choice",
+      "prompt": "___ she a teacher?",
+      "options": ["Is", "Does", "Are"],
+      "answer": "Is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-03",
+      "ruleId": "tb-question",
+      "kind": "pick-sentence",
+      "prompt": "Какой вопрос верный?",
+      "options": ["Are you live here?", "Do you live here?"],
+      "answer": "Do you live here?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-04",
+      "ruleId": "tb-question",
+      "kind": "pick-sentence",
+      "prompt": "Какой вопрос про место?",
+      "options": ["Are you at work?", "Do you at work?"],
+      "answer": "Are you at work?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-05",
+      "ruleId": "tb-question",
+      "kind": "transform",
+      "prompt": "Сделайте вопрос.",
+      "source": "They are at home.",
+      "answer": "Are they at home?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-06",
+      "ruleId": "tb-question",
+      "kind": "transform",
+      "prompt": "Сделайте вопрос.",
+      "source": "She is tired.",
+      "answer": "Is she tired?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-07",
+      "ruleId": "tb-question",
+      "kind": "gap",
+      "prompt": "___ you a student? (be)",
+      "answer": "Are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-08",
+      "ruleId": "tb-question",
+      "kind": "choice",
+      "prompt": "___ Tom at home?",
+      "options": ["Is", "Does", "Are"],
+      "answer": "Is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-09",
+      "ruleId": "tb-short-answer",
+      "kind": "choice",
+      "prompt": "Are you tired? — ___",
+      "options": ["Yes, I am.", "Yes, I do.", "Yes, I'm."],
+      "answer": "Yes, I am."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-10",
+      "ruleId": "tb-short-answer",
+      "kind": "choice",
+      "prompt": "Is she a teacher? — ___",
+      "options": ["No, she isn't.", "No, she doesn't.", "No, she not."],
+      "answer": "No, she isn't."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-11",
+      "ruleId": "tb-short-answer",
+      "kind": "pick-sentence",
+      "prompt": "Какой краткий ответ верный?",
+      "options": ["Are they here? — Yes, they are.", "Are they here? — Yes, they do."],
+      "answer": "Are they here? — Yes, they are."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-12",
+      "ruleId": "tb-short-answer",
+      "kind": "gap",
+      "prompt": "Are you from London? — Yes, I ___. (be)",
+      "answer": "am"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-13",
+      "ruleId": "tb-question",
+      "kind": "transform",
+      "prompt": "Сделайте вопрос.",
+      "source": "I am a student.",
+      "answer": "Am I a student?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-14",
+      "ruleId": "tb-question",
+      "kind": "pick-sentence",
+      "prompt": "Какой вопрос верный?",
+      "options": ["Do you are tired?", "Are you tired?"],
+      "answer": "Are you tired?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-15",
+      "ruleId": "tb-question",
+      "kind": "choice",
+      "prompt": "___ we in the park?",
+      "options": ["Are", "Do", "Is"],
+      "answer": "Are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-q-16",
+      "ruleId": "tb-short-answer",
+      "kind": "choice",
+      "prompt": "Are they students? — ___",
+      "options": ["No, they aren't.", "No, they don't.", "No, they isn't."],
+      "answer": "No, they aren't."
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
@@ -16,8 +17,17 @@ import { allowAttemptDurable } from "@/lib/rate-limit";
  */
 export const runtime = "nodejs";
 
+/**
+ * The bound on one request is also the bound on what one budget slot can cost.
+ * It has to be, because the daily token caps in lib/llm/budget.ts cannot hold
+ * on their own: they are read before the call and written after it, so calls
+ * fired in parallel all pass the same check. Only the request slot is reserved
+ * atomically — so the day's ceiling is really `requests × this`, and this is
+ * the half worth keeping small. 100 entries of 64 characters is about 3k input
+ * tokens; a vocabulary entry longer than that is not a vocabulary entry.
+ */
 const schema = z.object({
-  words: z.array(z.string().min(1).max(500)).min(1).max(200),
+  words: z.array(z.string().min(1).max(64)).min(1).max(100),
 });
 
 export async function POST(request: Request) {
@@ -55,10 +65,12 @@ export async function POST(request: Request) {
             ),
           );
         } else {
-          const message =
-            error instanceof Error ? error.message : "Translation failed";
+          console.error("Translation failed", error);
+          const t = await getTranslations("api");
           controller.enqueue(
-            encoder.encode(JSON.stringify({ error: message }) + "\n"),
+            encoder.encode(
+              JSON.stringify({ error: t("translationFailed") }) + "\n",
+            ),
           );
         }
       } finally {

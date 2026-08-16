@@ -1,0 +1,254 @@
+{
+  "slug": "forms",
+  "title": "Forms",
+  "titleRu": "Форма",
+  "estMinutes": 4,
+  "ruleCard": {
+    "rows": [
+      { "label": "I", "form": "am", "ruleId": "tb-form-am" },
+      { "label": "he / she / it", "form": "is", "ruleId": "tb-form-is" },
+      { "label": "you / we / they", "form": "are", "ruleId": "tb-form-are" }
+    ],
+    "note": "Имя человека работает как **he / she**. Несколько людей — как **they**."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Глагол **be** не берёт **-s** и не берёт **do / does**. У него три формы в настоящем: **am**, **is**, **are**."
+    },
+    {
+      "type": "heading",
+      "title": "Формы"
+    },
+    {
+      "type": "explanation",
+      "md": "После **I** — только **am**. После **he, she, it** — **is**. После **you, we, they** — **are**."
+    },
+    {
+      "type": "table",
+      "headers": ["Кто", "be"],
+      "rows": [
+        ["I", "am"],
+        ["he / she / it", "is"],
+        ["you / we / they", "are"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I am a student.",
+      "ru": "Я студент."
+    },
+    {
+      "type": "example",
+      "en": "She is from Berlin.",
+      "ru": "Она из Берлина."
+    },
+    {
+      "type": "example",
+      "en": "They are here.",
+      "ru": "Они здесь."
+    },
+    {
+      "type": "heading",
+      "title": "Не только местоимения"
+    },
+    {
+      "type": "explanation",
+      "md": "Имя человека и любое слово в единственном числе работают как **he / she / it**:"
+    },
+    {
+      "type": "example",
+      "en": "Anna is a teacher. My brother is tired. The shop is open.",
+      "ru": "Анна учитель. Мой брат устал. Магазин открыт."
+    },
+    {
+      "type": "explanation",
+      "md": "Несколько людей или предметов — как **they**:"
+    },
+    {
+      "type": "example",
+      "en": "My parents are at home. The shops are closed.",
+      "ru": "Мои родители дома. Магазины закрыты."
+    },
+    {
+      "type": "heading",
+      "title": "Короткие формы"
+    },
+    {
+      "type": "explanation",
+      "md": "В разговоре **be** почти всегда сокращают: **I'm, you're, he's, she's, it's, we're, they're**. Значение то же, что у полной формы."
+    },
+    {
+      "type": "table",
+      "headers": ["Полная", "Короткая"],
+      "rows": [
+        ["I am", "I'm"],
+        ["you are", "you're"],
+        ["he / she / it is", "he's / she's / it's"],
+        ["we / they are", "we're / they're"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I'm a student. She's tired. They're at home.",
+      "ru": "Я студент. Она устала. Они дома."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "tb-form-is",
+      "md": "**be** не подчиняется правилу **-s**. Не `she ams` и не `she bes` — **she is**.\n\nИ не `I is` / `they is`: лицо выбирает форму целиком, не приклеивает окончание."
+    },
+    {
+      "type": "heading",
+      "title": "Коротко"
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "I", "v": "`am` / `I'm`" },
+        { "k": "he / she / it", "v": "`is` / `he's`" },
+        { "k": "you / we / they", "v": "`are` / `you're`" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-01",
+      "ruleId": "tb-form-am",
+      "kind": "choice",
+      "prompt": "I ___ a student.",
+      "options": ["am", "is", "are"],
+      "answer": "am"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-02",
+      "ruleId": "tb-form-is",
+      "kind": "choice",
+      "prompt": "She ___ from Berlin.",
+      "options": ["am", "is", "are"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-03",
+      "ruleId": "tb-form-is",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["He are a teacher.", "He is a teacher."],
+      "answer": "He is a teacher."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-04",
+      "ruleId": "tb-form-is",
+      "kind": "gap",
+      "prompt": "My brother ___ at home. (be)",
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-05",
+      "ruleId": "tb-form-are",
+      "kind": "choice",
+      "prompt": "They ___ here.",
+      "options": ["am", "is", "are"],
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-06",
+      "ruleId": "tb-form-are",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["We is students.", "We are students."],
+      "answer": "We are students."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-07",
+      "ruleId": "tb-form-are",
+      "kind": "gap",
+      "prompt": "You ___ a teacher. (be)",
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-08",
+      "ruleId": "tb-form-is",
+      "kind": "choice",
+      "prompt": "Anna ___ tired.",
+      "options": ["am", "is", "are"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-09",
+      "ruleId": "tb-form-am",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["I is from London.", "I am from London."],
+      "answer": "I am from London."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-10",
+      "ruleId": "tb-form-am",
+      "kind": "gap",
+      "prompt": "I ___ happy. (be)",
+      "answer": "am"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-11",
+      "ruleId": "tb-form-are",
+      "kind": "choice",
+      "prompt": "My parents ___ at home.",
+      "options": ["am", "is", "are"],
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-12",
+      "ruleId": "tb-form-is",
+      "kind": "choice",
+      "prompt": "It ___ cold.",
+      "options": ["am", "is", "are"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-13",
+      "ruleId": "tb-form-is",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["Tom am a student.", "Tom is a student."],
+      "answer": "Tom is a student."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-14",
+      "ruleId": "tb-form-are",
+      "kind": "gap",
+      "prompt": "We ___ in London. (be)",
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-15",
+      "ruleId": "tb-form-am",
+      "kind": "transform",
+      "prompt": "Сократите.",
+      "source": "I am a student.",
+      "answer": "I'm a student."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-forms-16",
+      "ruleId": "tb-form-is",
+      "kind": "transform",
+      "prompt": "Сократите.",
+      "source": "She is tired.",
+      "answer": "She's tired."
+    }
+  ]
+}

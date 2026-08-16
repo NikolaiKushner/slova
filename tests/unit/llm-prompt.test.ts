@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildTranslationRequest,
+  outputCeiling,
   SYSTEM_PROMPT,
   TRANSLATION_ITEM_DEPTH,
   TRANSLATION_SCHEMA,
@@ -95,6 +96,36 @@ describe("buildTranslationRequest", () => {
 
   it("never asks for thinking", () => {
     expect(buildTranslationRequest(ROWS).thinking).toBeUndefined();
+  });
+
+  it("scales the output ceiling to the list it actually asks about", () => {
+    // Three untranslated rows out of four: the translated one is not paid for.
+    expect(buildTranslationRequest(ROWS).max_tokens).toBe(outputCeiling(3));
+    expect(buildTranslationRequest(ROWS, { maxTokens: 99 }).max_tokens).toBe(99);
+  });
+});
+
+describe("outputCeiling", () => {
+  it("leaves room well past the measured 18 tokens an entry needs", () => {
+    expect(outputCeiling(40)).toBeGreaterThan(706 * 2);
+  });
+
+  /**
+   * A full list of entries at the caller's 64-character limit, each answered
+   * with a long gloss, is the most an honest answer can cost. Truncation there
+   * would drop rows, so the ceiling has to clear it.
+   */
+  it("clears the worst honest answer a full list could produce", () => {
+    expect(outputCeiling(100)).toBeGreaterThan(100 * 56);
+  });
+
+  it("stops at the absolute cap, so a long list cannot raise it", () => {
+    expect(outputCeiling(1000)).toBe(outputCeiling(10_000));
+    expect(outputCeiling(1000)).toBe(8000);
+  });
+
+  it("keeps a short list short — the runaway this bounds is priced per token", () => {
+    expect(outputCeiling(3)).toBeLessThan(500);
   });
 });
 

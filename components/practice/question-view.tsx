@@ -1,15 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Delete, Volume2, X } from "lucide-react";
+import { Volume2 } from "lucide-react";
 
+import { AudioPrompt } from "@/components/practice/audio-prompt";
+import { AnswerReveal } from "@/components/slova/answer-reveal";
+import { LetterTiles } from "@/components/slova/letter-tiles";
+import { OptionButton, OptionList } from "@/components/slova/option-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { judge, passed, type Verdict } from "@/lib/practice/answer";
 import type { Question } from "@/lib/practice/question";
 import { speak } from "@/lib/practice/speech";
-import { cn } from "@/lib/utils";
 
 /**
  * One question, whichever format it is.
@@ -26,9 +29,23 @@ export type Answered = { verdict: Verdict; given: string };
 export function QuestionView({
   question,
   onAnswered,
+  answered = false,
+  part = "all",
+  onDemandAudioEnabled = false,
 }: {
   question: Question;
   onAnswered: (result: Answered) => void;
+  /** The verdict is in. Audio formats use it to reveal the word they hid. */
+  answered?: boolean;
+  /**
+   * Which half to draw. §15.2 puts the prompt in a zone of fixed height and
+   * the answer in another, so that changing format changes the contents and
+   * not the geometry — and the two zones are not siblings in the tree. A
+   * screen on FocusShell therefore renders this twice, once for each half.
+   * Everything else asks for "all" and gets both, as before.
+   */
+  part?: "all" | "prompt" | "answer";
+  onDemandAudioEnabled?: boolean;
 }) {
   /**
    * `blocked` means the browser refused to talk without being asked — a press
@@ -37,21 +54,17 @@ export function QuestionView({
    */
   const [sound, setSound] = useState<"ok" | "blocked" | "broken">("ok");
 
-  // A sound question should be heard without being asked for; a written one
-  // should not start talking at somebody.
-  useEffect(() => {
-    if (question.kind !== "audio-choice" && question.kind !== "listening") return;
-    let ignore = false;
-    speak(question.speak ?? "", question.audioUrl).then((started) => {
-      if (!ignore && !started) setSound("blocked");
-    });
-    return () => {
-      ignore = true;
-    };
-  }, [question]);
+  /*
+   * The two sound formats no longer autoplay from here — `AudioPrompt` owns
+   * their sound end to end, so that the button it is played from is also the
+   * thing that shows it playing. Two owners meant the word was said twice.
+   * The written formats never spoke on arrival and still do not.
+   */
 
   async function play() {
-    const started = await speak(question.speak ?? "", question.audioUrl);
+    const started = await speak(question.speak ?? "", question.audioUrl, {
+      onDemand: onDemandAudioEnabled,
+    });
     setSound(started ? "ok" : "broken");
   }
 
@@ -59,17 +72,32 @@ export function QuestionView({
   // previous answer's state cannot leak into it and no effect has to clear it.
   const key = `${question.wordId}-${question.kind}`;
 
+  const prompt = part !== "answer" && (
+    <Prompt
+      question={question}
+      sound={sound}
+      onPlay={play}
+      onSilent={(source) => setSound(source === "auto" ? "blocked" : "broken")}
+      onHeard={() => setSound("ok")}
+      onDemandAudioEnabled={onDemandAudioEnabled}
+    />
+  );
+
+  const answer = part !== "prompt" &&
+    ("options" in question ? (
+      <Choices key={key} question={question} onAnswered={onAnswered} />
+    ) : "letters" in question ? (
+      <Builder key={key} question={question} onAnswered={onAnswered} />
+    ) : (
+      <Typed key={key} question={question} onAnswered={onAnswered} answered={answered} />
+    ));
+
+  if (part !== "all") return <>{prompt || answer}</>;
+
   return (
     <div className="space-y-6">
-      <Prompt question={question} sound={sound} onPlay={play} />
-
-      {"options" in question ? (
-        <Choices key={key} question={question} onAnswered={onAnswered} />
-      ) : "letters" in question ? (
-        <Builder key={key} question={question} onAnswered={onAnswered} />
-      ) : (
-        <Typed key={key} question={question} onAnswered={onAnswered} />
-      )}
+      {prompt}
+      {answer}
     </div>
   );
 }
@@ -78,10 +106,16 @@ function Prompt({
   question,
   sound,
   onPlay,
+  onSilent,
+  onHeard,
+  onDemandAudioEnabled,
 }: {
   question: Question;
   sound: "ok" | "blocked" | "broken";
   onPlay: () => void;
+  onSilent: (source: "auto" | "manual") => void;
+  onHeard: () => void;
+  onDemandAudioEnabled: boolean;
 }) {
   const t = useTranslations("practice");
   const hasSound = Boolean(question.speak);
@@ -89,33 +123,50 @@ function Prompt({
   // there is no exercise left, only a dead end. Show it and let them move on.
   const rescued = sound === "broken" && !question.prompt;
 
+  /*
+   * Two shapes of prompt, and which one you get is decided by the format, not
+   * by taste. When the sound is the question there is nothing else on screen,
+   * so it gets the big button. When the word or its translation is written up
+   * there, sound is a second opinion about something already visible, and a
+   * small speaker beside it is the right weight.
+   */
+  if (!question.prompt && hasSound && !rescued) {
+    return (
+      /*
+       * No "the browser will not speak on its own" line. §17 rules out
+       * apologising for a technical limitation in the interface — the button
+       * is the answer — and the line also changed the height of the prompt,
+       * which put the options lower on an audio question than on any other.
+       */
+      <AudioPrompt
+        word={question.speak ?? ""}
+        audioUrl={question.audioUrl}
+        audioSlowUrl={question.audioSlowUrl}
+        onSilent={onSilent}
+        onHeard={onHeard}
+        onDemandAudioEnabled={onDemandAudioEnabled}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       {question.prompt ? (
         <p className="font-display text-3xl">{question.prompt}</p>
-      ) : rescued ? (
-        <p className="font-display text-3xl">{question.speak}</p>
       ) : (
-        <p className="text-brand-soft text-xs tracking-widest uppercase">
-          {t("listen")}
-        </p>
+        <p className="font-display text-3xl">{question.speak}</p>
       )}
 
       {hasSound && !rescued && (
         <Button
           type="button"
           variant="ghost"
-          size={question.prompt ? "sm" : "lg"}
+          size="sm"
           onClick={onPlay}
           aria-label={t("playWord")}
         >
-          <Volume2 className={question.prompt ? "size-4" : "size-6"} />
-          {question.prompt ? null : t("play")}
+          <Volume2 className="size-4" />
         </Button>
-      )}
-
-      {sound === "blocked" && !question.prompt && (
-        <p className="text-muted-foreground text-xs">{t("pressPlay")}</p>
       )}
 
       {rescued && (
@@ -169,36 +220,44 @@ function Choices({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [question, chosen, choose]);
 
+  /*
+   * No key hints here. The screen renders them once, under the footer, where
+   * the mockup puts them — drawn here as well they appeared twice and made the
+   * answer zone taller on a choice question than on a written one.
+   */
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
-      {question.options.map((option, index) => (
-        <Button
-          key={option}
-          type="button"
-          variant="outline"
-          size="lg"
-          className={cn(
-            "h-auto justify-start py-3 text-base whitespace-normal",
-            chosen !== null &&
-              index === question.answerIndex &&
-              "border-primary text-primary",
-            chosen === index &&
-              index !== question.answerIndex &&
-              "border-destructive text-destructive",
-          )}
-          disabled={chosen !== null && index !== chosen && index !== question.answerIndex}
-          onClick={() => choose(index)}
-        >
-          <span
-            aria-hidden
-            className="text-muted-foreground border-border mr-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md border text-xs"
-          >
-            {index + 1}
-          </span>
-          {option}
-        </Button>
-      ))}
-    </div>
+    <OptionList>
+        {question.options.map((option, index) => {
+          const isAnswer = index === question.answerIndex;
+          const decided = chosen !== null;
+
+          return (
+            <li key={option}>
+              <OptionButton
+                index={index}
+                disabled={decided}
+                onClick={() => choose(index)}
+                /*
+                 * A disabled control is normally faded, but here the verdict is
+                 * the whole point of the screen: the two answered states keep
+                 * full contrast and only the bystanders step back.
+                 */
+                state={
+                  !decided
+                    ? "idle"
+                    : isAnswer
+                      ? "correct"
+                      : chosen === index
+                        ? "incorrect"
+                        : "dimmed"
+                }
+              >
+                {option}
+              </OptionButton>
+            </li>
+          );
+        })}
+    </OptionList>
   );
 }
 
@@ -209,129 +268,55 @@ function Builder({
   question: Extract<Question, { letters: string[] }>;
   onAnswered: (result: Answered) => void;
 }) {
-  const t = useTranslations("practice");
-  const common = useTranslations("common");
-  const [picked, setPicked] = useState<number[]>([]);
-  const [done, setDone] = useState(false);
-  const [right, setRight] = useState(false);
+  const [verdict, setVerdict] = useState<"correct" | "incorrect" | null>(null);
+  const [built, setBuilt] = useState("");
 
-  const assembled = picked.map((index) => question.letters[index]).join("");
-
-  const commit = useCallback(
-    (next: number[]) => {
-      setPicked(next);
-      // Checked the moment every tile is used: asking for a separate confirm
-      // after the last letter is a click that carries no information.
-      if (next.length === question.letters.length) {
-        const given = next.map((i) => question.letters[i]).join("");
-        const verdict = judge(given, question.answer);
-        setDone(true);
-        setRight(passed(verdict));
-        onAnswered({ verdict, given });
-      }
+  /*
+   * The tiles, the slots and their keyboard live in LetterTiles now; what
+   * stays here is the only part that is about this exercise rather than about
+   * letters — judging the guess. `judge` and not a string comparison, because
+   * a word one letter out is "almost" and the session treats it as such.
+   */
+  const complete = useCallback(
+    (given: string) => {
+      const result = judge(given, question.answer);
+      setBuilt(given);
+      setVerdict(passed(result) ? "correct" : "incorrect");
+      onAnswered({ verdict: result, given });
     },
     [question, onAnswered],
   );
 
-  function add(index: number) {
-    if (done || picked.includes(index)) return;
-    commit([...picked, index]);
+  if (verdict) {
+    return (
+      <AnswerReveal
+        answer={question.answer}
+        given={verdict === "correct" ? undefined : built}
+        note={question.transcription ?? undefined}
+        correct={verdict === "correct"}
+        built
+      />
+    );
   }
 
-  /**
-   * The tiles are also a keyboard. Typing a letter takes the leftmost tile
-   * bearing it, backspace gives the last one back — which is what anyone who
-   * can touch-type will try first, and clicking six tiles with a mouse when
-   * your hands are already on the keys is a strange thing to insist on.
-   */
-  useEffect(() => {
-    if (done) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-
-      if (event.key === "Backspace") {
-        event.preventDefault();
-        setPicked(picked.slice(0, -1));
-        return;
-      }
-
-      if (event.key.length !== 1) return;
-      const typed = event.key.toLowerCase();
-      const index = question.letters.findIndex(
-        (letter, i) => !picked.includes(i) && letter.toLowerCase() === typed,
-      );
-      if (index === -1) return;
-
-      event.preventDefault();
-      commit([...picked, index]);
-    }
-
-    // Re-subscribed on every letter so the handler reads the tiles as they are
-    // now. Deriving it inside a state updater instead would put `onAnswered`
-    // in a place React is allowed to run twice.
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [question, done, picked, commit]);
-
   return (
-    <div className="space-y-4">
-      <div
-        className={cn(
-          "flex min-h-12 items-center justify-center rounded-lg border border-dashed px-4",
-          done ? (right ? "border-primary" : "border-destructive") : "border-border",
-        )}
-      >
-        <span
-          className={cn(
-            "font-display text-2xl tracking-wide",
-            done && (right ? "text-primary" : "text-destructive"),
-          )}
-        >
-          {assembled || <span className="text-muted-foreground text-base">…</span>}
-        </span>
-      </div>
-
-      <div className="flex flex-wrap justify-center gap-2">
-        {question.letters.map((letter, index) => (
-          <Button
-            key={`${letter}-${index}`}
-            type="button"
-            variant="outline"
-            size="lg"
-            className="min-w-11 font-mono text-base"
-            disabled={picked.includes(index) || done}
-            onClick={() => add(index)}
-          >
-            {letter === " " ? "␣" : letter}
-          </Button>
-        ))}
-      </div>
-
-      {picked.length > 0 && !done && (
-        <div className="flex justify-center">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setPicked(picked.slice(0, -1))}
-            aria-label={t("undoLetter")}
-          >
-            <Delete className="size-4" />
-            {common("undo")}
-          </Button>
-        </div>
-      )}
-    </div>
+    <LetterTiles
+      word={question.answer}
+      letters={question.letters}
+      verdict={verdict}
+      onComplete={complete}
+    />
   );
 }
 
 function Typed({
   question,
   onAnswered,
+  answered,
 }: {
   question: Extract<Question, { answer: string; letters?: never }>;
   onAnswered: (result: Answered) => void;
+  answered?: boolean;
 }) {
   const [value, setValue] = useState("");
   const [done, setDone] = useState(false);
@@ -347,119 +332,57 @@ function Typed({
     onAnswered({ verdict, given: value });
   }
 
-  return (
-    <div className="mx-auto flex w-full max-w-sm items-center gap-2">
-      <Input
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            submit();
-          }
-        }}
-        placeholder={t("typeEnglish")}
-        aria-label={t("yourAnswer")}
-        disabled={done}
-        autoFocus
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-        className={cn(
-          "h-9 min-w-0 flex-1 text-center text-base",
-          done && (right ? "border-primary text-primary" : "border-destructive"),
-        )}
+  /*
+   * Once judged, the field gives way to the word spelled out. Spelling is the
+   * entire question in these two formats, so "Incorrect" beside a box still
+   * holding the typo asks the learner to diff two strings in their head.
+   */
+  if (done || answered) {
+    return (
+      <AnswerReveal
+        answer={question.answer}
+        given={right ? undefined : value}
+        note={[question.transcription, question.kind === "listening" ? question.prompt : null]
+          .filter(Boolean)
+          .join(" · ")}
+        correct={right}
       />
-      <Button
-        type="button"
-        size="lg"
-        onClick={submit}
-        disabled={done || !value.trim()}
-        className={done ? "invisible" : undefined}
-      >
-        {common("check")}
-      </Button>
-    </div>
-  );
-}
-
-/**
- * The verdict, under the question rather than instead of it.
- *
- * Next is already on the right, disabled until there is a verdict, so the
- * card does not grow when the answer lands. Correct or Incorrect takes the
- * left of that same row.
- */
-export function AnswerFeedback({
-  result,
-  answer,
-  onNext,
-}: {
-  result: Answered | null;
-  answer: string;
-  onNext: () => void;
-}) {
-  const nextRef = useRef<HTMLButtonElement>(null);
-  const common = useTranslations("common");
-  const right = result ? passed(result.verdict) : false;
-
-  useEffect(() => {
-    if (result) nextRef.current?.focus();
-  }, [result]);
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <p
-          className={cn(
-            "flex min-h-9 min-w-0 flex-1 items-center gap-2 text-sm",
-            !result
-              ? "invisible"
-              : result.verdict === "almost"
-                ? "text-brand-soft"
-                : right
-                  ? "text-primary"
-                  : "text-destructive",
-          )}
-          aria-live="polite"
-          aria-hidden={!result}
-        >
-          {right ? (
-            <>
-              <Check className="size-4 shrink-0" />
-              {common("correct")}
-            </>
-          ) : result?.verdict === "almost" ? (
-            <>
-              <Check className="size-4 shrink-0" />
-              {common("almost")}
-            </>
-          ) : (
-            <>
-              <X className="size-4 shrink-0" />
-              {common("incorrect")}
-            </>
-          )}
-        </p>
+    /* Mockup: the field is 330 wide with the button beside it. It used to sit
+       in a 384px row shared with the button, which left ~250 for the field and
+       cut the placeholder in half. */
+    <div className="w-full">
+      <div className="flex items-center justify-center gap-2.5">
+        <Input
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              submit();
+            }
+          }}
+          placeholder={question.kind === "listening" ? t("heardWord") : t("typeEnglish")}
+          aria-label={t("yourAnswer")}
+          autoFocus
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          className="font-display h-[52px] min-w-0 max-w-[330px] flex-1 rounded-lg text-center text-[1.0625rem] placeholder:font-sans placeholder:text-body-sm"
+        />
         <Button
-          ref={nextRef}
           type="button"
           size="lg"
-          disabled={!result}
-          onClick={onNext}
+          className="h-[52px]"
+          onClick={submit}
+          disabled={!value.trim()}
         >
-          {common("next")}
+          {common("check")}
         </Button>
       </div>
-      {result && !right ? (
-        <p className="text-muted-foreground text-sm">
-          {common.rich("itIs", {
-            answer: () => (
-              <span className="text-foreground font-medium">{answer}</span>
-            ),
-          })}
-        </p>
-      ) : null}
     </div>
   );
 }

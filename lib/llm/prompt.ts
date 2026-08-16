@@ -126,10 +126,27 @@ type BuildOptions = {
 };
 
 /**
- * A list of 40 words with an 8000-token ceiling leaves room for entries far
- * longer than any of them; the cap is there to bound a runaway, not to fit.
+ * The output ceiling, scaled to the list rather than left at the maximum.
+ * Output is five times the price of input, and `max_tokens` is what a runaway
+ * answer costs: a three-word list left at 8000 is a bill waiting for a model
+ * to loop. 8000 stays as the absolute stop.
+ *
+ * The per-row figure is set from the whole shipped lexicon, not from one
+ * sample: over 8183 entries an answer costs 18 tokens a row on average, 24 at
+ * the 99th percentile and 36 at the very worst. The number that matters is not
+ * the average but the ceiling an answer could legitimately reach — the caller
+ * accepts entries up to 64 characters, and one of those with a long Russian
+ * gloss runs to about 56 tokens. Hitting the cap truncates the JSON, and a
+ * truncated answer loses the rows that did not fit, so the allowance is set
+ * above that worst case rather than near the average.
  */
 const MAX_TOKENS = 8000;
+const TOKENS_PER_ROW = 80;
+const TOKENS_OVERHEAD = 200;
+
+export function outputCeiling(rowCount: number): number {
+  return Math.min(MAX_TOKENS, TOKENS_PER_ROW * rowCount + TOKENS_OVERHEAD);
+}
 
 /**
  * Note what is *not* here: no `thinking` (off by default on Haiku 4.5, and
@@ -146,7 +163,7 @@ export function buildTranslationRequest(
 
   const request: MessageCreateParamsNonStreaming = {
     model,
-    max_tokens: options.maxTokens ?? MAX_TOKENS,
+    max_tokens: options.maxTokens ?? outputCeiling(words.length),
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: buildUserMessage(words, options.note) }],
     output_config: {

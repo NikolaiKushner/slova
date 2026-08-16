@@ -132,6 +132,20 @@ describe("buildQuestion", () => {
     }
   });
 
+  it("propagates both recording variants to questions that speak", () => {
+    const recorded = {
+      ...word,
+      audioUrl: "/audio/bright.mp3",
+      audioSlowUrl: "/audio/slow/bright.mp3",
+    };
+
+    for (const kind of ["word-to-translation", "audio-choice", "builder", "listening"] as const) {
+      const question = buildQuestion(kind, recorded, pool);
+      expect(question.audioUrl).toBe(recorded.audioUrl);
+      expect(question.audioSlowUrl).toBe(recorded.audioSlowUrl);
+    }
+  });
+
   it("gives the builder exactly the letters of the answer", () => {
     const question = buildQuestion("builder", word, pool);
     if (!("letters" in question)) throw new Error("expected a builder question");

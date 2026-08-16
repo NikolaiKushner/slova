@@ -27,6 +27,8 @@
  *   before the list arrives.
  */
 
+import { normalizeKey } from "@/lib/lexicon/key";
+
 const LANG = "en-US";
 
 /**
@@ -42,6 +44,84 @@ const START_TIMEOUT_MS = 3000;
  * accepted, not that anything was heard.
  */
 const START_POLL_MS = 300;
+
+/** Runtime audio must not hold an explicit user action open indefinitely. */
+const ON_DEMAND_TIMEOUT_MS = 5000;
+
+const onDemandUrls = new Map<string, string>();
+const onDemandRequests = new Map<string, Promise<string | null>>();
+
+function normalizeSpeechText(raw: string): string {
+  return raw.normalize("NFC").replace(/\s+/gu, " ").trim();
+}
+
+/**
+ * Resolve one explicitly requested recording, sharing both completed and
+ * in-flight lookups across controls on the page.
+ */
+export function resolveOnDemandAudio(
+  rawText: string,
+  {
+    fetcher = fetch,
+    timeoutMs = ON_DEMAND_TIMEOUT_MS,
+  }: {
+    fetcher?: typeof fetch;
+    timeoutMs?: number;
+  } = {},
+): Promise<string | null> {
+  const text = normalizeSpeechText(rawText);
+  const key = normalizeKey(text);
+  if (!key) return Promise.resolve(null);
+
+  const cached = onDemandUrls.get(key);
+  if (cached) return Promise.resolve(cached);
+
+  const pending = onDemandRequests.get(key);
+  if (pending) return pending;
+
+  const request = (async () => {
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const response = await Promise.race([
+        fetcher("/api/audio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+          signal: controller.signal,
+        }),
+        new Promise<null>((resolve) => {
+          timer = setTimeout(() => {
+            controller.abort();
+            resolve(null);
+          }, timeoutMs);
+        }),
+      ]);
+      if (!response) return null;
+      if (!response.ok) return null;
+      const payload: unknown = await response.json();
+      if (
+        !payload ||
+        typeof payload !== "object" ||
+        !("url" in payload) ||
+        typeof payload.url !== "string" ||
+        !payload.url.trim()
+      ) {
+        return null;
+      }
+      onDemandUrls.set(key, payload.url);
+      return payload.url;
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timer);
+      onDemandRequests.delete(key);
+    }
+  })();
+
+  onDemandRequests.set(key, request);
+  return request;
+}
 
 /**
  * Utterances the browser is still working on.
@@ -99,25 +179,88 @@ let interrupting = false;
  * caller falls through to speech, which is refused less often because it is
  * not "media".
  */
-async function playRecording(url: string): Promise<boolean> {
+async function playRecording(
+  url: string,
+  options: SpeakOptions,
+): Promise<boolean> {
   try {
     const audio = new Audio(url);
+    let started = false;
     audio.preload = "auto";
+    // A recording slowed below about 0.6 turns to mud; the synthesiser copes
+    // better, so "slowly" on a recorded word is 0.7 rather than the 0.6 a
+    // voice gets.
+    if (options.recordingRate !== undefined) {
+      audio.playbackRate = options.recordingRate;
+    } else if (options.rate && options.rate < 1) {
+      audio.playbackRate = 0.7;
+    }
+    if (options.onEnd) {
+      const done = options.onEnd;
+      audio.addEventListener("ended", done, { once: true });
+      audio.addEventListener(
+        "error",
+        () => {
+          if (started) done();
+        },
+      );
+    }
     await audio.play();
+    started = true;
     return true;
   } catch {
     return false;
   }
 }
 
-export async function speak(text: string, audioUrl?: string | null): Promise<boolean> {
+export type SpeakOptions = {
+  /**
+   * Below 1 is the "slowly" button. Not a separate function, because the only
+   * difference between hearing a word and hearing it again slowly is this
+   * number, and a second code path would drift from the first.
+   */
+  rate?: number;
+  /**
+   * Overrides the playback speed of a recording without changing the Web
+   * Speech fallback rate. This lets a purpose-made slow recording play at its
+   * authored speed while its fallback remains slow too.
+   */
+  recordingRate?: number;
+  /** May resolve runtime audio, but only when no static recording exists. */
+  onDemand?: boolean;
+  /** Fired when the word has finished — or failed. Always fired exactly once. */
+  onEnd?: () => void;
+};
+
+export async function speak(
+  text: string,
+  audioUrl?: string | null,
+  options: SpeakOptions = {},
+): Promise<boolean> {
+  // Every path below can end the word — the recording ends, the utterance
+  // ends, it errors, or it never starts at all. The caller only wants to be
+  // told once, so the guard lives here rather than in four places.
+  let ended = false;
+  const finish = () => {
+    if (ended) return;
+    ended = true;
+    options.onEnd?.();
+  };
+  const settings: SpeakOptions = { ...options, onEnd: finish };
+
   if (audioUrl && typeof window !== "undefined") {
-    if (await playRecording(audioUrl)) return true;
+    if (await playRecording(audioUrl, settings)) return true;
     // Fall through: a refused recording is still a word that needs saying.
+  }
+
+  if (!audioUrl && settings.onDemand && typeof window !== "undefined") {
+    const resolvedUrl = await resolveOnDemandAudio(text);
+    if (resolvedUrl && (await playRecording(resolvedUrl, settings))) return true;
   }
 
   if (!speechAvailable() || !text.trim()) {
     report("unavailable", text);
+    finish();
     return false;
   }
 
@@ -143,7 +286,7 @@ export async function speak(text: string, audioUrl?: string | null): Promise<boo
       utterance.lang = LANG;
       // A shade below normal: a word heard once and typed from memory should
       // not also be a hearing test.
-      utterance.rate = 0.9;
+      utterance.rate = settings.rate ?? 0.9;
 
       const voice = pickVoice();
       if (voice) utterance.voice = voice;
@@ -161,6 +304,7 @@ export async function speak(text: string, audioUrl?: string | null): Promise<boo
 
       const release = () => {
         inFlight.delete(utterance);
+        finish();
       };
 
       utterance.onstart = () => settle(true);
@@ -214,6 +358,9 @@ export async function speak(text: string, audioUrl?: string | null): Promise<boo
 
   if (!started) {
     report(wedged ? "was accepted but never played" : "did not start", text);
+    // Nothing is coming, so the caller's "speaking" state has to be released
+    // here or it stays on forever with the rings turning over silence.
+    finish();
   }
   return started;
 }

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, BookText, SearchX } from "lucide-react";
 
 import {
   Pagination,
@@ -22,11 +22,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SetOption } from "@/components/set-picker";
 import { WordListFilters } from "@/components/word-list-filters";
 import { WordListRow, type WordRow } from "@/components/word-list-row";
 import { Checkbox } from "@/components/ui/checkbox";
+import { WordRating } from "@/components/word-rating";
 import {
   Select,
   SelectContent,
@@ -231,6 +233,7 @@ export function WordListTable() {
           sets={sets}
           onQueryChange={(value) => update({ q: value })}
           onSetChange={(value) => update({ set: value })}
+          count={data ? t("summaryWords", { count: data.total }) : null}
         />
 
       {loading && !data ? (
@@ -240,9 +243,31 @@ export function WordListTable() {
           ))}
         </div>
       ) : !data || data.total === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          {filtered ? t("nothingMatches") : t("nothingHere")}
-        </p>
+        /*
+         * Two different emptinesses. An unfiltered list is empty because the
+         * person is new — the box that fills it is directly above, so the
+         * state only has to say so. A filtered one is empty because of
+         * something they typed, and the way out is a button: without it the
+         * only clue that words still exist is the filter they have forgotten
+         * they set.
+         */
+        <EmptyState
+          icon={filtered ? SearchX : BookText}
+          title={filtered ? t("nothingMatchesTitle") : t("nothingHereTitle")}
+          description={filtered ? t("nothingMatches") : t("nothingHere")}
+          action={
+            filtered ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => update({ q: "", set: "" })}
+              >
+                {t("clearFilters")}
+              </Button>
+            ) : null
+          }
+        />
       ) : (
         <>
           <div
@@ -254,10 +279,10 @@ export function WordListTable() {
             )}
             aria-busy={loading}
           >
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-border bg-muted/50 hover:bg-muted/50">
-                  <TableHead className={cn("w-10", COLUMN_LABEL)}>
+                  <TableHead className={cn("w-[46px] ps-4", COLUMN_LABEL)}>
                     <Checkbox
                       checked={allTicked}
                       onCheckedChange={(value) =>
@@ -280,8 +305,8 @@ export function WordListTable() {
                       />
                     </TableHead>
                   ))}
-                  <TableHead className={COLUMN_LABEL}>{t("set")}</TableHead>
-                  <TableHead className={cn("w-28", COLUMN_LABEL)}>
+                  <TableHead className={cn("w-[120px]", COLUMN_LABEL)}>{t("set")}</TableHead>
+                  <TableHead className={cn("w-[104px]", COLUMN_LABEL)}>
                     <SortButton
                       label={t("learned")}
                       active={sort === "rating"}
@@ -289,7 +314,7 @@ export function WordListTable() {
                       onClick={() => sortBy("rating")}
                     />
                   </TableHead>
-                  <TableHead className="w-20" />
+                  <TableHead className="w-[78px]" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -311,6 +336,17 @@ export function WordListTable() {
               </TableBody>
             </Table>
           </div>
+
+          {/*
+            What the five dots mean. Without it they are decoration: a column
+            of grey circles that changes and never says why. §5 of the
+            principles — a counter nobody can read is not progress.
+          */}
+          <p className="text-disabled-foreground text-caption flex flex-wrap items-center gap-2">
+            <span>{t("learned")}:</span>
+            <WordRating rating={2} decorative />
+            <span>{t("learnedLegend")}</span>
+          </p>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {data.pages > 1 ? (
@@ -360,16 +396,14 @@ export function WordListTable() {
                 </PaginationContent>
               </Pagination>
             ) : (
-              <span className="text-muted-foreground text-sm">
-                {t("summaryWords", { count: data.total })}
-              </span>
+              <span />
             )}
 
             <Select
               value={String(size)}
               onValueChange={(next) => update({ pageSize: next ?? "" })}
             >
-              <SelectTrigger className="w-32" aria-label={t("wordsPerPage")}>
+              <SelectTrigger aria-label={t("wordsPerPage")}>
                 <SelectValue>{t("perPage", { count: size })}</SelectValue>
               </SelectTrigger>
               <SelectContent>

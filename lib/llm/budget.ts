@@ -7,7 +7,8 @@ import { getPrisma } from "@/lib/prisma";
  * The limit is not a nicety. Sign-in is open (Google or email and password)
  * with no allow-list, so the translate route is reachable by anyone who can
  * complete it; the only thing between that and a bill from Anthropic is this
- * file.
+ * file. A second, app-wide ceiling sits on the same table so extra accounts
+ * cannot multiply the personal allowance.
  *
  * The request slot is reserved atomically (`tryReserveRequest`) so parallel
  * calls cannot all slip through a read-then-call gap. Token cost is still
@@ -36,6 +37,20 @@ export const DEFAULT_LIMITS: Limits = {
   outputTokens: 60_000,
 };
 
+/**
+ * One personal allowance for the whole app. Extra accounts cannot spend more
+ * than a single person already could: the per-user caps still apply, and they
+ * share this pot.
+ */
+export const DEFAULT_GLOBAL_LIMITS: Limits = {
+  requests: 50,
+  inputTokens: 100_000,
+  outputTokens: 60_000,
+};
+
+/** Sentinel `userId` on LlmUsage for the app-wide UTC-day row. */
+export const GLOBAL_LLM_USAGE_USER_ID = "__llm_global__";
+
 function envInt(name: string, fallback: number): number {
   const raw = process.env[name];
   if (!raw) return fallback;
@@ -48,6 +63,23 @@ export function activeLimits(): Limits {
     requests: envInt("LLM_DAILY_REQUESTS", DEFAULT_LIMITS.requests),
     inputTokens: envInt("LLM_DAILY_INPUT_TOKENS", DEFAULT_LIMITS.inputTokens),
     outputTokens: envInt("LLM_DAILY_OUTPUT_TOKENS", DEFAULT_LIMITS.outputTokens),
+  };
+}
+
+export function activeGlobalLimits(): Limits {
+  return {
+    requests: envInt(
+      "LLM_GLOBAL_DAILY_REQUESTS",
+      DEFAULT_GLOBAL_LIMITS.requests,
+    ),
+    inputTokens: envInt(
+      "LLM_GLOBAL_DAILY_INPUT_TOKENS",
+      DEFAULT_GLOBAL_LIMITS.inputTokens,
+    ),
+    outputTokens: envInt(
+      "LLM_GLOBAL_DAILY_OUTPUT_TOKENS",
+      DEFAULT_GLOBAL_LIMITS.outputTokens,
+    ),
   };
 }
 
@@ -131,6 +163,33 @@ export class BudgetExceededError extends Error {
 
 const EMPTY: UsageCounts = { requests: 0, inputTokens: 0, outputTokens: 0 };
 
+type UsageCountsRow = UsageCounts | null;
+
+type LlmUsageDelegate = {
+  upsert(args: object): Promise<unknown>;
+  findUnique(args: object): Promise<UsageCountsRow>;
+  updateMany(args: object): Promise<{ count: number }>;
+};
+
+export type LlmBudgetDependencies = {
+  usage: LlmUsageDelegate;
+  transaction?<T>(
+    operation: (usage: LlmUsageDelegate) => Promise<T>,
+  ): Promise<T>;
+};
+
+function defaultDependencies(): LlmBudgetDependencies {
+  const prisma = getPrisma();
+  return {
+    usage: prisma.llmUsage as unknown as LlmUsageDelegate,
+    transaction(operation) {
+      return prisma.$transaction((transaction) =>
+        operation(transaction.llmUsage as unknown as LlmUsageDelegate),
+      );
+    },
+  };
+}
+
 /** Today's spend for one user. Absent row means nothing spent yet. */
 export async function usageToday(
   userId: string,
@@ -152,25 +211,36 @@ export async function assertWithinBudget(
   if (!verdict.withinBudget) throw new BudgetExceededError(verdict);
 }
 
-/**
- * Atomically spend one request slot. Parallel calls cannot all slip through
- * the read-then-call gap: the increment itself is the gate.
- */
-export async function tryReserveRequest(
-  userId: string,
-  now: Date = new Date(),
-): Promise<void> {
-  const day = utcDay(now);
-  const limits = activeLimits();
-  const prisma = getPrisma();
+function requestsSpentOut(
+  limit: number,
+  now: Date,
+  revealLimit: boolean,
+): Extract<BudgetVerdict, { withinBudget: false }> {
+  return {
+    withinBudget: false,
+    reason: "requests",
+    message: revealLimit
+      ? `You have used today's ${limit} automatic translations. ${RESET_HINT}`
+      : `Today's translation allowance is used up. ${RESET_HINT}`,
+    retryAfter: secondsUntilReset(now),
+  };
+}
 
-  await prisma.llmUsage.upsert({
+async function reserveSlot(
+  usage: LlmUsageDelegate,
+  userId: string,
+  day: string,
+  limits: Limits,
+  now: Date,
+  revealRequestLimit: boolean,
+): Promise<void> {
+  await usage.upsert({
     where: { userId_day: { userId, day } },
     create: { userId, day },
     update: {},
   });
 
-  const used = await prisma.llmUsage.findUnique({
+  const used = await usage.findUnique({
     where: { userId_day: { userId, day } },
     select: { requests: true, inputTokens: true, outputTokens: true },
   });
@@ -185,17 +255,53 @@ export async function tryReserveRequest(
   );
   if (!tokenVerdict.withinBudget) throw new BudgetExceededError(tokenVerdict);
 
-  const reserved = await prisma.llmUsage.updateMany({
+  const reserved = await usage.updateMany({
     where: { userId, day, requests: { lt: limits.requests } },
     data: { requests: { increment: 1 } },
   });
   if (reserved.count === 0) {
-    throw new BudgetExceededError({
-      withinBudget: false,
-      reason: "requests",
-      message: `You have used today's ${limits.requests} automatic translations. ${RESET_HINT}`,
-      retryAfter: secondsUntilReset(now),
-    });
+    throw new BudgetExceededError(
+      requestsSpentOut(limits.requests, now, revealRequestLimit),
+    );
+  }
+}
+
+/**
+ * Atomically spend one request slot on both the person and the app-wide
+ * ceiling. Parallel calls cannot all slip through a read-then-call gap: the
+ * increment itself is the gate. Global is reserved first so extra accounts
+ * cannot multiply the bill.
+ */
+export async function tryReserveRequest(
+  userId: string,
+  now: Date = new Date(),
+  {
+    limits = activeLimits(),
+    globalLimits = activeGlobalLimits(),
+    dependencies = defaultDependencies(),
+  }: {
+    limits?: Limits;
+    globalLimits?: Limits;
+    dependencies?: LlmBudgetDependencies;
+  } = {},
+): Promise<void> {
+  const day = utcDay(now);
+  const reserve = async (usage: LlmUsageDelegate) => {
+    await reserveSlot(
+      usage,
+      GLOBAL_LLM_USAGE_USER_ID,
+      day,
+      globalLimits,
+      now,
+      false,
+    );
+    await reserveSlot(usage, userId, day, limits, now, true);
+  };
+
+  if (dependencies.transaction) {
+    await dependencies.transaction(reserve);
+  } else {
+    await reserve(dependencies.usage);
   }
 }
 
@@ -222,7 +328,8 @@ export async function recordUsage(
     llmMisses: delta.llmMisses ?? 0,
   };
 
-  await getPrisma().llmUsage.upsert({
+  const prisma = getPrisma();
+  await prisma.llmUsage.upsert({
     where: { userId_day: { userId, day } },
     create: { userId, day, ...amounts },
     update: {
@@ -233,4 +340,24 @@ export async function recordUsage(
       llmMisses: { increment: amounts.llmMisses },
     },
   });
+
+  // Requests were reserved atomically before the call. Tokens are only known
+  // afterwards, and the global ceiling has to see them or it is requests-only.
+  if (amounts.inputTokens > 0 || amounts.outputTokens > 0) {
+    await prisma.llmUsage.upsert({
+      where: {
+        userId_day: { userId: GLOBAL_LLM_USAGE_USER_ID, day },
+      },
+      create: {
+        userId: GLOBAL_LLM_USAGE_USER_ID,
+        day,
+        inputTokens: amounts.inputTokens,
+        outputTokens: amounts.outputTokens,
+      },
+      update: {
+        inputTokens: { increment: amounts.inputTokens },
+        outputTokens: { increment: amounts.outputTokens },
+      },
+    });
+  }
 }

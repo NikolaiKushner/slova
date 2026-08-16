@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { getStudySummary } from "@/lib/study-queue";
 import { getProgress, progressLine } from "@/lib/progress";
@@ -44,7 +44,7 @@ export default async function TodayPage() {
   }
 
   return (
-    <Page>
+    <PageContainer>
       <PageHeader
         eyebrow={t("eyebrow")}
         title={title}
@@ -52,9 +52,7 @@ export default async function TodayPage() {
       />
 
       {progressText ? (
-        <p className="-mt-4 text-sm font-medium uppercase tracking-[0.14em] text-brand-soft">
-          {progressText}
-        </p>
+        <p className="text-overline text-eyebrow -mt-4">{progressText}</p>
       ) : null}
 
       <div className="mt-10">
@@ -75,10 +73,7 @@ export default async function TodayPage() {
         {summary.total > 0 ? (
           <Link
             href="/practice"
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "bg-teal-800 text-white hover:bg-teal-900",
-            )}
+            className={buttonVariants({ size: "lg" })}
           >
             {t("studyNow")}
           </Link>
@@ -90,6 +85,6 @@ export default async function TodayPage() {
           {t("addWords")}
         </Link>
       </div>
-    </Page>
+    </PageContainer>
   );
 }

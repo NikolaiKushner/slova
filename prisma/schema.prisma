@@ -19,6 +19,8 @@ model User {
   /// scrypt hash (`salt:hash` hex). Null when they only ever used Google.
   passwordHash  String?
   dailyNewLimit Int       @default(20)
+  /// Bumped on password reset so JWTs issued before that moment die.
+  sessionVersion Int      @default(0)
 
   createdAt DateTime @default(now())
 
@@ -214,6 +216,26 @@ model LlmUsage {
   @@index([day])
 }
 
+/// On-demand pronunciation spend and cache effectiveness for one UTC day.
+/// Reservations are never refunded: a failed provider or upload attempt still
+/// consumed a paid-path slot and cannot be retried without bound.
+model TtsUsage {
+  id     String @id @default(cuid())
+  userId String
+  day    String
+
+  requests   Int @default(0)
+  characters Int @default(0)
+  cacheHits  Int @default(0)
+  syntheses  Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, day])
+  @@index([day])
+}
+
 /// The shared base, one row per distinct word or phrase. A cache in front of
 /// the translator — never the authority. A user editing their own translation
 /// changes their UserWord and nothing here.
@@ -241,6 +263,8 @@ model Lexeme {
   /// paid for once per word rather than once per learner. Null means the
   /// browser's own voice says it instead, which it can do for any word.
   audioUrl    String?
+  /// Purpose-made slower pronunciation. Null falls back to slowing audioUrl.
+  audioSlowUrl String?
   /// Which voice made it, so a generation can be replaced without guessing.
   audioSource String?
 

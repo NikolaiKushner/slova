@@ -1,0 +1,128 @@
+{
+  "slug": "test",
+  "title": "Test",
+  "titleRu": "Проверка всего курса",
+  "estMinutes": 6,
+  "ruleCard": {
+    "rows": [
+      { "label": "I", "form": "am / I'm not / Am I" },
+      { "label": "he / she / it", "form": "is / isn't / Is she" },
+      { "label": "you / we / they", "form": "are / aren't / Are they" }
+    ],
+    "note": "Новой теории нет — только то, что уже было в уроках."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Смесь всего курса: форма, кто и где, отрицание, вопрос и краткий ответ.\n\nНовой теории нет — только то, что уже было в уроках. Можно идти не по порядку."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-01",
+      "ruleId": "tb-form-is",
+      "kind": "choice",
+      "prompt": "My sister ___ a teacher.",
+      "options": ["am", "is", "are"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-02",
+      "ruleId": "tb-form-are",
+      "kind": "choice",
+      "prompt": "We ___ students.",
+      "options": ["am", "is", "are"],
+      "answer": "are"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-03",
+      "ruleId": "tb-form-am",
+      "kind": "gap",
+      "prompt": "I ___ from London. (be)",
+      "answer": "am"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-04",
+      "ruleId": "tb-use-description",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["He is work in a bank.", "He is a teacher."],
+      "answer": "He is a teacher."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-05",
+      "ruleId": "tb-use-location",
+      "kind": "choice",
+      "prompt": "The shop ___ in Berlin.",
+      "options": ["is", "are", "lives"],
+      "answer": "is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-06",
+      "ruleId": "tb-negative",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["She not is tired.", "She isn't tired."],
+      "answer": "She isn't tired."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-07",
+      "ruleId": "tb-negative",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "They are at home.",
+      "answer": "They aren't at home.",
+      "accept": ["They are not at home.", "They're not at home."]
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-08",
+      "ruleId": "tb-question",
+      "kind": "transform",
+      "prompt": "Сделайте вопрос.",
+      "source": "You are a student.",
+      "answer": "Are you a student?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-09",
+      "ruleId": "tb-question",
+      "kind": "choice",
+      "prompt": "___ Anna at work?",
+      "options": ["Is", "Does", "Are"],
+      "answer": "Is"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-10",
+      "ruleId": "tb-question",
+      "kind": "pick-sentence",
+      "prompt": "Какой вопрос про место?",
+      "options": ["Are you at work?", "Do you at work?"],
+      "answer": "Are you at work?"
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-11",
+      "ruleId": "tb-short-answer",
+      "kind": "choice",
+      "prompt": "Are you happy? — ___",
+      "options": ["Yes, I am.", "Yes, I do.", "Yes, I'm."],
+      "answer": "Yes, I am."
+    },
+    {
+      "type": "exercise",
+      "id": "tb-test-12",
+      "ruleId": "tb-short-answer",
+      "kind": "pick-sentence",
+      "prompt": "Какой краткий ответ верный?",
+      "options": ["Is he tired? — No, he isn't.", "Is he tired? — No, he doesn't."],
+      "answer": "Is he tired? — No, he isn't."
+    }
+  ]
+}

@@ -2,25 +2,66 @@
   "slug": "spelling",
   "title": "Spelling",
   "titleRu": "Орфография",
+  "estMinutes": 4,
+  "ruleCard": {
+    "rows": [
+      { "label": "обычно", "form": "-==s==" },
+      { "label": "-o, -s, -sh, -ch, -x", "form": "-==es==" },
+      { "label": "согласная + y", "form": "-==ies==" }
+    ],
+    "note": "После гласной **y** не меняется: `play → play==s==`."
+  },
   "blocks": [
     {
       "type": "explanation",
-      "ruleId": "ps-spelling-es",
-      "md": "В 3-м лице единственного числа — после **he / she / it** — к большинству глаголов просто добавляется **-s**: work → works, live → lives.\n\nЕсли глагол заканчивается на **s, sh, ch, x** или **o**, пишется **-es**: go → goes, watch → watches, finish → finishes. Иначе вышло бы gos — так не пишут.\n\nЕсли глагол кончается на согласную + **y**, **y** меняется на **ies**: study → studies. После гласной **y** остаётся на месте: play → plays."
+      "md": "В 3-м лице единственного числа — после **he / she / it** — окончание пишется по виду глагола, не «на слух»."
+    },
+    {
+      "type": "heading",
+      "title": "Три случая"
+    },
+    {
+      "type": "rules",
+      "items": [
+        {
+          "tag": "-s",
+          "md": "к большинству глаголов просто: `work → work==s==`, `live → live==s==`"
+        },
+        {
+          "tag": "-es",
+          "md": "если глагол кончается на **s, sh, ch, x** или **o**: `go → go==es==`, `watch → watch==es==`. Иначе вышло бы gos — так не пишут."
+        },
+        {
+          "tag": "-ies",
+          "md": "согласная + **y**: `study → stud==ies==`. После гласной **y** остаётся: `play → play==s==`"
+        }
+      ]
     },
     {
       "type": "table",
-      "headers": ["If the verb ends in", "Add", "Example"],
+      "headers": ["Если глагол кончается на", "Пишем", "Пример"],
       "rows": [
-        ["most letters", "-s", "work → works"],
-        ["s, sh, ch, x, o", "-es", "go → goes, watch → watches"],
-        ["consonant + y", "y → ies", "study → studies"]
+        ["большинство букв", "-s", "work → work==s=="],
+        ["s, sh, ch, x, o", "-es", "go → go==es=="],
+        ["согласная + y", "y → ies", "study → stud==ies=="]
       ]
     },
     {
       "type": "pitfall",
       "ruleId": "ps-spelling-es",
-      "md": "После гласной **y** не меняется: play → **plays**, не plaies.\n\nПутаница идёт от studies: там перед y согласная (d), поэтому y уходит. В play перед y стоит гласная — трогать нечего."
+      "md": "После гласной **y** не меняется: `play → play==s==`, не plaies.\n\nПутаница идёт от studies: там перед y согласная (d), поэтому y уходит. В play перед y стоит гласная — трогать нечего."
+    },
+    {
+      "type": "heading",
+      "title": "Коротко"
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "обычно", "v": "`-==s==`" },
+        { "k": "-o / -s / -sh / -ch / -x", "v": "`-==es==`" },
+        { "k": "согласная + y", "v": "`-==ies==`" }
+      ]
     },
     {
       "type": "exercise",
@@ -53,7 +94,7 @@
       "id": "ps-spell-04",
       "ruleId": "ps-spelling-es",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is spelled right?",
+      "prompt": "Где написано верно?",
       "options": ["He plaies football.", "He plays football."],
       "answer": "He plays football."
     },
@@ -104,7 +145,7 @@
       "id": "ps-spell-10",
       "ruleId": "ps-spelling-es",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is spelled right?",
+      "prompt": "Где написано верно?",
       "options": ["She enjoies music.", "She enjoys music."],
       "answer": "She enjoys music."
     },
@@ -147,7 +188,7 @@
       "id": "ps-spell-15",
       "ruleId": "ps-spelling-es",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is spelled right?",
+      "prompt": "Где написано верно?",
       "options": ["She flys to London.", "She flies to London."],
       "answer": "She flies to London."
     },

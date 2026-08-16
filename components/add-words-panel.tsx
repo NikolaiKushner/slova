@@ -19,6 +19,9 @@ import {
 } from "@/components/word-composer";
 import { normalizeKey } from "@/lib/lexicon/key";
 
+/** Must not exceed the list size accepted by app/api/translate/batch. */
+const TRANSLATE_BATCH = 100;
+
 /**
  * Type words, choose where they go, add them.
  *
@@ -68,12 +71,28 @@ export function AddWordsPanel({
   const needsName = !fixedSetId && setValue === NEW_SET && !newTitle.trim();
 
   /**
-   * Fill the blanks. Rows arrive one at a time over NDJSON — hits from the
-   * shared base first, then whatever the model answers — so the table fills in
-   * while it works rather than after.
+   * Fill the blanks, one request per hundred rows. The route refuses a longer
+   * list — its size is what bounds the cost of a single budget slot — and a
+   * paste of three hundred words is a normal thing to do, so the splitting
+   * happens here rather than surfacing as a rejected list.
    */
   async function fillBlanks(missing: ComposerRow[]): Promise<Map<string, string>> {
     const answers = new Map<string, string>();
+    for (let start = 0; start < missing.length; start += TRANSLATE_BATCH) {
+      await translateChunk(missing.slice(start, start + TRANSLATE_BATCH), answers);
+    }
+    return answers;
+  }
+
+  /**
+   * One request. Rows arrive one at a time over NDJSON — hits from the shared
+   * base first, then whatever the model answers — so the table fills in while
+   * it works rather than after.
+   */
+  async function translateChunk(
+    missing: ComposerRow[],
+    answers: Map<string, string>,
+  ): Promise<void> {
     const response = await fetch("/api/translate/batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -122,8 +141,6 @@ export function AddWordsPanel({
         );
       }
     }
-
-    return answers;
   }
 
   async function submit() {
@@ -222,30 +239,32 @@ export function AddWordsPanel({
   }
 
   return (
-    <div className="space-y-3">
-      <Card className="gap-0 py-0">
+    <div className="space-y-2.5">
+      <Card className="gap-0 overflow-hidden py-0">
         <CardContent className="p-0">
           <WordComposer rows={rows} onChange={setRows} disabled={busy} />
         </CardContent>
-        <CardFooter
-          className={
-            fixedSetId
-              ? "justify-end"
-              : "flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"
-          }
-        >
-          {fixedSetId ? null : (
-            <SetPicker
-              sets={sets}
-              value={setValue}
-              newTitle={newTitle}
-              onValueChange={setSetValue}
-              onNewTitleChange={setNewTitle}
-              disabled={busy}
-            />
+        <CardFooter className="bg-muted border-border-subtle flex-col items-stretch gap-3 border-t px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          {fixedSetId ? (
+            <span />
+          ) : (
+            <div className="flex flex-wrap items-center gap-3">
+              <SetPicker
+                sets={sets}
+                value={setValue}
+                newTitle={newTitle}
+                onValueChange={setSetValue}
+                onNewTitleChange={setNewTitle}
+                disabled={busy}
+              />
+              {/* The picker keeps its choice between batches; saying so stops
+                  people re-picking the same set every time. */}
+              <span className="text-disabled-foreground text-caption max-sm:hidden">
+                {t("setRemembered")}
+              </span>
+            </div>
           )}
           <Button
-            size="lg"
             onClick={submit}
             disabled={busy || words.length === 0 || needsName}
           >
@@ -260,9 +279,26 @@ export function AddWordsPanel({
         </CardFooter>
       </Card>
 
+      <p className="text-disabled-foreground text-caption px-0.5">
+        {t("composerHint")}{" "}
+        {t.rich("composerKeys", {
+          enter: () => <Key>Enter</Key>,
+          tab: () => <Key>Tab</Key>,
+        })}
+      </p>
+
       {message ? (
-        <p className="text-muted-foreground text-sm">{message}</p>
+        <p className="text-muted-foreground text-caption px-0.5">{message}</p>
       ) : null}
     </div>
+  );
+}
+
+/** A key in running text. Hidden on touch, where there is no keyboard (§9). */
+function Key({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="bg-card text-foreground border-border coarse:hidden rounded-sm border border-b-2 px-1.5 py-px text-[11px] font-normal">
+      {children}
+    </kbd>
   );
 }
