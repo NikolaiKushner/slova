@@ -1,0 +1,5 @@
+#!/bin/sh
+# Cheap CI gate. Lint and the production build stay in GitHub Actions.
+set -e
+npm run check:lockfile
+npm test

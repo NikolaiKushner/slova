@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
+  "engines": {
+    "node": ">=22",
+    "npm": "^10"
+  },
+  "packageManager": "npm@10.9.9",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -19,6 +24,8 @@
     "courses:audio": "tsx scripts/build-course-audio.ts",
     "postinstall": "prisma generate",
     "check:env": "node scripts/check-env.mjs",
+    "check:lockfile": "node scripts/check-lockfile.mjs",
+    "prepare": "node scripts/setup-git-hooks.mjs",
     "vercel:preflight": "npm run check:env && npm test && prisma migrate deploy"
   },
   "dependencies": {

@@ -25,6 +25,10 @@ cheap check moved locally, and the slow ones stayed in CI:
 - **Run `npm test` before pushing to `main`.** It is vitest over `tests/unit`
   and takes seconds. This is the one local check that is worth its cost, and it
   is now the only thing standing between a typo and production.
+- **A pre-commit hook runs `npm run check:lockfile` then `npm test`.** The
+  lockfile check uses npm 10, the same major CI and Vercel use. Local npm 11
+  will happily `npm ci` a lockfile that GitHub's npm 10 rejects. `npm install`
+  after clone sets `core.hooksPath` to `.githooks/`.
 - **Running the dev server and driving a browser is allowed** — and expected
   for UI work. A screen that has only been type-checked has not been checked:
   the layout, the keyboard and the sound all fail in ways `tsc` cannot see.

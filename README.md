@@ -85,6 +85,10 @@ OpenAI and R2 credentials are required by `npm run check:env` only when
 `TTS_ON_DEMAND_ENABLED=true`; they remain server-only and must never use a
 `NEXT_PUBLIC_*` name.
 
+CI and Vercel install with **npm 10** (Node 22). A lockfile written by npm 11
+fails `npm ci` there. After clone, `npm install` turns on a pre-commit hook
+that checks the lockfile the way CI does, then runs `npm test`.
+
 ## Scripts
 
 | Command | What it does |
