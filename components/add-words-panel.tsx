@@ -19,6 +19,9 @@ import {
 } from "@/components/word-composer";
 import { normalizeKey } from "@/lib/lexicon/key";
 
+/** Must not exceed the list size accepted by app/api/translate/batch. */
+const TRANSLATE_BATCH = 100;
+
 /**
  * Type words, choose where they go, add them.
  *
@@ -68,12 +71,28 @@ export function AddWordsPanel({
   const needsName = !fixedSetId && setValue === NEW_SET && !newTitle.trim();
 
   /**
-   * Fill the blanks. Rows arrive one at a time over NDJSON — hits from the
-   * shared base first, then whatever the model answers — so the table fills in
-   * while it works rather than after.
+   * Fill the blanks, one request per hundred rows. The route refuses a longer
+   * list — its size is what bounds the cost of a single budget slot — and a
+   * paste of three hundred words is a normal thing to do, so the splitting
+   * happens here rather than surfacing as a rejected list.
    */
   async function fillBlanks(missing: ComposerRow[]): Promise<Map<string, string>> {
     const answers = new Map<string, string>();
+    for (let start = 0; start < missing.length; start += TRANSLATE_BATCH) {
+      await translateChunk(missing.slice(start, start + TRANSLATE_BATCH), answers);
+    }
+    return answers;
+  }
+
+  /**
+   * One request. Rows arrive one at a time over NDJSON — hits from the shared
+   * base first, then whatever the model answers — so the table fills in while
+   * it works rather than after.
+   */
+  async function translateChunk(
+    missing: ComposerRow[],
+    answers: Map<string, string>,
+  ): Promise<void> {
     const response = await fetch("/api/translate/batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -122,8 +141,6 @@ export function AddWordsPanel({
         );
       }
     }
-
-    return answers;
   }
 
   async function submit() {
