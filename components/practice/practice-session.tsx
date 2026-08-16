@@ -23,7 +23,7 @@ import {
   type PracticeWord,
 } from "@/lib/practice/question";
 import { whenVoiceReady } from "@/lib/practice/speech";
-import { sessionQuery } from "@/lib/practice/catalog";
+import { sourceQuery, type Source } from "@/lib/practice/source";
 
 /**
  * One training, one format, straight through the words.
@@ -42,12 +42,12 @@ type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 export function PracticeSession({
   kind,
   title,
-  setIds,
+  source,
 }: {
   kind: ExerciseKind;
   title: string;
   /** Empty means the whole dictionary. */
-  setIds: string[];
+  source: Source;
 }) {
   const t = useTranslations("practice");
   const [data, setData] = useState<Payload | null>(null);
@@ -66,7 +66,7 @@ export function PracticeSession({
   useEffect(() => {
     let ignore = false;
 
-    fetch(`/api/practice/session?${sessionQuery(setIds)}`)
+    fetch(`/api/practice/session?${sourceQuery(source)}`)
       .then((response) => (response.ok ? response.json() : null))
       .then((payload: Payload | null) => {
         if (ignore) return;
@@ -80,7 +80,7 @@ export function PracticeSession({
     return () => {
       ignore = true;
     };
-  }, [setIds, run]);
+  }, [source, run]);
 
   // Only the sound formats care, so only they ask — and the answer arrives in
   // the callback rather than being set from the body of the effect.

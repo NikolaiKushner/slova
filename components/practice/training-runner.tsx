@@ -1,51 +1,29 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useTranslations } from "next-intl";
-
-import { PageContainer } from "@/components/layout/app-shell";
-import { PageHeader } from "@/components/page-header";
 import { BrainstormSession } from "@/components/practice/brainstorm-session";
 import { PracticeSession } from "@/components/practice/practice-session";
-import { SetChooser } from "@/components/practice/set-chooser";
+import { PageContainer } from "@/components/layout/app-shell";
 import type { Training } from "@/lib/practice/catalog";
+import type { Source } from "@/components/slova/source-bar";
+import { useTranslations } from "next-intl";
 
 /**
- * A training, from "which words" to the last question.
+ * A training, from its address to the last question.
  *
- * The choice of sets comes first and belongs here rather than inside either
- * session: both need it, neither should own it, and a session that has already
- * fetched its words is the wrong place to ask where they should have come
- * from. Once chosen it never changes for that run — a training that swapped
- * its material halfway would be two trainings wearing one name.
+ * It used to ask which sets to draw on before starting anything. That question
+ * moved to the top of the trainings page, where it is asked once for every mode
+ * and format instead of once per entry, and arrives here already answered — so
+ * this is now only a fork between the two kinds of session.
  */
-export function TrainingRunner({ training }: { training: Training }) {
+export function TrainingRunner({
+  training,
+  source,
+}: {
+  training: Training;
+  source: Source;
+}) {
   const trainings = useTranslations("trainings");
-  const practice = useTranslations("practice");
   const title = trainings(`${training.id}.title`);
-  const [setIds, setSetIds] = useState<string[] | null>(null);
-
-  const start = useCallback((chosen: string[]) => setSetIds(chosen), []);
-
-  /*
-   * The page header lives here rather than on the page, because it belongs to
-   * the first step only. Once the drill starts the question is the page: a
-   * title and a paragraph of description above it are two things to read
-   * instead of the one thing being asked, and the running session carries its
-   * own bar with the way out in it.
-   */
-  if (setIds === null) {
-    return (
-      <PageContainer>
-        <PageHeader
-          eyebrow={practice("eyebrow")}
-          title={title}
-          description={trainings(`${training.id}.description`)}
-        />
-        <SetChooser title={title} onStart={start} />
-      </PageContainer>
-    );
-  }
 
   /*
    * Brainstorm is on FocusShell and owns its own width (§15.2). The other
@@ -53,10 +31,10 @@ export function TrainingRunner({ training }: { training: Training }) {
    * them — so they keep a page container until they do.
    */
   return training.id === "brainstorm" ? (
-    <BrainstormSession setIds={setIds} />
+    <BrainstormSession source={source} />
   ) : (
     <PageContainer>
-      <PracticeSession kind={training.id} title={title} setIds={setIds} />
+      <PracticeSession kind={training.id} title={title} source={source} />
     </PageContainer>
   );
 }

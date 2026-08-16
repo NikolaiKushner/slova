@@ -35,7 +35,7 @@ import {
 } from "@/lib/practice/brainstorm";
 import { buildQuestion, type PracticeWord } from "@/lib/practice/question";
 import { speak, whenVoiceReady } from "@/lib/practice/speech";
-import { sessionQuery } from "@/lib/practice/catalog";
+import { sourceQuery, type Source } from "@/lib/practice/source";
 
 /**
  * Brainstorm: the ladder, drawn.
@@ -54,7 +54,7 @@ import { sessionQuery } from "@/lib/practice/catalog";
 
 type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 
-export function BrainstormSession({ setIds }: { setIds: string[] }) {
+export function BrainstormSession({ source }: { source: Source }) {
   const t = useTranslations("practice");
   const common = useTranslations("common");
 
@@ -74,7 +74,7 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
     let ignore = false;
 
     Promise.all([
-      fetch(`/api/practice/session?mode=brainstorm&size=${size}&${sessionQuery(setIds)}`)
+      fetch(`/api/practice/session?${sourceQuery(source, { mode: "brainstorm", size: String(size) })}`)
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
       whenVoiceReady(),
@@ -95,7 +95,7 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
     return () => {
       ignore = true;
     };
-  }, [setIds, size]);
+  }, [source, size]);
 
   const task = state && started ? currentTask(state) : null;
   const word = data?.words.find((w) => w.id === task?.wordId) ?? null;

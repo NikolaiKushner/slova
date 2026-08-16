@@ -2,6 +2,12 @@ import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { LEXICON_VERSION } from "@/lib/lexicon/lookup";
 import { clampSessionSize } from "@/lib/practice/brainstorm";
+import {
+  DEFAULT_SOURCE_STATE,
+  setFilter,
+  stateFilter,
+  type SourceState,
+} from "@/lib/practice/source";
 import type { PracticeWord } from "@/lib/practice/question";
 import { getPrisma } from "@/lib/prisma";
 
@@ -32,6 +38,8 @@ export async function buildPracticeSession(
   options: {
     setIds?: readonly string[];
     brainstorm?: boolean;
+    /** Which words qualify — see lib/practice/source.ts. */
+    state?: SourceState;
     /** Brainstorm only; other trainings run at TRAINING_SIZE. */
     size?: number;
   } = {},
@@ -41,27 +49,35 @@ export async function buildPracticeSession(
   // than a folder: "verbs and the medical list, nothing else" is a normal
   // thing to want and awkward to express one set at a time.
   const setIds = options.setIds?.filter(Boolean) ?? [];
-  const where = {
-    userId,
-    ...(setIds.length > 0 ? { sets: { some: { setId: { in: setIds } } } } : {}),
-  };
+  const where = { userId, ...setFilter(setIds) };
 
   const limit = options.brainstorm
     ? clampSessionSize(options.size ?? null)
     : TRAINING_SIZE;
 
-  // Brainstorm exists for words that have never been studied; every other
-  // training is practice, so it takes what is due first and then whatever is
-  // least settled.
+  /*
+   * Which words qualify comes from the source bar on the trainings page, and
+   * the same filter answers the count shown there — so the promise the bar
+   * makes and the session that follows cannot disagree.
+   *
+   * Brainstorm is the exception, and not a configurable one: it exists for
+   * words never studied, so it always takes "new" whatever the query says.
+   */
+  const now = new Date();
+  const state = options.brainstorm
+    ? "new"
+    : (options.state ?? DEFAULT_SOURCE_STATE);
+  const scope = { ...where, ...stateFilter(state, now) };
+
   const words = options.brainstorm
     ? await prisma.userWord.findMany({
-        where: { ...where, introducedAt: null },
+        where: scope,
         orderBy: { createdAt: "asc" },
         take: limit,
         select: { id: true, front: true, back: true },
       })
     : await prisma.userWord.findMany({
-        where,
+        where: scope,
         orderBy: [{ dueAt: "asc" }, { intervalDays: "asc" }],
         take: limit,
         select: { id: true, front: true, back: true },
