@@ -57,7 +57,12 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b border-border-subtle transition-colors hover:bg-secondary has-aria-expanded:bg-secondary data-[state=selected]:bg-accent",
+        /*
+         * Row hover is muted, one step lighter than the secondary a row action
+         * hovers to. They used to be the same colour, so the little square
+         * under the pencil disappeared exactly when you were pointing at it.
+         */
+        "border-b border-border-subtle transition-colors hover:bg-muted has-aria-expanded:bg-muted data-[state=selected]:bg-accent data-[state=selected]:hover:bg-[color-mix(in_oklch,var(--accent),var(--foreground)_5%)]",
         className
       )}
       {...props}

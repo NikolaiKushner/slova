@@ -92,8 +92,8 @@ function SidebarBrandHeader() {
           <BrandWordmark className="text-2xl" />
         </Link>
         <div className="ml-auto flex items-center gap-0.5 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:ml-0">
-          <AppSearch className="size-9 group-data-[collapsible=icon]:hidden [&_svg]:size-5" />
-          <SidebarTrigger className="size-9 shrink-0 text-sidebar-foreground hover:bg-sidebar-hover hover:text-sidebar-foreground group-data-[collapsible=icon]:size-8! [&_svg]:size-5 group-data-[collapsible=icon]:[&_svg]:size-4 [&_svg]:stroke-[2]" />
+          <AppSearch className="size-9 rounded-sm group-data-[collapsible=icon]:hidden [&_svg]:size-5" />
+          <SidebarTrigger className="size-9 shrink-0 rounded-sm text-sidebar-foreground hover:bg-secondary hover:text-foreground group-data-[collapsible=icon]:size-8! [&_svg]:size-5 group-data-[collapsible=icon]:[&_svg]:size-4 [&_svg]:stroke-[2]" />
         </div>
       </div>
     </SidebarHeader>

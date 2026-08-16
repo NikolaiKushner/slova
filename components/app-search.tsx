@@ -106,7 +106,7 @@ export function AppSearch({ className }: { className?: string }) {
         variant="ghost"
         size="icon"
         className={cn(
-          "size-8 shrink-0 text-sidebar-foreground hover:bg-sidebar-hover hover:text-sidebar-foreground [&_svg]:size-4 [&_svg]:stroke-[2]",
+          "size-8 shrink-0 rounded-sm text-sidebar-foreground hover:bg-secondary hover:text-foreground [&_svg]:size-4 [&_svg]:stroke-[2]",
           className,
         )}
         onClick={() => onOpenChange(true)}
