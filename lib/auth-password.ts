@@ -140,6 +140,7 @@ export async function completePasswordReset(
     data: {
       passwordHash: await hashPassword(password),
       emailVerified: new Date(),
+      sessionVersion: { increment: 1 },
     },
   });
   return { ok: true };

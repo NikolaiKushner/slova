@@ -19,6 +19,8 @@ model User {
   /// scrypt hash (`salt:hash` hex). Null when they only ever used Google.
   passwordHash  String?
   dailyNewLimit Int       @default(20)
+  /// Bumped on password reset so JWTs issued before that moment die.
+  sessionVersion Int      @default(0)
 
   createdAt DateTime @default(now())
 

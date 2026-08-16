@@ -5,6 +5,7 @@ import { getPrisma } from "@/lib/prisma";
 import { authAdapter } from "@/lib/auth-adapter";
 import { authConfig } from "@/lib/auth.config";
 import { googleLinkPasswordHash } from "@/lib/auth-policy";
+import { sessionIsCurrent } from "@/lib/auth-session";
 import {
   isEmail,
   normalizeEmail,
@@ -67,11 +68,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
      * Sessions are JWTs. The adapter now writes User / Account rows, but the
      * token still has to carry our User.id — not Google's — because every
      * deck hangs off it. Upserting by email also covers older Google-only
-     * rows that have no Account yet.
+     * rows that have no Account yet. sessionVersion is stamped at sign-in
+     * and re-checked on every refresh so a password reset kills other
+     * browsers.
      */
     async jwt({ token, user, account }) {
       if (!user?.email) {
         if (user?.id) token.sub = user.id;
+        if (!token.sub) return null;
+        const row = await getPrisma().user.findUnique({
+          where: { id: token.sub },
+          select: { sessionVersion: true },
+        });
+        if (!sessionIsCurrent(token.sessionVersion, row?.sessionVersion)) {
+          return null;
+        }
         return token;
       }
 
@@ -103,6 +114,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       token.sub = dbUser.id;
       token.picture = dbUser.image;
+      token.sessionVersion = dbUser.sessionVersion;
       return token;
     },
   },

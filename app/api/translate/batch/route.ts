@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
@@ -64,10 +65,12 @@ export async function POST(request: Request) {
             ),
           );
         } else {
-          const message =
-            error instanceof Error ? error.message : "Translation failed";
+          console.error("Translation failed", error);
+          const t = await getTranslations("api");
           controller.enqueue(
-            encoder.encode(JSON.stringify({ error: message }) + "\n"),
+            encoder.encode(
+              JSON.stringify({ error: t("translationFailed") }) + "\n",
+            ),
           );
         }
       } finally {

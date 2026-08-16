@@ -728,6 +728,7 @@
     "alreadyHaveWord": "You already have that word.",
     "alreadyInSchedule": "That word is already in the schedule.",
     "tooManyTranslations": "Too many translation requests. Try again in a while.",
+    "translationFailed": "Translation failed. Try again in a while.",
     "sendList": "Send a list of words.",
     "invalidAudioText": "Send one short piece of text to pronounce.",
     "tooManyAudioRequests": "Too many pronunciation requests. Try again later.",
