@@ -89,7 +89,7 @@ export function WordBulkActions({
         paddingLeft: isMobile ? undefined : `calc(${inset} + 1rem)`,
       }}
     >
-      <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-2 rounded-2xl bg-card px-3 py-2 shadow-sm ring-1 ring-foreground/10">
+      <div className="border-border bg-card shadow-pop pointer-events-auto flex max-w-full flex-wrap items-center gap-2.5 rounded-xl border px-3 py-2.5">
         <span className="px-1 text-sm font-medium whitespace-nowrap">
           {t("selected", { count })}
         </span>
@@ -168,7 +168,7 @@ export function WordBulkActions({
             variant="ghost"
             size="sm"
             disabled={busy}
-            className="text-muted-foreground hover:text-destructive"
+            className="text-destructive hover:bg-destructive-bg hover:text-destructive"
           >
             <Trash2 className="size-4" />
             <span className="hidden sm:inline">{common("delete")}</span>

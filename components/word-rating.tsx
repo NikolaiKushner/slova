@@ -33,7 +33,13 @@ export function WordRating({
           aria-hidden
           className={cn(
             "size-1.5 rounded-full",
-            index < rating ? "bg-data-learned" : "bg-data-untouched",
+            index < rating
+              ? "bg-data-learned"
+              : /*
+                 * On a selected row the neutral empty dot disappears into the
+                 * mint, and a scale you can only half see is worse than none.
+                 */
+                "bg-data-untouched group-data-[state=selected]:bg-accent-border",
           )}
         />
       ))}

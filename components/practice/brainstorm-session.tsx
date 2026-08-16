@@ -17,7 +17,7 @@ import {
 } from "@/components/layout/focus-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BrainstormStartSkeleton } from "@/components/practice/session-skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { EmptyState } from "@/components/empty-state";
 import { QuestionView, type Answered } from "@/components/practice/question-view";
@@ -137,12 +137,7 @@ export function BrainstormSession({ source }: { source: Source }) {
   }
 
   if (loading) {
-    return (
-      <div className="container-focus space-y-4 py-10">
-        <Skeleton className="mx-auto h-10 w-48" />
-        <Skeleton className="h-32 w-full" />
-      </div>
-    );
+    return <BrainstormStartSkeleton />;
   }
 
   if (!state || !data?.words.length) {

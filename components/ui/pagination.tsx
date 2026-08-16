@@ -44,7 +44,10 @@ type PaginationLinkProps = {
 function PaginationLink({
   className,
   isActive,
-  size = "icon",
+  // 36px across the whole pager, numbers and arrows alike — the reference
+  // mockup gives every step the same target, and a 28px number beside a 40px
+  // "Next" reads as two different controls.
+  size = "icon-lg",
   ...props
 }: PaginationLinkProps) {
   return (
@@ -75,7 +78,7 @@ function PaginationPrevious({
     <PaginationLink
       aria-label={t("previous")}
       size="default"
-      className={cn("pl-1.5!", className)}
+      className={cn("h-9 gap-1 px-3", className)}
       {...props}
     >
       <ChevronLeftIcon data-icon="inline-start" />
@@ -94,7 +97,7 @@ function PaginationNext({
     <PaginationLink
       aria-label={t("next")}
       size="default"
-      className={cn("pr-1.5!", className)}
+      className={cn("h-9 gap-1 px-3", className)}
       {...props}
     >
       <span className="hidden sm:block">{t("nextShort")}</span>

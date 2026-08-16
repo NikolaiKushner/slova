@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DrillSkeleton } from "@/components/practice/session-skeleton";
 import { DrillBar } from "@/components/practice/drill-bar";
 import { DrillSummary } from "@/components/practice/drill-summary";
 import { useFocusMode } from "@/components/practice/use-focus-mode";
@@ -147,12 +147,7 @@ export function PracticeSession({
   }
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="mx-auto h-10 w-48" />
-        <Skeleton className="h-32 w-full" />
-      </div>
-    );
+    return <DrillSkeleton />;
   }
 
   if (needsAudio(kind) && voice === false) {

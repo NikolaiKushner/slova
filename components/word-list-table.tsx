@@ -279,10 +279,10 @@ export function WordListTable() {
             )}
             aria-busy={loading}
           >
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-border bg-muted/50 hover:bg-muted/50">
-                  <TableHead className={cn("w-10", COLUMN_LABEL)}>
+                  <TableHead className={cn("w-[46px] ps-4", COLUMN_LABEL)}>
                     <Checkbox
                       checked={allTicked}
                       onCheckedChange={(value) =>
@@ -305,8 +305,8 @@ export function WordListTable() {
                       />
                     </TableHead>
                   ))}
-                  <TableHead className={COLUMN_LABEL}>{t("set")}</TableHead>
-                  <TableHead className={cn("w-28", COLUMN_LABEL)}>
+                  <TableHead className={cn("w-[120px]", COLUMN_LABEL)}>{t("set")}</TableHead>
+                  <TableHead className={cn("w-[104px]", COLUMN_LABEL)}>
                     <SortButton
                       label={t("learned")}
                       active={sort === "rating"}
@@ -314,7 +314,7 @@ export function WordListTable() {
                       onClick={() => sortBy("rating")}
                     />
                   </TableHead>
-                  <TableHead className="w-20" />
+                  <TableHead className="w-[78px]" />
                 </TableRow>
               </TableHeader>
               <TableBody>

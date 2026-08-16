@@ -110,14 +110,14 @@ export function WordListRow({
 
   return (
     <TableRow className="group" data-state={selected ? "selected" : undefined}>
-      <TableCell className="w-10">
+      <TableCell className="w-[46px] ps-4">
         <Checkbox
           checked={selected}
           onCheckedChange={(value) => onSelect(value === true)}
           aria-label={t("selectWord", { word: word.front })}
         />
       </TableCell>
-      <TableCell className="font-medium">
+      <TableCell className="overflow-hidden font-medium text-ellipsis">
         {editing ? (
           <Input
             value={front}
@@ -167,7 +167,7 @@ export function WordListRow({
         <WordRating rating={word.rating} />
       </TableCell>
 
-      <TableCell className="w-20">
+      <TableCell className="w-[78px] pe-3 text-right">
         <span
           className={cn(
             "flex justify-end gap-1 transition-opacity",
