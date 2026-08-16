@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { EmptyState } from "@/components/empty-state";
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import { setSummary } from "@/lib/study-queue";
@@ -30,7 +30,7 @@ export default async function SetsPage() {
   });
 
   return (
-    <Page>
+    <PageContainer container="list">
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("mySetsTitle")}
@@ -96,6 +96,6 @@ export default async function SetsPage() {
           </ul>
         )}
       </Section>
-    </Page>
+    </PageContainer>
   );
 }

@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import type en from "@/messages/en.json";
@@ -21,7 +21,7 @@ export function ComingSoon({ page }: { page: ComingSoonPage }) {
   const planned = t.raw("planned") as string[];
 
   return (
-    <Page>
+    <PageContainer container="list">
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("title")}
@@ -39,6 +39,6 @@ export function ComingSoon({ page }: { page: ComingSoonPage }) {
           ))}
         </ul>
       </Section>
-    </Page>
+    </PageContainer>
   );
 }

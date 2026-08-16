@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { PageBack } from "@/components/page-back";
 import { Section } from "@/components/section";
@@ -44,7 +44,7 @@ export default async function MyCoursesPage() {
   });
 
   return (
-    <Page>
+    <PageContainer container="list">
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("myTitle")}
@@ -94,6 +94,6 @@ export default async function MyCoursesPage() {
       </Section>
 
       <PageBack href="/courses/grammar" label={t("backToCourses")} />
-    </Page>
+    </PageContainer>
   );
 }

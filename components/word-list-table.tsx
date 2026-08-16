@@ -392,7 +392,7 @@ export function WordListTable() {
               value={String(size)}
               onValueChange={(next) => update({ pageSize: next ?? "" })}
             >
-              <SelectTrigger className="w-32" aria-label={t("wordsPerPage")}>
+              <SelectTrigger aria-label={t("wordsPerPage")}>
                 <SelectValue>{t("perPage", { count: size })}</SelectValue>
               </SelectTrigger>
               <SelectContent>

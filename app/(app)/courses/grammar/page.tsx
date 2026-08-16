@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ChevronRight } from "lucide-react";
 
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import {
@@ -24,7 +24,7 @@ export default async function CoursesGrammarPage() {
   const groups = grammarCatalog();
 
   return (
-    <Page>
+    <PageContainer container="list">
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("grammarTitle")}
@@ -55,7 +55,7 @@ export default async function CoursesGrammarPage() {
           </Section>
         ))}
       </div>
-    </Page>
+    </PageContainer>
   );
 }
 

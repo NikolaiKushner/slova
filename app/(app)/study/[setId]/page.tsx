@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { getOwnedSet } from "@/lib/ownership";
 import { notFound } from "next/navigation";
 import { StudySession } from "@/components/study-session";
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 
 type Props = { params: Promise<{ setId: string }> };
@@ -15,7 +15,7 @@ export default async function StudySetPage({ params }: Props) {
   if (!set) notFound();
 
   return (
-    <Page>
+    <PageContainer>
       <PageHeader
         eyebrow={t("eyebrow")}
         title={set.title}
@@ -30,6 +30,6 @@ export default async function StudySetPage({ params }: Props) {
         }
       />
       <StudySession setId={set.id} />
-    </Page>
+    </PageContainer>
   );
 }

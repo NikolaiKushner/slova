@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { LessonPlayer } from "@/components/courses/lesson-player";
 import { PageBack } from "@/components/page-back";
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { CourseContentError, loadCourse } from "@/lib/courses/load";
 
@@ -30,7 +30,7 @@ export default async function CourseLessonPage({ params }: Params) {
   if (!lesson) notFound();
 
   return (
-    <Page>
+    <PageContainer container="prose">
       <PageHeader
         eyebrow={loaded.course.title}
         title={lesson.title}
@@ -45,6 +45,6 @@ export default async function CourseLessonPage({ params }: Params) {
         href={`/courses/grammar/${courseSlug}`}
         label={t("backToLessons")}
       />
-    </Page>
+    </PageContainer>
   );
 }

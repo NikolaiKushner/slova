@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { getStudySummary } from "@/lib/study-queue";
 import { getProgress, progressLine } from "@/lib/progress";
@@ -44,7 +44,7 @@ export default async function TodayPage() {
   }
 
   return (
-    <Page>
+    <PageContainer>
       <PageHeader
         eyebrow={t("eyebrow")}
         title={title}
@@ -87,6 +87,6 @@ export default async function TodayPage() {
           {t("addWords")}
         </Link>
       </div>
-    </Page>
+    </PageContainer>
   );
 }

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import { Card } from "@/components/ui/card";
@@ -45,7 +45,7 @@ export default async function PracticePage() {
   const [brainstorm, ...rest] = TRAININGS;
 
   return (
-    <Page>
+    <PageContainer>
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("title")}
@@ -71,7 +71,7 @@ export default async function PracticePage() {
           />
         </Section>
       </div>
-    </Page>
+    </PageContainer>
   );
 }
 

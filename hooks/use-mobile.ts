@@ -1,6 +1,7 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+/* §8: the sidebar becomes a Sheet below 1024, which covers iPad in portrait. */
+const MOBILE_BREAKPOINT = 1024
 const MOBILE_QUERY = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`
 
 /**

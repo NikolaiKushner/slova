@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { TrainingRunner } from "@/components/practice/training-runner";
 import { trainingBySlug } from "@/lib/practice/catalog";
 
@@ -16,8 +16,8 @@ export default async function TrainingPage({ params }: Params) {
   if (!training) notFound();
 
   return (
-    <Page>
+    <PageContainer>
       <TrainingRunner training={training} />
-    </Page>
+    </PageContainer>
   );
 }

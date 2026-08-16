@@ -8,7 +8,7 @@ import { SetWords } from "@/components/set-words";
 import { DeleteSetButton } from "@/components/delete-set-button";
 import { AddWordsPanel } from "@/components/add-words-panel";
 import { EmptyState } from "@/components/empty-state";
-import { Page } from "@/components/page";
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import { getNewAllowance, setSummary } from "@/lib/study-queue";
@@ -42,7 +42,7 @@ export default async function SetPage({ params }: Props) {
   const studiable = dueCount + Math.min(unseenCount, allowance);
 
   return (
-    <Page>
+    <PageContainer container="list">
       <PageHeader
         eyebrow={t("setEyebrow")}
         title={set.title}
@@ -94,6 +94,6 @@ export default async function SetPage({ params }: Props) {
           <AddWordsPanel setId={set.id} />
         </Section>
       </div>
-    </Page>
+    </PageContainer>
   );
 }

@@ -3,19 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ALargeSmall,
   Bookmark,
-  BookText,
+  BookOpenText,
   CalendarCheck,
   ChevronsUpDown,
   Heart,
-  Dumbbell,
   Layers,
-  Library,
+  LibraryBig,
   LogOut,
   Map as MapIcon,
   PenLine,
+  Repeat2,
   Sparkles,
-  SpellCheck,
   TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -61,13 +61,13 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/tasks": MapIcon,
   "/tasks/today": CalendarCheck,
   "/tasks/progress": TrendingUp,
-  "/practice": Dumbbell,
-  "/practice/grammar": SpellCheck,
-  "/practice/reading": BookText,
+  "/practice": Repeat2,
+  "/practice/grammar": ALargeSmall,
+  "/practice/reading": BookOpenText,
   "/courses/grammar": PenLine,
   "/courses/topics": Layers,
   "/courses/my": Heart,
-  "/dictionary": Library,
+  "/dictionary": LibraryBig,
   "/dictionary/sets": Bookmark,
   "/dictionary/catalog": Sparkles,
 };
@@ -183,7 +183,7 @@ export function AppSidebar() {
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
           <SidebarGroup key={section.titleKey} className="py-4">
-            <SidebarGroupLabel className="h-7 text-xs tracking-[0.14em] text-brand-soft group-data-[collapsible=icon]:-mt-7">
+            <SidebarGroupLabel className="text-caption h-7 font-medium text-eyebrow group-data-[collapsible=icon]:-mt-7">
               {t(section.titleKey)}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -201,9 +201,9 @@ export function AppSidebar() {
                           section: sectionTitle,
                           item: itemTitle,
                         })}
-                        className="h-8 py-0 text-base leading-none [&_svg]:size-4"
+                        className="text-body-sm h-9 gap-2.5 rounded-sm px-2.5 py-2 leading-none [&_svg]:size-[17px]"
                       >
-                        {Icon ? <Icon /> : null}
+                        {Icon ? <Icon strokeWidth={1.7} /> : null}
                         <span>{itemTitle}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
