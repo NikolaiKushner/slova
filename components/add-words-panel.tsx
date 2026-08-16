@@ -222,30 +222,32 @@ export function AddWordsPanel({
   }
 
   return (
-    <div className="space-y-3">
-      <Card className="gap-0 py-0">
+    <div className="space-y-2.5">
+      <Card className="gap-0 overflow-hidden py-0">
         <CardContent className="p-0">
           <WordComposer rows={rows} onChange={setRows} disabled={busy} />
         </CardContent>
-        <CardFooter
-          className={
-            fixedSetId
-              ? "justify-end"
-              : "flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"
-          }
-        >
-          {fixedSetId ? null : (
-            <SetPicker
-              sets={sets}
-              value={setValue}
-              newTitle={newTitle}
-              onValueChange={setSetValue}
-              onNewTitleChange={setNewTitle}
-              disabled={busy}
-            />
+        <CardFooter className="bg-muted border-border-subtle flex-col items-stretch gap-3 border-t px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          {fixedSetId ? (
+            <span />
+          ) : (
+            <div className="flex flex-wrap items-center gap-3">
+              <SetPicker
+                sets={sets}
+                value={setValue}
+                newTitle={newTitle}
+                onValueChange={setSetValue}
+                onNewTitleChange={setNewTitle}
+                disabled={busy}
+              />
+              {/* The picker keeps its choice between batches; saying so stops
+                  people re-picking the same set every time. */}
+              <span className="text-disabled-foreground text-caption max-sm:hidden">
+                {t("setRemembered")}
+              </span>
+            </div>
           )}
           <Button
-            size="lg"
             onClick={submit}
             disabled={busy || words.length === 0 || needsName}
           >
@@ -260,9 +262,26 @@ export function AddWordsPanel({
         </CardFooter>
       </Card>
 
+      <p className="text-disabled-foreground text-caption px-0.5">
+        {t("composerHint")}{" "}
+        {t.rich("composerKeys", {
+          enter: () => <Key>Enter</Key>,
+          tab: () => <Key>Tab</Key>,
+        })}
+      </p>
+
       {message ? (
-        <p className="text-muted-foreground text-sm">{message}</p>
+        <p className="text-muted-foreground text-caption px-0.5">{message}</p>
       ) : null}
     </div>
+  );
+}
+
+/** A key in running text. Hidden on touch, where there is no keyboard (§9). */
+function Key({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="bg-card text-foreground border-border coarse:hidden rounded-sm border border-b-2 px-1.5 py-px text-[11px] font-normal">
+      {children}
+    </kbd>
   );
 }

@@ -510,7 +510,15 @@
     "nothingMatchesTitle": "Ничего не нашлось",
     "clearFilters": "Сбросить фильтр",
     "noSetsTitle": "Наборов пока нет",
-    "emptySetTitle": "Набор пуст"
+    "emptySetTitle": "Набор пуст",
+    "englishRow": "Английское слово, строка {row}",
+    "russianRow": "Перевод, строка {row}",
+    "removeRow": "Убрать строку {row}",
+    "composerHint": "Можно вставить сразу список: по слову на строку, или «word — перевод», или две колонки из таблицы.",
+    "composerKeys": "<enter></enter> — новая строка, <tab></tab> — в поле перевода",
+    "setRemembered": "Набор запомнится на следующий раз",
+    "pasteHint": "Вставьте список — он разложится по строкам",
+    "learnedLegend": "пять ступеней — от узнавания до письма по памяти"
   },
   "study": {
     "eyebrow": "Учёба",

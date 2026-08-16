@@ -28,6 +28,7 @@ import type { SetOption } from "@/components/set-picker";
 import { WordListFilters } from "@/components/word-list-filters";
 import { WordListRow, type WordRow } from "@/components/word-list-row";
 import { Checkbox } from "@/components/ui/checkbox";
+import { WordRating } from "@/components/word-rating";
 import {
   Select,
   SelectContent,
@@ -232,6 +233,7 @@ export function WordListTable() {
           sets={sets}
           onQueryChange={(value) => update({ q: value })}
           onSetChange={(value) => update({ set: value })}
+          count={data ? t("summaryWords", { count: data.total }) : null}
         />
 
       {loading && !data ? (
@@ -335,6 +337,17 @@ export function WordListTable() {
             </Table>
           </div>
 
+          {/*
+            What the five dots mean. Without it they are decoration: a column
+            of grey circles that changes and never says why. §5 of the
+            principles — a counter nobody can read is not progress.
+          */}
+          <p className="text-disabled-foreground text-caption flex flex-wrap items-center gap-2">
+            <span>{t("learned")}:</span>
+            <WordRating rating={2} decorative />
+            <span>{t("learnedLegend")}</span>
+          </p>
+
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {data.pages > 1 ? (
               <Pagination className="mx-0 w-auto justify-start">
@@ -383,9 +396,7 @@ export function WordListTable() {
                 </PaginationContent>
               </Pagination>
             ) : (
-              <span className="text-muted-foreground text-sm">
-                {t("summaryWords", { count: data.total })}
-              </span>
+              <span />
             )}
 
             <Select

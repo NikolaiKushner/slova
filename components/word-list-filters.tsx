@@ -35,12 +35,15 @@ export function WordListFilters({
   sets,
   onQueryChange,
   onSetChange,
+  /** How many words the filters left, shown where the filtering happens. */
+  count,
 }: {
   query: string;
   set: string;
   sets: SetOption[];
   onQueryChange: (value: string) => void;
   onSetChange: (value: string) => void;
+  count?: React.ReactNode;
 }) {
   const t = useTranslations("dictionary");
   const [draft, setDraft] = useState(query);
@@ -62,15 +65,15 @@ export function WordListFilters({
         : (sets.find((option) => option.id === selected)?.title ?? t("allSets"));
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="relative w-64 max-w-full">
+    <div className="flex flex-wrap items-center gap-2.5">
+      <div className="relative w-72 max-w-full">
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
         <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder={t("searchWords")}
           aria-label={t("searchWordsAria")}
-          className="h-8 pl-8"
+          className="pl-9"
         />
         {draft ? (
           <Button
@@ -108,6 +111,9 @@ export function WordListFilters({
           ))}
         </SelectContent>
       </Select>
+      <span className="text-muted-foreground text-caption ms-auto shrink-0 tabular-nums">
+        {count}
+      </span>
     </div>
   );
 }

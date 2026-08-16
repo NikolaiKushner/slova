@@ -30,7 +30,7 @@ export default function DictionaryPage() {
       />
 
       <div className="space-y-10">
-        <Section title={t("addWords")}>
+        <Section title={t("addWords")} hint={t("pasteHint")}>
           <AddWordsPanel onAdded={() => setReloadKey((key) => key + 1)} />
         </Section>
 

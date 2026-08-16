@@ -510,7 +510,15 @@
     "nothingMatchesTitle": "Nothing matches",
     "clearFilters": "Clear the filter",
     "noSetsTitle": "No sets yet",
-    "emptySetTitle": "This set is empty"
+    "emptySetTitle": "This set is empty",
+    "englishRow": "English word, row {row}",
+    "russianRow": "Translation, row {row}",
+    "removeRow": "Remove row {row}",
+    "composerHint": "You can paste a whole list: one word per line, or “word — translation”, or two columns from a spreadsheet.",
+    "composerKeys": "<enter></enter> for a new row, <tab></tab> for the translation field",
+    "setRemembered": "The set is remembered for next time",
+    "pasteHint": "Paste a list — it splits into rows",
+    "learnedLegend": "five rungs — from recognising it to writing it from memory"
   },
   "study": {
     "eyebrow": "Study",
