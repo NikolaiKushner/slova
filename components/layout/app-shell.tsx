@@ -68,10 +68,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <BrandWordmark className="text-xl" />
         </header>
         {/*
-          Page padding from §7 and §8: sides 40/32/20, top 46/32/28, bottom
-          80/64/56. Pages do not set these — that is what made them drift.
+          Page padding from §7 and §8, read from --page-* in globals.css.
+          Pages do not set these — that is what made them drift — and
+          FocusShell cancels exactly these values to reach the edges.
         */}
-        <div className="flex flex-1 flex-col px-5 pt-7 pb-14 md:px-8 md:pt-8 md:pb-16 lg:px-10 lg:pt-[46px] lg:pb-20">
+        <div className="flex flex-1 flex-col px-(--page-px) pt-(--page-pt) pb-(--page-pb)">
           {children}
         </div>
       </SidebarInset>

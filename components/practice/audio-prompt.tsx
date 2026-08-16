@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Clock, RotateCcw, Volume2 } from "lucide-react";
+import { Clock, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { PlayButton } from "@/components/slova/play-button";
 import { Button } from "@/components/ui/button";
 import { speak } from "@/lib/practice/speech";
 import { cn } from "@/lib/utils";
@@ -103,20 +104,12 @@ export function AudioPrompt({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
+      <PlayButton
+        size="lg"
+        playing={speaking}
         onClick={() => void say()}
         aria-label={t("playWord")}
-        data-speaking={speaking}
-        className={cn(
-          "sound-ring bg-card text-primary relative size-24 rounded-full shadow-sm",
-          "hover:bg-card hover:-translate-y-0.5 hover:shadow-md active:translate-y-0",
-        )}
-      >
-        <Volume2 className="size-8" aria-hidden />
-      </Button>
+      />
 
       <div className="flex items-center gap-2">
         <Button

@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Delete, Volume2, X } from "lucide-react";
+import { Check, Volume2, X } from "lucide-react";
 
 import { AudioPrompt } from "@/components/practice/audio-prompt";
-import { ShortcutHints } from "@/components/practice/shortcut-hints";
+import { KeyHints } from "@/components/slova/key-hints";
+import { LetterTiles } from "@/components/slova/letter-tiles";
+import { OptionButton, OptionList } from "@/components/slova/option-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { judge, passed, type Verdict } from "@/lib/practice/answer";
@@ -29,11 +31,20 @@ export function QuestionView({
   question,
   onAnswered,
   answered = false,
+  part = "all",
 }: {
   question: Question;
   onAnswered: (result: Answered) => void;
   /** The verdict is in. Audio formats use it to reveal the word they hid. */
   answered?: boolean;
+  /**
+   * Which half to draw. §15.2 puts the prompt in a zone of fixed height and
+   * the answer in another, so that changing format changes the contents and
+   * not the geometry — and the two zones are not siblings in the tree. A
+   * screen on FocusShell therefore renders this twice, once for each half.
+   * Everything else asks for "all" and gets both, as before.
+   */
+  part?: "all" | "prompt" | "answer";
 }) {
   /**
    * `blocked` means the browser refused to talk without being asked — a press
@@ -58,24 +69,32 @@ export function QuestionView({
   // previous answer's state cannot leak into it and no effect has to clear it.
   const key = `${question.wordId}-${question.kind}`;
 
+  const prompt = part !== "answer" && (
+    <Prompt
+      question={question}
+      sound={sound}
+      onPlay={play}
+      answered={answered}
+      onSilent={(source) => setSound(source === "auto" ? "blocked" : "broken")}
+      onHeard={() => setSound("ok")}
+    />
+  );
+
+  const answer = part !== "prompt" &&
+    ("options" in question ? (
+      <Choices key={key} question={question} onAnswered={onAnswered} />
+    ) : "letters" in question ? (
+      <Builder key={key} question={question} onAnswered={onAnswered} />
+    ) : (
+      <Typed key={key} question={question} onAnswered={onAnswered} />
+    ));
+
+  if (part !== "all") return <>{prompt || answer}</>;
+
   return (
     <div className="space-y-6">
-      <Prompt
-        question={question}
-        sound={sound}
-        onPlay={play}
-        answered={answered}
-        onSilent={(source) => setSound(source === "auto" ? "blocked" : "broken")}
-        onHeard={() => setSound("ok")}
-      />
-
-      {"options" in question ? (
-        <Choices key={key} question={question} onAnswered={onAnswered} />
-      ) : "letters" in question ? (
-        <Builder key={key} question={question} onAnswered={onAnswered} />
-      ) : (
-        <Typed key={key} question={question} onAnswered={onAnswered} />
-      )}
+      {prompt}
+      {answer}
     </div>
   );
 }
@@ -202,67 +221,42 @@ function Choices({
 
   return (
     <div className="space-y-5">
-      <ul className="space-y-2">
+      <OptionList>
         {question.options.map((option, index) => {
           const isAnswer = index === question.answerIndex;
           const decided = chosen !== null;
-          const correct = decided && isAnswer;
-          const wrong = decided && chosen === index && !isAnswer;
 
           return (
             <li key={option}>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
+              <OptionButton
+                index={index}
                 disabled={decided}
                 onClick={() => choose(index)}
-                className={cn(
-                  "h-auto w-full justify-start gap-3.5 px-4 py-3.5 text-left text-[15px] whitespace-normal transition",
-                  !decided &&
-                    "bg-card hover:border-brand-soft hover:translate-x-0.5",
-                  // A disabled control is normally faded; here the verdict is
-                  // the whole point of the screen, so the two answered states
-                  // keep full contrast and only the bystanders step back.
-                  decided && "disabled:opacity-100",
-                  correct &&
-                    "bg-correct-soft border-correct-line text-correct hover:bg-correct-soft",
-                  wrong &&
-                    "bg-wrong-soft border-wrong-line text-wrong hover:bg-wrong-soft",
-                  decided &&
-                    !correct &&
-                    !wrong &&
-                    "bg-card border-border disabled:opacity-45",
-                )}
+                /*
+                 * A disabled control is normally faded, but here the verdict is
+                 * the whole point of the screen: the two answered states keep
+                 * full contrast and only the bystanders step back.
+                 */
+                state={
+                  !decided
+                    ? "idle"
+                    : isAnswer
+                      ? "correct"
+                      : chosen === index
+                        ? "incorrect"
+                        : "dimmed"
+                }
               >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "flex size-[22px] shrink-0 items-center justify-center rounded-[5px] text-[11.5px] transition",
-                    correct
-                      ? "bg-correct text-white"
-                      : wrong
-                        ? "bg-wrong text-white"
-                        : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {index + 1}
-                </span>
-                <span className="min-w-0 flex-1">{option}</span>
-                {correct ? <Check className="size-4 shrink-0" /> : null}
-                {wrong ? <X className="size-4 shrink-0" /> : null}
-              </Button>
+                {option}
+              </OptionButton>
             </li>
           );
         })}
-      </ul>
+      </OptionList>
 
-      <ShortcutHints
-        items={[
-          {
-            keys: ["1", String(question.options.length)],
-            label: t("hintPick"),
-          },
+      <KeyHints
+        hints={[
+          { keys: ["1", String(question.options.length)], label: t("hintPick") },
           ...(withSound
             ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
             : []),
@@ -281,128 +275,35 @@ function Builder({
   onAnswered: (result: Answered) => void;
 }) {
   const t = useTranslations("practice");
-  const common = useTranslations("common");
-  const [picked, setPicked] = useState<number[]>([]);
-  const [done, setDone] = useState(false);
-  const [right, setRight] = useState(false);
+  const [verdict, setVerdict] = useState<"correct" | "incorrect" | null>(null);
 
-  const assembled = picked.map((index) => question.letters[index]).join("");
-
-  const commit = useCallback(
-    (next: number[]) => {
-      setPicked(next);
-      // Checked the moment every tile is used: asking for a separate confirm
-      // after the last letter is a click that carries no information.
-      if (next.length === question.letters.length) {
-        const given = next.map((i) => question.letters[i]).join("");
-        const verdict = judge(given, question.answer);
-        setDone(true);
-        setRight(passed(verdict));
-        onAnswered({ verdict, given });
-      }
+  /*
+   * The tiles, the slots and their keyboard live in LetterTiles now; what
+   * stays here is the only part that is about this exercise rather than about
+   * letters — judging the guess. `judge` and not a string comparison, because
+   * a word one letter out is "почти" and the session treats it as such.
+   */
+  const complete = useCallback(
+    (given: string) => {
+      const result = judge(given, question.answer);
+      setVerdict(passed(result) ? "correct" : "incorrect");
+      onAnswered({ verdict: result, given });
     },
     [question, onAnswered],
   );
 
-  function add(index: number) {
-    if (done || picked.includes(index)) return;
-    commit([...picked, index]);
-  }
-
-  /**
-   * The tiles are also a keyboard. Typing a letter takes the leftmost tile
-   * bearing it, backspace gives the last one back — which is what anyone who
-   * can touch-type will try first, and clicking six tiles with a mouse when
-   * your hands are already on the keys is a strange thing to insist on.
-   */
-  useEffect(() => {
-    if (done) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-
-      if (event.key === "Backspace") {
-        event.preventDefault();
-        setPicked(picked.slice(0, -1));
-        return;
-      }
-
-      if (event.key.length !== 1) return;
-      const typed = event.key.toLowerCase();
-      const index = question.letters.findIndex(
-        (letter, i) => !picked.includes(i) && letter.toLowerCase() === typed,
-      );
-      if (index === -1) return;
-
-      event.preventDefault();
-      commit([...picked, index]);
-    }
-
-    // Re-subscribed on every letter so the handler reads the tiles as they are
-    // now. Deriving it inside a state updater instead would put `onAnswered`
-    // in a place React is allowed to run twice.
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [question, done, picked, commit]);
-
   return (
-    <div className="space-y-4">
-      <div
-        className={cn(
-          "flex min-h-12 items-center justify-center rounded-lg border border-dashed px-4",
-          done
-            ? right
-              ? "border-primary"
-              : "border-destructive"
-            : "border-border",
-        )}
-      >
-        <span
-          className={cn(
-            "font-display text-2xl tracking-wide",
-            done && (right ? "text-primary" : "text-destructive"),
-          )}
-        >
-          {assembled || (
-            <span className="text-muted-foreground text-base">…</span>
-          )}
-        </span>
-      </div>
+    <div className="space-y-6">
+      <LetterTiles
+        word={question.answer}
+        letters={question.letters}
+        verdict={verdict}
+        onComplete={complete}
+      />
 
-      <div className="flex flex-wrap justify-center gap-2">
-        {question.letters.map((letter, index) => (
-          <Button
-            key={`${letter}-${index}`}
-            type="button"
-            variant="outline"
-            size="lg"
-            className="min-w-11 font-mono text-base"
-            disabled={picked.includes(index) || done}
-            onClick={() => add(index)}
-          >
-            {letter === " " ? "␣" : letter}
-          </Button>
-        ))}
-      </div>
-
-      {picked.length > 0 && !done && (
-        <div className="flex justify-center">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setPicked(picked.slice(0, -1))}
-            aria-label={t("undoLetter")}
-          >
-            <Delete className="size-4" />
-            {common("undo")}
-          </Button>
-        </div>
-      )}
-
-      <ShortcutHints
+      <KeyHints
         className="justify-center"
-        items={[
+        hints={[
           { keys: [], label: t("hintTypeLetters") },
           { keys: [t("keyBackspace")], label: t("hintTakeBack") },
           { keys: [t("keyEnter")], label: t("hintNext") },
@@ -469,9 +370,9 @@ function Typed({
         </Button>
       </div>
 
-      <ShortcutHints
+      <KeyHints
         className="justify-center"
-        items={[
+        hints={[
           {
             keys: [t("keyEnter")],
             label: done ? t("hintNext") : t("hintCheck"),

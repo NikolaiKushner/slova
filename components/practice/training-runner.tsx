@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { BrainstormSession } from "@/components/practice/brainstorm-session";
 import { PracticeSession } from "@/components/practice/practice-session";
@@ -35,20 +36,27 @@ export function TrainingRunner({ training }: { training: Training }) {
    */
   if (setIds === null) {
     return (
-      <>
+      <PageContainer>
         <PageHeader
           eyebrow={practice("eyebrow")}
           title={title}
           description={trainings(`${training.id}.description`)}
         />
         <SetChooser title={title} onStart={start} />
-      </>
+      </PageContainer>
     );
   }
 
+  /*
+   * Brainstorm is on FocusShell and owns its own width (§15.2). The other
+   * trainings are not there yet — 5.1 rebuilds the question screen and moves
+   * them — so they keep a page container until they do.
+   */
   return training.id === "brainstorm" ? (
     <BrainstormSession setIds={setIds} />
   ) : (
-    <PracticeSession kind={training.id} title={title} setIds={setIds} />
+    <PageContainer>
+      <PracticeSession kind={training.id} title={title} setIds={setIds} />
+    </PageContainer>
   );
 }

@@ -17,17 +17,26 @@ import { cn } from "@/lib/utils";
  */
 export function LetterTiles({
   word,
+  letters: given,
   verdict,
   onComplete,
   className,
 }: {
   word: string;
+  /**
+   * The tiles to offer. Questions arrive with their letters already shuffled
+   * against the session seed, and reshuffling them here would undo that.
+   */
+  letters?: string[];
   /** Set by the parent once judged; locks the tiles and colours the slots. */
   verdict?: "correct" | "incorrect" | null;
   onComplete: (guess: string) => void;
   className?: string;
 }) {
-  const letters = useMemo(() => shuffle(word.split(""), word), [word]);
+  const letters = useMemo(
+    () => given ?? shuffle(word.split(""), word),
+    [given, word],
+  );
   // Which tile index sits in each slot; null means the slot is empty.
   const [placed, setPlaced] = useState<(number | null)[]>(() =>
     word.split("").map(() => null),

@@ -1,7 +1,7 @@
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { LEXICON_VERSION } from "@/lib/lexicon/lookup";
-import { SESSION_SIZE } from "@/lib/practice/brainstorm";
+import { clampSessionSize } from "@/lib/practice/brainstorm";
 import type { PracticeWord } from "@/lib/practice/question";
 import { getPrisma } from "@/lib/prisma";
 
@@ -29,7 +29,12 @@ export type PracticeSession = {
 
 export async function buildPracticeSession(
   userId: string,
-  options: { setIds?: readonly string[]; brainstorm?: boolean } = {},
+  options: {
+    setIds?: readonly string[];
+    brainstorm?: boolean;
+    /** Brainstorm only; other trainings run at TRAINING_SIZE. */
+    size?: number;
+  } = {},
 ): Promise<PracticeSession> {
   const prisma = getPrisma();
   // Several sets at once, because a session is a choice of material rather
@@ -41,7 +46,9 @@ export async function buildPracticeSession(
     ...(setIds.length > 0 ? { sets: { some: { setId: { in: setIds } } } } : {}),
   };
 
-  const limit = options.brainstorm ? SESSION_SIZE : TRAINING_SIZE;
+  const limit = options.brainstorm
+    ? clampSessionSize(options.size ?? null)
+    : TRAINING_SIZE;
 
   // Brainstorm exists for words that have never been studied; every other
   // training is practice, so it takes what is due first and then whatever is

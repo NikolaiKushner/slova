@@ -26,10 +26,14 @@ export async function GET(request: Request) {
   // inside one would be silently wrong rather than loudly.
   const setIds = params.getAll("set").map((id) => id.trim()).filter(Boolean);
   const brainstorm = params.get("mode") === "brainstorm";
+  // Clamped rather than trusted: the value reaches a `take`, and a query
+  // string is not a place to accept an arbitrary row count from.
+  const size = Number.parseInt(params.get("size") ?? "", 10);
 
   const { words, pool } = await buildPracticeSession(session.user.id, {
     setIds,
     brainstorm,
+    size: Number.isInteger(size) ? size : undefined,
   });
 
   // Seeds the shuffling of options and letters. Generated here so the client

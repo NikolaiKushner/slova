@@ -329,7 +329,24 @@
     "keySpace": "Space",
     "keyEnter": "Enter",
     "keyBackspace": "Backspace",
-    "railWord": "Word {index}: {stage} of {total} rungs"
+    "railWord": "Word {index}: {stage} of {total} rungs",
+    "brainstormKicker": "Practice · Brainstorm",
+    "brainstormIntro": "Every word climbs the whole ladder — from recognising the translation to writing it from memory. A wrong answer drops it back a rung. The session ends when all of them reach the top.",
+    "sessionSize": "Words per session",
+    "sizeWords": "{count} words",
+    "startIn": "Start · ~{minutes} min",
+    "exitSession": "Leave",
+    "masteredOf": "{done} of {total} learned",
+    "stageOf": "rung {stage} of {total}",
+    "stageMoved": "rung {from} → {to}",
+    "stageFirst": "stays on the first rung",
+    "wordMastered": "word learned",
+    "statAnswers": "answers",
+    "statWords": "words",
+    "cleanRun": "no mistakes",
+    "roughRun": "{count, plural, one {# mistake} other {# mistakes}}",
+    "moreNewWords": "More new words",
+    "confirmExit": "Leave the session? Rungs climbed will not be kept."
   },
   "trainings": {
     "brainstorm": {

@@ -134,7 +134,17 @@ export function FocusShell({
   }, []);
 
   return (
-    <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
+    /*
+     * Bleeds out of the page padding AppShell applies, so the sticky bar in
+     * §15.2 runs edge to edge across the content area instead of floating
+     * inside a margin. Cancels --page-* rather than repeating the numbers.
+     */
+    <div
+      className={cn(
+        "-mx-(--page-px) -mt-(--page-pt) -mb-(--page-pb) flex min-h-0 flex-1 flex-col",
+        className,
+      )}
+    >
       {topBar}
       <div className="flex flex-1 items-center justify-center px-5 py-8 md:px-8">
         <div className="container-focus flex w-full flex-col gap-6">

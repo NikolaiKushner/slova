@@ -2,22 +2,25 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { ChevronLeft, Volume2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { AnswerFeedback } from "@/components/slova/answer-feedback";
+import { Eyebrow } from "@/components/slova/eyebrow";
+import { StageRail, type StageRailWord } from "@/components/slova/stage-rail";
+import {
+  FocusAnswer,
+  FocusFooter,
+  FocusPrompt,
+  FocusShell,
+  FocusTopBar,
+} from "@/components/layout/focus-shell";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  AnswerFeedback,
-  QuestionView,
-  type Answered,
-} from "@/components/practice/question-view";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { EmptyState } from "@/components/empty-state";
+import { QuestionView, type Answered } from "@/components/practice/question-view";
 import { passed } from "@/lib/practice/answer";
 import {
   answerBrainstorm,
@@ -25,29 +28,37 @@ import {
   currentTask,
   DEFAULT_LADDER,
   isFinished,
+  SESSION_SIZE,
+  SESSION_SIZES,
   startBrainstorm,
   type BrainstormState,
 } from "@/lib/practice/brainstorm";
 import { buildQuestion, type PracticeWord } from "@/lib/practice/question";
 import { speak, whenVoiceReady } from "@/lib/practice/speech";
 import { sessionQuery } from "@/lib/practice/catalog";
-import { Volume2 } from "lucide-react";
 
 /**
  * Brainstorm: the ladder, drawn.
  *
- * All the thinking lives in `lib/practice/brainstorm.ts` as a pure function,
- * so this is only ever asking it what to show and telling it what happened.
- * The one thing worth noticing here is what is *not* shown: no percentage.
- * A progress bar in a drill-to-mastery session turns it into a number to be
- * pushed to 100, and people start guessing to move it. What is shown is how
- * many words are still in the room, which is the truth and cannot be gamed.
+ * All the thinking still lives in `lib/practice/brainstorm.ts` as a pure
+ * function, so this only ever asks it what to show and tells it what happened.
+ * What changed is the drawing: three views on the shells and the kit from §14
+ * and §15.2, instead of a stack of ad-hoc boxes.
+ *
+ * The one thing worth noticing is what is *not* shown during a question. No
+ * percentage — a progress bar in a drill-to-mastery session turns it into a
+ * number to be pushed to 100 and people start guessing to move it. And no word
+ * of the session anywhere near the rail, for the reason spelled out in
+ * `StageRail`: the answer is always one of them.
  */
 
 type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
 
 export function BrainstormSession({ setIds }: { setIds: string[] }) {
   const t = useTranslations("practice");
+  const common = useTranslations("common");
+
+  const [size, setSize] = useState<number>(SESSION_SIZE);
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<BrainstormState | null>(null);
@@ -55,12 +66,15 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
   // The words are read before they are drilled, not during.
   const [started, setStarted] = useState(false);
   const [hasVoice, setHasVoice] = useState(false);
+  const [answers, setAnswers] = useState(0);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     let ignore = false;
 
     Promise.all([
-      fetch(`/api/practice/session?mode=brainstorm&${sessionQuery(setIds)}`)
+      fetch(`/api/practice/session?mode=brainstorm&size=${size}&${sessionQuery(setIds)}`)
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null),
       whenVoiceReady(),
@@ -81,7 +95,7 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
     return () => {
       ignore = true;
     };
-  }, [setIds]);
+  }, [setIds, size]);
 
   const task = state && started ? currentTask(state) : null;
   const word = data?.words.find((w) => w.id === task?.wordId) ?? null;
@@ -109,11 +123,6 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
     }
   }, []);
 
-  function answer(given: Answered) {
-    if (!state) return;
-    setResult(given);
-  }
-
   function next() {
     if (!state) return;
     const correct = result ? passed(result.verdict) : true;
@@ -121,12 +130,15 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
 
     const advanced = answerBrainstorm(state, correct);
     setState(advanced);
-    if (isFinished(advanced)) handOver(advanced);
+    if (isFinished(advanced)) {
+      handOver(advanced);
+      if (startedAt) setElapsed(Math.round((Date.now() - startedAt) / 1000));
+    }
   }
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="container-focus space-y-4 py-10">
         <Skeleton className="mx-auto h-10 w-48" />
         <Skeleton className="h-32 w-full" />
       </div>
@@ -146,113 +158,329 @@ export function BrainstormSession({ setIds }: { setIds: string[] }) {
 
   if (!started) {
     return (
-      <Preview
+      <Start
         words={data.words}
         hasVoice={hasVoice}
-        onStart={() => setStarted(true)}
+        size={size}
+        ladder={hasVoice ? AUDIO_LADDER : DEFAULT_LADDER}
+        onSize={(next) => {
+          // Set here rather than in the effect: the skeleton is a consequence of
+          // the choice, and `react-hooks/set-state-in-effect` is right that an
+          // effect is the wrong place to say so.
+          setLoading(true);
+          setSize(next);
+        }}
+        onStart={() => {
+          setAnswers(0);
+          setStartedAt(Date.now());
+          setStarted(true);
+        }}
       />
     );
   }
 
   if (isFinished(state)) {
-    const learned = state.mastered.length;
-    const parked = state.struggling.length;
     return (
-      <Done
-        title={t("learnedCount", { count: learned })}
-        body={parked > 0 ? t("parked", { count: parked }) : t("ladderDone")}
-        href="/practice"
-        label={t("backToTrainings")}
+      <Summary
+        state={state}
+        words={data.words}
+        answers={answers}
+        seconds={elapsed}
+        onAgain={() => {
+          setStarted(false);
+          setState(startBrainstorm(data.words, hasVoice ? AUDIO_LADDER : DEFAULT_LADDER));
+        }}
       />
     );
   }
 
-  if (!task || !word) return null;
+  if (!task || !word || !question) return null;
+
+  const rail: StageRailWord[] = state.words.map((entry) => ({
+    id: entry.wordId,
+    stage: entry.pos,
+    total: entry.ladder.length,
+  }));
+  const mastered = state.mastered.length + state.struggling.length;
+  const current = state.words.find((entry) => entry.wordId === task.wordId);
+  const answer =
+    "answer" in question ? question.answer : question.options[question.answerIndex];
 
   return (
-    <div className="space-y-8">
-      <p className="text-brand-soft text-center text-xs tracking-widest uppercase">
-        {t("wordsLeft", { count: task.remaining })}
-      </p>
-
-      {question && <QuestionView question={question} onAnswered={answer} />}
-
-      {question && (
-        <AnswerFeedback
-          result={result}
-          answer={
-            "answer" in question
-              ? question.answer
-              : question.options[question.answerIndex]
+    <FocusShell
+      topBar={
+        <FocusTopBar
+          leading={
+            <Button variant="ghost" size="sm" render={<Link href="/practice" />}>
+              <ChevronLeft />
+              {t("exitSession")}
+            </Button>
           }
-          onNext={next}
+          progress={<StageRail words={rail} currentId={task.wordId} />}
+          trailing={
+            <span className="text-muted-foreground text-caption tabular-nums">
+              {t("masteredOf", { done: mastered, total: state.words.length })}
+            </span>
+          }
         />
-      )}
-    </div>
+      }
+    >
+      <FocusPrompt>
+        <Eyebrow className="mb-0">
+          {t("stageOf", {
+            stage: (current?.pos ?? 0) + 1,
+            total: current?.ladder.length ?? 0,
+          })}
+        </Eyebrow>
+        <QuestionView
+          question={question}
+          answered={result !== null}
+          onAnswered={() => {}}
+          part="prompt"
+        />
+      </FocusPrompt>
+
+      <FocusAnswer>
+        <QuestionView
+          question={question}
+          answered={result !== null}
+          onAnswered={(given) => {
+            setAnswers((count) => count + 1);
+            setResult(given);
+          }}
+          part="answer"
+        />
+      </FocusAnswer>
+
+      <FocusFooter className="justify-between gap-4">
+        <AnswerFeedback
+          verdict={
+            result === null
+              ? null
+              : result.verdict === "correct"
+                ? "correct"
+                : result.verdict === "almost"
+                  ? "almost"
+                  : "incorrect"
+          }
+          answer={answer}
+          note={stageNote(t, state, task.wordId, result)}
+          className="min-w-0 flex-1"
+        />
+        {result !== null ? (
+          <Button size="default" onClick={next} autoFocus>
+            {common("next")}
+          </Button>
+        ) : null}
+      </FocusFooter>
+    </FocusShell>
   );
+}
+
+/**
+ * What the answer did to the word's position on the ladder. Never the word —
+ * the same rule as the rail, since this line sits on the question screen.
+ */
+function stageNote(
+  t: ReturnType<typeof useTranslations<"practice">>,
+  state: BrainstormState,
+  wordId: string,
+  result: Answered | null,
+) {
+  if (!result) return undefined;
+  const word = state.words.find((entry) => entry.wordId === wordId);
+  if (!word) return undefined;
+
+  const from = word.pos + 1;
+  const to = passed(result.verdict) ? from + 1 : Math.max(1, from - 1);
+  if (passed(result.verdict) && from >= word.ladder.length) return t("wordMastered");
+  if (from === to) return t("stageFirst");
+  return t("stageMoved", { from, to });
 }
 
 /**
  * The words, all of them, before anything is asked.
  *
- * Reading six pairs takes a few seconds and makes the drilling that follows a
- * test of what was just read rather than a guess at what was never shown. It
- * also puts the whole set in one place, which is the thing a card-at-a-time
- * introduction could not do.
+ * Reading the pairs takes a few seconds and makes the drilling that follows a
+ * test of what was just read rather than a guess at what was never shown. This
+ * and the summary are the only two screens allowed to name the session's
+ * words — the first before anything is asked, the second after everything is.
  */
-function Preview({
+function Start({
   words,
   hasVoice,
+  size,
+  ladder,
+  onSize,
   onStart,
 }: {
   words: PracticeWord[];
   hasVoice: boolean;
+  size: number;
+  ladder: readonly string[];
+  onSize: (size: number) => void;
   onStart: () => void;
 }) {
   const t = useTranslations("practice");
-  const common = useTranslations("common");
+  const trainings = useTranslations("trainings");
 
   return (
-    <div className="space-y-6">
-      <p className="text-brand-soft text-center text-xs tracking-widest uppercase">
-        {t("previewNew", { count: words.length })}
-      </p>
+    <div className="container-focus flex w-full flex-col gap-8 py-4">
+      <header className="text-center">
+        <Eyebrow>{t("brainstormKicker")}</Eyebrow>
+        <h1 className="text-h1">{t("previewNew", { count: words.length })}</h1>
+        <p className="text-muted-foreground mx-auto mt-2 max-w-[44ch] text-body">
+          {t("brainstormIntro")}
+        </p>
+      </header>
 
-      <div className="bg-card overflow-hidden rounded-lg border">
-        <Table>
-          <TableBody>
-            {words.map((word) => (
-              <TableRow key={word.id}>
-                <TableCell className="font-display w-1/2 text-lg">
-                  <span className="inline-flex items-center gap-2">
-                    {word.front}
-                    {hasVoice && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t("listenTo", { word: word.front })}
-                        onClick={() => void speak(word.front, word.audioUrl)}
-                      >
-                        <Volume2 className="size-4" />
-                      </Button>
-                    )}
-                  </span>
-                </TableCell>
-                <TableCell className="text-muted-foreground w-1/2">
-                  {word.back}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="bg-card border-border divide-border-subtle divide-y overflow-hidden rounded-xl border">
+        {words.map((word) => (
+          <div key={word.id} className="flex items-center gap-3.5 px-5 py-3">
+            <span lang="en" className="font-display min-w-[120px] text-xl font-medium">
+              {word.front}
+            </span>
+            {hasVoice ? (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("listenTo", { word: word.front })}
+                onClick={() => void speak(word.front, word.audioUrl)}
+              >
+                <Volume2 />
+              </Button>
+            ) : null}
+            <span className="text-muted-foreground ml-auto text-right">
+              {word.back}
+            </span>
+          </div>
+        ))}
       </div>
 
-      <div className="flex justify-center">
-        <Button type="button" size="lg" onClick={onStart} autoFocus>
-          {common("start")}
+      {/* The rungs, named. Safe here: nothing has been asked yet. */}
+      <div className="flex flex-wrap justify-center gap-2">
+        {ladder.map((step, index) => (
+          <Badge key={step} variant="outline" className="h-7 gap-1.5 px-3">
+            <span className="text-disabled-foreground tabular-nums">{index + 1}</span>
+            {trainings(`${step}.title` as "brainstorm.title")}
+          </Badge>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-3.5">
+        <ToggleGroup
+          value={[String(size)]}
+          onValueChange={(value) => {
+            const picked = Number.parseInt(value[0] ?? "", 10);
+            if (Number.isInteger(picked)) onSize(picked);
+          }}
+          aria-label={t("sessionSize")}
+          className="bg-card border-border rounded-md border p-0.5"
+        >
+          {SESSION_SIZES.map((option) => (
+            <ToggleGroupItem
+              key={option}
+              value={String(option)}
+              /*
+               * Both spellings: the primitive marks the chosen item with
+               * `aria-pressed` and with `data-state`, and overriding only one
+               * leaves the mint plate §13 asks for painted half the time.
+               */
+              className="aria-pressed:bg-accent aria-pressed:text-accent-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
+            >
+              {t("sizeWords", { count: option })}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+
+        <Button size="lg" onClick={onStart} autoFocus>
+          {t("startIn", { minutes: Math.max(1, Math.round(words.length * 1.2)) })}
         </Button>
       </div>
+    </div>
+  );
+}
+
+/** The session, after it is over: what was learned and how it went. */
+function Summary({
+  state,
+  words,
+  answers,
+  seconds,
+  onAgain,
+}: {
+  state: BrainstormState;
+  words: PracticeWord[];
+  answers: number;
+  seconds: number;
+  onAgain: () => void;
+}) {
+  const t = useTranslations("practice");
+  const learned = state.mastered.length;
+  const parked = state.struggling.length;
+
+  return (
+    <div className="container-focus flex w-full flex-col gap-8 py-4">
+      <header className="text-center">
+        <Eyebrow>{t("doneEyebrow")}</Eyebrow>
+        <h1 className="text-h1">{t("learnedCount", { count: learned })}</h1>
+        <p className="text-muted-foreground mt-2 text-body">
+          {parked > 0 ? t("parked", { count: parked }) : t("ladderDone")}
+        </p>
+      </header>
+
+      <div className="flex justify-center gap-9">
+        {/* The sitting, not the tally — the title above already says how many were learned. */}
+        <Stat value={String(state.words.length)} label={t("statWords")} />
+        <Stat value={String(answers)} label={t("statAnswers")} />
+        <Stat
+          value={`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`}
+          label={t("scoreTime")}
+        />
+      </div>
+
+      <div className="bg-card border-border divide-border-subtle divide-y overflow-hidden rounded-xl border">
+        {state.words.map((entry) => {
+          const word = words.find((w) => w.id === entry.wordId);
+          if (!word) return null;
+          return (
+            <div key={entry.wordId} className="flex items-center gap-3.5 px-5 py-3">
+              <span lang="en" className="font-display min-w-[110px] text-h4">
+                {word.front}
+              </span>
+              <span className="text-muted-foreground text-body-sm">{word.back}</span>
+              <Badge
+                variant={entry.errors ? "outline" : "secondary"}
+                className={
+                  entry.errors
+                    ? "text-warning border-warning-border bg-warning-bg ml-auto"
+                    : "ml-auto"
+                }
+              >
+                {entry.errors ? t("roughRun", { count: entry.errors }) : t("cleanRun")}
+              </Badge>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex justify-center gap-3">
+        <Button variant="outline" size="lg" onClick={onAgain}>
+          {t("moreNewWords")}
+        </Button>
+        <Button size="lg" render={<Link href="/practice" />}>
+          {t("backToTrainings")}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-numeral">{value}</div>
+      <div className="text-muted-foreground mt-1 text-caption">{label}</div>
     </div>
   );
 }

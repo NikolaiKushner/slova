@@ -329,7 +329,24 @@
     "keySpace": "Пробел",
     "keyEnter": "Enter",
     "keyBackspace": "Backspace",
-    "railWord": "Слово {index}: {stage} из {total} ступеней"
+    "railWord": "Слово {index}: {stage} из {total} ступеней",
+    "brainstormKicker": "Практика · Brainstorm",
+    "brainstormIntro": "Каждое слово пройдёт все ступени — от «узнать перевод» до «написать по памяти». Ошиблись — слово спускается на ступень назад. Сессия закончится, когда все дойдут до верха.",
+    "sessionSize": "Сколько слов за раз",
+    "sizeWords": "{count} слов",
+    "startIn": "Начать · ~{minutes} минут",
+    "exitSession": "Выйти",
+    "masteredOf": "{done} из {total} выучено",
+    "stageOf": "ступень {stage} из {total}",
+    "stageMoved": "ступень {from} → {to}",
+    "stageFirst": "остаётся на первой ступени",
+    "wordMastered": "слово выучено",
+    "statAnswers": "ответов",
+    "statWords": "слов",
+    "cleanRun": "без ошибок",
+    "roughRun": "{count, plural, one {# ошибка} few {# ошибки} many {# ошибок} other {# ошибки}}",
+    "moreNewWords": "Ещё новые слова",
+    "confirmExit": "Выйти из сессии? Пройденные ступени не сохранятся."
   },
   "trainings": {
     "brainstorm": {
