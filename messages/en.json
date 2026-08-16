@@ -335,6 +335,7 @@
     "brainstormIntro": "Every word climbs the whole ladder — from recognising the translation to writing it from memory. A wrong answer drops it back a rung. The session ends when all of them reach the top.",
     "sessionSize": "Words per session",
     "sizeWords": "{count} words",
+    "loadingWords": "Loading words",
     "startIn": "Start · ~{minutes} min",
     "exitSession": "Leave",
     "masteredOf": "{done} of {total} learned",

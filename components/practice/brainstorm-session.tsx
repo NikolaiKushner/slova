@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Volume2 } from "lucide-react";
+import { ChevronLeft, LoaderCircle, Volume2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AnswerFeedback } from "@/components/slova/answer-feedback";
@@ -70,6 +70,13 @@ export function BrainstormSession({ source }: { source: Source }) {
   const [size, setSize] = useState<number>(SESSION_SIZE);
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
+  /*
+   * A second fetch is not a first one. Nothing is known before the first, so
+   * it gets the skeleton; by the second there is a list on screen, and
+   * replacing it with a skeleton throws away the only thing worth looking at.
+   * So a change of size veils the list instead and leaves it in place.
+   */
+  const [reloading, setReloading] = useState(false);
   const [state, setState] = useState<BrainstormState | null>(null);
   const [result, setResult] = useState<Answered | null>(null);
   // The words are read before they are drilled, not during.
@@ -104,6 +111,7 @@ export function BrainstormSession({ source }: { source: Source }) {
         );
       }
       setLoading(false);
+      setReloading(false);
     });
 
     return () => {
@@ -171,13 +179,14 @@ export function BrainstormSession({ source }: { source: Source }) {
         words={data.words}
         hasAudio={hasAudio}
         size={size}
+        busy={reloading}
         ladder={hasAudio ? AUDIO_LADDER : DEFAULT_LADDER}
         onDemandAudioEnabled={data.onDemandAudioEnabled}
         onSize={(next) => {
-          // Set here rather than in the effect: the skeleton is a consequence of
+          // Set here rather than in the effect: the veil is a consequence of
           // the choice, and `react-hooks/set-state-in-effect` is right that an
           // effect is the wrong place to say so.
-          setLoading(true);
+          setReloading(true);
           setSize(next);
         }}
         onStart={() => {
@@ -347,6 +356,7 @@ function Start({
   words,
   hasAudio,
   size,
+  busy,
   ladder,
   onDemandAudioEnabled,
   onSize,
@@ -355,6 +365,8 @@ function Start({
   words: PracticeWord[];
   hasAudio: boolean;
   size: number;
+  /** A different size was asked for and its words have not arrived yet. */
+  busy: boolean;
   ladder: readonly string[];
   onDemandAudioEnabled: boolean;
   onSize: (size: number) => void;
@@ -373,31 +385,46 @@ function Start({
         </p>
       </header>
 
-      <div className="bg-card border-border divide-border-subtle divide-y overflow-hidden rounded-xl border">
-        {words.map((word) => (
-          <div key={word.id} className="flex items-center gap-3.5 px-5 py-3">
-            <span lang="en" className="font-display min-w-[120px] text-xl font-medium">
-              {word.front}
-            </span>
-            {hasAudio ? (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("listenTo", { word: word.front })}
-                onClick={() =>
-                  void speak(word.front, word.audioUrl, {
-                    onDemand: onDemandAudioEnabled,
-                  })
-                }
-              >
-                <Volume2 />
-              </Button>
-            ) : null}
-            <span className="text-muted-foreground ml-auto text-right">
-              {word.back}
-            </span>
+      <div className="relative" aria-busy={busy}>
+        <div className="bg-card border-border divide-border-subtle divide-y overflow-hidden rounded-xl border">
+          {words.map((word) => (
+            <div key={word.id} className="flex items-center gap-3.5 px-5 py-3">
+              <span lang="en" className="font-display min-w-[120px] text-xl font-medium">
+                {word.front}
+              </span>
+              {hasAudio ? (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={busy}
+                  aria-label={t("listenTo", { word: word.front })}
+                  onClick={() =>
+                    void speak(word.front, word.audioUrl, {
+                      onDemand: onDemandAudioEnabled,
+                    })
+                  }
+                >
+                  <Volume2 />
+                </Button>
+              ) : null}
+              <span className="text-muted-foreground ml-auto text-right">
+                {word.back}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/*
+          * The list stays legible under the veil on purpose: the words being
+          * replaced are the ones just read, and blanking them makes the screen
+          * jump for the half-second it takes to fetch six rows.
+          */}
+        {busy ? (
+          <div className="scrim-panel absolute inset-0 z-10 flex items-center justify-center rounded-xl">
+            <LoaderCircle className="text-muted-foreground size-5 animate-spin" aria-hidden />
+            <span className="sr-only">{t("loadingWords")}</span>
           </div>
-        ))}
+        ) : null}
       </div>
 
       {/* The rungs, named. Safe here: nothing has been asked yet. */}
@@ -418,25 +445,43 @@ function Start({
             if (Number.isInteger(picked)) onSize(picked);
           }}
           aria-label={t("sessionSize")}
-          className="bg-card border-border rounded-md border p-0.5"
+          /*
+           * Tighter than the primitive's default eight: three options of one
+           * kind are one control, and a gap that wide made them read as three
+           * separate buttons that happen to share a box.
+           */
+          spacing={1}
+          /*
+           * The height is the `lg` button's from §13 — 48, and 52 on touch —
+           * because the two stand side by side and a control half a head
+           * shorter than its neighbour reads as an accident.
+           */
+          className="bg-card border-border h-12 rounded-md border p-0.5 coarse:h-13"
         >
           {SESSION_SIZES.map((option) => (
             <ToggleGroupItem
               key={option}
               value={String(option)}
               /*
-               * Both spellings: the primitive marks the chosen item with
+               * Height from the box rather than from the size variant, so the
+               * inset stays 2px on both densities. The radius is the outer one
+               * less that inset: a pill rounder than the box around it leaves
+               * the gap at each corner that made this look unfinished.
+               *
+               * Both spellings of the chosen state: the primitive marks it with
                * `aria-pressed` and with `data-state`, and overriding only one
                * leaves the mint plate §13 asks for painted half the time.
                */
-              className="aria-pressed:bg-accent aria-pressed:text-accent-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
+              className="h-auto self-stretch rounded-sm px-4 text-body-sm aria-pressed:bg-accent aria-pressed:text-accent-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
             >
               {t("sizeWords", { count: option })}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
 
-        <Button size="lg" onClick={onStart} autoFocus>
+        {/* Disabled while the veil is up: the words on screen are about to be
+            replaced, and a session started on them would restart underneath. */}
+        <Button size="lg" onClick={onStart} disabled={busy} autoFocus>
           {t("startIn", { minutes: Math.max(1, Math.round(words.length * 1.2)) })}
         </Button>
       </div>
