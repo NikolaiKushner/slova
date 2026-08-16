@@ -5,6 +5,8 @@
  * "There is a problem with the server configuration".
  */
 
+const onDemandTtsEnabled = process.env.TTS_ON_DEMAND_ENABLED === "true";
+
 const REQUIRED = {
   DATABASE_URL:
     "Neon connection string. Vercel → Storage → Neon sets this; check the name is exactly DATABASE_URL, not POSTGRES_URL.",
@@ -18,6 +20,16 @@ const REQUIRED = {
     'From address Resend is allowed to use, e.g. Slova <hello@slova.study>. Until the domain is verified, use Resend <onboarding@resend.dev>.',
   ANTHROPIC_API_KEY:
     "console.anthropic.com → API keys. Without it the translate route fails per request, at the one moment a user is watching.",
+  ...(onDemandTtsEnabled
+    ? {
+        OPENAI_API_KEY:
+          "platform.openai.com → API keys. Required because TTS_ON_DEMAND_ENABLED=true.",
+        R2_ACCOUNT_ID: "Cloudflare R2 account ID for on-demand audio.",
+        R2_ACCESS_KEY_ID: "Cloudflare R2 token access key ID.",
+        R2_SECRET_ACCESS_KEY: "Cloudflare R2 token secret access key.",
+        R2_PUBLIC_URL: "Public base URL for the R2 audio bucket.",
+      }
+    : {}),
 };
 
 const missing = Object.keys(REQUIRED).filter((key) => !process.env[key]);
@@ -32,6 +44,18 @@ if (missing.length > 0) {
     console.error(`  ${key}\n    ${REQUIRED[key]}\n`);
   }
   console.error("Set them in the Vercel project, then redeploy.\n");
+  process.exit(1);
+}
+
+const publicSecrets = [
+  "NEXT_PUBLIC_OPENAI_API_KEY",
+  "NEXT_PUBLIC_R2_ACCESS_KEY_ID",
+  "NEXT_PUBLIC_R2_SECRET_ACCESS_KEY",
+].filter((key) => process.env[key]);
+if (publicSecrets.length > 0) {
+  console.error(
+    `\nServer credentials must not use NEXT_PUBLIC_*: ${publicSecrets.join(", ")}\n`,
+  );
   process.exit(1);
 }
 

@@ -24,6 +24,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { EmptyState } from "@/components/empty-state";
 import { QuestionView, type Answered } from "@/components/practice/question-view";
 import { passed } from "@/lib/practice/answer";
+import { audioAvailable } from "@/lib/practice/audio-capability";
 import {
   answerBrainstorm,
   AUDIO_LADDER,
@@ -54,7 +55,12 @@ import { sourceQuery, type Source } from "@/lib/practice/source";
  * `StageRail`: the answer is always one of them.
  */
 
-type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
+type Payload = {
+  words: PracticeWord[];
+  pool: PracticeWord[];
+  seed: string;
+  onDemandAudioEnabled: boolean;
+};
 
 export function BrainstormSession({ source }: { source: Source }) {
   const t = useTranslations("practice");
@@ -68,7 +74,7 @@ export function BrainstormSession({ source }: { source: Source }) {
   const [result, setResult] = useState<Answered | null>(null);
   // The words are read before they are drilled, not during.
   const [started, setStarted] = useState(false);
-  const [hasVoice, setHasVoice] = useState(false);
+  const [hasAudio, setHasAudio] = useState(false);
   const [answers, setAnswers] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -84,12 +90,17 @@ export function BrainstormSession({ source }: { source: Source }) {
     ]).then(([payload, voice]: [Payload | null, boolean]) => {
       if (ignore) return;
       setData(payload);
-      setHasVoice(voice);
-      // The audio rungs are added only when there is a voice to speak them:
-      // a silent device gets a shorter ladder, not an impossible one.
+      const audio = audioAvailable(
+        payload?.words ?? [],
+        voice,
+        payload?.onDemandAudioEnabled === true,
+      );
+      setHasAudio(audio);
+      // Audio rungs need either a voice or complete recording coverage:
+      // a partly silent session gets a shorter ladder, not an impossible one.
       if (payload?.words.length) {
         setState(
-          startBrainstorm(payload.words, voice ? AUDIO_LADDER : DEFAULT_LADDER),
+          startBrainstorm(payload.words, audio ? AUDIO_LADDER : DEFAULT_LADDER),
         );
       }
       setLoading(false);
@@ -158,9 +169,10 @@ export function BrainstormSession({ source }: { source: Source }) {
     return (
       <Start
         words={data.words}
-        hasVoice={hasVoice}
+        hasAudio={hasAudio}
         size={size}
-        ladder={hasVoice ? AUDIO_LADDER : DEFAULT_LADDER}
+        ladder={hasAudio ? AUDIO_LADDER : DEFAULT_LADDER}
+        onDemandAudioEnabled={data.onDemandAudioEnabled}
         onSize={(next) => {
           // Set here rather than in the effect: the skeleton is a consequence of
           // the choice, and `react-hooks/set-state-in-effect` is right that an
@@ -186,7 +198,7 @@ export function BrainstormSession({ source }: { source: Source }) {
         seconds={elapsed}
         onAgain={() => {
           setStarted(false);
-          setState(startBrainstorm(data.words, hasVoice ? AUDIO_LADDER : DEFAULT_LADDER));
+          setState(startBrainstorm(data.words, hasAudio ? AUDIO_LADDER : DEFAULT_LADDER));
         }}
       />
     );
@@ -239,6 +251,7 @@ export function BrainstormSession({ source }: { source: Source }) {
           answered={result !== null}
           onAnswered={() => {}}
           part="prompt"
+          onDemandAudioEnabled={data.onDemandAudioEnabled}
         />
       </FocusPrompt>
 
@@ -251,6 +264,7 @@ export function BrainstormSession({ source }: { source: Source }) {
             setResult(given);
           }}
           part="answer"
+          onDemandAudioEnabled={data.onDemandAudioEnabled}
         />
       </FocusAnswer>
 
@@ -331,16 +345,18 @@ function stageNote(
  */
 function Start({
   words,
-  hasVoice,
+  hasAudio,
   size,
   ladder,
+  onDemandAudioEnabled,
   onSize,
   onStart,
 }: {
   words: PracticeWord[];
-  hasVoice: boolean;
+  hasAudio: boolean;
   size: number;
   ladder: readonly string[];
+  onDemandAudioEnabled: boolean;
   onSize: (size: number) => void;
   onStart: () => void;
 }) {
@@ -363,12 +379,16 @@ function Start({
             <span lang="en" className="font-display min-w-[120px] text-xl font-medium">
               {word.front}
             </span>
-            {hasVoice ? (
+            {hasAudio ? (
               <Button
                 variant="ghost"
                 size="icon-sm"
                 aria-label={t("listenTo", { word: word.front })}
-                onClick={() => void speak(word.front, word.audioUrl)}
+                onClick={() =>
+                  void speak(word.front, word.audioUrl, {
+                    onDemand: onDemandAudioEnabled,
+                  })
+                }
               >
                 <Volume2 />
               </Button>

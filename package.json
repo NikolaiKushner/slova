@@ -16,6 +16,7 @@
     "db:seed-lexicon": "tsx scripts/seed-lexicon.ts",
     "lexicon:build": "tsx scripts/build-lexicon.ts",
     "lexicon:audio": "tsx scripts/build-audio.ts",
+    "courses:audio": "tsx scripts/build-course-audio.ts",
     "postinstall": "prisma generate",
     "check:env": "node scripts/check-env.mjs",
     "vercel:preflight": "npm run check:env && npm test && prisma migrate deploy"

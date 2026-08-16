@@ -30,6 +30,13 @@ answer goes into the shared base, so the next list containing that word is free.
 Seeding the frequency core cost about a dollar; a miss costs a hundredth of a
 cent.
 
+**On-demand pronunciation is off by default.** When
+`TTS_ON_DEMAND_ENABLED=true`, the authenticated `/api/audio` endpoint accepts
+one explicit text of at most 200 characters. It checks `Lexeme` first, then
+atomically reserves a small daily request-and-character budget before calling
+OpenAI and uploading to R2. Failed paid-path attempts stay reserved, so retries
+cannot turn a provider outage into an unlimited bill.
+
 **The scheduler is FSRS.** Three numbers per word — how long the memory lasts,
 how hard that word is for you, how likely you are to recall it now — instead of
 one ease factor and a fixed multiplier.
@@ -64,9 +71,10 @@ npm run dev
 Demo account from the seed: `demo@slova.app`. Sign in with that email
 (Google, or register a password), or run `SEED_EMAIL=you@gmail.com npm run db:seed`.
 
-`.env.example` documents every variable. `ANTHROPIC_API_KEY` is required —
-`npm run check:env` fails with the name of anything missing rather than letting
-it surface later as an opaque error.
+`.env.example` documents every variable. `ANTHROPIC_API_KEY` is required.
+OpenAI and R2 credentials are required by `npm run check:env` only when
+`TTS_ON_DEMAND_ENABLED=true`; they remain server-only and must never use a
+`NEXT_PUBLIC_*` name.
 
 ## Scripts
 

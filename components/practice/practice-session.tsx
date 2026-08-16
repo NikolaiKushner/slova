@@ -23,6 +23,7 @@ import { DrillSkeleton } from "@/components/practice/session-skeleton";
 import { DrillSummary } from "@/components/practice/drill-summary";
 import { QuestionView, type Answered } from "@/components/practice/question-view";
 import { passed } from "@/lib/practice/answer";
+import { audioAvailable } from "@/lib/practice/audio-capability";
 import {
   buildQuestion,
   needsAudio,
@@ -44,7 +45,12 @@ import { sourceQuery, type Source } from "@/lib/practice/source";
  * no second scheduler hiding in here.
  */
 
-type Payload = { words: PracticeWord[]; pool: PracticeWord[]; seed: string };
+type Payload = {
+  words: PracticeWord[];
+  pool: PracticeWord[];
+  seed: string;
+  onDemandAudioEnabled: boolean;
+};
 
 export function PracticeSession({
   kind,
@@ -106,6 +112,12 @@ export function PracticeSession({
 
   const words = data?.words ?? [];
   const word = words[index];
+  const onDemandAudioEnabled = data?.onDemandAudioEnabled === true;
+  const audioReady = audioAvailable(
+    words,
+    voice === true,
+    onDemandAudioEnabled,
+  );
 
   const question = useMemo(
     () =>
@@ -190,7 +202,7 @@ export function PracticeSession({
     return <DrillSkeleton />;
   }
 
-  if (needsAudio(kind) && voice === false) {
+  if (needsAudio(kind) && voice !== null && !audioReady) {
     return <Empty title={t("noVoiceTitle")} body={t("noVoiceBody")} />;
   }
 
@@ -262,6 +274,7 @@ export function PracticeSession({
               answered={result !== null}
               onAnswered={() => {}}
               part="prompt"
+              onDemandAudioEnabled={onDemandAudioEnabled}
             />
           </FocusPrompt>
 
@@ -271,6 +284,7 @@ export function PracticeSession({
               answered={result !== null}
               onAnswered={answer}
               part="answer"
+              onDemandAudioEnabled={onDemandAudioEnabled}
             />
           </FocusAnswer>
 

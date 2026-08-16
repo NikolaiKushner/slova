@@ -31,6 +31,7 @@ export function QuestionView({
   onAnswered,
   answered = false,
   part = "all",
+  onDemandAudioEnabled = false,
 }: {
   question: Question;
   onAnswered: (result: Answered) => void;
@@ -44,6 +45,7 @@ export function QuestionView({
    * Everything else asks for "all" and gets both, as before.
    */
   part?: "all" | "prompt" | "answer";
+  onDemandAudioEnabled?: boolean;
 }) {
   /**
    * `blocked` means the browser refused to talk without being asked — a press
@@ -60,7 +62,9 @@ export function QuestionView({
    */
 
   async function play() {
-    const started = await speak(question.speak ?? "", question.audioUrl);
+    const started = await speak(question.speak ?? "", question.audioUrl, {
+      onDemand: onDemandAudioEnabled,
+    });
     setSound(started ? "ok" : "broken");
   }
 
@@ -75,6 +79,7 @@ export function QuestionView({
       onPlay={play}
       onSilent={(source) => setSound(source === "auto" ? "blocked" : "broken")}
       onHeard={() => setSound("ok")}
+      onDemandAudioEnabled={onDemandAudioEnabled}
     />
   );
 
@@ -103,12 +108,14 @@ function Prompt({
   onPlay,
   onSilent,
   onHeard,
+  onDemandAudioEnabled,
 }: {
   question: Question;
   sound: "ok" | "blocked" | "broken";
   onPlay: () => void;
   onSilent: (source: "auto" | "manual") => void;
   onHeard: () => void;
+  onDemandAudioEnabled: boolean;
 }) {
   const t = useTranslations("practice");
   const hasSound = Boolean(question.speak);
@@ -134,8 +141,10 @@ function Prompt({
       <AudioPrompt
         word={question.speak ?? ""}
         audioUrl={question.audioUrl}
+        audioSlowUrl={question.audioSlowUrl}
         onSilent={onSilent}
         onHeard={onHeard}
+        onDemandAudioEnabled={onDemandAudioEnabled}
       />
     );
   }

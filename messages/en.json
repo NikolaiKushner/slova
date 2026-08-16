@@ -499,7 +499,11 @@
     "practice": "Practice",
     "showTheRule": "Show the rule",
     "typeSentence": "Type the new sentence",
-    "typeForm": "Type the form"
+    "typeForm": "Type the form",
+    "audioControls": "Pronunciation controls",
+    "listenNormal": "Listen",
+    "listenSlow": "Listen slowly",
+    "audioError": "Audio did not play. Try again."
   },
   "dictionary": {
     "eyebrow": "Dictionary",
@@ -689,6 +693,9 @@
     "alreadyInSchedule": "That word is already in the schedule.",
     "tooManyTranslations": "Too many translation requests. Try again in a while.",
     "sendList": "Send a list of words.",
+    "invalidAudioText": "Send one short piece of text to pronounce.",
+    "tooManyAudioRequests": "Too many pronunciation requests. Try again later.",
+    "audioUnavailable": "Pronunciation is unavailable right now.",
     "tooManyWrites": "Too many writes. Try again in a while.",
     "eachNeedsPair": "Each word needs a word and a translation.",
     "chooseSetOrName": "Choose an existing set or name a new one, not both.",

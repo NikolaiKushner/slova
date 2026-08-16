@@ -27,12 +27,16 @@ const SLOW_RATE = 0.6;
 export function AudioPrompt({
   word,
   audioUrl,
+  audioSlowUrl,
+  onDemandAudioEnabled = false,
   /** Shown once the answer is in: the word that was being said, and its IPA. */
   onSilent,
   onHeard,
 }: {
   word: string;
   audioUrl?: string | null;
+  audioSlowUrl?: string | null;
+  onDemandAudioEnabled?: boolean;
   /**
    * Nothing was heard. `auto` is the browser refusing to speak unprompted,
    * which a press of Play fixes; `manual` is it refusing the press too, and
@@ -45,12 +49,22 @@ export function AudioPrompt({
   const [speaking, setSpeaking] = useState(false);
 
   const say = useCallback(
-    async (rate?: number, source: "auto" | "manual" = "manual") => {
+    async (slow = false, source: "auto" | "manual" = "manual") => {
       setSpeaking(true);
-      const started = await speak(word, audioUrl, {
-        rate,
-        onEnd: () => setSpeaking(false),
-      });
+      const started = await speak(
+        word,
+        slow ? (audioSlowUrl ?? audioUrl) : audioUrl,
+        {
+          ...(slow
+            ? {
+                rate: SLOW_RATE,
+                recordingRate: audioSlowUrl ? 1 : 0.7,
+              }
+            : {}),
+          onDemand: onDemandAudioEnabled && source === "manual",
+          onEnd: () => setSpeaking(false),
+        },
+      );
       if (!started) {
         setSpeaking(false);
         onSilent?.(source);
@@ -58,7 +72,7 @@ export function AudioPrompt({
         onHeard?.();
       }
     },
-    [word, audioUrl, onSilent, onHeard],
+    [word, audioUrl, audioSlowUrl, onDemandAudioEnabled, onSilent, onHeard],
   );
 
   /**
@@ -69,7 +83,7 @@ export function AudioPrompt({
   useEffect(() => {
     // A beat, so the question is on screen before the voice starts: a word
     // said into a page that is still arriving is a word said to nobody.
-    const timer = setTimeout(() => void say(undefined, "auto"), 220);
+    const timer = setTimeout(() => void say(false, "auto"), 220);
     return () => clearTimeout(timer);
     // Deliberately keyed on the word alone: `say` changes identity with every
     // callback prop, and re-speaking on a parent render would talk over itself.
@@ -120,7 +134,7 @@ export function AudioPrompt({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => void say(SLOW_RATE)}
+          onClick={() => void say(true)}
         >
           <Clock className="size-3.5" />
           {t("playSlowly")}

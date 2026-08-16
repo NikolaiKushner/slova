@@ -44,5 +44,10 @@ export async function GET(request: Request) {
   // Seeds the shuffling of options and letters. Generated here so the client
   // has nothing impure to call during render, and so a second run of the same
   // training asks the same words differently.
-  return NextResponse.json({ words, pool, seed: crypto.randomUUID() });
+  return NextResponse.json({
+    words,
+    pool,
+    seed: crypto.randomUUID(),
+    onDemandAudioEnabled: process.env.TTS_ON_DEMAND_ENABLED === "true",
+  });
 }

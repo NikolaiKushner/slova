@@ -24,19 +24,18 @@
  */
 
 import { config } from "dotenv";
-import { AwsClient } from "aws4fetch";
 
+import {
+  NORMAL_AUDIO_PROFILE,
+  SLOW_AUDIO_PROFILE,
+} from "@/lib/audio/profile";
+import { createR2Storage } from "@/lib/audio/r2";
+import { synthesizeSpeech } from "@/lib/audio/tts";
 import { STUDY_SOURCE_LANG } from "@/lib/languages";
 import { audioObjectKey } from "@/lib/lexicon/key";
 import { getPrisma } from "@/lib/prisma";
 
 config({ path: [".env.local", ".env"] });
-
-const BUCKET = process.env.R2_BUCKET ?? "slova";
-
-const MODEL = "tts-1";
-const VOICE = "alloy";
-const SOURCE = `openai:${MODEL}:${VOICE}`;
 
 /** Requests in flight. Enough to be quick, few enough to stay under the limit. */
 const CONCURRENCY = 8;
@@ -46,64 +45,49 @@ const PROGRESS_EVERY = 100;
 
 type Pending = { id: string; key: string; text: string };
 
-async function synthesise(text: string, apiKey: string): Promise<Buffer> {
-  const response = await fetch("https://api.openai.com/v1/audio/speech", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ model: MODEL, voice: VOICE, input: text }),
-  });
+function parseArgs(argv: string[]): {
+  slow: boolean;
+  dryRun: boolean;
+  limit?: number;
+} {
+  const slow = argv.includes("--slow");
+  const dryRun = argv.includes("--dry-run");
+  const positional = argv.filter((arg) => !arg.startsWith("--"));
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(`${response.status} ${detail.slice(0, 200)}`);
+  if (argv.some((arg) => arg.startsWith("--") && arg !== "--slow" && arg !== "--dry-run")) {
+    throw new Error("Usage: build-audio.ts [--slow [--dry-run]] [limit]");
+  }
+  if (positional.length > 1) {
+    throw new Error("Only one numeric limit is allowed.");
+  }
+  if (dryRun && !slow) {
+    throw new Error("--dry-run is only available with the explicit --slow mode.");
   }
 
-  return Buffer.from(await response.arrayBuffer());
+  if (positional.length === 0) return { slow, dryRun };
+  const limit = Number(positional[0]);
+  if (!Number.isInteger(limit) || limit <= 0) {
+    throw new Error("The limit must be a positive integer.");
+  }
+  return { slow, dryRun, limit };
 }
 
 async function main(): Promise<void> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.error("OPENAI_API_KEY is not set.");
-    process.exit(1);
-  }
-  const account = process.env.R2_ACCOUNT_ID;
-  const publicBase = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
-  if (!account || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
-    console.error("R2_ACCOUNT_ID, R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY must be set.");
-    process.exit(1);
-  }
-  if (!publicBase) {
-    // Without it the files would be uploaded and unreachable, which is how the
-    // last attempt ended. Better to refuse than to store URLs that 403.
-    console.error(
-      "R2_PUBLIC_URL is not set — enable public access on the bucket and use its URL.",
-    );
-    process.exit(1);
-  }
-
-  const r2 = new AwsClient({
-    accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-    service: "s3",
-    region: "auto",
-  });
-
+  const { slow, dryRun, limit } = parseArgs(process.argv.slice(2));
   const prisma = getPrisma();
-  const limit = Number.parseInt(process.argv[2] ?? "", 10);
+  const profile = slow ? SLOW_AUDIO_PROFILE : NORMAL_AUDIO_PROFILE;
 
   const pending: Pending[] = await prisma.lexeme.findMany({
-    where: { lang: STUDY_SOURCE_LANG, audioUrl: null },
+    where: slow
+      ? { lang: STUDY_SOURCE_LANG, audioSlowUrl: null }
+      : { lang: STUDY_SOURCE_LANG, audioUrl: null },
     orderBy: { key: "asc" },
-    ...(Number.isFinite(limit) && limit > 0 ? { take: limit } : {}),
+    ...(limit ? { take: limit } : {}),
     select: { id: true, key: true, text: true },
   });
 
   if (pending.length === 0) {
-    console.log("Everything already has audio.");
+    console.log(`Everything already has ${slow ? "slow " : ""}audio.`);
     return;
   }
 
@@ -114,6 +98,25 @@ async function main(): Promise<void> {
       15
     ).toFixed(2)} at $15 per million.`,
   );
+  if (dryRun) {
+    console.log("Dry run: no speech was synthesized, uploaded, or written.");
+    return;
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.error("OPENAI_API_KEY is not set.");
+    process.exit(1);
+  }
+  let r2: ReturnType<typeof createR2Storage>;
+  try {
+    // Validate storage before the first paid synthesis. Without a public URL
+    // files would be uploaded but unreachable, which already happened once.
+    r2 = createR2Storage();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
 
   let done = 0;
   let failed = 0;
@@ -129,30 +132,22 @@ async function main(): Promise<void> {
       const word = pending[index];
 
       try {
-        const audio = await synthesise(word.text, apiKey);
+        const audio = await synthesizeSpeech(word.text, { apiKey, profile });
         // Named by the normalised key, so a re-run overwrites rather than
         // leaving a second copy under a different name.
-        const path = audioObjectKey(word.key);
+        const path = audioObjectKey(word.key, slow ? "slow" : "normal");
         if (!path) {
           failed += 1;
           console.error(`skip unsafe key ${word.id} ${word.key}`);
           continue;
         }
-        const upload = await r2.fetch(
-          `https://${account}.r2.cloudflarestorage.com/${BUCKET}/${path}`,
-          {
-            method: "PUT",
-            body: new Uint8Array(audio),
-            headers: { "Content-Type": "audio/mpeg" },
-          },
-        );
-        if (!upload.ok) {
-          throw new Error(`upload ${upload.status} ${(await upload.text()).slice(0, 120)}`);
-        }
+        const audioUrl = await r2.putAudio(path, audio);
 
         await prisma.lexeme.update({
           where: { id: word.id },
-          data: { audioUrl: `${publicBase}/${path}`, audioSource: SOURCE },
+          data: slow
+            ? { audioSlowUrl: audioUrl }
+            : { audioUrl, audioSource: NORMAL_AUDIO_PROFILE.source },
         });
         done++;
       } catch (error) {

@@ -106,7 +106,12 @@ async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> 
     // No `audioUrl: not null` filter any more: a word can have a transcription
     // and no recording, and that row is still worth having.
     where: { lang: STUDY_SOURCE_LANG, key: { in: keys } },
-    select: { key: true, audioUrl: true, transcription: true },
+    select: {
+      key: true,
+      audioUrl: true,
+      audioSlowUrl: true,
+      transcription: true,
+    },
   });
   const byKey = new Map(lexemes.map((lexeme) => [lexeme.key, lexeme]));
 
@@ -115,6 +120,7 @@ async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> 
     return {
       ...word,
       audioUrl: lexeme?.audioUrl ?? null,
+      audioSlowUrl: lexeme?.audioSlowUrl ?? null,
       transcription: lexeme?.transcription ?? null,
     };
   });
