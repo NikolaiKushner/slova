@@ -1,8 +1,9 @@
 /**
  * How the grammar catalog is arranged on screen.
  *
- * Filtering, the hero card and the CEFR grouping are the same rules the
- * mockup used — kept here so a unit test can pin them down without rendering.
+ * Two modes: a small catalog is "continue or start"; the full library chrome
+ * (search, sort, CEFR shelves) waits until there are enough live courses.
+ * The rules live here so a unit test can pin them down without rendering.
  */
 
 import {
@@ -11,6 +12,9 @@ import {
   type CefrLevel,
 } from "@/lib/courses/cefr";
 import type { CatalogCourse, ComingCourse } from "@/lib/courses/catalog";
+
+/** Live courses at or above this count get search, sort and CEFR shelves. */
+export const CATALOG_CHROME_MIN_COURSES = 6;
 
 export type CatalogSort = "rec" | "level" | "name" | "started";
 export type CatalogScope = "all" | "mine";
@@ -50,16 +54,51 @@ export function withProgress(
   };
 }
 
-export function pickHero(
+/** Outline until they have started; then the next unfinished lesson. */
+export function catalogRowHref(course: CatalogCourseView): string {
+  if (course.completed || course.doneCount === 0) return course.href;
+  return course.nextHref;
+}
+
+export function isCourseInProgress(course: CatalogCourseView): boolean {
+  return course.doneCount > 0 && !course.completed;
+}
+
+/**
+ * Search, sort and "all / my level" earn their keep once the catalogue is a
+ * library. Two A1 courses are not a library.
+ */
+export function shouldShowCatalogChrome(
+  courses: Pick<CatalogCourseView, "level">[],
+): boolean {
+  if (courses.length >= CATALOG_CHROME_MIN_COURSES) return true;
+  const levels = new Set(courses.map((course) => course.level));
+  return levels.size >= 2;
+}
+
+/**
+ * Small-catalog list: this CEFR, plus anything already underway at another
+ * level, started first. Untouched courses on other shelves stay hidden.
+ */
+export function smallCatalogList(
   courses: CatalogCourseView[],
   level: CefrLevel,
-): CatalogCourseView | null {
-  return (
-    courses.find((course) => course.doneCount > 0 && !course.completed) ??
-    courses.find((course) => course.doneCount === 0 && course.level === level) ??
-    courses.find((course) => course.doneCount === 0) ??
-    null
+): CatalogCourseView[] {
+  return sortFlat(
+    courses.filter(
+      (course) => course.level === level || isCourseInProgress(course),
+    ),
+    "started",
   );
+}
+
+export function firstLevelWithCourses(
+  courses: Pick<CatalogCourseView, "level">[],
+): CefrLevel | null {
+  for (const item of CEFR_LEVELS) {
+    if (courses.some((course) => course.level === item)) return item;
+  }
+  return null;
 }
 
 export function filterAvailable(
@@ -79,16 +118,14 @@ export function filterAvailable(
 export function filterComing(
   courses: ComingCourse[],
   query: string,
+  level?: CefrLevel,
 ): ComingCourse[] {
   const needle = query.trim().toLowerCase();
-  if (!needle) return courses;
-  return courses.filter((course) =>
-    matchesQuery(course.title, course.titleRu, needle),
-  );
-}
-
-export function showHero(query: string, scope: CatalogScope): boolean {
-  return query.trim() === "" && scope === "all";
+  return courses.filter((course) => {
+    if (level && course.level !== level) return false;
+    if (!needle) return true;
+    return matchesQuery(course.title, course.titleRu, needle);
+  });
 }
 
 export function useFlatList(

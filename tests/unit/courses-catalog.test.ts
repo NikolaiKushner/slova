@@ -1,14 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { grammarCatalog } from "@/lib/courses/catalog";
-import type { CatalogCourse } from "@/lib/courses/catalog";
+import type { CatalogCourse, ComingCourse } from "@/lib/courses/catalog";
 import { parseCefrLevel, parseLevelSource } from "@/lib/courses/cefr";
 import {
+  catalogRowHref,
   defaultOpenLevels,
   filterAvailable,
+  filterComing,
+  firstLevelWithCourses,
   groupCourses,
   groupOrder,
-  pickHero,
-  showHero,
+  shouldShowCatalogChrome,
+  smallCatalogList,
   sortFlat,
   useFlatList,
   withProgress,
@@ -103,43 +106,7 @@ describe("withProgress", () => {
   });
 });
 
-describe("pickHero", () => {
-  const inProgress = course({
-    slug: "to-be",
-    title: "to be",
-    doneCount: 3,
-    completed: false,
-    nextHref: "/courses/grammar/to-be/forms",
-  });
-  const unstartedA1 = course({ slug: "present-simple", level: "A1" });
-  const unstartedA2 = course({
-    slug: "past-simple",
-    title: "Past Simple",
-    level: "A2",
-  });
-
-  it("prefers a course that is underway", () => {
-    expect(pickHero([unstartedA2, inProgress, unstartedA1], "A2")?.slug).toBe(
-      "to-be",
-    );
-  });
-
-  it("then an unstarted course at the person's level", () => {
-    expect(pickHero([unstartedA1, unstartedA2], "A2")?.slug).toBe("past-simple");
-  });
-
-  it("then any unstarted course", () => {
-    expect(pickHero([unstartedA1], "B1")?.slug).toBe("present-simple");
-  });
-});
-
 describe("catalog arrangement", () => {
-  it("hides the hero while searching or on my-level", () => {
-    expect(showHero("", "all")).toBe(true);
-    expect(showHero("past", "all")).toBe(false);
-    expect(showHero("", "mine")).toBe(false);
-  });
-
   it("filters by query and by the person's level", () => {
     const list = [
       course({ title: "Present Simple", titleRu: "Простое настоящее", level: "A1" }),
@@ -214,3 +181,128 @@ describe("catalog arrangement", () => {
     expect(sorted.map((course) => course.slug)).toEqual(["mid", "fresh", "done"]);
   });
 });
+
+describe("catalogRowHref", () => {
+  it("sends a fresh or finished course to the outline, and an underway one to the next lesson", () => {
+    const fresh = course({ slug: "fresh", doneCount: 0 });
+    const mid = course({
+      slug: "mid",
+      doneCount: 2,
+      completed: false,
+      nextHref: "/courses/grammar/present-simple/spelling",
+    });
+    const done = course({
+      slug: "done",
+      doneCount: 6,
+      completed: true,
+      nextHref: "/courses/grammar/present-simple",
+    });
+    expect(catalogRowHref(fresh)).toBe("/courses/grammar/present-simple");
+    expect(catalogRowHref(mid)).toBe("/courses/grammar/present-simple/spelling");
+    expect(catalogRowHref(done)).toBe("/courses/grammar/present-simple");
+  });
+});
+
+describe("catalog chrome", () => {
+  it("hides library chrome for two A1 courses and shows it once the catalogue is a library", () => {
+    expect(
+      shouldShowCatalogChrome([
+        course({ slug: "a", level: "A1" }),
+        course({ slug: "b", level: "A1" }),
+      ]),
+    ).toBe(false);
+    expect(
+      shouldShowCatalogChrome(
+        Array.from({ length: 6 }, (_, i) =>
+          course({ slug: `c${i}`, level: "A1" }),
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      shouldShowCatalogChrome([
+        course({ slug: "a", level: "A1" }),
+        course({ slug: "b", level: "A2" }),
+      ]),
+    ).toBe(true);
+  });
+});
+
+describe("smallCatalogList", () => {
+  it("keeps this level plus anything already underway, started first", () => {
+    const list = smallCatalogList(
+      [
+        course({ slug: "fresh-a1", title: "Fresh A1", level: "A1", doneCount: 0 }),
+        course({
+          slug: "mid-a2",
+          title: "Mid A2",
+          level: "A2",
+          doneCount: 2,
+          completed: false,
+        }),
+        course({
+          slug: "fresh-a2",
+          title: "Fresh A2",
+          level: "A2",
+          doneCount: 0,
+        }),
+        course({
+          slug: "done-a1",
+          title: "Done A1",
+          level: "A1",
+          doneCount: 6,
+          completed: true,
+        }),
+      ],
+      "A1",
+    );
+    expect(list.map((item) => item.slug)).toEqual([
+      "mid-a2",
+      "fresh-a1",
+      "done-a1",
+    ]);
+  });
+});
+
+describe("firstLevelWithCourses", () => {
+  it("returns the lowest CEFR that still has a live course", () => {
+    expect(
+      firstLevelWithCourses([
+        course({ slug: "b", level: "B1" }),
+        course({ slug: "a", level: "A2" }),
+      ]),
+    ).toBe("A2");
+    expect(firstLevelWithCourses([])).toBeNull();
+  });
+});
+
+describe("filterComing", () => {
+  const coming: ComingCourse[] = [
+    {
+      slug: "there-is",
+      title: "there is / there are",
+      titleRu: "есть, находится",
+      status: "coming",
+      level: "A1",
+    },
+    {
+      slug: "present-perfect",
+      title: "Present Perfect",
+      titleRu: "Настоящее совершённое",
+      status: "coming",
+      level: "B1",
+    },
+  ];
+
+  it("keeps the selected CEFR and still matches a query inside it", () => {
+    expect(filterComing(coming, "", "A1").map((item) => item.slug)).toEqual([
+      "there-is",
+    ]);
+    expect(
+      filterComing(coming, "perfect", "A1").map((item) => item.slug),
+    ).toEqual([]);
+    expect(
+      filterComing(coming, "perfect", "B1").map((item) => item.slug),
+    ).toEqual(["present-perfect"]);
+  });
+});
+

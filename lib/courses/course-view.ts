@@ -5,7 +5,7 @@
  * they are the same list with a different top. Progress is a set of completed
  * slugs, not a consecutive prefix: a person can open any lesson, and "next"
  * is the first one in course order that is still open. That matches the
- * catalogue hero, and leaves sequential lock as the product decision it is.
+ * catalogue list, and leaves sequential lock as the product decision it is.
  */
 
 import { isTestLesson } from "@/lib/courses/practice";

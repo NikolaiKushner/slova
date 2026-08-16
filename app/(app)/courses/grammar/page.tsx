@@ -34,12 +34,7 @@ export default async function CoursesGrammarPage() {
 
   return (
     <PageContainer container="list">
-      <PageHeader
-        eyebrow={t("eyebrow")}
-        title={t("grammarTitle")}
-        description={t("grammarDescription")}
-        className="mb-0"
-      />
+      <PageHeader title={t("grammarTitle")} className="mb-0" />
       <GrammarCatalog
         courses={courses}
         coming={coming}

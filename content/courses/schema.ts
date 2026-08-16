@@ -44,7 +44,7 @@ export const courseSchema = z.object({
   order: z.number().int().positive(),
   estMinutes: z.number().int().positive(),
   lessons: z.array(nonEmpty).min(1),
-  /** What the catalog hero lists under «Чему научитесь». Markdown, same as lessons. */
+  /** What the person will be able to do after the course. Markdown, same as lessons. */
   outcomes: z.array(nonEmpty).min(1).optional(),
 });
 
