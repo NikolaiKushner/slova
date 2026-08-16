@@ -46,7 +46,7 @@ describe("gradeExercise", () => {
       id: "t-tr",
       ruleId: "ps-negative-doesnt",
       kind: "transform",
-      prompt: "Make this negative.",
+      prompt: "Сделайте отрицание.",
       source: "She works here.",
       answer: "She doesn't work here.",
       accept: ["She does not work here."],

@@ -8,7 +8,7 @@
  * catalogue hero, and leaves sequential lock as the product decision it is.
  */
 
-import { isTestLesson } from "@/lib/courses/progress";
+import { isTestLesson } from "@/lib/courses/practice";
 
 export type OutlineLesson = {
   slug: string;

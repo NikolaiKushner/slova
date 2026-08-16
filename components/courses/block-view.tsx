@@ -1,65 +1,86 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
-import type { Block } from "@/content/courses/schema";
+import type { TheoryBlock } from "@/content/courses/schema";
+import { Callout } from "@/components/slova/callout";
+import { RuleExample } from "@/components/slova/rule-example";
+import { resolveCourseAudio } from "@/lib/courses/audio";
 import { mdToNodes } from "@/lib/courses/md";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { speakText } from "@/lib/courses/speak-text";
+import { cn } from "@/lib/utils";
 
-type TheoryBlock = Exclude<Block, { type: "exercise" }>;
-
-/** A new explanation starts a new band on the card; examples stay with it. */
+/**
+ * Theory on the lesson page. A heading or a pitfall starts a new section;
+ * examples, tables, rules and the recap stay with the heading above them.
+ * The first explanation before any heading is the lead — it has no overline.
+ */
 export function groupTheoryBlocks(blocks: TheoryBlock[]): TheoryBlock[][] {
   const groups: TheoryBlock[][] = [];
   let current: TheoryBlock[] = [];
 
+  function flush() {
+    if (current.length === 0) return;
+    groups.push(current);
+    current = [];
+  }
+
   for (const block of blocks) {
-    if (block.type === "explanation" && current.length > 0) {
-      groups.push(current);
-      current = [];
+    if (block.type === "heading" || block.type === "pitfall") {
+      flush();
     }
     current.push(block);
   }
-  if (current.length > 0) groups.push(current);
+  flush();
   return groups;
 }
 
-export function TheoryView({
-  blocks,
-  framed = true,
-}: {
-  blocks: TheoryBlock[];
-  /** False inside a drawer, which is already a surface. */
-  framed?: boolean;
-}) {
+export function TheoryView({ blocks }: { blocks: TheoryBlock[] }) {
   const groups = groupTheoryBlocks(blocks);
-  const body = groups.map((group, index) => (
-    <div key={group.map((block) => block.type).join("-") + index}>
-      {index > 0 ? <Separator /> : null}
-      {framed ? (
-        <CardContent className="py-4">
-          <TheoryGroup blocks={group} />
-        </CardContent>
-      ) : (
-        <div className="py-4">
-          <TheoryGroup blocks={group} />
-        </div>
-      )}
-    </div>
-  ));
 
-  if (!framed) return <div>{body}</div>;
-  return <Card className="gap-0 py-0">{body}</Card>;
+  return (
+    <div>
+      {groups.map((group, index) => (
+        <TheorySection
+          key={group.map((block) => block.type).join("-") + index}
+          blocks={group}
+          lead={index === 0 && group[0]?.type !== "heading"}
+        />
+      ))}
+    </div>
+  );
 }
 
-function TheoryGroup({ blocks }: { blocks: TheoryBlock[] }) {
+function TheorySection({
+  blocks,
+  lead,
+}: {
+  blocks: TheoryBlock[];
+  lead: boolean;
+}) {
+  const heading = blocks.find((block) => block.type === "heading");
+  const rest = blocks.filter((block) => block.type !== "heading");
+
+  return (
+    <section className={lead ? "mt-6.5" : "mt-11"}>
+      {heading ? (
+        <h2 className="text-overline text-eyebrow border-border mb-3.5 border-b pb-2.5">
+          {heading.title}
+        </h2>
+      ) : null}
+      <TheoryBody blocks={rest} lead={lead} />
+    </section>
+  );
+}
+
+function TheoryBody({
+  blocks,
+  lead,
+}: {
+  blocks: TheoryBlock[];
+  lead: boolean;
+}) {
   const nodes: ReactNode[] = [];
   let examples: Extract<TheoryBlock, { type: "example" }>[] = [];
 
@@ -68,13 +89,11 @@ function TheoryGroup({ blocks }: { blocks: TheoryBlock[] }) {
     const batch = examples;
     examples = [];
     nodes.push(
-      <ul key={`examples-${batch[0]?.en}`} className="space-y-2.5">
+      <div key={`examples-${batch[0]?.en}`} className="space-y-3.5">
         {batch.map((block) => (
-          <li key={block.en}>
-            <BlockView block={block} />
-          </li>
+          <CourseRuleExample key={block.en} block={block} />
         ))}
-      </ul>,
+      </div>,
     );
   }
 
@@ -84,11 +103,17 @@ function TheoryGroup({ blocks }: { blocks: TheoryBlock[] }) {
       continue;
     }
     flushExamples();
-    nodes.push(<BlockView key={`${block.type}-${index}`} block={block} />);
+    nodes.push(
+      <BlockView
+        key={`${block.type}-${index}`}
+        block={block}
+        lead={lead && block.type === "explanation"}
+      />,
+    );
   }
   flushExamples();
 
-  return <div className="space-y-3">{nodes}</div>;
+  return <div className="space-y-3.5">{nodes}</div>;
 }
 
 function MdParagraphs({
@@ -110,59 +135,125 @@ function MdParagraphs({
   );
 }
 
-export function BlockView({ block }: { block: Block }) {
+export function BlockView({
+  block,
+  lead = false,
+}: {
+  block: TheoryBlock;
+  lead?: boolean;
+}) {
+  const t = useTranslations("courses");
+
   switch (block.type) {
+    case "heading":
+      return null;
     case "explanation":
       return (
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           <MdParagraphs
             md={block.md}
-            className="text-foreground text-base leading-relaxed"
+            className={lead ? "text-lead text-pretty" : "text-body text-pretty"}
           />
         </div>
       );
     case "pitfall":
       return (
-        <div className="bg-accent text-foreground space-y-2 rounded-lg px-3 py-2.5 text-sm leading-relaxed">
-          <MdParagraphs md={block.md} className="leading-relaxed" />
-        </div>
+        <Callout variant="warning" title={t("pitfallTitle")}>
+          <MdParagraphs md={block.md} className="last:mb-0" />
+        </Callout>
       );
     case "example":
-      return (
-        <p className="flex flex-col gap-0.5">
-          <span className="font-display text-lg leading-snug">{block.en}</span>
-          <span className="text-muted-foreground text-sm">{block.ru}</span>
-        </p>
-      );
+      return <CourseRuleExample block={block} />;
     case "table":
+      return <FormsTable headers={block.headers} rows={block.rows} />;
+    case "rules":
       return (
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              {block.headers.map((header) => (
-                <TableHead key={header} className="text-muted-foreground h-8">
-                  {header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {block.rows.map((row) => (
-              <TableRow key={row.join("|")} className="hover:bg-transparent">
-                {row.map((cell, index) => (
-                  <TableCell
-                    key={`${row.join("|")}-${index}`}
-                    className="font-display py-1.5 text-base"
-                  >
-                    {cell}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <ul className="flex flex-col gap-2.5">
+          {block.items.map((item) => (
+            <li key={item.tag + item.md} className="flex items-baseline gap-3">
+              <span className="text-token text-accent-foreground bg-accent min-w-[62px] shrink-0 rounded-sm px-2 py-0.5 text-center">
+                {item.tag}
+              </span>
+              <span className="text-body">{mdToNodes(item.md)}</span>
+            </li>
+          ))}
+        </ul>
       );
-    case "exercise":
-      return null;
+    case "recap":
+      return (
+        <div className="bg-card border-border flex flex-wrap gap-x-5.5 gap-y-4 rounded-lg border px-5 py-[18px]">
+          {block.items.map((item) => (
+            <div key={item.k} className="min-w-[180px] flex-1">
+              <p className="text-overline text-muted-foreground mb-1.5">
+                {item.k}
+              </p>
+              <p className="text-body-sm">{mdToNodes(item.v)}</p>
+            </div>
+          ))}
+        </div>
+      );
   }
+}
+
+function CourseRuleExample({
+  block,
+}: {
+  block: Extract<TheoryBlock, { type: "example" }>;
+}) {
+  const text = speakText(block.en);
+  const audio = resolveCourseAudio(text);
+
+  return (
+    <RuleExample
+      en={mdToNodes(block.en)}
+      ru={mdToNodes(block.ru)}
+      speakText={text}
+      normalUrl={audio?.normalUrl}
+      slowUrl={audio?.slowUrl}
+    />
+  );
+}
+
+function FormsTable({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: string[][];
+}) {
+  const columns = headers.length;
+
+  return (
+    <div
+      className="bg-card border-border my-1 inline-grid overflow-hidden rounded-lg border"
+      style={{ gridTemplateColumns: `repeat(${columns}, auto)` }}
+    >
+      {headers.map((header, columnIndex) => (
+        <div
+          key={header}
+          className={cn(
+            "bg-muted text-overline text-muted-foreground px-5 py-2",
+            columnIndex < columns - 1 && "border-border-subtle border-r",
+            "border-border-subtle border-b",
+          )}
+        >
+          {mdToNodes(header)}
+        </div>
+      ))}
+      {rows.flatMap((row, rowIndex) =>
+        row.map((cell, columnIndex) => (
+          <div
+            key={`${rowIndex}-${columnIndex}`}
+            className={cn(
+              "text-token border-border-subtle px-5 py-2.5",
+              columnIndex < columns - 1 && "border-r",
+              rowIndex < rows.length - 1 && "border-b",
+            )}
+          >
+            {mdToNodes(cell)}
+          </div>
+        )),
+      )}
+    </div>
+  );
 }

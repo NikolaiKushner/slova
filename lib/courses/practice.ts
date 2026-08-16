@@ -16,12 +16,16 @@ import { shuffle, type Rng } from "@/lib/practice/random";
 export const LESSON_PRACTICE_SIZE = 8;
 export const LESSON_PRACTICE_POOL_MIN = 16;
 
+export function isTestLesson(lessonSlug: string): boolean {
+  return lessonSlug === "test";
+}
+
 export function lessonPool(lesson: Lesson): Exercise[] {
   return lesson.blocks.filter(isExerciseBlock);
 }
 
 export function practiceSessionSize(lessonSlug: string, poolLength: number): number {
-  if (lessonSlug === "test") return poolLength;
+  if (isTestLesson(lessonSlug)) return poolLength;
   return Math.min(LESSON_PRACTICE_SIZE, poolLength);
 }
 

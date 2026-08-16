@@ -7,12 +7,13 @@ import { z } from "zod";
  * split is the same one the lexicon already uses: what everybody shares is
  * reviewed in a PR, and a person's place in a course is not.
  *
- * A lesson is an ordered list of blocks. Exercises in it are a pool: the
- * player deals eight each visit (the test keeps every item). An exercise
- * always names a `ruleId`, so a miss can later schedule the rule rather than
- * the prompt. Extra exercises for the same rule sit in `bank.json` and must
- * not reuse an id from a lesson — otherwise Practice / Grammar would drill
- * the answer the person just saw.
+ * A lesson is an ordered list of blocks: a lead, headed sections (examples,
+ * form tables, tagged rules, a recap), a pitfall, then a pool of exercises.
+ * Exercises are a pool: the player deals eight each visit (the test keeps
+ * every item). An exercise always names a `ruleId`, so a miss can later
+ * schedule the rule rather than the prompt. Extra exercises for the same rule
+ * sit in `bank.json` and must not reuse an id from a lesson — otherwise
+ * Practice / Grammar would drill the answer the person just saw.
  */
 
 export const EXERCISE_KINDS = [
@@ -101,6 +102,11 @@ const explanationBlockSchema = z.object({
   md: nonEmpty,
 });
 
+const headingBlockSchema = z.object({
+  type: z.literal("heading"),
+  title: nonEmpty,
+});
+
 const tableBlockSchema = z.object({
   type: z.literal("table"),
   headers: z.array(nonEmpty).min(1),
@@ -119,13 +125,51 @@ const pitfallBlockSchema = z.object({
   md: nonEmpty,
 });
 
+const rulesBlockSchema = z.object({
+  type: z.literal("rules"),
+  items: z
+    .array(
+      z.object({
+        tag: nonEmpty,
+        md: nonEmpty,
+      }),
+    )
+    .min(1),
+});
+
+const recapBlockSchema = z.object({
+  type: z.literal("recap"),
+  items: z
+    .array(
+      z.object({
+        k: nonEmpty,
+        v: nonEmpty,
+      }),
+    )
+    .min(1),
+});
+
 export const blockSchema = z.union([
   explanationBlockSchema,
+  headingBlockSchema,
   tableBlockSchema,
   exampleBlockSchema,
   pitfallBlockSchema,
+  rulesBlockSchema,
+  recapBlockSchema,
   exerciseSchema,
 ]);
+
+const ruleCardRowSchema = z.object({
+  label: nonEmpty,
+  form: nonEmpty,
+  ruleId: nonEmpty.optional(),
+});
+
+export const ruleCardSchema = z.object({
+  rows: z.array(ruleCardRowSchema).min(1),
+  note: nonEmpty,
+});
 
 export const lessonSchema = z.object({
   slug: nonEmpty,
@@ -133,6 +177,8 @@ export const lessonSchema = z.object({
   titleRu: nonEmpty,
   /** Sitting length on the course outline. Falls back by lesson kind if omitted. */
   estMinutes: z.number().int().positive().optional(),
+  /** Compact recap shown under a practice question. */
+  ruleCard: ruleCardSchema.optional(),
   blocks: z.array(blockSchema).min(1),
 });
 
@@ -171,11 +217,17 @@ export type CourseMeta = z.infer<typeof courseSchema>;
 export type Exercise = z.infer<typeof exerciseSchema>;
 export type Block = z.infer<typeof blockSchema>;
 export type Lesson = z.infer<typeof lessonSchema>;
+export type RuleCard = z.infer<typeof ruleCardSchema>;
 export type Catalog = z.infer<typeof catalogSchema>;
 export type CatalogEntry = z.infer<typeof catalogEntrySchema>;
+export type TheoryBlock = Exclude<Block, Exercise>;
 
 export function isExerciseBlock(block: Block): block is Exercise {
   return block.type === "exercise";
+}
+
+export function isTheoryBlock(block: Block): block is TheoryBlock {
+  return block.type !== "exercise";
 }
 
 /** Canonical answer plus any listed variants (`doesn't` / `does not`). */

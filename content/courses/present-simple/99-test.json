@@ -3,6 +3,13 @@
   "title": "Test",
   "titleRu": "Проверка всего курса",
   "estMinutes": 6,
+  "ruleCard": {
+    "rows": [
+      { "label": "I / you / we / they", "form": "work / don't / Do" },
+      { "label": "he / she / it", "form": "work==s== / doesn't / Does" }
+    ],
+    "note": "Новой теории нет — только то, что уже было в уроках."
+  },
   "blocks": [
     {
       "type": "explanation",
@@ -39,7 +46,7 @@
       "id": "ps-test-04",
       "ruleId": "ps-negative-doesnt",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is correct?",
+      "prompt": "Какое предложение верное?",
       "options": ["He doesn't likes coffee.", "He doesn't like coffee."],
       "answer": "He doesn't like coffee."
     },
@@ -66,7 +73,7 @@
       "id": "ps-test-07",
       "ruleId": "ps-negative-dont",
       "kind": "transform",
-      "prompt": "Make this negative.",
+      "prompt": "Сделайте отрицание.",
       "source": "They live in Berlin.",
       "answer": "They don't live in Berlin.",
       "accept": ["They do not live in Berlin."]
@@ -76,7 +83,7 @@
       "id": "ps-test-08",
       "ruleId": "ps-question-do",
       "kind": "transform",
-      "prompt": "Make this a question.",
+      "prompt": "Сделайте вопрос.",
       "source": "You work here.",
       "answer": "Do you work here?"
     },
@@ -94,7 +101,7 @@
       "id": "ps-test-10",
       "ruleId": "ps-use-facts",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is a fact?",
+      "prompt": "Какое предложение — факт?",
       "options": [
         "Water boils at 100 degrees.",
         "Water boil at 100 degrees."
@@ -114,7 +121,7 @@
       "id": "ps-test-12",
       "ruleId": "ps-question-does",
       "kind": "pick-sentence",
-      "prompt": "Which question is correct?",
+      "prompt": "Какой вопрос верный?",
       "options": ["Does she plays tennis?", "Does she play tennis?"],
       "answer": "Does she play tennis?"
     }

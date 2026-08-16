@@ -3,11 +3,26 @@
   "title": "Use",
   "titleRu": "Употребление",
   "estMinutes": 5,
+  "ruleCard": {
+    "rows": [
+      { "label": "Привычка", "form": "every day / usually", "ruleId": "ps-use-habits" },
+      { "label": "Факт", "form": "верно вообще", "ruleId": "ps-use-facts" }
+    ],
+    "note": "Для «прямо сейчас» позже будет другое время. Здесь — как устроены вещи и привычки."
+  },
   "blocks": [
     {
       "type": "explanation",
+      "md": "Present Simple говорит о привычке и о факте. Не о том, что происходит именно в эту минуту."
+    },
+    {
+      "type": "heading",
+      "title": "Привычка и расписание"
+    },
+    {
+      "type": "explanation",
       "ruleId": "ps-use-habits",
-      "md": "Present Simple говорит о привычке и о расписании: то, что человек делает снова и снова, а не именно в эту минуту.\n\nРядом часто стоят **every day**, **every morning**, **on Sundays**, **usually**, **always**, **never**. Они подсказывают: это повтор, не один раз."
+      "md": "То, что человек делает снова и снова. Рядом часто стоят `every day`, `every morning`, `on Sundays`, `usually`, `always`, `never`. Они подсказывают: это повтор, не один раз."
     },
     {
       "type": "example",
@@ -16,30 +31,45 @@
     },
     {
       "type": "example",
-      "en": "She plays tennis on Sundays.",
+      "en": "She play==s== tennis on Sundays.",
       "ru": "Она играет в теннис по воскресеньям."
+    },
+    {
+      "type": "heading",
+      "title": "Факт"
     },
     {
       "type": "explanation",
       "ruleId": "ps-use-facts",
-      "md": "Тем же временем называют факт — то, что верно вообще, не только сегодня.\n\nМагазин открывается в девять как правило. Вода зимой замерзает — это свойство, не сцена за окном. Для «прямо сейчас» позже будет другое время; здесь речь о том, как устроены вещи."
+      "md": "То, что верно вообще, не только сегодня. Магазин открывается в девять как правило. Вода зимой замерзает — это свойство, не сцена за окном."
     },
     {
       "type": "example",
-      "en": "The shop opens at nine.",
+      "en": "The shop open==s== at nine.",
       "ru": "Магазин открывается в девять."
     },
     {
       "type": "example",
-      "en": "Water freezes in winter.",
+      "en": "Water freeze==s== in winter.",
       "ru": "Вода зимой замерзает."
+    },
+    {
+      "type": "heading",
+      "title": "Коротко"
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "Привычка", "v": "снова и снова: every day, on Sundays, usually" },
+        { "k": "Факт", "v": "верно вообще, не только сейчас" }
+      ]
     },
     {
       "type": "exercise",
       "id": "ps-use-01",
       "ruleId": "ps-use-habits",
       "kind": "pick-sentence",
-      "prompt": "Which sentence talks about a habit?",
+      "prompt": "Какое предложение про привычку?",
       "options": [
         "She reads in the evening.",
         "She reading in the evening."
@@ -60,7 +90,7 @@
       "id": "ps-use-03",
       "ruleId": "ps-use-facts",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is a fact?",
+      "prompt": "Какое предложение — факт?",
       "options": [
         "The shop opens at nine.",
         "The shop opening at nine."
@@ -115,7 +145,7 @@
       "id": "ps-use-09",
       "ruleId": "ps-use-habits",
       "kind": "pick-sentence",
-      "prompt": "Which sentence talks about a habit?",
+      "prompt": "Какое предложение про привычку?",
       "options": [
         "He walks to work every day.",
         "He walking to work every day."
@@ -127,7 +157,7 @@
       "id": "ps-use-10",
       "ruleId": "ps-use-facts",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is a fact?",
+      "prompt": "Какое предложение — факт?",
       "options": [
         "Birds fly in the sky.",
         "Birds flying in the sky."
@@ -181,7 +211,7 @@
       "id": "ps-use-16",
       "ruleId": "ps-use-facts",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is a fact?",
+      "prompt": "Какое предложение — факт?",
       "options": [
         "The Earth goes round the sun.",
         "The Earth going round the sun."

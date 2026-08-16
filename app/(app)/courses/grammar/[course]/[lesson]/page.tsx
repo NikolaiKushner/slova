@@ -1,10 +1,6 @@
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
 
-import { LessonPlayer } from "@/components/courses/lesson-player";
-import { PageBack } from "@/components/page-back";
-import { PageContainer } from "@/components/layout/app-shell";
-import { PageHeader } from "@/components/page-header";
+import { LessonSession } from "@/components/courses/lesson-player";
 import { CourseContentError, loadCourse } from "@/lib/courses/load";
 
 type Params = { params: Promise<{ course: string; lesson: string }> };
@@ -16,7 +12,6 @@ type Params = { params: Promise<{ course: string; lesson: string }> };
  */
 export default async function CourseLessonPage({ params }: Params) {
   const { course: courseSlug, lesson: lessonSlug } = await params;
-  const t = await getTranslations("courses");
 
   let loaded;
   try {
@@ -26,25 +21,18 @@ export default async function CourseLessonPage({ params }: Params) {
     throw error;
   }
 
-  const lesson = loaded.lessons.find((item) => item.slug === lessonSlug);
+  const lessonIndex = loaded.lessons.findIndex((item) => item.slug === lessonSlug);
+  const lesson = loaded.lessons[lessonIndex];
   if (!lesson) notFound();
 
   return (
-    <PageContainer container="prose">
-      <PageHeader
-        eyebrow={loaded.course.title}
-        title={lesson.title}
-        description={lesson.titleRu}
-      />
-      <LessonPlayer
-        courseSlug={courseSlug}
-        lesson={lesson}
-        rules={loaded.rules}
-      />
-      <PageBack
-        href={`/courses/grammar/${courseSlug}`}
-        label={t("backToLessons")}
-      />
-    </PageContainer>
+    <LessonSession
+      courseSlug={courseSlug}
+      courseTitle={loaded.course.title}
+      lesson={lesson}
+      rules={loaded.rules}
+      lessonIndex={lessonIndex}
+      lessonCount={loaded.lessons.length}
+    />
   );
 }

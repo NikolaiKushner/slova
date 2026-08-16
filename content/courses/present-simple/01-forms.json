@@ -3,32 +3,47 @@
   "title": "Forms",
   "titleRu": "Форма",
   "estMinutes": 4,
+  "ruleCard": {
+    "rows": [
+      { "label": "I / you / we / they", "form": "work", "ruleId": "ps-base-form" },
+      { "label": "he / she / it", "form": "work==s==", "ruleId": "ps-third-person-s" }
+    ],
+    "note": "Имя человека и любое слово в единственном числе работают как **he / she / it**."
+  },
   "blocks": [
     {
       "type": "explanation",
       "md": "Present Simple — самое простое настоящее время. Оно нужно для двух вещей: что-то происходит регулярно и что-то верно вообще."
     },
     {
-      "type": "example",
-      "en": "I drink coffee every morning.",
-      "ru": "Я пью кофе каждое утро."
+      "type": "heading",
+      "title": "Когда используем"
     },
     {
       "type": "example",
-      "en": "Water boils at 100 degrees.",
-      "ru": "Вода кипит при 100 градусах."
+      "en": "I drink coffee every morning.",
+      "ru": "Я пью кофе каждое утро. — регулярно"
+    },
+    {
+      "type": "example",
+      "en": "Water boil==s== at 100 degrees.",
+      "ru": "Вода кипит при 100 градусах. — верно вообще"
+    },
+    {
+      "type": "heading",
+      "title": "Формы"
     },
     {
       "type": "explanation",
-      "md": "После **I, you, we, they** глагол остаётся как в словаре: work, live, like.\n\nПосле **he, she, it** к нему добавляется **-s**: works, lives, likes."
+      "md": "После **I, you, we, they** глагол остаётся как в словаре. После **he, she, it** к нему добавляется окончание `-==s==`"
     },
     {
       "type": "table",
       "headers": ["I / you / we / they", "he / she / it"],
       "rows": [
-        ["work", "works"],
-        ["live", "lives"],
-        ["like", "likes"]
+        ["work", "work==s=="],
+        ["live", "live==s=="],
+        ["like", "like==s=="]
       ]
     },
     {
@@ -38,7 +53,7 @@
     },
     {
       "type": "example",
-      "en": "She works here.",
+      "en": "She work==s== here.",
       "ru": "Она здесь работает."
     },
     {
@@ -47,18 +62,67 @@
       "ru": "Мы играем в футбол по воскресеньям."
     },
     {
-      "type": "explanation",
-      "md": "Не только местоимения. Имя человека и любое слово в единственном числе работают как **he / she / it**: Anna works. My brother lives here. The shop opens at nine.\n\nА несколько предметов или людей — как **they**, глагол без **-s**: My parents work. The shops open at nine."
+      "type": "heading",
+      "title": "Не только местоимения"
     },
     {
       "type": "explanation",
-      "ruleId": "ps-spelling-es",
-      "md": "Как добавлять **-s**\n\nОбычно просто **-s**: work → works, live → lives.\n\nПосле **-o, -s, -sh, -ch, -x** пишем **-es**: go → goes, watch → watches, fix → fixes.\n\nСогласная + **y** → **-ies**: study → studies, try → tries.\n\nНо гласная + **y** — обычное **-s**: play → plays."
+      "md": "Имя человека и любое слово в единственном числе работают как **he / she / it**:"
+    },
+    {
+      "type": "example",
+      "en": "Anna work==s==. My sister speak==s== English. The shop open==s== at nine.",
+      "ru": "Анна работает. Моя сестра говорит по-английски. Магазин открывается в девять."
+    },
+    {
+      "type": "explanation",
+      "md": "А несколько предметов или людей — как **they**, глагол остаётся без окончания"
+    },
+    {
+      "type": "example",
+      "en": "My parents work. The shops open at nine.",
+      "ru": "Мои родители работают. Магазины открываются в девять."
+    },
+    {
+      "type": "heading",
+      "title": "Как добавлять -s"
+    },
+    {
+      "type": "rules",
+      "items": [
+        {
+          "tag": "-s",
+          "md": "обычно просто: `work → work==s==`, `live → live==s==`"
+        },
+        {
+          "tag": "-es",
+          "md": "после **-o, -s, -sh, -ch, -x**: `go → go==es==`, `watch → watch==es==`"
+        },
+        {
+          "tag": "-ies",
+          "md": "согласная + **y**: `study → stud==ies==`, `try → tr==ies==`"
+        },
+        {
+          "tag": "-s",
+          "md": "но гласная + **y** — обычное окончание: `play → play==s==`"
+        }
+      ]
     },
     {
       "type": "pitfall",
       "ruleId": "ps-third-person-s",
-      "md": "После **he / she / it** русскоязычные часто оставляют глагол как в словаре: she work → **she works**.\n\nЛегко перепутать **-s** у существительных и у глаголов. У существительных **-s** значит «много»: shops. У глаголов — наоборот, «один»: she works.\n\nГлагол **be** (am / is / are) по этому правилу не работает — у него отдельные формы."
+      "md": "После **he / she / it** русскоязычные часто оставляют глагол как в словаре: `she work` → `she work==s==`.\n\nЛегко перепутать `-s` у существительных и у глаголов. У существительных оно значит «много»: `shops`. У глаголов — наоборот, «один»: `she works`.\n\nГлагол `be` (am / is / are) по этому правилу не работает — у него отдельные формы. Это следующий урок."
+    },
+    {
+      "type": "heading",
+      "title": "Коротко"
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "I / you / we / they", "v": "глагол как в словаре" },
+        { "k": "he / she / it", "v": "глагол + `-==s==`" }
+      ]
     },
     {
       "type": "exercise",
@@ -83,7 +147,7 @@
       "id": "ps-forms-03",
       "ruleId": "ps-third-person-s",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is correct?",
+      "prompt": "Какое предложение верное?",
       "options": ["He like coffee.", "He likes coffee."],
       "answer": "He likes coffee."
     },
@@ -109,7 +173,7 @@
       "id": "ps-forms-06",
       "ruleId": "ps-base-form",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is correct?",
+      "prompt": "Какое предложение верное?",
       "options": ["We lives here.", "We live here."],
       "answer": "We live here."
     },
@@ -152,7 +216,7 @@
       "id": "ps-forms-11",
       "ruleId": "ps-third-person-s",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is correct?",
+      "prompt": "Какое предложение верное?",
       "options": ["Tom work in a school.", "Tom works in a school."],
       "answer": "Tom works in a school."
     },
@@ -161,7 +225,7 @@
       "id": "ps-forms-12",
       "ruleId": "ps-base-form",
       "kind": "pick-sentence",
-      "prompt": "Which sentence is correct?",
+      "prompt": "Какое предложение верное?",
       "options": ["They wants more time.", "They want more time."],
       "answer": "They want more time."
     },

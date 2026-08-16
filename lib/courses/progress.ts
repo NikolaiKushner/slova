@@ -8,7 +8,11 @@
 
 import { getPrisma } from "@/lib/prisma";
 import { CourseContentError, loadCourse } from "@/lib/courses/load";
-import { lessonPool, practiceSessionSize } from "@/lib/courses/practice";
+import {
+  isTestLesson,
+  lessonPool,
+  practiceSessionSize,
+} from "@/lib/courses/practice";
 
 export const LESSON_PASS_PERCENT = 80;
 export const TEST_PASS_PERCENT = 90;
@@ -18,9 +22,7 @@ export function scorePercent(right: number, total: number): number {
   return Math.round((100 * right) / total);
 }
 
-export function isTestLesson(lessonSlug: string): boolean {
-  return lessonSlug === "test";
-}
+export { isTestLesson };
 
 export function lessonPassed(percent: number, lessonSlug: string): boolean {
   return percent >=

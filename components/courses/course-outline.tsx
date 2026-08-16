@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Check } from "lucide-react";
+import { Check, ChevronLeft } from "lucide-react";
 
 import { Eyebrow } from "@/components/slova/eyebrow";
 import { LessonRow } from "@/components/slova/lesson-row";
@@ -25,7 +25,6 @@ export async function CourseOutline({
   outline: CourseOutlineView;
 }) {
   const t = await getTranslations("courses");
-  const nav = await getTranslations("nav");
   const common = await getTranslations("common");
 
   const badgeLabel = (badge: "start" | "continue" | null) => {
@@ -40,12 +39,11 @@ export async function CourseOutline({
         <Eyebrow>
           <Link
             href="/courses/grammar"
-            className="hover:text-primary focus-ring rounded-sm"
+            className="hover:text-primary focus-ring -ml-1 inline-flex items-center gap-1 rounded-sm"
           >
-            {nav("courses")}
+            <ChevronLeft className="size-3.5" strokeWidth={1.9} aria-hidden />
+            {t("eyebrow")}
           </Link>
-          {" · "}
-          <span lang="en">{course.title}</span>
         </Eyebrow>
         <h1 className="text-h1" lang="en">
           {course.title}

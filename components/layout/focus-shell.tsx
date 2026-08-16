@@ -122,16 +122,23 @@ export function FocusHead({
  */
 export function FocusPrompt({
   className,
+  compact,
   children,
 }: {
   className?: string;
+  /**
+   * Lesson practice: a sentence, not a drill word. The mockup is 96px —
+   * the drill's 150px is what left a hole under the task line.
+   */
+  compact?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div
       data-slot="focus-prompt"
       className={cn(
-        "flex min-h-[150px] shrink-0 flex-col items-center justify-center gap-3.5 text-center",
+        "flex shrink-0 flex-col items-center justify-center gap-3.5 text-center",
+        compact ? "min-h-24" : "min-h-[150px]",
         className,
       )}
     >
@@ -153,16 +160,23 @@ export function FocusPrompt({
  */
 export function FocusAnswer({
   className,
+  compact,
   children,
 }: {
   className?: string;
+  /**
+   * Lesson practice usually has two options, not four. 132px matches the
+   * grammar mockup; the drill zone of 232px floated two buttons in a void.
+   */
+  compact?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div
       data-slot="focus-answer"
       className={cn(
-        "mt-5 flex min-h-[232px] flex-col justify-center",
+        "mt-5 flex flex-col",
+        compact ? "min-h-[132px] justify-start" : "min-h-[232px] justify-center",
         className,
       )}
     >
@@ -202,10 +216,17 @@ export function FocusFooter({
 export function FocusShell({
   topBar,
   className,
+  align = "center",
   children,
 }: {
   topBar?: React.ReactNode;
   className?: string;
+  /**
+   * Drills centre the scene so every format lands on the same line.
+   * Lesson practice packs from the top, like the reading view it follows —
+   * centering plus the drill's tall zones is what smeared the question.
+   */
+  align?: "center" | "start";
   children: React.ReactNode;
 }) {
   React.useEffect(() => {
@@ -228,8 +249,14 @@ export function FocusShell({
       )}
     >
       {topBar}
-      {/* The scene is centred in whatever height is left under the bar. */}
-      <div className="flex flex-1 items-center justify-center px-4 pt-8 pb-18 md:px-8">
+      <div
+        className={cn(
+          "flex flex-1 justify-center px-4 md:px-8",
+          align === "start"
+            ? "items-start pt-11 pb-10"
+            : "items-center pt-8 pb-18",
+        )}
+      >
         <div className="container-focus w-full">{children}</div>
       </div>
     </div>

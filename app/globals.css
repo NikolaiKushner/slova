@@ -123,6 +123,12 @@
   --warning-bg:            var(--warning-50);
   --warning-border:        var(--warning-200);
 
+  /* ОТСТУПЛЕНИЕ · §14 Token задаёт отдельные hex для подсветки окончания.
+     Success (H 155) и бренд (H 172) — другие зелёные; если взять их, `-s`
+     сольётся с кнопкой «верно». Живут только здесь, не в компонентах. */
+  --token-mark:            #DFF0E5;
+  --token-mark-foreground: #2F7D5C;
+
   --border:                var(--neutral-200);
   --border-subtle:         var(--neutral-150);
   --input:                 var(--neutral-300);
@@ -301,6 +307,8 @@
   --color-warning: var(--warning);
   --color-warning-bg: var(--warning-bg);
   --color-warning-border: var(--warning-border);
+  --color-token-mark: var(--token-mark);
+  --color-token-mark-foreground: var(--token-mark-foreground);
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-input: var(--input);
@@ -424,6 +432,14 @@
   .text-token {
     font-family: var(--font-mono);
     font-size: 0.875rem; line-height: 1.40; font-weight: 500;
+  }
+  .token-mark {
+    color: var(--token-mark-foreground);
+    background: var(--token-mark);
+    border-radius: 3px;
+    padding: 0 1px;
+    margin: 0 -1px;
+    font-weight: 600;
   }
   .text-numeral {
     font-family: var(--font-display);
@@ -657,6 +673,14 @@ body[data-drill="on"] [data-slot="sidebar"] {
 body[data-drill="on"] [data-slot="sidebar"]:hover,
 body[data-drill="on"] [data-slot="sidebar"]:focus-within {
   opacity: 1;
+}
+
+/* §15.2: on a touch screen the sidebar is hidden (Sheet) or left alone —
+   dimming it is a hover affordance, and there is no hover. */
+@media (pointer: coarse) {
+  body[data-drill="on"] [data-slot="sidebar"] {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

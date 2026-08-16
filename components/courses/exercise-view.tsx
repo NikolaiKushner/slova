@@ -1,56 +1,165 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, X } from "lucide-react";
 
-import type { Exercise, Rule } from "@/content/courses/schema";
+import type { Exercise } from "@/content/courses/schema";
+import { AnswerReveal } from "@/components/slova/answer-reveal";
+import { OptionButton, OptionList } from "@/components/slova/option-button";
+import { SpeakButton } from "@/components/slova/speak-button";
+import { TokenMark } from "@/components/slova/token";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { gradeExercise, type GrammarVerdict } from "@/lib/courses/answer";
-import { mdToNodes } from "@/lib/courses/md";
+import { resolveCourseAudio } from "@/lib/courses/audio";
+import { endingAgainst, splitGapPrompt } from "@/lib/courses/prompt";
+import { speakText } from "@/lib/courses/speak-text";
 import { cn } from "@/lib/utils";
 
 export type GrammarAnswered = { verdict: GrammarVerdict; given: string };
 
-export function ExerciseView({
+/**
+ * One grammar question, in the same two zones a training uses.
+ *
+ * Choice and pick-sentence go through OptionButton. A gap in the prompt is
+ * drawn as an underline and filled after the answer — the mockup's shape,
+ * not a second widget.
+ */
+export function GrammarQuestion({
   exercise,
+  answered,
   onAnswered,
+  part,
 }: {
   exercise: Exercise;
+  answered: GrammarAnswered | null;
   onAnswered: (result: GrammarAnswered) => void;
+  part: "prompt" | "answer";
 }) {
-  if (exercise.kind === "choice" || exercise.kind === "pick-sentence") {
-    return <Choices exercise={exercise} onAnswered={onAnswered} />;
+  if (part === "prompt") {
+    return <Prompt exercise={exercise} answered={answered} />;
   }
-  return <Typed exercise={exercise} onAnswered={onAnswered} />;
+  if (exercise.kind === "choice" || exercise.kind === "pick-sentence") {
+    return <Choices exercise={exercise} answered={answered} onAnswered={onAnswered} />;
+  }
+  return <Typed exercise={exercise} answered={answered} onAnswered={onAnswered} />;
+}
+
+export function taskKey(
+  kind: Exercise["kind"],
+): "taskChoice" | "taskPick" | "taskGap" | "taskTransform" {
+  switch (kind) {
+    case "choice":
+      return "taskChoice";
+    case "pick-sentence":
+      return "taskPick";
+    case "gap":
+      return "taskGap";
+    case "transform":
+      return "taskTransform";
+  }
+}
+
+function Prompt({
+  exercise,
+  answered,
+}: {
+  exercise: Exercise;
+  answered: GrammarAnswered | null;
+}) {
+  if (exercise.kind === "transform") {
+    const text = speakText(exercise.source);
+    const audio = resolveCourseAudio(text);
+
+    return (
+      <div className="flex items-start justify-center gap-3">
+        <p
+          lang="en"
+          className="font-display min-w-0 text-[2rem] leading-snug font-medium"
+        >
+          {exercise.source}
+        </p>
+        <SpeakButton
+          text={text}
+          normalUrl={audio?.normalUrl}
+          slowUrl={audio?.slowUrl}
+        />
+      </div>
+    );
+  }
+
+  if (exercise.kind === "pick-sentence") {
+    return null;
+  }
+
+  const gap = splitGapPrompt(exercise.prompt);
+  if (!gap.hasGap) {
+    return (
+      <p lang="en" className="font-display text-[2rem] leading-snug font-medium">
+        {exercise.prompt}
+      </p>
+    );
+  }
+
+  const fill =
+    answered === null
+      ? null
+      : exercise.kind === "choice"
+        ? filledForm(exercise.answer, exercise.options)
+        : filledForm(exercise.answer, gap.hint ? [gap.hint] : []);
+
+  return (
+    <p lang="en" className="font-display text-[2rem] leading-snug font-medium">
+      {gap.before}
+      <span
+        className={cn(
+          "inline-block min-w-[110px] border-b-2 text-center align-baseline transition-colors duration-(--motion-fast)",
+          fill ? "border-success text-success" : "border-input",
+        )}
+      >
+        {fill ?? "\u00a0"}
+      </span>
+      {gap.after}
+    </p>
+  );
+}
+
+/** Always the right form: the options carry the miss, the gap does not. */
+function filledForm(answer: string, others: readonly string[]): React.ReactNode {
+  const ending = endingAgainst(answer, others);
+  if (!ending) return answer;
+  return (
+    <>
+      {ending.stem}
+      <TokenMark>{ending.ending}</TokenMark>
+    </>
+  );
 }
 
 function Choices({
   exercise,
+  answered,
   onAnswered,
 }: {
   exercise: Extract<Exercise, { options: string[] }>;
+  answered: GrammarAnswered | null;
   onAnswered: (result: GrammarAnswered) => void;
 }) {
-  const [chosen, setChosen] = useState<number | null>(null);
-
   const choose = useCallback(
     (index: number) => {
-      if (chosen !== null) return;
+      if (answered) return;
       const given = exercise.options[index];
       if (given === undefined) return;
-      setChosen(index);
       onAnswered({
         verdict: gradeExercise(exercise, given),
         given,
       });
     },
-    [chosen, exercise, onAnswered],
+    [answered, exercise, onAnswered],
   );
 
   useEffect(() => {
-    if (chosen !== null) return;
+    if (answered) return;
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -63,196 +172,108 @@ function Choices({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [exercise, chosen, choose]);
-
-  const answerIndex = exercise.options.indexOf(exercise.answer);
+  }, [exercise, answered, choose]);
 
   return (
-    <div className="space-y-4">
-      <Prompt exercise={exercise} />
-      <div className="grid gap-2 sm:grid-cols-2">
-        {exercise.options.map((option, index) => (
-          <Button
-            key={option}
-            type="button"
-            variant="outline"
-            size="lg"
-            className={cn(
-              "h-auto justify-start py-3 text-base whitespace-normal",
-              chosen !== null &&
-                index === answerIndex &&
-                "border-primary text-primary",
-              chosen === index &&
-                index !== answerIndex &&
-                "border-destructive text-destructive",
-            )}
-            disabled={
-              chosen !== null && index !== chosen && index !== answerIndex
-            }
-            onClick={() => choose(index)}
-          >
-            <span
-              aria-hidden
-              className="text-muted-foreground border-border mr-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md border text-xs"
+    <OptionList>
+      {exercise.options.map((option, index) => {
+        const isAnswer = option === exercise.answer;
+        const decided = answered !== null;
+        const chosen = decided && answered.given === option;
+
+        return (
+          <li key={option}>
+            <OptionButton
+              index={index}
+              disabled={decided}
+              onClick={() => choose(index)}
+              state={
+                !decided
+                  ? "idle"
+                  : isAnswer
+                    ? "correct"
+                    : chosen
+                      ? "incorrect"
+                      : "dimmed"
+              }
             >
-              {index + 1}
-            </span>
-            {option}
-          </Button>
-        ))}
-      </div>
-    </div>
+              <span lang="en">{option}</span>
+            </OptionButton>
+          </li>
+        );
+      })}
+    </OptionList>
   );
 }
 
 function Typed({
   exercise,
+  answered,
   onAnswered,
 }: {
   exercise: Extract<Exercise, { kind: "gap" | "transform" }>;
+  answered: GrammarAnswered | null;
   onAnswered: (result: GrammarAnswered) => void;
 }) {
   const [value, setValue] = useState("");
-  const [done, setDone] = useState(false);
-  const [right, setRight] = useState(false);
   const t = useTranslations("courses");
   const practice = useTranslations("practice");
   const common = useTranslations("common");
+  const gap = splitGapPrompt(exercise.prompt);
 
   function submit() {
-    if (done || !value.trim()) return;
-    const verdict = gradeExercise(exercise, value);
-    setDone(true);
-    setRight(verdict === "correct");
-    onAnswered({ verdict, given: value });
+    if (answered || !value.trim()) return;
+    onAnswered({
+      verdict: gradeExercise(exercise, value),
+      given: value,
+    });
+  }
+
+  if (answered) {
+    if (exercise.kind === "gap") {
+      return null;
+    }
+    return (
+      <AnswerReveal
+        answer={exercise.answer}
+        given={answered.verdict === "correct" ? undefined : answered.given}
+        correct={answered.verdict === "correct"}
+      />
+    );
   }
 
   return (
-    <div className="space-y-4">
-      <Prompt exercise={exercise} />
-      <div className="mx-auto flex w-full max-w-md items-center gap-2">
-        <Input
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              submit();
-            }
-          }}
-          placeholder={
-            exercise.kind === "transform" ? t("typeSentence") : t("typeForm")
+    <div className="flex items-center justify-center gap-2.5">
+      <Input
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            submit();
           }
-          aria-label={practice("yourAnswer")}
-          disabled={done}
-          autoFocus
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck={false}
-          className={cn(
-            "h-9 min-w-0 flex-1 text-center text-base",
-            done && (right ? "border-primary text-primary" : "border-destructive"),
-          )}
-        />
-        <Button
-          type="button"
-          size="lg"
-          onClick={submit}
-          disabled={done || !value.trim()}
-          className={done ? "invisible" : undefined}
-        >
-          {common("check")}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function Prompt({ exercise }: { exercise: Exercise }) {
-  return (
-    <div className="space-y-2">
-      {"source" in exercise ? (
-        <p className="font-display text-2xl leading-snug">{exercise.source}</p>
-      ) : null}
-      <p
-        className={
-          "source" in exercise
-            ? "text-muted-foreground"
-            : "font-display text-2xl leading-snug"
+        }}
+        placeholder={
+          exercise.kind === "transform"
+            ? t("typeSentence")
+            : (gap.hint ?? t("typeForm"))
         }
+        aria-label={practice("yourAnswer")}
+        autoFocus
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        className="font-display h-[52px] min-w-0 max-w-[330px] flex-1 rounded-lg text-center text-[1.0625rem] placeholder:font-sans placeholder:text-body-sm"
+      />
+      <Button
+        type="button"
+        size="lg"
+        className="h-[52px]"
+        onClick={submit}
+        disabled={!value.trim()}
       >
-        {exercise.prompt}
-      </p>
-    </div>
-  );
-}
-
-export function GrammarFeedback({
-  result,
-  answer,
-  rule,
-  onNext,
-}: {
-  result: GrammarAnswered | null;
-  answer: string;
-  rule: Rule | undefined;
-  onNext: () => void;
-}) {
-  const nextRef = useRef<HTMLButtonElement>(null);
-  const common = useTranslations("common");
-  const right = result?.verdict === "correct";
-
-  useEffect(() => {
-    if (result) nextRef.current?.focus();
-  }, [result]);
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <p
-          className={cn(
-            "flex min-h-9 min-w-0 flex-1 items-center gap-2 text-sm",
-            !result
-              ? "invisible"
-              : right
-                ? "text-primary"
-                : "text-destructive",
-          )}
-          aria-live="polite"
-          aria-hidden={!result}
-        >
-          {right ? (
-            <>
-              <Check className="size-4 shrink-0" />
-              {common("correct")}
-            </>
-          ) : (
-            <>
-              <X className="size-4 shrink-0" />
-              {common("incorrect")}
-            </>
-          )}
-        </p>
-        <Button
-          ref={nextRef}
-          type="button"
-          size="lg"
-          disabled={!result}
-          onClick={onNext}
-        >
-          {common("next")}
-        </Button>
-      </div>
-      {result && !right ? (
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {common.rich("itIs", {
-            answer: () => (
-              <span className="text-foreground font-medium">{answer}</span>
-            ),
-          })}
-          {rule ? <> · {mdToNodes(rule.anchorMd)}</> : null}
-        </p>
-      ) : null}
+        {common("check")}
+      </Button>
     </div>
   );
 }

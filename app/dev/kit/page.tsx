@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AnswerFeedback } from "@/components/slova/answer-feedback";
+import { Callout } from "@/components/slova/callout";
 import { Eyebrow } from "@/components/slova/eyebrow";
 import { KeyHints } from "@/components/slova/key-hints";
 import { LessonRow } from "@/components/slova/lesson-row";
@@ -10,7 +11,10 @@ import { LetterTiles } from "@/components/slova/letter-tiles";
 import { OptionButton, OptionList } from "@/components/slova/option-button";
 import { PlayButton } from "@/components/slova/play-button";
 import { ProgressSteps } from "@/components/slova/progress-steps";
+import { RuleExample } from "@/components/slova/rule-example";
+import { SpeakButton } from "@/components/slova/speak-button";
 import { StageRail } from "@/components/slova/stage-rail";
+import { Token, TokenMark } from "@/components/slova/token";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -100,6 +104,17 @@ export default function KitPage() {
             {playing ? "Остановить кольца" : "Пустить кольца"}
           </Button>
         </div>
+      </Row>
+
+      <Row title="Компактное произношение">
+        <div className="flex flex-wrap items-center gap-8">
+          <SpeakButton text="She works here." />
+          <SpeakButton text="She works here." disabled />
+        </div>
+        <p className="text-muted-foreground mt-3 text-caption">
+          Обычная и медленная кнопки используют Web Speech при пустом
+          манифесте. Справа — отключённое состояние.
+        </p>
       </Row>
 
       <Row title="Лестница брейншторма">
@@ -195,11 +210,58 @@ export default function KitPage() {
             { keys: ["Пробел"], label: "повторить звук" },
             { keys: ["Enter"], label: "дальше" },
             { keys: ["Backspace"], label: "вернуть букву" },
+            { keys: ["R"], label: "правило" },
           ]}
         />
         <p className="text-muted-foreground mt-3 text-caption">
           На сенсорном экране этот блок скрыт целиком.
         </p>
+      </Row>
+
+      <Row title="Пример в уроке">
+        <RuleExample
+          en={
+            <>
+              She work<TokenMark>s</TokenMark> here.
+            </>
+          }
+          ru="Она здесь работает."
+          speakText="She works here."
+        />
+        <p className="text-muted-foreground mt-3 text-caption">
+          Левая линейка, английское в Literata, перевод ниже.
+        </p>
+      </Row>
+
+      <Row title="Форма слова">
+        <p className="text-body">
+          После he / she / it:{" "}
+          <Token>
+            work<TokenMark>s</TokenMark>
+          </Token>
+          ,{" "}
+          <Token>
+            go<TokenMark>es</TokenMark>
+          </Token>
+          ,{" "}
+          <Token>
+            stud<TokenMark>ies</TokenMark>
+          </Token>
+          .
+        </p>
+      </Row>
+
+      <Row title="Врезка">
+        <Callout variant="warning" title="Где обычно ошибаются">
+          <p>
+            После <strong>he / she / it</strong> глагол не оставляют как в словаре:{" "}
+            <Token>she work</Token> →{" "}
+            <Token>
+              she work<TokenMark>s</TokenMark>
+            </Token>
+            .
+          </p>
+        </Callout>
       </Row>
     </div>
   );
