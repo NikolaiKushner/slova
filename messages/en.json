@@ -328,7 +328,8 @@
     "hintTakeBack": "take one back",
     "keySpace": "Space",
     "keyEnter": "Enter",
-    "keyBackspace": "Backspace"
+    "keyBackspace": "Backspace",
+    "railWord": "Word {index}: {stage} of {total} rungs"
   },
   "trainings": {
     "brainstorm": {

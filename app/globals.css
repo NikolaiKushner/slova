@@ -92,6 +92,11 @@
 
   --accent:                var(--green-100);
   --accent-foreground:     var(--green-700);
+  /* ОТСТУПЛЕНИЕ 7 · §5.1 требует у выбранного варианта границу green-200, но
+     имени ей не даёт — в отличие от success/warning/destructive, у которых
+     тройка полная. Достраиваю тройку, иначе OptionButton пришлось бы красить
+     примитивом напрямую, что §5 запрещает. */
+  --accent-border:         var(--green-200);
 
   --destructive:           var(--danger-600);
   --destructive-foreground:var(--neutral-0);
@@ -220,6 +225,7 @@
 
   --accent:                var(--green-900);
   --accent-foreground:     var(--green-300);
+  --accent-border:         var(--green-800);
 
   --border:                oklch(31.0% 0.008 165);
   --border-subtle:         oklch(27.0% 0.007 165);
@@ -268,6 +274,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-border: var(--accent-border);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-destructive-bg: var(--destructive-bg);

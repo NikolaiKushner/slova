@@ -328,7 +328,8 @@
     "hintTakeBack": "вернуть букву",
     "keySpace": "Пробел",
     "keyEnter": "Enter",
-    "keyBackspace": "Backspace"
+    "keyBackspace": "Backspace",
+    "railWord": "Слово {index}: {stage} из {total} ступеней"
   },
   "trainings": {
     "brainstorm": {
