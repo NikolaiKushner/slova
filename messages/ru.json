@@ -610,7 +610,7 @@
     "clearSort": "Сбросить сортировку {label}",
     "selected": "Выбрано: {count}",
     "actionsAria": "Действия с выбранными словами",
-    "alsoAdd": "Ещё в набор",
+    "alsoAdd": "Добавить в набор",
     "takeOut": "Убрать",
     "clearSelection": "Снять выбор",
     "deleteNTitle": "{count, plural, one {Удалить # слово?} few {Удалить # слова?} many {Удалить # слов?} other {Удалить # слова?}}",

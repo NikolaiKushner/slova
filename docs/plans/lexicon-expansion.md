@@ -28,7 +28,8 @@ builder handing out one tile per space.
 
 ## Success criteria
 
-- [ ] `Lexeme` rows with `audioSlowUrl` ≈ rows with `audioUrl` (today: 0 vs 8,177)
+- [x] `Lexeme` rows with `audioSlowUrl` ≈ rows with `audioUrl` (was 0 vs 8,177,
+      now **8,210** vs 8,177 — see the asymmetry note in step 1)
 - [ ] `Lexeme.transcription` and `Lexeme.partOfSpeech` populated for every
       `source="seed"` row (today: 0 and 0)
 - [x] `content/courses/audio-manifest.json` has an entry per course example
@@ -161,9 +162,36 @@ one Prisma migration (verb forms) · no new dependencies.
 
 **Approved and started 2026-08-17.** Dry runs gave the real figures: slow
 audio $0.86 (8,214 words, 57,248 characters), course audio $0.03 (51 texts,
-102 recordings). Course audio is **done** — the manifest holds 51 entries with
-a normal and a slow URL each. Slow audio and the missing-word batch are still
-running; neither has been verified in a browser yet.
+102 recordings).
+
+- **Course audio: done.** The manifest holds 51 entries, each with a normal and
+  a slow URL.
+- **Slow audio: done.** 8,210 recorded, 4 failed (`graduated`, `handy`,
+  `identical`, `gonna`), 40 minutes.
+- **Missing-word batch: still running** (`msgbatch_01WwxoEL…`).
+
+Neither audio run has been listened to in a browser yet.
+
+**Two things the verification turned up, both worth acting on.**
+
+*The slow column is now ahead of the normal one, not level with it.* 8,210 rows
+have a slow recording and 8,177 have a normal one, because the slow run covered
+lexemes the earlier normal run had failed on. It bites hardest on phrases: 26
+of the 26 have slow audio and exactly **1** has normal audio, so pressing the
+slow control on a collocation plays a file while pressing normal falls through
+to the browser voice. Backwards, and worth one cheap `npm run lexicon:audio`
+(no `--slow`, ~37 words, well under a cent) — but see the next point for why
+that run should wait for step 5.
+
+*The spaces in a phrase's object key are survivable, not broken — measured.*
+`…/audio/en/slow/data privacy.mp3` is stored with a raw space. `curl` refuses
+it outright (exit before request), but WHATWG URL parsing percent-encodes the
+space, and both `fetch()` and an `<audio src>` go through that path — a HEAD
+against the encoded form returns `200 audio/mpeg`, 18KB. So it plays today and
+fails for anything that does not normalise: a CDN rule, a strict client, a
+shell script. Step 5 still fixes `audioObjectKey`, and filling the 37 missing
+normal recordings should happen **after** that fix rather than minting 26 more
+space-bearing keys first.
 
 
 - **Why first:** it is the only step with no decisions in it, and it fills
@@ -277,7 +305,8 @@ connected, and `/courses/**` is behind auth that I must not sign into.
   `lib/practice/distractors.ts` (draw from candidates of the same shape —
   phrase with phrase, word with word); `lib/lexicon/key.ts`
   (`audioObjectKey` — decide whether spaces are encoded or replaced, and
-  migrate the one existing file); a curated
+  migrate the **27** existing files: 26 slow, 1 normal); then fill the 37
+  lexemes still missing a normal recording; a curated
   `content/lexicon/en-ru-phrases.jsonl` of 300–500 phrasal verbs and
   collocations, plus `--kind=phrase` on the seeder.
 - **Does:** a phrase can be studied in every format the app offers.
