@@ -58,3 +58,38 @@ Rebuilding: `npm run lexicon:build` (costs roughly $0.50 and takes up to an hour
 through the Batch API), then `npm run db:seed-lexicon` to load it. Both are
 idempotent — re-running replaces `source="seed"` rows and leaves everything the
 lexicon has since earned by itself (`llm`, `import`) alone.
+
+### Line format
+
+A line is `{"text", "translation"}` plus two optional fields:
+
+```json
+{"text":"water","translation":"вода","transcription":"ˈwɔːtər","partOfSpeech":"noun"}
+```
+
+`transcription` is IPA without slashes; `partOfSpeech` is one of the closed
+vocabulary in `PARTS_OF_SPEECH` (`lib/llm/prompt.ts`). Both are **optional in
+the file and required in the schema** — structured outputs has no notion of an
+optional property, so the model answers `""` where it has nothing, and the
+parser leaves the field off the entry rather than storing a blank. A blank
+stored in the column would read as "we looked and there is none", which is the
+same trap the empty-translation rule above exists to avoid.
+
+Lines written before these fields existed stay valid and load unchanged.
+
+### Filling them in
+
+`npm run lexicon:build -- --enrich` reads this file rather than the word list,
+asks only about lines that are missing a field, and rewrites the file in place
+in its original order. The stored translation is kept even though the model
+returns one: the schema requires the field, but a re-translation would revise
+meanings that have already been seeded, reviewed and shipped, and that is not
+what an enrichment pass is for.
+
+Three modes, and they do not overlap:
+
+| Flag | Population | Writes |
+|---|---|---|
+| *(none)* / `--force` | the whole word list | replaces the file |
+| `--missing` | words with no line yet | appends |
+| `--enrich` | lines missing a transcription or part of speech | rewrites in place |

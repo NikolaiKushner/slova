@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildTranslationRequest,
+  isPartOfSpeech,
   outputCeiling,
+  PARTS_OF_SPEECH,
   SYSTEM_PROMPT,
   TRANSLATION_ITEM_DEPTH,
   TRANSLATION_SCHEMA,
@@ -125,7 +127,11 @@ describe("outputCeiling", () => {
   });
 
   it("keeps a short list short — the runaway this bounds is priced per token", () => {
-    expect(outputCeiling(3)).toBeLessThan(500);
+    // Loosened from 500 when the answer went from one field to three. The
+    // point of the bound is that a three-word list cannot cost what a
+    // hundred-word one does, not the exact figure: it stays an order of
+    // magnitude under the 8000 cap.
+    expect(outputCeiling(3)).toBeLessThan(1000);
   });
 });
 
@@ -134,7 +140,29 @@ describe("TRANSLATION_SCHEMA", () => {
     const item = TRANSLATION_SCHEMA.properties.translations.items;
     expect(TRANSLATION_SCHEMA.additionalProperties).toBe(false);
     expect(item.additionalProperties).toBe(false);
-    expect(item.required).toEqual(["text", "translation"]);
+    expect(item.required).toEqual([
+      "text",
+      "translation",
+      "transcription",
+      "partOfSpeech",
+    ]);
+  });
+
+  /**
+   * The enrichment fields are required by the schema and optional in the data.
+   * Structured outputs has no "optional" — every property must be listed in
+   * `required` — so the escape has to be a value, and `""` has to be a member
+   * of the part-of-speech enum or the model has no legal way to say "none".
+   */
+  it("gives the model a legal way to decline a part of speech", () => {
+    const item = TRANSLATION_SCHEMA.properties.translations.items;
+    expect(item.properties.partOfSpeech.enum).toContain("");
+    expect(item.properties.partOfSpeech.enum).toContain("noun");
+    for (const value of PARTS_OF_SPEECH) {
+      expect(isPartOfSpeech(value)).toBe(true);
+    }
+    expect(isPartOfSpeech("")).toBe(false);
+    expect(isPartOfSpeech("gerund")).toBe(false);
   });
 
   it("nests items at the depth the stream scanner expects", () => {

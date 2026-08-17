@@ -34,17 +34,25 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
 // Shared with loadChunk below; assigned once main() has loaded the environment.
 let prisma: ReturnType<typeof getPrisma>;
 let lexemesTouched = 0;
+let lexemesEnriched = 0;
 let translationsWritten = 0;
 
 // tsx compiles this to CommonJS, where top-level await is a syntax error.
 async function main(): Promise<void> {
-  const { entries, warnings } = parseDataset(readFileSync(INPUT, "utf8"));
+  const { entries, warnings, dropped } = parseDataset(readFileSync(INPUT, "utf8"));
 
   console.log(`${entries.length} usable entries; ${warnings.length} lines skipped`);
   for (const warning of warnings.slice(0, 10)) {
     console.log(`  line ${warning.line}: ${warning.reason}`);
   }
   if (warnings.length > 10) console.log(`  … and ${warnings.length - 10} more`);
+
+  const withTranscription = entries.filter((e) => e.transcription).length;
+  const withPartOfSpeech = entries.filter((e) => e.partOfSpeech).length;
+  console.log(
+    `enrichment: ${withTranscription} transcriptions, ${withPartOfSpeech} parts of speech` +
+      ` (dropped ${dropped.transcription} and ${dropped.partOfSpeech} as unusable)`,
+  );
 
   if (entries.length === 0) {
     console.error("Nothing to seed.");
@@ -63,9 +71,54 @@ async function main(): Promise<void> {
 
   const seeded = await prisma.lexeme.count({ where: { source: "seed" } });
   console.log(
-    `\nlexemes touched: ${lexemesTouched}, translations written: ${translationsWritten}`,
+    `\nlexemes touched: ${lexemesTouched}, enriched: ${lexemesEnriched}, translations written: ${translationsWritten}`,
   );
   console.log(`Lexeme rows with source="seed": ${seeded}`);
+}
+
+/**
+ * Transcription and part of speech onto rows that already exist.
+ *
+ * `createMany({ skipDuplicates: true })` above is the right tool for the first
+ * run and does nothing on the eight thousand rows a second run finds already
+ * there — so enrichment needs its own statement. One `UPDATE ... FROM (VALUES)`
+ * per chunk rather than a query per word: this is a serverless database, and
+ * eight thousand sequential round trips is the difference between a minute and
+ * an hour.
+ *
+ * Two guards are load-bearing. `COALESCE` means a file that carries no
+ * transcription for a word leaves the stored one alone, so a partial dataset
+ * enriches rather than erases. `source = 'seed'` keeps the script inside what
+ * it owns — a lexeme a real miss created is `llm`, and `SOURCE.md` promises
+ * those are left exactly alone.
+ */
+async function enrichChunk(group: readonly DatasetEntry[]): Promise<number> {
+  const enriched = group.filter(
+    (entry) => entry.transcription || entry.partOfSpeech,
+  );
+  if (enriched.length === 0) return 0;
+
+  const values: string[] = [];
+  const params: (string | null)[] = [STUDY_SOURCE_LANG];
+  for (const entry of enriched) {
+    const at = params.length;
+    values.push(`($${at + 1}::text, $${at + 2}::text, $${at + 3}::text)`);
+    params.push(
+      entry.key,
+      entry.transcription ?? null,
+      entry.partOfSpeech ?? null,
+    );
+  }
+
+  return prisma.$executeRawUnsafe(
+    `UPDATE "Lexeme" AS l
+        SET "transcription" = COALESCE(v.transcription, l."transcription"),
+            "partOfSpeech"  = COALESCE(v.pos, l."partOfSpeech"),
+            "updatedAt"     = NOW()
+       FROM (VALUES ${values.join(", ")}) AS v(key, transcription, pos)
+      WHERE l."lang" = $1 AND l."key" = v.key AND l."source" = 'seed'`,
+    ...params,
+  );
 }
 
 async function loadChunk(group: readonly DatasetEntry[]): Promise<void> {
@@ -76,9 +129,13 @@ async function loadChunk(group: readonly DatasetEntry[]): Promise<void> {
       text: entry.text,
       kind: kindOf(entry.text),
       source: "seed",
+      ...(entry.transcription ? { transcription: entry.transcription } : {}),
+      ...(entry.partOfSpeech ? { partOfSpeech: entry.partOfSpeech } : {}),
     })),
     skipDuplicates: true,
   });
+
+  lexemesEnriched += await enrichChunk(group);
 
   const lexemes = await prisma.lexeme.findMany({
     where: { lang: STUDY_SOURCE_LANG, key: { in: group.map((e) => e.key) } },
