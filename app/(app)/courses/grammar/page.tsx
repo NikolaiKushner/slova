@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
 import { GrammarCatalog } from "@/components/courses/grammar-catalog";
 import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
+import { buttonVariants } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { grammarCatalog } from "@/lib/courses/catalog";
 import { withProgress } from "@/lib/courses/catalog-view";
@@ -34,7 +36,18 @@ export default async function CoursesGrammarPage() {
 
   return (
     <PageContainer container="list">
-      <PageHeader title={t("grammarTitle")} className="mb-0" />
+      <PageHeader
+        title={t("grammarTitle")}
+        className="mb-0"
+        actions={
+          <Link
+            href="/courses/my"
+            className={buttonVariants({ variant: "outline", size: "lg" })}
+          >
+            {t("myTitle")}
+          </Link>
+        }
+      />
       <GrammarCatalog
         courses={courses}
         coming={coming}

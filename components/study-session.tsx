@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SIGNED_IN_HOME } from "@/lib/auth.config";
 
 type StudyWord = {
   id: string;
@@ -146,7 +147,7 @@ export function StudySession({ setId }: Props) {
         </p>
         <div className="flex items-center justify-center gap-3">
           <Link
-            href="/tasks/today"
+            href={SIGNED_IN_HOME}
             className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
           >
             {t("backHome")}

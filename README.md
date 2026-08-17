@@ -50,9 +50,8 @@ grammar explanations.
 
 | Where | What |
 |---|---|
-| **Today** | What is due, and how the dictionary is going |
-| **Trainings** | Six formats plus Brainstorm. The source (sets and due/new/hard) is chosen once, at the top of the page |
-| **Grammar courses** | Present Simple and *to be*; the rest of the A1–B1 shelf is Coming soon |
+| **Trainings** | Six formats plus Brainstorm. The source (sets and due/new/hard) is chosen once, at the top of the page. This is where you land after sign-in |
+| **Grammar** | Present Simple and *to be*; the rest of the A1–B1 shelf is Coming soon |
 | **My words** | Everything you have — search, filter, sort, edit, bulk actions |
 | **My sets** | Sets as tags, not folders |
 
@@ -63,9 +62,6 @@ let one go until it has been through cleanly.
 
 Everything runs from the keyboard: `1`–`4` pick an option, letters build a
 word, `Enter` submits and moves on.
-
-Map, reading practice, topic courses, and ready-made sets are listed in the
-sidebar as Coming soon.
 
 ## Running it
 

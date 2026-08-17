@@ -713,7 +713,7 @@ Word form: monospace `token`, background `neutral-150`, `radius-sm`, padding 1.5
 └────────────┴──────────────────────────────────────┘
 ```
 
-**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Задания / Практика / Курсы / Словарь`, footer with the user. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
+**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
 
 ### 15.2 Focus mode (practice, brainstorm, lesson)
 
