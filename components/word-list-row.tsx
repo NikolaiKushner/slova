@@ -19,7 +19,6 @@ import { ROW_ICON, ROW_ICON_DESTROY } from "@/components/word-table";
 import { WordRating } from "@/components/word-rating";
 import { cn } from "@/lib/utils";
 import type { Rating } from "@/lib/word-rating";
-import { shortenSetTitle, VISIBLE_SET_BADGES } from "@/lib/words/set-label";
 
 /**
  * One row of the dictionary, editable in place.
@@ -45,15 +44,12 @@ export function WordListRow({
   selected,
   onSelect,
   onChanged,
-  activeSetId,
   onSetFilter,
 }: {
   word: WordRow;
   selected: boolean;
   onSelect: (selected: boolean) => void;
   onChanged: () => void;
-  /** The set the table is already filtered to — omitted from the column. */
-  activeSetId?: string;
   onSetFilter?: (setId: string) => void;
 }) {
   const t = useTranslations("dictionary");
@@ -118,7 +114,6 @@ export function WordListRow({
   }
 
   const cellInput = "h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0";
-  const visibleSets = word.sets.filter((set) => set.id !== activeSetId);
 
   return (
     <TableRow className="group" data-state={selected ? "selected" : undefined}>
@@ -161,8 +156,8 @@ export function WordListRow({
         {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
       </TableCell>
 
-      <TableCell className="w-[148px]">
-        <SetBadges sets={visibleSets} onFilter={onSetFilter} />
+      <TableCell className="w-[148px] max-w-[148px] overflow-hidden whitespace-normal">
+        <SetBadges sets={word.sets} onFilter={onSetFilter} />
       </TableCell>
 
       <TableCell className="w-[104px]">
@@ -267,56 +262,30 @@ function SetBadges({
   const t = useTranslations("dictionary");
   if (sets.length === 0) return null;
 
-  const shown = sets.slice(0, VISIBLE_SET_BADGES);
-  const hidden = sets.slice(VISIBLE_SET_BADGES);
-  const extra = hidden.map((set) => set.title).join(", ");
-
   return (
-    <span className="inline-flex h-5 items-center gap-1.5">
-      {shown.map((set) => {
-        const label = shortenSetTitle(set.title);
-        return (
-          <Tooltip key={set.id}>
-            <TooltipTrigger
-              render={
-                <button
-                  type="button"
-                  onClick={() => onFilter?.(set.id)}
-                  aria-label={t("showSet", { title: set.title })}
-                  className="inline-flex h-5 items-center rounded-full border-0 bg-transparent p-0 leading-none"
-                />
-              }
-            >
-              <Badge
-                variant="secondary"
-                className="pointer-events-none h-5 min-w-5 px-1.5 text-[11px] font-medium"
-              >
-                {label}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>{set.title}</TooltipContent>
-          </Tooltip>
-        );
-      })}
-      {hidden.length > 0 ? (
-        <Tooltip>
+    <span className="flex w-full min-w-0 flex-col items-start gap-1">
+      {sets.map((set) => (
+        <Tooltip key={set.id}>
           <TooltipTrigger
             render={
               <button
                 type="button"
-                className="text-muted-foreground inline-flex h-5 items-center border-0 bg-transparent p-0 text-[11px] leading-none font-medium tabular-nums"
-                aria-label={t("moreSets", {
-                  count: hidden.length,
-                  titles: extra,
-                })}
+                onClick={() => onFilter?.(set.id)}
+                aria-label={t("showSet", { title: set.title })}
+                className="min-w-0 max-w-full overflow-hidden rounded-full border-0 bg-transparent p-0 leading-none"
               />
             }
           >
-            +{hidden.length}
+            <Badge
+              variant="secondary"
+              className="pointer-events-none h-5 max-w-full min-w-0 shrink truncate px-1.5 text-[11px] font-medium"
+            >
+              <span className="min-w-0 truncate">{set.title}</span>
+            </Badge>
           </TooltipTrigger>
-          <TooltipContent>{extra}</TooltipContent>
+          <TooltipContent className="coarse:hidden">{set.title}</TooltipContent>
         </Tooltip>
-      ) : null}
+      ))}
     </span>
   );
 }
