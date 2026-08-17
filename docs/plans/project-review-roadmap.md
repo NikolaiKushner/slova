@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** implementation in progress; Phases 0 and 8 complete
+**Status:** implementation in progress; Phases 0, 8, and 1 complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -147,6 +147,7 @@ one of the gaps is actively dangerous. Do this part first.
 
 **Priority:** P0  
 **Estimate:** 2-3 days
+**Status:** implemented 2026-08-18
 
 ### Review, graduation, and undo
 

@@ -30,8 +30,10 @@ export function StudySession({ setId }: Props) {
   const [done, setDone] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   const [busy, setBusy] = useState(false);
-  /** Indexes of words rated this session, most recent last. */
-  const [history, setHistory] = useState<number[]>([]);
+  /** Exact review operations from this session, most recent last. */
+  const [history, setHistory] = useState<
+    { index: number; operationId: string }[]
+  >([]);
 
   useEffect(() => {
     const qs = setId ? `?setId=${encodeURIComponent(setId)}` : "";
@@ -63,11 +65,13 @@ export function StudySession({ setId }: Props) {
 
       setBusy(true);
       const sittingId = await getIdAsync();
+      const operationId = crypto.randomUUID();
       await fetch("/api/study/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wordId: current.id,
+          operationId,
           rating,
           sittingId: sittingId ?? undefined,
           kind: "study",
@@ -75,7 +79,7 @@ export function StudySession({ setId }: Props) {
         }),
       });
       setReviewed((n) => n + 1);
-      setHistory((h) => [...h, index]);
+      setHistory((h) => [...h, { index, operationId }]);
       setFlipped(false);
       setBusy(false);
 
@@ -92,23 +96,23 @@ export function StudySession({ setId }: Props) {
   /** Step back onto the last rated card and restore what the rating changed. */
   const undo = useCallback(async () => {
     const previous = history[history.length - 1];
-    if (previous === undefined || busy) return;
+    if (!previous || busy) return;
 
-    const target = words[previous];
+    const target = words[previous.index];
     if (!target) return;
 
     setBusy(true);
     const res = await fetch("/api/study/undo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wordId: target.id }),
+      body: JSON.stringify({ operationId: previous.operationId }),
     });
     setBusy(false);
     if (!res.ok) return;
 
     setHistory((h) => h.slice(0, -1));
     setReviewed((n) => Math.max(0, n - 1));
-    setIndex(previous);
+    setIndex(previous.index);
     setFlipped(true);
     setDone(false);
   }, [busy, words, history]);

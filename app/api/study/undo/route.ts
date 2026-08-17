@@ -2,19 +2,20 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
-import { getPrisma } from "@/lib/prisma";
-import { restoreFromSnapshot } from "@/lib/srs";
+import {
+  LearningMutationNotFoundError,
+  NothingToUndoError,
+  undoReview,
+  UndoOrderConflictError,
+} from "@/lib/learning-mutations";
 
 const schema = z.object({
-  wordId: z.string().min(1),
+  operationId: z.string().uuid(),
 });
 
 /**
- * Take back the most recent rating of a word: restore the state saved on the
- * review log and drop the log, so the mistake leaves no trace in history.
- *
- * v1 does not roll sitting counters back. Undo is a correction, not a study
- * event, and the sitting's goods/agains can disagree with the remaining logs.
+ * Take back one exact operation. It must still be the latest active review for
+ * its word; the word state, log, and sitting counters change atomically.
  */
 export async function POST(request: Request) {
   const session = await auth();
@@ -28,42 +29,22 @@ export async function POST(request: Request) {
     return jsonError("invalidUndo", 400);
   }
 
-  const word = await getPrisma().userWord.findFirst({
-    where: { id: parsed.data.wordId, userId: session.user.id },
-    select: { id: true },
-  });
-  if (!word) {
-    return jsonError("notFound", 404);
+  try {
+    const result = await undoReview({
+      userId: session.user.id,
+      operationId: parsed.data.operationId,
+    });
+    return NextResponse.json(result);
+  } catch (error) {
+    if (error instanceof LearningMutationNotFoundError) {
+      return jsonError("notFound", 404);
+    }
+    if (
+      error instanceof NothingToUndoError ||
+      error instanceof UndoOrderConflictError
+    ) {
+      return jsonError("nothingToUndo", 409);
+    }
+    throw error;
   }
-
-  const last = await getPrisma().reviewLog.findFirst({
-    where: { wordId: word.id },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const previous = last ? restoreFromSnapshot(last) : null;
-  if (!last || !previous) {
-    return jsonError("nothingToUndo", 409);
-  }
-
-  const [restored] = await getPrisma().$transaction([
-    getPrisma().userWord.update({
-      where: { id: word.id },
-      data: {
-        dueAt: previous.dueAt,
-        intervalDays: previous.intervalDays,
-        stability: previous.stability,
-        difficulty: previous.difficulty,
-        srsState: previous.srsState,
-        learningSteps: previous.learningSteps,
-        reps: previous.reps,
-        lapses: previous.lapses,
-        lastReviewAt: previous.lastReviewAt,
-        introducedAt: previous.introducedAt,
-      },
-    }),
-    getPrisma().reviewLog.delete({ where: { id: last.id } }),
-  ]);
-
-  return NextResponse.json({ word: restored });
 }

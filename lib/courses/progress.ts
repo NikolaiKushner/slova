@@ -14,6 +14,7 @@ import {
   practiceSessionSize,
 } from "@/lib/courses/practice";
 import { persistEnd } from "@/lib/sitting-store";
+import { runSerializable } from "@/lib/serializable-transaction";
 
 export const LESSON_PASS_PERCENT = 80;
 export const TEST_PASS_PERCENT = 90;
@@ -72,10 +73,31 @@ export function courseShouldComplete(
   return lessons.every((lesson) => lesson.status === "completed");
 }
 
+export class CourseProgressConflictError extends Error {}
+
+function lessonRecordOf(row: {
+  status: string;
+  score: number;
+  bestScore: number;
+  attempts: number;
+  missedRuleIds: string[];
+  completedAt: Date | null;
+}): LessonRecord {
+  return {
+    status: row.status === "completed" ? "completed" : "in_progress",
+    score: row.score,
+    bestScore: row.bestScore,
+    attempts: row.attempts,
+    missedRuleIds: row.missedRuleIds,
+    completedAt: row.completedAt,
+  };
+}
+
 export async function saveLessonProgress(input: {
   userId: string;
   courseSlug: string;
   lessonSlug: string;
+  operationId: string;
   right: number;
   missedRuleIds: string[];
   sittingId?: string;
@@ -99,6 +121,9 @@ export async function saveLessonProgress(input: {
     );
   }
 
+  // Results are deliberately client-supplied. This is a self-study product,
+  // not an assessment system: the server constrains the content identifiers
+  // and score range but does not attempt to prove how an exercise was solved.
   const right = Math.min(Math.max(0, input.right), total);
   const allowedRules = new Set(loaded.rules.map((rule) => rule.id));
   const missedRuleIds = [
@@ -111,114 +136,128 @@ export async function saveLessonProgress(input: {
   const percent = scorePercent(right, total);
   const prisma = getPrisma();
 
-  await prisma.userCourse.upsert({
-    where: {
-      userId_courseSlug: {
-        userId: input.userId,
-        courseSlug: input.courseSlug,
-      },
-    },
-    create: {
-      userId: input.userId,
-      courseSlug: input.courseSlug,
-      lastLessonSlug: input.lessonSlug,
-      startedAt: now,
-    },
-    update: { lastLessonSlug: input.lessonSlug },
-  });
-
-  const previousRow = await prisma.userLesson.findUnique({
-    where: {
-      userId_courseSlug_lessonSlug: {
-        userId: input.userId,
-        courseSlug: input.courseSlug,
-        lessonSlug: input.lessonSlug,
-      },
-    },
-  });
-
-  const previous: LessonRecord | null = previousRow
-    ? {
-        status:
-          previousRow.status === "completed" ? "completed" : "in_progress",
-        score: previousRow.score,
-        bestScore: previousRow.bestScore,
-        attempts: previousRow.attempts,
-        missedRuleIds: previousRow.missedRuleIds,
-        completedAt: previousRow.completedAt,
-      }
-    : null;
-
-  const next = nextLessonRecord(
-    previous,
-    percent,
-    missedRuleIds,
-    input.lessonSlug,
-    now,
-  );
-
-  await prisma.userLesson.upsert({
-    where: {
-      userId_courseSlug_lessonSlug: {
-        userId: input.userId,
-        courseSlug: input.courseSlug,
-        lessonSlug: input.lessonSlug,
-      },
-    },
-    create: {
-      userId: input.userId,
-      courseSlug: input.courseSlug,
-      lessonSlug: input.lessonSlug,
-      status: next.status,
-      score: next.score,
-      bestScore: next.bestScore,
-      attempts: next.attempts,
-      missedRuleIds: next.missedRuleIds,
-      completedAt: next.completedAt,
-    },
-    update: {
-      status: next.status,
-      score: next.score,
-      bestScore: next.bestScore,
-      attempts: next.attempts,
-      missedRuleIds: next.missedRuleIds,
-      completedAt: next.completedAt,
-    },
-  });
-
-  const siblings = await prisma.userLesson.findMany({
-    where: { userId: input.userId, courseSlug: input.courseSlug },
-  });
-
-  const statuses = loaded.lessons.map((lesson) => {
-    if (lesson.slug === input.lessonSlug) {
-      return { slug: lesson.slug, status: next.status };
+  return runSerializable(prisma, async (transaction) => {
+    const existingAttempt = await transaction.lessonAttempt.findUnique({
+      where: { operationId: input.operationId },
+    });
+    if (existingAttempt) {
+      const sameOperation =
+        existingAttempt.userId === input.userId &&
+        existingAttempt.courseSlug === input.courseSlug &&
+        existingAttempt.lessonSlug === input.lessonSlug &&
+        existingAttempt.score === percent &&
+        existingAttempt.missedRuleIds.length === missedRuleIds.length &&
+        existingAttempt.missedRuleIds.every(
+          (ruleId, index) => ruleId === missedRuleIds[index],
+        );
+      if (!sameOperation) throw new CourseProgressConflictError();
+      const persisted = await transaction.userLesson.findUniqueOrThrow({
+        where: {
+          userId_courseSlug_lessonSlug: {
+            userId: input.userId,
+            courseSlug: input.courseSlug,
+            lessonSlug: input.lessonSlug,
+          },
+        },
+      });
+      return lessonRecordOf(persisted);
     }
-    const row = siblings.find((item) => item.lessonSlug === lesson.slug);
-    return { slug: lesson.slug, status: row?.status ?? "in_progress" };
-  });
 
-  if (courseShouldComplete(statuses)) {
-    await prisma.userCourse.updateMany({
+    await transaction.userCourse.createMany({
+      data: [
+        {
+          userId: input.userId,
+          courseSlug: input.courseSlug,
+          lastLessonSlug: input.lessonSlug,
+          startedAt: now,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    await transaction.userCourse.updateMany({
+      where: { userId: input.userId, courseSlug: input.courseSlug },
+      data: { lastLessonSlug: input.lessonSlug },
+    });
+    await transaction.userLesson.createMany({
+      data: [
+        {
+          userId: input.userId,
+          courseSlug: input.courseSlug,
+          lessonSlug: input.lessonSlug,
+        },
+      ],
+      skipDuplicates: true,
+    });
+
+    const previousRow = await transaction.userLesson.findUniqueOrThrow({
       where: {
+        userId_courseSlug_lessonSlug: {
+          userId: input.userId,
+          courseSlug: input.courseSlug,
+          lessonSlug: input.lessonSlug,
+        },
+      },
+    });
+    const next = nextLessonRecord(
+      lessonRecordOf(previousRow),
+      percent,
+      missedRuleIds,
+      input.lessonSlug,
+      now,
+    );
+
+    await transaction.userLesson.update({
+      where: { id: previousRow.id },
+      data: {
+        status: next.status,
+        score: next.score,
+        bestScore: next.bestScore,
+        attempts: next.attempts,
+        missedRuleIds: next.missedRuleIds,
+        completedAt: next.completedAt,
+      },
+    });
+    await transaction.lessonAttempt.create({
+      data: {
+        operationId: input.operationId,
         userId: input.userId,
         courseSlug: input.courseSlug,
-        completedAt: null,
+        lessonSlug: input.lessonSlug,
+        score: percent,
+        missedRuleIds,
       },
-      data: { completedAt: now },
     });
-  }
 
-  if (input.sittingId) {
-    // This attempt's misses, not the accumulated UserLesson list.
-    await persistEnd(input.userId, input.sittingId, "completed", {
-      now,
-      score: percent,
-      missedRuleIds,
+    const siblings = await transaction.userLesson.findMany({
+      where: { userId: input.userId, courseSlug: input.courseSlug },
     });
-  }
+    const statuses = loaded.lessons.map((lesson) => {
+      const row = siblings.find((item) => item.lessonSlug === lesson.slug);
+      return { slug: lesson.slug, status: row?.status ?? "in_progress" };
+    });
+    if (courseShouldComplete(statuses)) {
+      await transaction.userCourse.updateMany({
+        where: {
+          userId: input.userId,
+          courseSlug: input.courseSlug,
+          completedAt: null,
+        },
+        data: { completedAt: now },
+      });
+    }
 
-  return next;
+    if (input.sittingId) {
+      // This attempt's misses, not the accumulated UserLesson list.
+      await persistEnd(
+        input.userId,
+        input.sittingId,
+        "completed",
+        { now, score: percent, missedRuleIds },
+        transaction,
+      );
+    }
+    return next;
+  });
 }
 
 export async function loadCourseProgressMap(

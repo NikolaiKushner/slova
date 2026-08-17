@@ -154,6 +154,7 @@ export function LessonSession({
         body: JSON.stringify({
           courseSlug,
           lessonSlug: lesson.slug,
+          operationId: crypto.randomUUID(),
           right,
           missedRuleIds,
           sittingId: sittingId ?? undefined,

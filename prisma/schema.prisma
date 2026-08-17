@@ -113,6 +113,11 @@ model UserWord {
   lapses        Int       @default(0)
   lastReviewAt  DateTime?
 
+  /// Optimistic concurrency token for scheduler mutations. Every review,
+  /// graduation, and undo advances it; a stale writer cannot overwrite a
+  /// state calculated by another request.
+  version Int @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -160,6 +165,13 @@ model WordSetItem {
 
 model ReviewLog {
   id        String   @id @default(cuid())
+  /// Client-generated mutation id. Nullable only for rows created before the
+  /// idempotent review API; every new review and graduation supplies one.
+  operationId String? @unique
+  /// Monotonic UserWord version produced by this operation. It orders reviews
+  /// exactly even when two rows share a timestamp, and remains stable if a
+  /// later operation is undone.
+  wordVersion Int?
   wordId    String
   /// Copied from the word so progress can count days without joining UserWord.
   /// Backfilled on existing rows; new writes set it.
@@ -167,6 +179,9 @@ model ReviewLog {
   sittingId String?
   rating    String
   createdAt DateTime @default(now())
+  /// Undo is a tombstone, not a delete: a delayed retry of the original
+  /// operation must stay a no-op. Activity queries exclude tombstoned rows.
+  undoneAt DateTime?
 
   /// ExerciseKind, or "study" / "graduate". Null on rows from before sittings.
   kind String?
@@ -197,6 +212,7 @@ model ReviewLog {
 
   @@index([wordId])
   @@index([wordId, createdAt])
+  @@unique([wordId, wordVersion])
   @@index([userId, createdAt])
   @@index([sittingId])
 }
@@ -443,8 +459,27 @@ model UserLesson {
   missedRuleIds String[]  @default([])
   completedAt   DateTime?
 
-  course UserCourse @relation(fields: [userId, courseSlug], references: [userId, courseSlug], onDelete: Cascade)
+  course      UserCourse      @relation(fields: [userId, courseSlug], references: [userId, courseSlug], onDelete: Cascade)
+  attemptLogs LessonAttempt[]
 
   @@unique([userId, courseSlug, lessonSlug])
   @@index([userId])
+}
+
+/// One submitted lesson result. The aggregate remains on UserLesson; this
+/// narrow ledger gives retries an idempotency boundary and preserves the
+/// client-supplied result that changed it.
+model LessonAttempt {
+  id            String   @id @default(cuid())
+  operationId   String   @unique
+  userId        String
+  courseSlug    String
+  lessonSlug    String
+  score         Int
+  missedRuleIds String[] @default([])
+  createdAt     DateTime @default(now())
+
+  lesson UserLesson @relation(fields: [userId, courseSlug, lessonSlug], references: [userId, courseSlug, lessonSlug], onDelete: Cascade)
+
+  @@index([userId, courseSlug, lessonSlug])
 }

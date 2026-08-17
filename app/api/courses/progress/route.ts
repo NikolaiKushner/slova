@@ -4,11 +4,15 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
 import { CourseContentError } from "@/lib/courses/load";
-import { saveLessonProgress } from "@/lib/courses/progress";
+import {
+  CourseProgressConflictError,
+  saveLessonProgress,
+} from "@/lib/courses/progress";
 
 const schema = z.object({
   courseSlug: z.string().min(1).max(80),
   lessonSlug: z.string().min(1).max(80),
+  operationId: z.string().uuid(),
   right: z.number().int().nonnegative().max(500),
   missedRuleIds: z.array(z.string().min(1).max(80)).max(50).default([]),
   sittingId: z.string().min(1).optional(),
@@ -35,6 +39,9 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof CourseContentError) {
       return jsonError("notFound", 404);
+    }
+    if (error instanceof CourseProgressConflictError) {
+      return jsonError("invalidProgress", 409);
     }
     throw error;
   }

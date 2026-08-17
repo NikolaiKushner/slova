@@ -10,6 +10,7 @@ import {
   ratingOfVerdict,
   startSitting,
   touchSitting,
+  undoSittingTouch,
 } from "@/lib/sitting";
 
 const T0 = new Date("2026-08-17T10:00:00.000Z");
@@ -145,13 +146,27 @@ describe("endSitting", () => {
 });
 
 describe("undo vs sitting counters", () => {
-  it("does not roll goods back (known gap in v1)", () => {
+  it("rolls back the exact review counters", () => {
     let sitting = openSitting();
     sitting = touchSitting(sitting, { now: minutes(1), rating: "good" });
     sitting = touchSitting(sitting, { now: minutes(2), rating: "again" });
     sitting = touchSitting(sitting, { now: minutes(3), rating: "good" });
-    // Undo deletes the log and restores the word; the sitting is left as-is.
-    expect(sitting.reviews).toBe(3);
-    expect(sitting.goods).toBe(2);
+    sitting = undoSittingTouch(sitting, {
+      rating: "good",
+      introduced: false,
+    });
+    expect(sitting.reviews).toBe(2);
+    expect(sitting.goods).toBe(1);
+    expect(sitting.agains).toBe(1);
+  });
+
+  it("rolls back an introduction without making counters negative", () => {
+    const sitting = undoSittingTouch(openSitting(), {
+      rating: "good",
+      introduced: true,
+      graduation: true,
+    });
+    expect(sitting.reviews).toBe(0);
+    expect(sitting.introduced).toBe(0);
   });
 });

@@ -194,7 +194,7 @@ export async function getStudyActivity(
   const [logs, lessons, remembered, stubbornRows, courseRows, lessonRows] =
     await Promise.all([
       prisma.reviewLog.findMany({
-        where: { userId, createdAt: { gte: since } },
+        where: { userId, createdAt: { gte: since }, undoneAt: null },
         select: { createdAt: true, rating: true, prevIntervalDays: true },
       }),
       prisma.userLesson.findMany({

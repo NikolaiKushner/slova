@@ -147,6 +147,7 @@ export function BrainstormSession({ source }: { source: Source }) {
     for (const wordId of state.mastered) {
       const word = state.words.find((w) => w.wordId === wordId);
       if (!word) continue;
+      const operationId = crypto.randomUUID();
       const request = getIdAsync()
         .then((sittingId) =>
           fetch("/api/practice/graduate", {
@@ -154,6 +155,7 @@ export function BrainstormSession({ source }: { source: Source }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               wordId,
+              operationId,
               errors: word.errors,
               sittingId: sittingId ?? undefined,
             }),

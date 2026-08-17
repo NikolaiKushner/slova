@@ -188,6 +188,7 @@ export function PracticeSession({
    */
   const record = useCallback(
     (wordId: string, given: Answered, elapsed: number) => {
+      const operationId = crypto.randomUUID();
       const request = getIdAsync()
         .then((sittingId) =>
           fetch("/api/study/review", {
@@ -195,6 +196,7 @@ export function PracticeSession({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               wordId,
+              operationId,
               rating: passed(given.verdict) ? "good" : "again",
               sittingId: sittingId ?? undefined,
               kind,
