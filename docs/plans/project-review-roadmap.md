@@ -1,17 +1,21 @@
 # Project review remediation roadmap
 
 **Date:** 2026-08-17  
-**Branch:** `codex/project-review-roadmap`  
+**Branch:** `feat/project-review`  
 **Status:** planned; implementation not started  
-**Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`
+**Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
+**Re-verified:** 2026-08-17 against the same baseline. Every finding below was
+re-checked in the code. Phase numbers are stable labels, not the running order;
+the running order lives in "Recommended execution order".
 
 ## Purpose
 
 This document preserves the findings from the full codebase, production UI,
 and Vercel review. The project is healthy enough to improve incrementally; it
 does not need a rewrite or a visual redesign. The first work should protect
-learning data from duplicate and concurrent requests, make client writes
-reliable, and establish a repeatable authenticated end-to-end test path.
+learning data from duplicate and concurrent requests, put a hard ceiling on what
+the paid providers can cost, make client writes reliable, and establish a
+repeatable authenticated end-to-end test path.
 
 ## Verified baseline
 
@@ -28,6 +32,25 @@ reliable, and establish a repeatable authenticated end-to-end test path.
   process creation and port binding were denied. The same commit built on
   Vercel, so this was not treated as an application failure.
 
+### Corrections found during re-verification
+
+These do not change the plan's direction, but the phases below were written
+slightly stronger than the code warrants in a few places.
+
+- `StudySitting` counters are already incremented with atomic SQL in
+  `persistTouch` (`lib/sitting-store.ts`), so aggregate counters are not
+  themselves racy. The Phase 1 counter work is about undo only.
+- Not rolling sitting counters back on undo is a recorded v1 decision, not an
+  oversight: `app/api/study/undo/route.ts` documents it and
+  `tests/unit/sitting.test.ts` asserts it as a "known gap in v1". Phase 1
+  reverses that decision, so it must also rewrite that test.
+- Practice graduation already refuses a second graduation through an
+  `introducedAt` check, which blocks re-graduation but not two concurrent
+  first-time graduations.
+- One route is static (`app/og.png/route.ts` sets `force-static`). Everything
+  else is dynamic, largely because `i18n/request.ts` reads cookies and headers
+  on every request.
+
 ## Delivery principles
 
 - Preserve the existing product structure and design system.
@@ -35,6 +58,8 @@ reliable, and establish a repeatable authenticated end-to-end test path.
 - Treat every learning mutation as retryable and potentially duplicated.
 - Keep migrations backward-compatible through an expand/contract sequence.
 - Measure performance before and after query or provider changes.
+- Every paid external call must reserve its spend atomically before the call,
+  not record it afterwards.
 - Do not commit passwords, tokens, production connection strings, or Playwright
   storage state.
 - Use an isolated test database or database branch by default. Any production
@@ -48,6 +73,36 @@ reliable, and establish a repeatable authenticated end-to-end test path.
 Create one deterministic test user that an agent and Playwright can use for
 authenticated flows. This fixture must be safe to run repeatedly and must not
 depend on email delivery or Google OAuth.
+
+### Test infrastructure prerequisites
+
+None of the machinery this phase and the test strategy assume exists yet, and
+one of the gaps is actively dangerous. Do this part first.
+
+- **`npm test` must stay pure and fast, and database tests must never join it.**
+  It runs in three places, and one of them is production. `vercel:preflight`
+  runs it during deployment with production environment variables present, so an
+  integration test added to `npm test` would run against the production database
+  on every deploy. The `.githooks/pre-commit` hook runs it on every commit. CI
+  runs it with no database reachable at all.
+- Add separate scripts, for example `test:integration` and `test:e2e`, with
+  their own Vitest config or Vitest project. `vitest.config.mts` currently sets
+  `include: ["tests/unit/**/*.test.ts"]`, so a new `tests/integration/**`
+  directory is silently ignored until the config changes — a failure mode that
+  looks like passing tests.
+- Install Playwright. It is not a dependency today, there is no config, and
+  there is no `tests/e2e` directory.
+- Decide the integration-test database and document it. There is no
+  `docker-compose.yml` and no local Postgres instructions; the repo assumes
+  Neon, so a Neon branch per run is the path of least resistance.
+- Add a CI job for the new suites: a Postgres service or Neon branch,
+  `prisma migrate deploy`, and Playwright browsers. Keep it separate from the
+  existing fast job.
+- Keep `E2E_TEST_USER_*` out of `scripts/check-env.mjs` required set, so a
+  missing test credential can never fail a production deploy. Document them in
+  `.env.example` instead.
+- Extend `TEST_USERS.md`, which currently documents manual local sign-in only,
+  with the automated fixture flow.
 
 ### Implementation
 
@@ -84,6 +139,8 @@ depend on email delivery or Google OAuth.
 - An agent can reuse the same documented flow for manual browser verification.
 - No secret or authenticated storage state appears in Git.
 - The command refuses an unapproved production target.
+- `npm test` still runs unit tests only, still takes seconds, and still
+  contains nothing that needs a database.
 
 ## Phase 1: learning data integrity
 
@@ -97,7 +154,10 @@ next FSRS state from that snapshot, and then updates the row unconditionally.
 Two tabs, a retry, or a double submission can therefore create multiple logs
 from one state while only one progression survives. Graduation has the same
 shape. Undo restores the latest log without a compare-and-swap guard and does
-not roll back sitting counters.
+not roll back sitting counters. The routes are `app/api/study/review/route.ts`,
+`app/api/practice/graduate/route.ts`, and `app/api/study/undo/route.ts`; course
+progress lives in `lib/courses/progress.ts`. No relevant table carries a version
+column, and `ReviewLog` has no uniqueness that would deduplicate an answer.
 
 - Move the read, state transition, update, and review-log insert into one
   serialized operation.
@@ -198,7 +258,25 @@ not roll back sitting counters.
 - Decide whether the limiter is fixed-window or sliding-window and make its
   name, behavior, and tests agree.
 - Replace the current multi-query limiter mutation with an atomic operation.
-- Add TTL cleanup for expired rate-limit keys.
+  `allowAttemptDurable` currently issues an upsert, a window-reset update, and
+  an increment as three separate queries.
+- Add TTL cleanup for expired rate-limit keys. Expired windows are reset in
+  place, so the `RateLimit` table grows once per distinct key and never shrinks.
+- Add the same cleanup for expired `VerificationToken` rows, which are removed
+  on use and on reissue but never when they simply expire.
+- Decide how scheduled work runs at all. `vercel.json` declares no `crons`, so
+  there is no existing mechanism for either cleanup; a single cron route that
+  performs both is enough, and it needs a secret or Vercel cron authentication.
+- Bound the repeated `set` query parameter on `/api/practice/session` and
+  `/api/practice/counts`, which call `searchParams.getAll("set")` with no limit
+  on how many values are accepted.
+- Validate and ownership-check `setId` on `/api/study/queue`. It is currently
+  passed straight through as an unvalidated string; another user's set id
+  returns an empty queue rather than an error, which is safe but untested and
+  easy to regress into a leak.
+- Add `userId` to the mutation `where` clause on routes that verify ownership
+  with a preceding `findFirst` and then update by `id` alone. Not exploitable
+  with the current identifiers, but it makes the guarantee local to the write.
 - Introduce an application Content Security Policy in Report-Only mode first,
   then enforce it after violations and Next.js nonce requirements are handled.
 - Evaluate HSTS only after confirming that every relevant subdomain is HTTPS.
@@ -245,6 +323,83 @@ not roll back sitting counters.
 - Keep the current visual system; make targeted improvements based on measured
   authenticated-flow friction rather than starting a redesign.
 
+## Phase 8: paid-provider spend ceilings
+
+**Priority:** P0  
+**Estimate:** 1-2 days
+
+The original review covered rate limiting only as an authentication concern. The
+two paid providers are the one class of defect that costs money rather than
+correctness, and registration is open, so any account that completes signup can
+spend against the project's API keys.
+
+### Translation token budget
+
+Request slots are already reserved atomically per user and app-wide, and that is
+the load-bearing protection. The daily *token* caps are not: they are read
+before the model call and written after it, so calls fired in parallel all pass
+the same check. `app/api/translate/batch/route.ts` documents this and
+compensates by keeping the per-request bound small, which makes the real daily
+ceiling `requests × max_tokens` rather than the configured token limit.
+
+- Reserve an estimated token cost atomically alongside the request slot, then
+  reconcile with actual usage after the call.
+- Alternatively, accept the current design explicitly: state in the code that
+  the token caps are advisory, and treat the request cap plus `max_tokens` as
+  the only real ceiling. Either outcome is fine; the undocumented middle is not.
+- Add an alert when either daily cap is reached, so exhaustion is visible
+  without reading logs.
+
+### On-demand speech and shared storage
+
+`/api/audio` is gated behind `TTS_ON_DEMAND_ENABLED`, authenticated, burst
+limited, and reserves character budget atomically. Two problems remain.
+
+- A successful synthesis writes into the shared `Lexeme` table and uploads to
+  R2 permanently, so any authenticated user can add audio for arbitrary text up
+  to 200 characters and grow shared storage without bound. Decide whether
+  on-demand synthesis may write to the shared lexicon at all, or should land in
+  a per-user or quarantined namespace that a curation step promotes.
+- A failed synthesis still consumes reserved budget with no refund. This is
+  recorded in the schema as deliberate; confirm it is still the intent once the
+  budget is user-visible.
+- R2 objects are publicly readable by hash-derived URL. Not enumerable, but
+  worth an explicit decision about egress before the catalogue grows.
+
+### Acceptance criteria
+
+- A documented worst-case daily cost exists for each provider, and the code
+  cannot exceed it without a code change.
+- Reaching a cap is observable without inspecting runtime logs.
+- Shared lexicon and object storage cannot be grown by an ordinary account
+  beyond a stated bound.
+
+## Phase 9: account lifecycle and data operations
+
+**Priority:** P1  
+**Estimate:** 1-2 days
+
+The privacy policy tells people to email for export and deletion, so a manual
+operator workflow is the promise, not a self-service feature. But nothing in the
+repository can carry that workflow out, and doing it by hand against Postgres
+would miss rows.
+
+- Add a maintainer script for account export and account deletion, and document
+  the procedure. Deletion must be verifiable, not a best-effort sequence of
+  ad-hoc statements.
+- Handle the tables that a `User` delete will not cascade, because they have no
+  foreign key to `User`: `VerificationToken`, `LexemeTranslationConfirmation`
+  (it stores a `userId` with no relation), `LlmUsage`, `TtsUsage`, and
+  `RateLimit`. Decide per table whether it is deleted, anonymized, or
+  deliberately retained.
+- Keep the shared-lexicon retention behaviour the privacy page already
+  describes, and make the script's behaviour match that text exactly.
+- Document Neon backup and point-in-time restore in the repository's own
+  operations notes. Today the only description of it lives in an agent skill
+  file, which is not where a maintainer will look during an incident.
+- Add a restore rehearsal step: a documented, tried path from a Neon branch back
+  to a working local application.
+
 ## Test strategy
 
 ### Unit tests
@@ -264,6 +419,8 @@ cover:
 - concurrent course lesson completion;
 - password reset and verification token atomicity;
 - the durable rate-limiter implementation;
+- parallel translation and speech requests against the daily budgets, asserting
+  the ceiling actually holds;
 - ownership checks on every mutating route.
 
 ### Playwright end-to-end tests
@@ -283,6 +440,14 @@ Use the Phase 0 test fixture to cover:
 
 ## Observability
 
+There is no logging foundation to extend: production code reports failures with
+bare `console.error` calls and no structured payload, correlation id, or level
+convention. So the first item is a decision, not an addition.
+
+- Choose the logging shape before adding events: whether to take a dependency on
+  a logger or to standardise a small local helper, and what fields every event
+  carries. Without that, "add structured events" produces a second ad-hoc style
+  next to the first.
 - Add structured events for review persistence failures, idempotency conflicts,
   lesson-save failures, auth/token failures, database latency, translation
   latency, and lexicon cache hits/misses.
@@ -292,17 +457,62 @@ Use the Phase 0 test fixture to cover:
   defining data-scrubbing and environment separation.
 - Exclude the deterministic test account from product analytics where feasible.
 
+## Open decisions
+
+These are choices for the maintainer, not tasks. Each one is currently a
+deliberate position in the repository that a phase above would reverse, so it
+should be decided rather than quietly changed.
+
+- **Preview deployments.** Phase 6 proposes enabling pull-request previews, but
+  `vercel.json` disables every branch except `main` on purpose and `CLAUDE.md`
+  describes branches as free to sit on precisely because they do not deploy.
+  Enabling previews trades that for a URL to test against, and previews of a
+  branch that runs `prisma migrate deploy` against a shared database need a
+  database branch to be safe.
+- **CI as a gate.** Phase 6 proposes requiring tests, lint, type checking, and
+  build before merge. Today CI is documented as a smoke alarm that blocks
+  nothing, and it does not run type checking at all — there is no `typecheck`
+  script, and the README's claim that `tsc --noEmit` runs in CI is not true.
+  Making CI a gate means adding that script and accepting slower merges.
+- **Node and npm pinning.** `package.json` already pins `node >=22` and
+  `npm ^10`, and CI uses Node 22. Only the Vercel project setting is out of
+  step, so Phase 6's item is one dashboard change plus a verification, not a
+  repository change.
+- **Client-supplied grading.** Phase 1 records the trust decision rather than
+  fixing it. That is reasonable for a self-study product, but it means practice
+  and lesson scores are an honour system; state whether that is permanent.
+
+## Related plans
+
+Other plans in `docs/plans/` overlap this one and should not be executed
+against it blindly.
+
+- `progress-page-redesign.md` proposes redesigning `/progress`, which sits
+  directly against this document's finding that the UI is coherent and needs no
+  redesign. Both can be true — one is a product bet, the other a reliability
+  audit — but Phase 4's progress-query work and that redesign touch the same
+  code and should be sequenced deliberately.
+- `lexicon-expansion.md` covers the same subsystem as Phase 3. Check what it
+  already landed before starting the lexicon work.
+- `nav-ia.md` and `three-fixes-table-and-cues.md` overlap Phase 7's product
+  polish.
+
 ## Recommended execution order
 
-1. Phase 0: test fixture and authenticated E2E foundation.
-2. Phase 1: learning and course data integrity.
-3. Phase 2: reliable client writes.
-4. Phase 3: lexicon correctness and latency.
-5. Phase 4: query and rendering performance.
+1. Phase 0: test infrastructure, test fixture, and authenticated E2E foundation.
+2. Phase 8: paid-provider spend ceilings.
+3. Phase 1: learning and course data integrity.
+4. Phase 2: reliable client writes.
+5. Phase 3: lexicon correctness and latency.
 6. Phase 5: auth, rate limiting, and security.
-7. Phase 6: runtime and deployment safety.
-8. Phase 7: product decisions and design polish.
+7. Phase 4: query and rendering performance.
+8. Phase 9: account lifecycle and data operations.
+9. Phase 6: runtime and deployment safety.
+10. Phase 7: product decisions and design polish.
 
-The first three phases form the minimum reliability milestone. Performance and
-operational improvements should follow only after their baseline metrics and
-test coverage exist.
+Phase 8 moves near the front because it is the only class of defect that costs
+money while it goes unfixed, and because it is small. Phase 5 moves ahead of
+Phase 4 because correctness and abuse resistance outrank latency on a project
+with few users. Phases 0, 8, 1, and 2 form the minimum reliability milestone.
+Performance work should follow only once its baseline metrics and test coverage
+exist.
