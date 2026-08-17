@@ -10,6 +10,14 @@
     "ru": "RU",
     "switcher": "Language"
   },
+  "mutations": {
+    "saving": "Saving progress…",
+    "retrying": "Connection interrupted. Retrying…",
+    "offline": "You are offline. Progress is waiting on this page.",
+    "failed": "Some progress was not saved. Keep this page open and try again.",
+    "recovered": "Progress saved.",
+    "retry": "Try again"
+  },
   "nav": {
     "tasks": "Tasks",
     "learningMap": "Learning map",

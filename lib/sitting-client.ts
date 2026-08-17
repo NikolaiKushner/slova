@@ -3,6 +3,8 @@
  * and fetch-keepalive are unreliable as PATCH, especially on iOS.
  */
 
+import { reportClientEvent } from "@/lib/client-telemetry";
+
 export type SittingStartBody = {
   kind: "practice" | "brainstorm" | "study" | "grammar";
   label: string;
@@ -13,14 +15,22 @@ export type SittingStartBody = {
 export async function openSitting(
   body: SittingStartBody,
 ): Promise<string | null> {
-  const response = await fetch("/api/study/sitting", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) return null;
-  const payload = (await response.json()) as { id?: string };
-  return payload.id ?? null;
+  try {
+    const response = await fetch("/api/study/sitting", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      reportClientEvent("sitting_start_failed", { status: response.status });
+      return null;
+    }
+    const payload = (await response.json()) as { id?: string };
+    return payload.id ?? null;
+  } catch {
+    reportClientEvent("sitting_start_failed", { status: null });
+    return null;
+  }
 }
 
 export async function patchSitting(body: {
@@ -31,11 +41,24 @@ export async function patchSitting(body: {
   score?: number;
   missedRuleIds?: string[];
 }): Promise<void> {
-  await fetch("/api/study/sitting", {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  }).then(() => undefined, () => undefined);
+  try {
+    const response = await fetch("/api/study/sitting", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      reportClientEvent("sitting_update_failed", {
+        status: response.status,
+        ended: body.endedReason !== undefined,
+      });
+    }
+  } catch {
+    reportClientEvent("sitting_update_failed", {
+      status: null,
+      ended: body.endedReason !== undefined,
+    });
+  }
 }
 
 export function abandonSitting(id: string): void {
