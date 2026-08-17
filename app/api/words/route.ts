@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
@@ -8,6 +8,7 @@ import { normalizeRow } from "@/lib/normalize";
 import { ratingOf } from "@/lib/word-rating";
 import { recordTranslations } from "@/lib/lexicon/write";
 import { allowAttemptDurable } from "@/lib/rate-limit";
+import { reportServerFailure } from "@/lib/server-metrics";
 import { bulkIdsSchema, filingSchema } from "@/lib/words";
 import { addWords } from "@/lib/words/add";
 import {
@@ -173,19 +174,28 @@ export async function POST(request: Request) {
   // produces the same text. Failing here must not fail the add; the words are
   // saved either way, and the base is a cache.
   const typed = words.filter((word) => word.typed);
-  if (typed.length > 0) {
-    await recordTranslations(
-      typed.map((word) => ({
-        text: word.front,
-        translation: word.back,
-        source: "import" as const,
-      })),
-      { userId },
-    ).catch(() => {});
-  }
-
   if (result.added === 0 && result.alreadyKnown === 0) {
     return jsonError("noCompleteWords", 400);
+  }
+
+  if (typed.length > 0) {
+    after(async () => {
+      try {
+        await recordTranslations(
+          typed.map((word) => ({
+            text: word.front,
+            translation: word.back,
+            source: "import" as const,
+          })),
+          { userId },
+        );
+      } catch (error) {
+        reportServerFailure("lexicon.write.failed", error, {
+          source: "import",
+          translations: typed.length,
+        });
+      }
+    });
   }
 
   return NextResponse.json({ ...result, setId: targetSetId });

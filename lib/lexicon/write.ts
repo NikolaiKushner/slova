@@ -3,6 +3,9 @@ import { kindOf } from "@/lib/lexicon/dataset";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { LEXICON_VERSION } from "@/lib/lexicon/lookup";
 import { getPrisma } from "@/lib/prisma";
+import { runSerializable } from "@/lib/serializable-transaction";
+import { reportServerMetric } from "@/lib/server-metrics";
+import { Prisma } from "@/app/generated/prisma/client";
 
 /**
  * Putting a translation into the shared base — and deciding whether everyone
@@ -95,99 +98,209 @@ export async function recordTranslations(
   if (usable.length === 0) return 0;
 
   const prisma = getPrisma();
-  let written = 0;
-
+  const startedAt = performance.now();
+  const byPair = new Map<
+    string,
+    IncomingTranslation & { key: string; translation: string }
+  >();
   for (const item of usable) {
     const key = normalizeKey(item.text);
     const translation = item.translation.trim();
+    byPair.set(`${key}\u0000${translation}`, { ...item, key, translation });
+  }
+  const distinct = [...byPair.values()];
 
-    const lexeme = await prisma.lexeme.upsert({
-      where: { lang_key: { lang: STUDY_SOURCE_LANG, key } },
-      create: {
+  const result = await runSerializable(prisma, async (transaction) => {
+    await transaction.lexeme.createMany({
+      data: distinct.map((item) => ({
         lang: STUDY_SOURCE_LANG,
-        key,
+        key: item.key,
         text: item.text.trim(),
         kind: kindOf(item.text.trim()),
         source: item.source,
-      },
-      // The lexeme itself is never rewritten: its source records who first
-      // knew this word, and a later contributor does not take that over.
-      update: {},
-      select: { id: true },
-    });
-
-    const existing = await prisma.lexemeTranslation.findUnique({
-      where: {
-        lexemeId_targetLang_text: {
-          lexemeId: lexeme.id,
-          targetLang: STUDY_TARGET_LANG,
-          text: translation,
-        },
-      },
-      select: { id: true, confirmations: true, isGlobal: true },
-    });
-
-    const alreadyConfirmedByUser = existing
-      ? Boolean(
-          await prisma.lexemeTranslationConfirmation.findUnique({
-            where: {
-              translationId_userId: {
-                translationId: existing.id,
-                userId: options.userId,
-              },
-            },
-            select: { translationId: true },
-          }),
-        )
-      : false;
-
-    const decision = promote(existing, item.source, alreadyConfirmedByUser);
-
-    // Exactly one translation answers for a word. If something already does,
-    // this one joins the base without displacing it — the seeded answer stays
-    // the answer until a curated one replaces it deliberately.
-    const hasPrimary = await prisma.lexemeTranslation.findFirst({
-      where: {
-        lexemeId: lexeme.id,
-        targetLang: STUDY_TARGET_LANG,
-        isPrimary: true,
-      },
-      select: { id: true },
-    });
-
-    const saved = await prisma.lexemeTranslation.upsert({
-      where: {
-        lexemeId_targetLang_text: {
-          lexemeId: lexeme.id,
-          targetLang: STUDY_TARGET_LANG,
-          text: translation,
-        },
-      },
-      create: {
-        lexemeId: lexeme.id,
-        targetLang: STUDY_TARGET_LANG,
-        text: translation,
-        source: item.source,
-        model: item.model ?? null,
-        version: LEXICON_VERSION,
-        confirmations: decision.confirmations,
-        isGlobal: decision.isGlobal,
-        isPrimary: decision.isGlobal && !hasPrimary,
-      },
-      update: {
-        confirmations: decision.confirmations,
-        isGlobal: decision.isGlobal,
-      },
-      select: { id: true },
-    });
-
-    await prisma.lexemeTranslationConfirmation.createMany({
-      data: [{ translationId: saved.id, userId: options.userId }],
+      })),
       skipDuplicates: true,
     });
 
-    written += 1;
-  }
+    const lexemes = await transaction.lexeme.findMany({
+      where: {
+        lang: STUDY_SOURCE_LANG,
+        key: { in: [...new Set(distinct.map((item) => item.key))] },
+      },
+      select: { id: true, key: true },
+    });
+    const lexemeByKey = new Map(lexemes.map((row) => [row.key, row.id]));
+    const lexemeIds = lexemes.map((row) => row.id).sort();
+    if (lexemeIds.length === 0) return { written: 0, promotionConflicts: 0 };
 
-  return written;
+    // Every writer locks the affected parents in the same order. This makes
+    // primary selection deterministic even when two serverless invocations
+    // promote different translations for the same lexeme concurrently.
+    await transaction.$queryRaw(Prisma.sql`
+      SELECT "id"
+      FROM "Lexeme"
+      WHERE "id" IN (${Prisma.join(lexemeIds)})
+      ORDER BY "id"
+      FOR UPDATE
+    `);
+
+    await transaction.lexemeTranslation.createMany({
+      data: distinct.flatMap((item) => {
+        const lexemeId = lexemeByKey.get(item.key);
+        if (!lexemeId) return [];
+        return [{
+          lexemeId,
+          targetLang: STUDY_TARGET_LANG,
+          text: item.translation,
+          source: item.source,
+          model: item.model ?? null,
+          version: LEXICON_VERSION,
+        }];
+      }),
+      skipDuplicates: true,
+    });
+
+    const translations = await transaction.lexemeTranslation.findMany({
+      where: {
+        lexemeId: { in: lexemeIds },
+        targetLang: STUDY_TARGET_LANG,
+        text: { in: distinct.map((item) => item.translation) },
+      },
+      select: { id: true, lexemeId: true, text: true, isGlobal: true },
+    });
+    const translationByPair = new Map(
+      translations.map((row) => [
+        `${row.lexemeId}\u0000${row.text}`,
+        row.id,
+      ]),
+    );
+    const translationIds = distinct.flatMap((item) => {
+      const lexemeId = lexemeByKey.get(item.key);
+      if (!lexemeId) return [];
+      const translationId = translationByPair.get(
+        `${lexemeId}\u0000${item.translation}`,
+      );
+      return translationId ? [translationId] : [];
+    });
+    if (translationIds.length === 0) {
+      return { written: 0, promotionConflicts: 0 };
+    }
+    const initiallyGlobal = new Set(
+      translations.filter((row) => row.isGlobal).map((row) => row.id),
+    );
+    const promotionCandidateIds = translationIds.filter(
+      (translationId) => !initiallyGlobal.has(translationId),
+    );
+
+    const trustedTranslationIds = distinct.flatMap((item) => {
+      if (!TRUSTED.has(item.source)) return [];
+      const lexemeId = lexemeByKey.get(item.key);
+      if (!lexemeId) return [];
+      const translationId = translationByPair.get(
+        `${lexemeId}\u0000${item.translation}`,
+      );
+      return translationId ? [translationId] : [];
+    });
+
+    await transaction.lexemeTranslationConfirmation.createMany({
+      data: translationIds.map((translationId) => ({
+        translationId,
+        userId: options.userId,
+      })),
+      skipDuplicates: true,
+    });
+
+    if (trustedTranslationIds.length > 0) {
+      await transaction.lexemeTranslation.updateMany({
+        where: { id: { in: trustedTranslationIds } },
+        data: { isGlobal: true },
+      });
+    }
+
+    // Confirmation rows are authoritative. The cached integer is refreshed
+    // from them in one statement, so retries and old counter drift cannot
+    // publish a translation early or leave its displayed count stale.
+    await transaction.$executeRaw(Prisma.sql`
+      UPDATE "LexemeTranslation" AS translation
+      SET "confirmations" = counts.value,
+          "isGlobal" = translation."isGlobal"
+            OR translation."source" IN ('curated', 'seed')
+            OR counts.value >= ${CONFIRMATIONS_TO_PUBLISH},
+          "updatedAt" = CURRENT_TIMESTAMP
+      FROM (
+        SELECT "translationId", COUNT(*)::integer AS value
+        FROM "LexemeTranslationConfirmation"
+        WHERE "translationId" IN (${Prisma.join(translationIds)})
+        GROUP BY "translationId"
+      ) AS counts
+      WHERE translation."id" = counts."translationId"
+    `);
+
+    // Existing primaries are never displaced here. If a lexeme has none, one
+    // deterministic winner is promoted for the whole batch in a single write.
+    await transaction.$executeRaw(Prisma.sql`
+      WITH ranked AS (
+        SELECT translation."id",
+               ROW_NUMBER() OVER (
+                 PARTITION BY translation."lexemeId", translation."targetLang"
+                 ORDER BY CASE translation."source"
+                   WHEN 'curated' THEN 4
+                   WHEN 'seed' THEN 3
+                   WHEN 'llm' THEN 2
+                   WHEN 'import' THEN 1
+                   ELSE 0
+                 END DESC,
+                 translation."createdAt" ASC,
+                 translation."id" ASC
+               ) AS rank
+        FROM "LexemeTranslation" AS translation
+        WHERE translation."lexemeId" IN (${Prisma.join(lexemeIds)})
+          AND translation."targetLang" = ${STUDY_TARGET_LANG}
+          AND translation."isGlobal" = TRUE
+          AND NOT EXISTS (
+            SELECT 1
+            FROM "LexemeTranslation" AS primary_translation
+            WHERE primary_translation."lexemeId" = translation."lexemeId"
+              AND primary_translation."targetLang" = translation."targetLang"
+              AND primary_translation."isPrimary" = TRUE
+          )
+      )
+      UPDATE "LexemeTranslation" AS translation
+      SET "isPrimary" = TRUE,
+          "updatedAt" = CURRENT_TIMESTAMP
+      FROM ranked
+      WHERE translation."id" = ranked."id" AND ranked.rank = 1
+    `);
+
+    const promotionConflicts = promotionCandidateIds.length === 0
+      ? 0
+      : Number((await transaction.$queryRaw<Array<{ value: bigint }>>(
+          Prisma.sql`
+            SELECT COUNT(*)::bigint AS value
+            FROM "LexemeTranslation" AS candidate
+            WHERE candidate."id" IN (${Prisma.join(promotionCandidateIds)})
+              AND candidate."isGlobal" = TRUE
+              AND candidate."isPrimary" = FALSE
+              AND EXISTS (
+                SELECT 1
+                FROM "LexemeTranslation" AS primary_translation
+                WHERE primary_translation."lexemeId" = candidate."lexemeId"
+                  AND primary_translation."targetLang" = candidate."targetLang"
+                  AND primary_translation."isPrimary" = TRUE
+              )
+          `,
+        ))[0]?.value ?? 0);
+
+    return {
+      written: translationIds.length,
+      promotionConflicts,
+    };
+  });
+
+  reportServerMetric("lexicon.write", {
+    translations: result.written,
+    promotionConflicts: result.promotionConflicts,
+    durationMs: Math.round(performance.now() - startedAt),
+  });
+  return result.written;
 }

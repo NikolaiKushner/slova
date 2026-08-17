@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** implementation in progress; Phases 0, 8, 1, and 2 complete
+**Status:** implementation in progress; Phases 0, 8, 1, 2, and 3 complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -209,6 +209,7 @@ column, and `ReviewLog` has no uniqueness that would deduplicate an answer.
 
 **Priority:** P1  
 **Estimate:** 2-3 days
+**Status:** implemented 2026-08-18
 
 - Replace per-translation sequential queries with batch reads and writes.
 - Treat confirmation rows as the source of truth and update any denormalized

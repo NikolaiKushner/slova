@@ -394,6 +394,8 @@ model LexemeTranslation {
   /// answer.
   confirmations Int     @default(0)
   isGlobal      Boolean @default(false)
+  /// Enforced by a partial unique index from the lexicon-correctness migration:
+  /// at most one true row per (lexemeId, targetLang).
   isPrimary     Boolean @default(false)
 
   createdAt DateTime @default(now())
