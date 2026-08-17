@@ -57,7 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         when the page itself moves, and a `fixed` sidebar sized to `svh` then
         stops short of the new viewport — a gap under the menu on iPad.
       */}
-      <SidebarInset className="min-h-0 overflow-y-auto overscroll-y-contain bg-transparent">
+      <SidebarInset className="min-h-0 overflow-y-auto overscroll-y-none bg-transparent">
         {/*
           Below 1024 the sidebar is a Sheet (§8), so this is the only way to
           open it. It matches the breakpoint in `use-mobile.ts`; if the two
