@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildOptions, pickDistractors } from "@/lib/practice/distractors";
-import { judge, passed } from "@/lib/practice/answer";
+import { judge, judgeForms, passed } from "@/lib/practice/answer";
 import {
   buildQuestion,
   EXERCISE_KINDS,
@@ -99,7 +99,7 @@ describe("buildOptions", () => {
 });
 
 describe("buildQuestion", () => {
-  const word = pool[0];
+  const word = { ...pool[0], forms: { past: "brighted", participle: "brighted" } };
 
   it("builds every format without asking for anything it does not have", () => {
     for (const kind of EXERCISE_KINDS) {
@@ -173,6 +173,45 @@ describe("buildQuestion", () => {
     if (!("options" in a) || !("options" in b)) throw new Error("choice expected");
     expect(a.options).not.toEqual(b.options);
   });
+
+  it("asks for the two forms, not the triple as a string", () => {
+    const go = {
+      id: "go",
+      front: "go",
+      back: "идти",
+      forms: { past: "went", participle: "gone" },
+    };
+    const question = buildQuestion("verb-forms", go, pool);
+    if (question.kind !== "verb-forms") throw new Error("expected verb-forms");
+    expect(question.prompt).toBe("go");
+    expect(question.caption).toBe("идти");
+    expect(question.past).toBe("went");
+    expect(question.participle).toBe("gone");
+  });
+
+  it("prefers the verb-table gloss over a homograph's dictionary translation", () => {
+    const light = {
+      id: "light",
+      front: "light",
+      back: "свет",
+      forms: { past: "lit", participle: "lit", gloss: "зажигать" },
+    };
+    const question = buildQuestion("verb-forms", light, pool);
+    if (question.kind !== "verb-forms") throw new Error("expected verb-forms");
+    expect(question.caption).toBe("зажигать");
+  });
+
+  it("carries the extra past that be accepts", () => {
+    const be = {
+      id: "be",
+      front: "be",
+      back: "быть",
+      forms: { past: "was", participle: "been", acceptPast: ["were"] },
+    };
+    const question = buildQuestion("verb-forms", be, pool);
+    if (question.kind !== "verb-forms") throw new Error("expected verb-forms");
+    expect(question.acceptPast).toEqual(["were"]);
+  });
 });
 
 describe("needsAudio / isTyped", () => {
@@ -184,7 +223,11 @@ describe("needsAudio / isTyped", () => {
   });
 
   it("knows which formats are typed rather than chosen", () => {
-    expect(EXERCISE_KINDS.filter(isTyped)).toEqual(["listening", "typing"]);
+    expect(EXERCISE_KINDS.filter(isTyped)).toEqual([
+      "listening",
+      "typing",
+      "verb-forms",
+    ]);
   });
 });
 
@@ -223,5 +266,28 @@ describe("judge", () => {
     expect(judge("bxxght", "bright")).toBe("wrong");
     expect(judge("   ", "bright")).toBe("wrong");
     expect(passed("wrong")).toBe(false);
+  });
+});
+
+describe("judgeForms", () => {
+  const go = { past: "went", participle: "gone" };
+
+  it("needs both fields", () => {
+    expect(judgeForms({ past: "went", participle: "gone" }, go)).toBe("correct");
+    expect(judgeForms({ past: "went", participle: "" }, go)).toBe("wrong");
+    expect(judgeForms({ past: "", participle: "gone" }, go)).toBe("wrong");
+  });
+
+  it("keeps the one-edit tolerance, and a miss in either fails the card", () => {
+    expect(judgeForms({ past: "wnet", participle: "gone" }, go)).toBe("almost");
+    expect(judgeForms({ past: "went", participle: "gon" }, go)).toBe("almost");
+    expect(judgeForms({ past: "goed", participle: "gone" }, go)).toBe("wrong");
+  });
+
+  it("accepts were next to was", () => {
+    const be = { past: "was", participle: "been", acceptPast: ["were"] };
+    expect(judgeForms({ past: "was", participle: "been" }, be)).toBe("correct");
+    expect(judgeForms({ past: "were", participle: "been" }, be)).toBe("correct");
+    expect(judgeForms({ past: "is", participle: "been" }, be)).toBe("wrong");
   });
 });

@@ -348,7 +348,9 @@ export function WordListTable() {
                       />
                     </TableHead>
                   ))}
-                  <TableHead className={cn("w-[120px]", COLUMN_LABEL)}>{t("set")}</TableHead>
+                  <TableHead className={cn("w-[148px]", COLUMN_LABEL)}>
+                    {t("sets")}
+                  </TableHead>
                   <TableHead className={cn("w-[104px]", COLUMN_LABEL)}>
                     <SortButton
                       label={t("learned")}
@@ -366,6 +368,8 @@ export function WordListTable() {
                     key={word.id}
                     word={word}
                     selected={selected.includes(word.id)}
+                    activeSetId={set || undefined}
+                    onSetFilter={(id) => update({ set: id })}
                     onSelect={(on) =>
                       setSelected((current) =>
                         on

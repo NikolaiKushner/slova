@@ -73,6 +73,16 @@ export function setFilter(setIds: readonly string[]) {
 }
 
 /**
+ * Restrict a session to words whose key is in this list. Used by verb-forms
+ * so a sitting is the 95 triples, not twenty random words of which none have
+ * forms. An empty list matches nothing on purpose: better an empty session
+ * than twenty unanswerable questions.
+ */
+export function keyFilter(keys: readonly string[]) {
+  return { key: { in: [...keys] } };
+}
+
+/**
  * Below this a sitting is thin enough to be worth mentioning — but never
  * worth blocking (§16). Somebody with four due words is allowed to drill them.
  */

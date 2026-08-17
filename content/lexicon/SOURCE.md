@@ -37,6 +37,15 @@ Filtering applied on the way in, which is all the editing we do:
 
 9,822 words survive of 9,884.
 
+### What the second pass refused
+
+`npm run lexicon:build -- --missing` asked about the 1,649 words the first run
+left blank. 63 came back with a gloss (`the` as «определённый артикль»); the
+other **1,576** were declined on purpose. They are proper nouns, brands, place
+names and abbreviations (`john`, `microsoft`, `uk`, `rss`). A learner who
+pastes those still goes through the ordinary miss path. The file is not
+missing rows; those words are not vocabulary.
+
 ## `en-ru-frequency.jsonl` — the translations (output)
 
 **Ours.** Produced by `npm run lexicon:build`, which sends the word list through
@@ -93,3 +102,11 @@ Three modes, and they do not overlap:
 | *(none)* / `--force` | the whole word list | replaces the file |
 | `--missing` | words with no line yet | appends |
 | `--enrich` | lines missing a transcription or part of speech | rewrites in place |
+| `--resume <id>` | with `--missing` or `--enrich` | collects an already-submitted batch instead of creating one |
+
+## `en-irregular-verbs.jsonl` — the triples
+
+Hand-curated. Ninety-five verbs, each with a past and a participle, plus
+`acceptPast` on `be` so `were` counts next to `was`. `npm run db:seed-lexicon`
+writes those onto `Lexeme.forms` after loading the frequency file. The same
+table is the factual core of the irregular-verbs course.

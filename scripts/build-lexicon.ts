@@ -82,6 +82,17 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
 
 // tsx compiles this to CommonJS (package.json declares no module type),
 // where top-level await is a syntax error. One wrapper, and it runs.
+function resumeIdFromArgv(argv: readonly string[]): string | undefined {
+  const index = argv.indexOf("--resume");
+  if (index < 0) return undefined;
+  const id = argv[index + 1];
+  if (!id || id.startsWith("--")) {
+    console.error("--resume needs a batch id (msgbatch_…).");
+    process.exit(1);
+  }
+  return id;
+}
+
 async function main(): Promise<void> {
   const force = process.argv.includes("--force");
   // Fill the gaps rather than rebuild: a second pass over what came back empty
@@ -91,6 +102,15 @@ async function main(): Promise<void> {
   // translation. Reads the output file rather than the word list, because the
   // population is what has been answered, not what was asked.
   const enrich = process.argv.includes("--enrich");
+  // Collect an already-submitted batch instead of paying for another. The
+  // poller is a local process, and an hour-long wait does not survive a closed
+  // laptop; the batch on Anthropic's side does.
+  const resumeId = resumeIdFromArgv(process.argv);
+
+  if (resumeId && !fillMissing && !enrich) {
+    console.error("--resume only applies to --missing or --enrich.");
+    process.exit(1);
+  }
 
   if (existsSync(OUTPUT) && !force && !fillMissing && !enrich) {
     console.error(
@@ -100,7 +120,7 @@ async function main(): Promise<void> {
   }
 
   if (enrich) {
-    await enrichExisting();
+    await enrichExisting(resumeId);
     return;
   }
 
@@ -125,11 +145,16 @@ async function main(): Promise<void> {
   }
 
   const groups = chunk(words, CHUNK);
-  console.log(`${words.length} words in ${groups.length} requests of ${CHUNK}`);
+  if (resumeId) {
+    console.log(`resuming ${resumeId} (${words.length} words were in this pass)`);
+  } else {
+    console.log(`${words.length} words in ${groups.length} requests of ${CHUNK}`);
+  }
 
   const { items, errored, succeeded } = await runBatch(
     groups,
     fillMissing ? MISSING_NOTE : NOTE,
+    resumeId,
   );
 
   const lines = items
@@ -139,10 +164,25 @@ async function main(): Promise<void> {
     .map((item) => JSON.stringify(datasetLine(item)));
 
   if (fillMissing) {
-    appendFileSync(OUTPUT, lines.join("\n") + "\n");
-  } else {
-    writeFileSync(OUTPUT, lines.join("\n") + "\n");
+    const already = new Set(
+      readFileSync(OUTPUT, "utf8")
+        .split("\n")
+        .filter((line) => line.trim())
+        .map((line) => (JSON.parse(line) as { text: string }).text.toLowerCase()),
+    );
+    const fresh = lines.filter((line) => {
+      const text = (JSON.parse(line) as { text: string }).text.toLowerCase();
+      return !already.has(text);
+    });
+    if (fresh.length > 0) appendFileSync(OUTPUT, fresh.join("\n") + "\n");
+    console.log(
+      `\nwrote ${fresh.length} translations to ${OUTPUT}` +
+        ` (${lines.length - fresh.length} already present, ${succeeded} chunks ok, ${errored} unusable)`,
+    );
+    return;
   }
+
+  writeFileSync(OUTPUT, lines.join("\n") + "\n");
 
   console.log(
     `\nwrote ${lines.length} translations to ${OUTPUT} (${succeeded} chunks ok, ${errored} unusable)`,
@@ -174,20 +214,26 @@ type BatchOutcome = {
 async function runBatch(
   groups: readonly (readonly string[])[],
   note: string,
+  resumeId?: string,
 ): Promise<BatchOutcome> {
   const client = llm();
 
-  const batch = await client.messages.batches.create({
-    requests: groups.map((group, index) => ({
-      custom_id: `chunk-${index}`,
-      params: buildTranslationRequest(
-        group.map((text) => ({ text })),
-        { note },
-      ),
-    })),
-  });
-
-  console.log(`batch ${batch.id} submitted; polling every 60s`);
+  let batch;
+  if (resumeId) {
+    batch = await client.messages.batches.retrieve(resumeId);
+    console.log(`batch ${batch.id} is ${batch.processing_status}; polling every 60s`);
+  } else {
+    batch = await client.messages.batches.create({
+      requests: groups.map((group, index) => ({
+        custom_id: `chunk-${index}`,
+        params: buildTranslationRequest(
+          group.map((text) => ({ text })),
+          { note },
+        ),
+      })),
+    });
+    console.log(`batch ${batch.id} submitted; polling every 60s`);
+  }
 
   let status = batch;
   while (status.processing_status !== "ended") {
@@ -247,7 +293,7 @@ type DatasetRow = {
  * appended to, because these are edits to existing lines, and a diff that
  * reorders eight thousand of them is unreviewable.
  */
-async function enrichExisting(): Promise<void> {
+async function enrichExisting(resumeId?: string): Promise<void> {
   const rows: DatasetRow[] = readFileSync(OUTPUT, "utf8")
     .split("\n")
     .filter((line) => line.trim())
@@ -267,7 +313,11 @@ async function enrichExisting(): Promise<void> {
     `${pending.length} of ${rows.length} lines need enriching — ${groups.length} requests of ${ENRICH_CHUNK}`,
   );
 
-  const { items, errored, succeeded } = await runBatch(groups, ENRICH_NOTE);
+  const { items, errored, succeeded } = await runBatch(
+    groups,
+    ENRICH_NOTE,
+    resumeId,
+  );
 
   const answers = new Map<string, TranslationItem>();
   for (const item of items) answers.set(item.text.trim().toLowerCase(), item);

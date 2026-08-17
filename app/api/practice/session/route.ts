@@ -33,12 +33,14 @@ export async function GET(request: Request) {
   // Clamped rather than trusted: the value reaches a `take`, and a query
   // string is not a place to accept an arbitrary row count from.
   const size = Number.parseInt(params.get("size") ?? "", 10);
+  const kind = params.get("kind") ?? undefined;
 
-  const { words, pool } = await buildPracticeSession(session.user.id, {
+  const { words, pool, sitting, nextDueAt } = await buildPracticeSession(session.user.id, {
     setIds,
     brainstorm,
     state,
     size: Number.isInteger(size) ? size : undefined,
+    kind,
   });
 
   // Seeds the shuffling of options and letters. Generated here so the client
@@ -49,5 +51,7 @@ export async function GET(request: Request) {
     pool,
     seed: crypto.randomUUID(),
     onDemandAudioEnabled: process.env.TTS_ON_DEMAND_ENABLED === "true",
+    ...(sitting ? { sitting } : {}),
+    ...(nextDueAt ? { nextDueAt } : {}),
   });
 }

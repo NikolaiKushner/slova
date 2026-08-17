@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-
+import { useFormatter, useTranslations } from "next-intl";
 import { ChevronLeft } from "lucide-react";
 
 import {
@@ -32,6 +31,8 @@ import {
 } from "@/lib/practice/question";
 import { whenVoiceReady } from "@/lib/practice/speech";
 import { sourceQuery, type Source } from "@/lib/practice/source";
+import type { VerbFormsSitting } from "@/lib/practice/verb-forms";
+import { Eyebrow } from "@/components/slova/eyebrow";
 
 /**
  * One training, one format, straight through the words.
@@ -50,6 +51,8 @@ type Payload = {
   pool: PracticeWord[];
   seed: string;
   onDemandAudioEnabled: boolean;
+  sitting?: VerbFormsSitting;
+  nextDueAt?: string | null;
 };
 
 export function PracticeSession({
@@ -64,6 +67,8 @@ export function PracticeSession({
   const trainings = useTranslations("trainings");
   const common = useTranslations("common");
   const [data, setData] = useState<Payload | null>(null);
+  const [addingVerbs, setAddingVerbs] = useState(false);
+  const [addVerbsError, setAddVerbsError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [voice, setVoice] = useState<boolean | null>(null);
   const [index, setIndex] = useState(0);
@@ -77,11 +82,16 @@ export function PracticeSession({
   const [run, setRun] = useState(0);
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [seconds, setSeconds] = useState(0);
+  const [previewed, setPreviewed] = useState(false);
 
   useEffect(() => {
     let ignore = false;
+    const query =
+      kind === "verb-forms"
+        ? new URLSearchParams({ kind }).toString()
+        : sourceQuery(source, { kind });
 
-    fetch(`/api/practice/session?${sourceQuery(source)}`)
+    fetch(`/api/practice/session?${query}`)
       .then((response) => (response.ok ? response.json() : null))
       .then((payload: Payload | null) => {
         if (ignore) return;
@@ -95,7 +105,7 @@ export function PracticeSession({
     return () => {
       ignore = true;
     };
-  }, [source, run]);
+  }, [source, run, kind]);
 
   // Only the sound formats care, so only they ask — and the answer arrives in
   // the callback rather than being set from the body of the effect.
@@ -143,12 +153,14 @@ export function PracticeSession({
               { keys: [], label: t("hintTypeLetters") },
               { keys: [t("keyBackspace")], label: t("hintTakeBack") },
             ]
-          : [
-              { keys: [t("keyEnter")], label: t("hintCheck") },
-              ...(kind === "listening"
-                ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
-                : []),
-            ];
+          : question?.kind === "verb-forms"
+            ? [{ keys: [t("keyEnter")], label: t("hintCheck") }]
+            : [
+                { keys: [t("keyEnter")], label: t("hintCheck") },
+                ...(kind === "listening"
+                  ? [{ keys: [t("keySpace")], label: t("hintRepeat") }]
+                  : []),
+              ];
 
   /*
    * Sent and not waited on: a training that pauses between questions to wait
@@ -195,7 +207,29 @@ export function PracticeSession({
     setRight(0);
     setStartedAt(Date.now());
     setSeconds(0);
+    setPreviewed(false);
     setRun((current) => current + 1);
+  }
+
+  function addVerbTable() {
+    if (addingVerbs) return;
+    setAddingVerbs(true);
+    setAddVerbsError(false);
+    void fetch("/api/practice/verb-forms", { method: "POST" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { setId?: string } | null) => {
+        if (!payload?.setId) {
+          setAddVerbsError(true);
+          setAddingVerbs(false);
+          return;
+        }
+        setAddingVerbs(false);
+        restart();
+      })
+      .catch(() => {
+        setAddVerbsError(true);
+        setAddingVerbs(false);
+      });
   }
 
   if (loading) {
@@ -206,12 +240,58 @@ export function PracticeSession({
     return <Empty title={t("noVoiceTitle")} body={t("noVoiceBody")} />;
   }
 
+  if (kind === "verb-forms" && data?.sitting === "caught-up") {
+    return <VerbFormsCaughtUp nextDueAt={data.nextDueAt ?? null} />;
+  }
+
   if (words.length === 0) {
+    if (kind === "verb-forms") {
+      return (
+        <EmptyState
+          variant="screen"
+          title={t("noVerbFormsTitle")}
+          description={t("noVerbFormsBody")}
+          action={
+            <div className="flex flex-col items-center gap-2.5">
+              <Button
+                size="lg"
+                onClick={addVerbTable}
+                disabled={addingVerbs}
+              >
+                {addingVerbs ? t("addingVerbForms") : t("addVerbForms")}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                render={<Link href="/courses/grammar/irregular-verbs" />}
+              >
+                {t("goToIrregularVerbs")}
+              </Button>
+              {addVerbsError ? (
+                <p className="text-destructive text-caption">{t("addVerbFormsError")}</p>
+              ) : null}
+            </div>
+          }
+        />
+      );
+    }
     return (
       <Empty
         title={t("noWordsTitle")}
         body={t("noWordsBody")}
         action={{ href: "/dictionary", label: t("goToMyWords") }}
+      />
+    );
+  }
+
+  if (kind === "verb-forms" && data?.sitting === "intro" && !previewed) {
+    return (
+      <VerbFormsStart
+        words={words}
+        onStart={() => {
+          setStartedAt(Date.now());
+          setPreviewed(true);
+        }}
       />
     );
   }
@@ -350,6 +430,97 @@ function Empty({
             {action.label}
           </Button>
         ) : null
+      }
+    />
+  );
+}
+
+/**
+ * The triples of this sitting, before anything is asked. Same job as
+ * Brainstorm's Start: a look, then a drill. Three English columns, course
+ * labels, no Russian — the gloss waits on the question.
+ */
+function VerbFormsStart({
+  words,
+  onStart,
+}: {
+  words: PracticeWord[];
+  onStart: () => void;
+}) {
+  const t = useTranslations("practice");
+  const minutes = Math.max(1, Math.round(words.length * 0.8));
+
+  return (
+    <div className="container-focus flex w-full flex-col gap-8 py-4">
+      <Button
+        variant="ghost"
+        size="sm"
+        render={<Link href="/practice" />}
+        className="self-start"
+      >
+        <ChevronLeft />
+        {t("title")}
+      </Button>
+
+      <header className="text-center">
+        <Eyebrow>{t("verbFormsKicker")}</Eyebrow>
+        <h1 className="text-h1">{t("verbFormsPreview", { count: words.length })}</h1>
+        <p className="text-muted-foreground mx-auto mt-2 max-w-[44ch] text-body">
+          {t("verbFormsIntro")}
+        </p>
+      </header>
+
+      <div className="bg-card border-border overflow-hidden rounded-xl border">
+        <div className="text-overline text-eyebrow grid grid-cols-3 gap-x-4 px-5 py-2.5">
+          <span>{t("baseForm")}</span>
+          <span>{t("pastForm")}</span>
+          <span>{t("participleForm")}</span>
+        </div>
+        {words.map((word) => (
+          <div
+            key={word.id}
+            className="border-border-subtle grid grid-cols-3 gap-x-4 border-t px-5 py-2.5"
+          >
+            <span lang="en" className="font-display text-h4 font-medium">
+              {word.front}
+            </span>
+            <span lang="en" className="font-display text-h4 font-medium">
+              {word.forms?.past ?? "—"}
+            </span>
+            <span lang="en" className="font-display text-h4 font-medium">
+              {word.forms?.participle ?? "—"}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-center">
+        <Button size="lg" onClick={onStart} autoFocus>
+          {t("startIn", { minutes })}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function VerbFormsCaughtUp({ nextDueAt }: { nextDueAt: string | null }) {
+  const t = useTranslations("practice");
+  const format = useFormatter();
+  const date = nextDueAt
+    ? format.dateTime(new Date(nextDueAt), { day: "numeric", month: "long" })
+    : null;
+
+  return (
+    <EmptyState
+      variant="screen"
+      title={t("verbFormsCaughtUpTitle")}
+      description={
+        date ? t("verbFormsCaughtUpBody", { date }) : t("verbFormsCaughtUpNoDate")
+      }
+      action={
+        <Button size="lg" render={<Link href="/practice" />}>
+          {t("backToTrainings")}
+        </Button>
       }
     />
   );

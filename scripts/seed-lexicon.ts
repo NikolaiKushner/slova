@@ -15,12 +15,15 @@ import { readFileSync } from "node:fs";
 import { config } from "dotenv";
 
 import { kindOf, parseDataset, type DatasetEntry } from "@/lib/lexicon/dataset";
+import { parseVerbTable } from "@/lib/lexicon/forms";
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
 import { getPrisma } from "@/lib/prisma";
+import { Prisma } from "@/app/generated/prisma/client";
 
 config({ path: [".env.local", ".env"] });
 
 const INPUT = "content/lexicon/en-ru-frequency.jsonl";
+const VERBS = "content/lexicon/en-irregular-verbs.jsonl";
 
 /** Rows per round trip. Large enough to be few trips, small enough to not time out. */
 const CHUNK = 500;
@@ -74,6 +77,8 @@ async function main(): Promise<void> {
     `\nlexemes touched: ${lexemesTouched}, enriched: ${lexemesEnriched}, translations written: ${translationsWritten}`,
   );
   console.log(`Lexeme rows with source="seed": ${seeded}`);
+
+  await seedVerbForms();
 }
 
 /**
@@ -118,6 +123,87 @@ async function enrichChunk(group: readonly DatasetEntry[]): Promise<number> {
        FROM (VALUES ${values.join(", ")}) AS v(key, transcription, pos)
       WHERE l."lang" = $1 AND l."key" = v.key AND l."source" = 'seed'`,
     ...params,
+  );
+}
+
+/**
+ * Irregular triples onto matching lexemes. Most of the table is already in
+ * the frequency seed; this writes `forms` onto those rows and only creates a
+ * lexeme when the verb was not in the list at all.
+ */
+async function seedVerbForms(): Promise<void> {
+  const table = parseVerbTable(readFileSync(VERBS, "utf8"));
+  if (table.length === 0) {
+    console.log("No irregular verbs to seed.");
+    return;
+  }
+
+  await prisma.lexeme.createMany({
+    data: table.map((entry) => ({
+      lang: STUDY_SOURCE_LANG,
+      key: entry.key,
+      text: entry.text,
+      kind: "word" as const,
+      source: "seed",
+      forms: entry.forms as unknown as Prisma.InputJsonValue,
+    })),
+    skipDuplicates: true,
+  });
+
+  let formsWritten = 0;
+  for (const entry of table) {
+    const written = await prisma.lexeme.updateMany({
+      where: { lang: STUDY_SOURCE_LANG, key: entry.key },
+      data: { forms: entry.forms as unknown as Prisma.InputJsonValue },
+    });
+    formsWritten += written.count;
+  }
+
+  const lexemes = await prisma.lexeme.findMany({
+    where: {
+      lang: STUDY_SOURCE_LANG,
+      key: { in: table.map((entry) => entry.key) },
+    },
+    select: {
+      id: true,
+      key: true,
+      translations: {
+        where: { targetLang: STUDY_TARGET_LANG },
+        select: { id: true },
+        take: 1,
+      },
+    },
+  });
+  const translationByKey = new Map(table.map((entry) => [entry.key, entry]));
+  const missing = lexemes.filter((row) => row.translations.length === 0);
+
+  if (missing.length > 0) {
+    await prisma.lexemeTranslation.createMany({
+      data: missing.flatMap((row) => {
+        const entry = translationByKey.get(row.key);
+        if (!entry) return [];
+        return [
+          {
+            lexemeId: row.id,
+            targetLang: STUDY_TARGET_LANG,
+            text: entry.translation,
+            source: "seed",
+            confirmations: 1,
+            isGlobal: true,
+            isPrimary: true,
+          },
+        ];
+      }),
+      skipDuplicates: true,
+    });
+  }
+
+  const withForms = await prisma.lexeme.count({
+    where: { lang: STUDY_SOURCE_LANG, NOT: { forms: { equals: Prisma.DbNull } } },
+  });
+  console.log(
+    `irregular verbs: ${table.length} in the table, ${formsWritten} rows updated, ${withForms} lexemes now carry forms` +
+      (missing.length > 0 ? `, ${missing.length} translations added` : ""),
   );
 }
 

@@ -1,15 +1,23 @@
 import { STUDY_SOURCE_LANG, STUDY_TARGET_LANG } from "@/lib/languages";
+import { asVerbForms } from "@/lib/lexicon/forms";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { LEXICON_VERSION } from "@/lib/lexicon/lookup";
 import { clampSessionSize } from "@/lib/practice/brainstorm";
 import {
   DEFAULT_SOURCE_STATE,
+  keyFilter,
   setFilter,
   stateFilter,
   type SourceState,
 } from "@/lib/practice/source";
 import type { PracticeWord } from "@/lib/practice/question";
+import {
+  nextVerbFormsDue,
+  pickVerbFormsSitting,
+  type VerbFormsSitting,
+} from "@/lib/practice/verb-forms";
 import { getPrisma } from "@/lib/prisma";
+import { Prisma } from "@/app/generated/prisma/client";
 
 /**
  * Choosing what to practise, and what to put beside it as wrong answers.
@@ -31,6 +39,10 @@ const POOL_SIZE = 80;
 export type PracticeSession = {
   words: PracticeWord[];
   pool: PracticeWord[];
+  /** Set only for verb-forms, which ignores the source bar. */
+  sitting?: VerbFormsSitting;
+  /** ISO timestamp of the next due verb, when sitting is `caught-up`. */
+  nextDueAt?: string | null;
 };
 
 export async function buildPracticeSession(
@@ -42,9 +54,16 @@ export async function buildPracticeSession(
     state?: SourceState;
     /** Brainstorm only; other trainings run at TRAINING_SIZE. */
     size?: number;
+    /** When `verb-forms`, only words whose lexeme has a triple. */
+    kind?: string;
   } = {},
 ): Promise<PracticeSession> {
   const prisma = getPrisma();
+
+  if (options.kind === "verb-forms") {
+    return buildVerbFormsSession(userId);
+  }
+
   // Several sets at once, because a session is a choice of material rather
   // than a folder: "verbs and the medical list, nothing else" is a normal
   // thing to want and awkward to express one set at a time.
@@ -88,6 +107,68 @@ export async function buildPracticeSession(
 }
 
 /**
+ * The 95 triples, ignoring the source bar. Due first, else an intro of new
+ * verbs in table order, else caught-up — the add stub only when none of the
+ * keys are in the dictionary at all.
+ */
+async function buildVerbFormsSession(userId: string): Promise<PracticeSession> {
+  const prisma = getPrisma();
+  const now = new Date();
+  const pool = await buildPool(userId);
+  const formsScope = await verbFormsScope();
+  if (formsScope === null) {
+    return { words: [], pool, sitting: "empty" };
+  }
+
+  const rows = await prisma.userWord.findMany({
+    where: { userId, ...formsScope },
+    select: {
+      id: true,
+      front: true,
+      back: true,
+      introducedAt: true,
+      dueAt: true,
+    },
+  });
+
+  const extras = await withLexemeExtras(
+    rows.map(({ id, front, back }) => ({ id, front, back })),
+  );
+  const candidates = extras.map((word, index) => ({
+    word,
+    introducedAt: rows[index]?.introducedAt ?? null,
+    dueAt: rows[index]?.dueAt ?? null,
+    rank: word.forms?.rank ?? Number.MAX_SAFE_INTEGER,
+  }));
+  const picked = pickVerbFormsSitting(candidates, now);
+  const nextDue =
+    picked.sitting === "caught-up" ? nextVerbFormsDue(candidates, now) : null;
+
+  return {
+    words: picked.words.map((item) => item.word),
+    pool,
+    sitting: picked.sitting,
+    ...(nextDue ? { nextDueAt: nextDue.toISOString() } : {}),
+  };
+}
+
+/**
+ * Keys of lexemes that carry a triple, or `null` when there are none — so the
+ * caller can skip the word query rather than sending `IN ()` to Postgres.
+ */
+async function verbFormsScope(): Promise<ReturnType<typeof keyFilter> | null> {
+  const lexemes = await getPrisma().lexeme.findMany({
+    where: {
+      lang: STUDY_SOURCE_LANG,
+      NOT: { forms: { equals: Prisma.DbNull } },
+    },
+    select: { key: true },
+  });
+  if (lexemes.length === 0) return null;
+  return keyFilter(lexemes.map((lexeme) => lexeme.key));
+}
+
+/**
  * Attaches what the shared base knows about each word: the recording, and the
  * transcription shown beside the answer.
  *
@@ -111,6 +192,7 @@ async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> 
       audioUrl: true,
       audioSlowUrl: true,
       transcription: true,
+      forms: true,
     },
   });
   const byKey = new Map(lexemes.map((lexeme) => [lexeme.key, lexeme]));
@@ -122,6 +204,7 @@ async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> 
       audioUrl: lexeme?.audioUrl ?? null,
       audioSlowUrl: lexeme?.audioSlowUrl ?? null,
       transcription: lexeme?.transcription ?? null,
+      forms: asVerbForms(lexeme?.forms),
     };
   });
 }

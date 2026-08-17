@@ -10,10 +10,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDelete } from "@/components/confirm-delete";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ROW_ICON, ROW_ICON_DESTROY } from "@/components/word-table";
 import { WordRating } from "@/components/word-rating";
 import { cn } from "@/lib/utils";
 import type { Rating } from "@/lib/word-rating";
+import { shortenSetTitle, VISIBLE_SET_BADGES } from "@/lib/words/set-label";
 
 /**
  * One row of the dictionary, editable in place.
@@ -39,11 +45,16 @@ export function WordListRow({
   selected,
   onSelect,
   onChanged,
+  activeSetId,
+  onSetFilter,
 }: {
   word: WordRow;
   selected: boolean;
   onSelect: (selected: boolean) => void;
   onChanged: () => void;
+  /** The set the table is already filtered to — omitted from the column. */
+  activeSetId?: string;
+  onSetFilter?: (setId: string) => void;
 }) {
   const t = useTranslations("dictionary");
   const [editing, setEditing] = useState(false);
@@ -107,6 +118,7 @@ export function WordListRow({
   }
 
   const cellInput = "h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0";
+  const visibleSets = word.sets.filter((set) => set.id !== activeSetId);
 
   return (
     <TableRow className="group" data-state={selected ? "selected" : undefined}>
@@ -117,7 +129,7 @@ export function WordListRow({
           aria-label={t("selectWord", { word: word.front })}
         />
       </TableCell>
-      <TableCell className="overflow-hidden font-medium text-ellipsis">
+      <TableCell className="overflow-hidden font-medium text-ellipsis leading-5">
         {editing ? (
           <Input
             value={front}
@@ -133,7 +145,7 @@ export function WordListRow({
         )}
       </TableCell>
 
-      <TableCell>
+      <TableCell className="leading-5">
         {editing ? (
           <Input
             value={back}
@@ -149,22 +161,14 @@ export function WordListRow({
         {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
       </TableCell>
 
-      <TableCell>
-        {word.sets.length === 0 ? (
-          <span className="text-muted-foreground">—</span>
-        ) : (
-          <span className="flex flex-wrap gap-1">
-            {word.sets.map((set) => (
-              <Badge key={set.id} variant="secondary">
-                {set.title}
-              </Badge>
-            ))}
-          </span>
-        )}
+      <TableCell className="w-[148px]">
+        <SetBadges sets={visibleSets} onFilter={onSetFilter} />
       </TableCell>
 
-      <TableCell>
-        <WordRating rating={word.rating} />
+      <TableCell className="w-[104px]">
+        <span className="inline-flex h-5 items-center">
+          <WordRating rating={word.rating} />
+        </span>
       </TableCell>
 
       <TableCell className="w-[78px] pe-3 text-right">
@@ -251,4 +255,68 @@ function onKeys(save: () => void, cancel: () => void) {
       cancel();
     }
   };
+}
+
+function SetBadges({
+  sets,
+  onFilter,
+}: {
+  sets: { id: string; title: string }[];
+  onFilter?: (setId: string) => void;
+}) {
+  const t = useTranslations("dictionary");
+  if (sets.length === 0) return null;
+
+  const shown = sets.slice(0, VISIBLE_SET_BADGES);
+  const hidden = sets.slice(VISIBLE_SET_BADGES);
+  const extra = hidden.map((set) => set.title).join(", ");
+
+  return (
+    <span className="inline-flex h-5 items-center gap-1.5">
+      {shown.map((set) => {
+        const label = shortenSetTitle(set.title);
+        return (
+          <Tooltip key={set.id}>
+            <TooltipTrigger
+              render={
+                <button
+                  type="button"
+                  onClick={() => onFilter?.(set.id)}
+                  aria-label={t("showSet", { title: set.title })}
+                  className="inline-flex h-5 items-center rounded-full border-0 bg-transparent p-0 leading-none"
+                />
+              }
+            >
+              <Badge
+                variant="secondary"
+                className="pointer-events-none h-5 min-w-5 px-1.5 text-[11px] font-medium"
+              >
+                {label}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>{set.title}</TooltipContent>
+          </Tooltip>
+        );
+      })}
+      {hidden.length > 0 ? (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <button
+                type="button"
+                className="text-muted-foreground inline-flex h-5 items-center border-0 bg-transparent p-0 text-[11px] leading-none font-medium tabular-nums"
+                aria-label={t("moreSets", {
+                  count: hidden.length,
+                  titles: extra,
+                })}
+              />
+            }
+          >
+            +{hidden.length}
+          </TooltipTrigger>
+          <TooltipContent>{extra}</TooltipContent>
+        </Tooltip>
+      ) : null}
+    </span>
+  );
 }

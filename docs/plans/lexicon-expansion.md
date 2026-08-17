@@ -30,18 +30,22 @@ builder handing out one tile per space.
 
 - [x] `Lexeme` rows with `audioSlowUrl` ≈ rows with `audioUrl` (was 0 vs 8,177,
       now **8,210** vs 8,177 — see the asymmetry note in step 1)
-- [ ] `Lexeme.transcription` and `Lexeme.partOfSpeech` populated for every
-      `source="seed"` row (today: 0 and 0)
+- [x] `Lexeme.transcription` and `Lexeme.partOfSpeech` populated for every
+      `source="seed"` row (today: **7,866** IPA and **8,027** POS on 8,235 seed
+      rows; blanks are declines, not misses)
 - [x] `content/courses/audio-manifest.json` has an entry per course example
       (was `"entries": {}`, now 51 texts × normal + slow)
-- [ ] `content/lexicon/en-ru-frequency.jsonl` covers the input list, or the
+- [x] `content/lexicon/en-ru-frequency.jsonl` covers the input list, or the
       remainder is written down as refused-on-purpose
+      (8,246 translated; **1,576** refused — proper nouns, brands, abbreviations;
+      see `content/lexicon/SOURCE.md`)
 - [x] `irregular-verbs` is an available course in `content/courses/catalog.json`
-- [ ] `verb-forms` is in `EXERCISE_KINDS`, deals a question from a triple, and
+- [x] `verb-forms` is in `EXERCISE_KINDS`, deals a question from a triple, and
       is scheduled by the same FSRS path as every other format
+      (own mode on `/practice`, 95 lexemes with `forms`)
 - [ ] A collocation survives `builder`, `judge` and `distractors` without
       giving itself away
-- [ ] `npm test` green after every step
+- [x] `npm test` green after every step
 
 ## Non-goals
 
@@ -158,7 +162,7 @@ one Prisma migration (verb forms) · no new dependencies.
 
 ## Steps
 
-### 1. Run the three pipelines that already exist — S · `[~]`
+### 1. Run the three pipelines that already exist — S · `[x]`
 
 **Approved and started 2026-08-17.** Dry runs gave the real figures: slow
 audio $0.86 (8,214 words, 57,248 characters), course audio $0.03 (51 texts,
@@ -168,7 +172,9 @@ audio $0.86 (8,214 words, 57,248 characters), course audio $0.03 (51 texts,
   a slow URL.
 - **Slow audio: done.** 8,210 recorded, 4 failed (`graduated`, `handy`,
   `identical`, `gonna`), 40 minutes.
-- **Missing-word batch: still running** (`msgbatch_01WwxoEL…`).
+- **Missing-word batch: done.** `msgbatch_01WwxoELzKKvo4MjcTcVaY24` ended
+  2026-08-17T10:14Z, 17/17 succeeded. 63 glosses appended (already in the file);
+  1,576 declined on purpose. Local poller had died; collected with `--resume`.
 
 Neither audio run has been listened to in a browser yet.
 
@@ -214,15 +220,20 @@ space-bearing keys first.
 
 ### 2. Transcription and part of speech — dataset v2 — M · `[x]`
 
-**Code done; the batch that fills the file has not been run.** `TOKENS_PER_ROW`
-went 80 → 160 and the enrichment pass asks 50 words a request rather than 100,
-because at 100 the three-field answer reaches the 8000-token ceiling and a
-truncated response loses whole rows. Part of speech is a closed `enum`, not
-free text. Two decisions worth keeping in view: an empty field is a decline and
-is left off the entry rather than stored blank, and a transcription is checked
-by alphabet rather than length — `roughly wah-ter` is shorter than a real
-transcribed phrase, so only "reaches outside plain ASCII" separates IPA from a
-respelling. `npm test` 418 green, `tsc` and `eslint` clean.
+**Code done; file filled.** `msgbatch_01VqAMk5tPPvtc8XvmpE7mBE` ended in three
+minutes, 165/165 succeeded: **8,011** transcriptions and **8,033** parts of
+speech on 8,246 lines. The 200-odd blanks are abbreviations and web-corpus
+junk the model declined (`guestbook`, `oct`, `hz`). Seed with
+`npm run db:seed-lexicon` (same run as the verb forms).
+
+`TOKENS_PER_ROW` went 80 → 160 and the enrichment pass asks 50 words a request
+rather than 100, because at 100 the three-field answer reaches the 8000-token
+ceiling and a truncated response loses whole rows. Part of speech is a closed
+`enum`, not free text. Two decisions worth keeping in view: an empty field is a
+decline and is left off the entry rather than stored blank, and a transcription
+is checked by alphabet rather than length — `roughly wah-ter` is shorter than a
+real transcribed phrase, so only "reaches outside plain ASCII" separates IPA
+from a respelling.
 
 
 - **Why now:** `partOfSpeech` is what step 5 needs to stop a collocation from
@@ -270,7 +281,13 @@ connected, and `/courses/**` is behind auth that I must not sign into.
   in their options. Open the course, finish a lesson, take the test.
 - **Depends on:** —
 
-### 4. Irregular verbs — the `verb-forms` training — L · `[ ]`
+### 4. Irregular verbs — the `verb-forms` training — L · `[x]`
+
+**Done, except the browser look.** `Lexeme.forms` is `{ past, participle }` plus
+optional `acceptPast` (for `be`). The format shows the infinitive and asks for
+the two forms in separate fields; FSRS still rates the whole card. Audio is the
+infinitive's recording only — the two typed forms are not spoken. Seeded: 95
+rows. `npm test` 438 green.
 
 - **Why after the course:** the rules file names the families the question will
   group its distractors by.
@@ -360,11 +377,11 @@ this plan.
 
 ## Open questions
 
-- [ ] Which irregular verbs, and how many? 100 covers ordinary speech, 180 is
-      the usual textbook table. Decides the size of steps 3 and 4.
-- [ ] Does the slow recording get generated for all 8,200 words, or only for
-      the ones a learner actually reaches? Whole-base is simpler and costs
-      about a dollar; on-demand already exists in `lib/audio/resolve.ts`.
+- [x] Which irregular verbs, and how many? **95**, in
+      `content/lexicon/en-irregular-verbs.jsonl` — ordinary speech, not the
+      full textbook table.
+- [x] Does the slow recording get generated for all 8,200 words, or only for
+      the ones a learner actually reaches? **Whole-base**, already run.
 
 ## Deferred / out of scope
 

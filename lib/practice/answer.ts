@@ -89,3 +89,31 @@ export function judge(given: string, expected: string): Verdict {
 export function passed(verdict: Verdict): boolean {
   return verdict !== "wrong";
 }
+
+/**
+ * Two fields, one verdict. A miss in either is a miss — the card is the
+ * triple, not one form — and "almost" wins only when neither is wrong, so a
+ * typo in `gone` still shows the spelling without failing `went`.
+ */
+export function judgeForms(
+  given: { past: string; participle: string },
+  expected: { past: string; participle: string; acceptPast?: readonly string[] },
+): Verdict {
+  const past = judgeAgainst(given.past, expected.past, expected.acceptPast);
+  const participle = judge(given.participle, expected.participle);
+
+  if (past === "wrong" || participle === "wrong") return "wrong";
+  if (past === "almost" || participle === "almost") return "almost";
+  return "correct";
+}
+
+function judgeAgainst(
+  given: string,
+  expected: string,
+  extras: readonly string[] = [],
+): Verdict {
+  const verdicts = [expected, ...extras].map((form) => judge(given, form));
+  if (verdicts.includes("correct")) return "correct";
+  if (verdicts.includes("almost")) return "almost";
+  return "wrong";
+}

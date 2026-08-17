@@ -4,11 +4,12 @@ import {
   type Candidate,
 } from "@/lib/practice/distractors";
 import { seedFrom, seededRng, shuffle } from "@/lib/practice/random";
+import type { VerbForms } from "@/lib/lexicon/forms";
 
 /**
  * Turning a word into a question.
  *
- * Six formats, one function. They differ along two axes and nothing else: what
+ * Seven formats, one function. They differ along two axes and nothing else: what
  * the learner is shown (the English word, its translation, or a sound) and
  * what they have to produce (pick from options, assemble from letters, or type
  * it out). Recognition is easy and cheap, production is hard and worth more —
@@ -23,6 +24,7 @@ export const EXERCISE_KINDS = [
   "builder",
   "listening",
   "typing",
+  "verb-forms",
 ] as const;
 
 export type ExerciseKind = (typeof EXERCISE_KINDS)[number];
@@ -39,6 +41,8 @@ export type PracticeWord = {
   audioSlowUrl?: string | null;
   /** IPA from the shared base, when it has any. Shown with the answer. */
   transcription?: string | null;
+  /** Irregular forms, when the shared base has them. */
+  forms?: VerbForms | null;
 };
 
 export type Question =
@@ -79,6 +83,21 @@ export type Question =
       audioSlowUrl?: string | null;
       transcription?: string | null;
       answer: string;
+    }
+  | {
+      kind: "verb-forms";
+      wordId: string;
+      /** The infinitive. */
+      prompt: string;
+      /** The translation, under the infinitive — not the thing being judged. */
+      caption?: string;
+      speak?: string;
+      audioUrl?: string | null;
+      audioSlowUrl?: string | null;
+      transcription?: string | null;
+      past: string;
+      participle: string;
+      acceptPast?: string[];
     };
 
 /** How many options a choice question offers, the right one included. */
@@ -161,6 +180,23 @@ export function buildQuestion(
         answer: word.front,
       };
     }
+
+    case "verb-forms": {
+      const forms = word.forms;
+      return {
+        kind,
+        wordId: word.id,
+        prompt: word.front,
+        caption: word.forms?.gloss ?? word.back,
+        speak: word.front,
+        audioUrl: word.audioUrl ?? null,
+        audioSlowUrl: word.audioSlowUrl ?? null,
+        transcription: word.transcription ?? null,
+        past: forms?.past ?? "",
+        participle: forms?.participle ?? "",
+        ...(forms?.acceptPast ? { acceptPast: forms.acceptPast } : {}),
+      };
+    }
   }
 }
 
@@ -203,5 +239,5 @@ export function needsAudio(kind: ExerciseKind): boolean {
 
 /** Whether the answer is typed rather than chosen. */
 export function isTyped(kind: ExerciseKind): boolean {
-  return kind === "listening" || kind === "typing";
+  return kind === "listening" || kind === "typing" || kind === "verb-forms";
 }
