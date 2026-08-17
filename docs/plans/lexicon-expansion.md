@@ -283,11 +283,11 @@ connected, and `/courses/**` is behind auth that I must not sign into.
 
 ### 4. Irregular verbs — the `verb-forms` training — L · `[x]`
 
-**Done, except the browser look.** `Lexeme.forms` is `{ past, participle }` plus
-optional `acceptPast` (for `be`). The format shows the infinitive and asks for
-the two forms in separate fields; FSRS still rates the whole card. Audio is the
-infinitive's recording only — the two typed forms are not spoken. Seeded: 95
-rows. `npm test` 438 green.
+**Done.** Own mode on `/practice` (not a format of the source bar): intro
+table of eight, then two fields; reviews skip the table. `Lexeme.forms` is
+`{ past, participle, gloss, family, rank }` plus optional `acceptPast` (for
+`be`). The prompt caption is the verb-table gloss, so a homograph like `light`
+reads «зажигать». Audio is the infinitive's recording only. Seeded: 95 rows.
 
 - **Why after the course:** the rules file names the families the question will
   group its distractors by.
