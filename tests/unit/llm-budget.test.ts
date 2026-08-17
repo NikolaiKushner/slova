@@ -188,7 +188,7 @@ describe("LLM reservation", () => {
       updateMany.mockResolvedValueOnce({ count });
     }
     return {
-      upsert: vi.fn().mockResolvedValue({}),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
       findUnique: vi.fn().mockResolvedValue(current),
       updateMany,
     };
@@ -247,7 +247,7 @@ describe("LLM reservation", () => {
 
   it("stops extra accounts when the shared pot is empty", async () => {
     const usage = usageMock(
-      [0],
+      [0, 1],
       { requests: 50, inputTokens: 0, outputTokens: 0 },
     );
 
@@ -267,16 +267,22 @@ describe("LLM reservation", () => {
         },
       ),
     ).rejects.toBeInstanceOf(BudgetExceededError);
-    expect(usage.updateMany).toHaveBeenCalledTimes(1);
-    expect(usage.upsert).toHaveBeenLastCalledWith({
+    expect(usage.createMany).toHaveBeenLastCalledWith({
+      data: [
+        { userId: GLOBAL_LLM_USAGE_USER_ID, day: "2026-08-16" },
+      ],
+      skipDuplicates: true,
+    });
+    expect(usage.updateMany).toHaveBeenNthCalledWith(2, {
       where: {
-        userId_day: {
-          userId: GLOBAL_LLM_USAGE_USER_ID,
-          day: "2026-08-16",
-        },
+        userId: GLOBAL_LLM_USAGE_USER_ID,
+        day: "2026-08-16",
       },
-      create: expect.objectContaining({ capReason: "requests", capAttempts: 1 }),
-      update: expect.objectContaining({ capReason: "requests" }),
+      data: {
+        capReachedAt: now,
+        capReason: "requests",
+        capAttempts: { increment: 1 },
+      },
     });
   });
 

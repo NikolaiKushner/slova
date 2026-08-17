@@ -1,3 +1,7 @@
+import { config as loadEnv } from "dotenv";
+
+loadEnv({ path: [".env.test.local", ".env.local", ".env"] });
+
 const databaseUrl = process.env.TEST_DATABASE_URL;
 
 if (!databaseUrl) {

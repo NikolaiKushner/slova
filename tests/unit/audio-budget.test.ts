@@ -45,6 +45,7 @@ describe("TTS budget", () => {
   it("reserves requests and characters in one conditional update", async () => {
     const usage = {
       upsert: vi.fn().mockResolvedValue({}),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
       findUnique: vi.fn().mockResolvedValue(null),
       updateMany: vi
         .fn()
@@ -91,8 +92,12 @@ describe("TTS budget", () => {
   it("rejects when the atomic reservation changes no row", async () => {
     const usage = {
       upsert: vi.fn().mockResolvedValue({}),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
       findUnique: vi.fn().mockResolvedValue({ requests: 50, characters: 0 }),
-      updateMany: vi.fn().mockResolvedValueOnce({ count: 0 }),
+      updateMany: vi
+        .fn()
+        .mockResolvedValueOnce({ count: 0 })
+        .mockResolvedValueOnce({ count: 1 }),
     };
 
     await expect(
@@ -103,16 +108,22 @@ describe("TTS budget", () => {
         dependencies: { usage },
       }),
     ).rejects.toBeInstanceOf(TtsBudgetExceededError);
-    expect(usage.updateMany).toHaveBeenCalledTimes(1);
-    expect(usage.upsert).toHaveBeenLastCalledWith({
+    expect(usage.createMany).toHaveBeenLastCalledWith({
+      data: [
+        { userId: GLOBAL_TTS_USAGE_USER_ID, day: "2026-08-16" },
+      ],
+      skipDuplicates: true,
+    });
+    expect(usage.updateMany).toHaveBeenNthCalledWith(2, {
       where: {
-        userId_day: {
-          userId: GLOBAL_TTS_USAGE_USER_ID,
-          day: "2026-08-16",
-        },
+        userId: GLOBAL_TTS_USAGE_USER_ID,
+        day: "2026-08-16",
       },
-      create: expect.objectContaining({ capReason: "requests", capAttempts: 1 }),
-      update: expect.objectContaining({ capReason: "requests" }),
+      data: {
+        capReachedAt: now,
+        capReason: "requests",
+        capAttempts: { increment: 1 },
+      },
     });
   });
 

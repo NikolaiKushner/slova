@@ -129,6 +129,7 @@ export class TtsBudgetExceededError extends Error {
 
 type TtsUsageDelegate = {
   upsert(args: object): Promise<unknown>;
+  createMany(args: object): Promise<{ count: number }>;
   findUnique(args: object): Promise<TtsUsageCounts | null>;
   updateMany(args: object): Promise<{ count: number }>;
 };
@@ -160,10 +161,9 @@ async function reserveUsageRow(
   limits: TtsLimits,
   now: Date,
 ): Promise<void> {
-  await usage.upsert({
-    where: { userId_day: { userId, day } },
-    create: { userId, day },
-    update: {},
+  await usage.createMany({
+    data: [{ userId, day }],
+    skipDuplicates: true,
   });
   const reserved = await usage.updateMany({
     where: {
@@ -240,16 +240,13 @@ export async function reserveTtsUsage(
     }
   } catch (error) {
     if (error instanceof TtsBudgetExceededError) {
-      await dependencies.usage.upsert({
-        where: { userId_day: { userId: error.usageUserId, day } },
-        create: {
-          userId: error.usageUserId,
-          day,
-          capReachedAt: now,
-          capReason: error.reason,
-          capAttempts: 1,
-        },
-        update: {
+      await dependencies.usage.createMany({
+        data: [{ userId: error.usageUserId, day }],
+        skipDuplicates: true,
+      });
+      await dependencies.usage.updateMany({
+        where: { userId: error.usageUserId, day },
+        data: {
           capReachedAt: now,
           capReason: error.reason,
           capAttempts: { increment: 1 },
