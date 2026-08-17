@@ -157,6 +157,12 @@
   --data-track:        var(--neutral-200);
   --data-missed:       var(--danger-600);
 
+  /* shadcn Chart reads --chart-1…5. Alias them onto §5.3 so progress
+     bars are learned / learning / untouched, not the CLI rainbow. */
+  --chart-1: var(--data-learned);
+  --chart-2: var(--data-learning);
+  --chart-3: var(--data-untouched);
+
   /* ----------------------------------------------------------
      3. GEOMETRY
      ---------------------------------------------------------- */
@@ -328,6 +334,9 @@
   --color-data-untouched: var(--data-untouched);
   --color-data-track: var(--data-track);
   --color-data-missed: var(--data-missed);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
 
   /* Deviation 3 · The reference declares --sidebar-primary / --sidebar-ring
      but does not register them on the theme, and `components/ui/sidebar.tsx`

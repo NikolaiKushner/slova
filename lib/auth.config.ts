@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
 /** Where a signed-in person lands. Everything else in the app hangs off here. */
-export const SIGNED_IN_HOME = "/tasks/today";
+export const SIGNED_IN_HOME = "/practice";
 
 /** Public auth screens. Signed-in people get sent home from these. */
 export const AUTH_PATHS = [
@@ -25,6 +25,7 @@ export const PROTECTED_PREFIXES = [
   "/study",
   "/home",
   "/import",
+  "/progress",
 ] as const;
 
 export const authConfig = {

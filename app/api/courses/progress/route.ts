@@ -11,6 +11,7 @@ const schema = z.object({
   lessonSlug: z.string().min(1).max(80),
   right: z.number().int().nonnegative().max(500),
   missedRuleIds: z.array(z.string().min(1).max(80)).max(50).default([]),
+  sittingId: z.string().min(1).optional(),
 });
 
 export async function POST(request: Request) {

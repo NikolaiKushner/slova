@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FolderMinus, FolderPlus, Trash2, X } from "lucide-react";
 
@@ -17,6 +17,11 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { NEW_SET, type SetOption } from "@/components/set-picker";
 
 export type FilingDestination =
@@ -107,10 +112,15 @@ export function WordBulkActions({
           <SelectTrigger size="sm" className="w-36 sm:w-40" aria-label={t("set")}>
             <SelectValue placeholder={t("chooseSet")}>{selectedLabel}</SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          {/* Wider than the trigger so typical set names fit; longer ones ellipsis. */}
+          <SelectContent
+            align="start"
+            alignItemWithTrigger={false}
+            className="w-64"
+          >
             {sets.map((set) => (
-              <SelectItem key={set.id} value={set.id}>
-                {set.title}
+              <SelectItem key={set.id} value={set.id} label={set.title}>
+                <TruncatedLabel>{set.title}</TruncatedLabel>
               </SelectItem>
             ))}
             {sets.length > 0 ? <SelectSeparator /> : null}
@@ -185,5 +195,36 @@ export function WordBulkActions({
         </Button>
       </div>
     </div>
+  );
+}
+
+/** Set titles that still overflow the wider menu: ellipsis, full name on hover. */
+function TruncatedLabel({ children }: { children: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const measure = () => {
+      setOverflows(node.scrollWidth > node.clientWidth);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [children]);
+
+  return (
+    <Tooltip disabled={!overflows}>
+      <TooltipTrigger
+        render={<span ref={ref} className="block min-w-0 truncate" />}
+      >
+        {children}
+      </TooltipTrigger>
+      <TooltipContent className="coarse:hidden">{children}</TooltipContent>
+    </Tooltip>
   );
 }

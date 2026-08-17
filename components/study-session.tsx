@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SIGNED_IN_HOME } from "@/lib/auth.config";
+import { useStudySitting } from "@/hooks/use-study-sitting";
 
 type StudyWord = {
   id: string;
@@ -45,16 +47,32 @@ export function StudySession({ setId }: Props) {
 
   const word = words[index];
 
+  const { getIdAsync, elapsedMs, complete } = useStudySitting({
+    active: !loading && words.length > 0,
+    kind: "study",
+    label: "study",
+    sourceState: "due",
+    setIds: setId ? [setId] : [],
+    cardKey: word?.id ?? null,
+  });
+
   const rate = useCallback(
     async (rating: "again" | "good") => {
       const current = words[index];
       if (!current || busy) return;
 
       setBusy(true);
+      const sittingId = await getIdAsync();
       await fetch("/api/study/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wordId: current.id, rating }),
+        body: JSON.stringify({
+          wordId: current.id,
+          rating,
+          sittingId: sittingId ?? undefined,
+          kind: "study",
+          elapsedMs: elapsedMs(),
+        }),
       });
       setReviewed((n) => n + 1);
       setHistory((h) => [...h, index]);
@@ -62,12 +80,13 @@ export function StudySession({ setId }: Props) {
       setBusy(false);
 
       if (index + 1 >= words.length) {
+        void complete();
         setDone(true);
       } else {
         setIndex((i) => i + 1);
       }
     },
-    [busy, words, index],
+    [busy, words, index, getIdAsync, elapsedMs, complete],
   );
 
   /** Step back onto the last rated card and restore what the rating changed. */
@@ -146,7 +165,7 @@ export function StudySession({ setId }: Props) {
         </p>
         <div className="flex items-center justify-center gap-3">
           <Link
-            href="/tasks/today"
+            href={SIGNED_IN_HOME}
             className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
           >
             {t("backHome")}

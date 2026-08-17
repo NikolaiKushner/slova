@@ -1,14 +1,46 @@
 import { getPrisma } from "@/lib/prisma";
-import { startOfDay } from "@/lib/study-queue";
+import {
+  CHART_DAYS,
+  STUBBORN_LIMIT,
+} from "@/lib/progress-config";
+import { meanRetrievability, type ScheduledWord } from "@/lib/srs";
+import {
+  calendarDay,
+  DEFAULT_TIMEZONE,
+  shiftCalendarDay,
+} from "@/lib/timezone";
 
 /** How far back the streak is allowed to reach. */
 export const STREAK_WINDOW_DAYS = 365;
 
 /** Local calendar day of a timestamp, as a sortable YYYY-MM-DD key. */
-export function dayKey(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
+export function dayKey(
+  date: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): string {
+  return calendarDay(date, timeZone);
+}
+
+/** Distinct calendar days that have at least one timestamp, in the given zone. */
+export function studiedDays(
+  reviewedAt: Date[],
+  timeZone: string = DEFAULT_TIMEZONE,
+): Set<string> {
+  return new Set(reviewedAt.map((date) => dayKey(date, timeZone)));
+}
+
+function daysInWindow(
+  reviewedAt: Date[],
+  now: Date,
+  timeZone: string,
+): Set<string> {
+  const today = dayKey(now, timeZone);
+  const oldest = shiftCalendarDay(today, -STREAK_WINDOW_DAYS);
+  const inWindow = new Set<string>();
+  for (const key of studiedDays(reviewedAt, timeZone)) {
+    if (key >= oldest && key <= today) inWindow.add(key);
+  }
+  return inWindow;
 }
 
 /**
@@ -16,48 +48,236 @@ export function dayKey(date: Date): string {
  * does not break a streak — it only stops growing it — so the number does not
  * collapse to zero every midnight before the first review.
  */
-export function currentStreak(reviewedAt: Date[], now: Date): number {
-  if (reviewedAt.length === 0) return 0;
+export function currentStreak(
+  reviewedAt: Date[],
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): number {
+  const studied = daysInWindow(reviewedAt, now, timeZone);
+  if (studied.size === 0) return 0;
 
-  const studied = new Set(reviewedAt.map(dayKey));
-  const cursor = startOfDay(now);
+  let cursor = dayKey(now, timeZone);
 
   // Yesterday still counts as an unbroken streak until today is over.
-  if (!studied.has(dayKey(cursor))) {
-    cursor.setDate(cursor.getDate() - 1);
-    if (!studied.has(dayKey(cursor))) return 0;
+  if (!studied.has(cursor)) {
+    cursor = shiftCalendarDay(cursor, -1);
+    if (!studied.has(cursor)) return 0;
   }
 
   let streak = 0;
-  while (studied.has(dayKey(cursor))) {
+  while (studied.has(cursor)) {
     streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
+    cursor = shiftCalendarDay(cursor, -1);
   }
 
   return streak;
 }
 
+/**
+ * Longest consecutive run of studied days in the window. A skip that zeros
+ * the current streak leaves this number alone.
+ */
+export function longestStreak(
+  reviewedAt: Date[],
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): number {
+  const studied = daysInWindow(reviewedAt, now, timeZone);
+  if (studied.size === 0) return 0;
+
+  const sorted = [...studied].sort();
+  let longest = 1;
+  let run = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === shiftCalendarDay(sorted[i - 1], 1)) {
+      run += 1;
+      if (run > longest) longest = run;
+    } else {
+      run = 1;
+    }
+  }
+  return longest;
+}
+
 /** Reviews recorded on the given day. */
-export function countOnDay(reviewedAt: Date[], day: Date): number {
-  const key = dayKey(day);
-  return reviewedAt.filter((date) => dayKey(date) === key).length;
+export function countOnDay(
+  reviewedAt: Date[],
+  day: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): number {
+  const key = dayKey(day, timeZone);
+  return reviewedAt.filter((date) => dayKey(date, timeZone) === key).length;
+}
+
+/** Mature reviews: the word already had at least a day's interval. */
+export function matureRetention(
+  logs: { rating: string; prevIntervalDays: number | null }[],
+): number | null {
+  let goods = 0;
+  let total = 0;
+  for (const log of logs) {
+    if ((log.prevIntervalDays ?? 0) < 1) continue;
+    total += 1;
+    if (log.rating === "good") goods += 1;
+  }
+  return total === 0 ? null : goods / total;
+}
+
+export function reviewsByDay(
+  reviewedAt: Date[],
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): { day: string; count: number }[] {
+  const today = dayKey(now, timeZone);
+  const counts = new Map<string, number>();
+  for (let i = CHART_DAYS - 1; i >= 0; i--) {
+    counts.set(shiftCalendarDay(today, -i), 0);
+  }
+  for (const date of reviewedAt) {
+    const key = dayKey(date, timeZone);
+    if (!counts.has(key)) continue;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return [...counts.entries()].map(([day, count]) => ({ day, count }));
+}
+
+/** Review counts for every day in the streak window — calendar tooltips. */
+export function reviewCountsByDay(
+  reviewedAt: Date[],
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): Record<string, number> {
+  const today = dayKey(now, timeZone);
+  const oldest = shiftCalendarDay(today, -STREAK_WINDOW_DAYS);
+  const counts: Record<string, number> = {};
+  for (const date of reviewedAt) {
+    const key = dayKey(date, timeZone);
+    if (key < oldest || key > today) continue;
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return counts;
+}
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function windowStart(now: Date): Date {
+  // A couple of extra UTC days so a TZ ahead of UTC does not clip the window.
+  return new Date(now.getTime() - (STREAK_WINDOW_DAYS + 2) * MS_PER_DAY);
+}
+
+export type StudyActivity = {
+  today: number;
+  streak: number;
+  longest: number;
+  memory: number | null;
+  memoryWords: number;
+  retentionMature: number | null;
+  reviewsByDay: { day: string; count: number }[];
+  reviewCountsByDay: Record<string, number>;
+  studiedDayKeys: string[];
+  stubborn: { id: string; front: string; lapses: number }[];
+  courses: {
+    slug: string;
+    completed: boolean;
+    completedLessons: number;
+  }[];
+};
+
+export async function getStudyActivity(
+  userId: string,
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): Promise<StudyActivity> {
+  const since = windowStart(now);
+  const prisma = getPrisma();
+
+  const [logs, lessons, remembered, stubbornRows, courseRows, lessonRows] =
+    await Promise.all([
+      prisma.reviewLog.findMany({
+        where: { userId, createdAt: { gte: since } },
+        select: { createdAt: true, rating: true, prevIntervalDays: true },
+      }),
+      prisma.userLesson.findMany({
+        where: { userId, completedAt: { gte: since } },
+        select: { completedAt: true },
+      }),
+      prisma.userWord.findMany({
+        where: { userId, stability: { not: null } },
+        select: {
+          dueAt: true,
+          intervalDays: true,
+          stability: true,
+          difficulty: true,
+          srsState: true,
+          learningSteps: true,
+          reps: true,
+          lapses: true,
+          lastReviewAt: true,
+        },
+      }),
+      prisma.userWord.findMany({
+        where: { userId, lapses: { gt: 0 } },
+        orderBy: { lapses: "desc" },
+        take: STUBBORN_LIMIT,
+        select: { id: true, front: true, lapses: true },
+      }),
+      prisma.userCourse.findMany({
+        where: { userId },
+        orderBy: { startedAt: "desc" },
+        select: { courseSlug: true, completedAt: true },
+      }),
+      prisma.userLesson.findMany({
+        where: { userId, status: "completed" },
+        select: { courseSlug: true },
+      }),
+    ]);
+
+  const reviewedAt = logs.map((log) => log.createdAt);
+  const studiedAt = [
+    ...reviewedAt,
+    ...lessons.flatMap((lesson) =>
+      lesson.completedAt ? [lesson.completedAt] : [],
+    ),
+  ];
+  const memoryWords = remembered as ScheduledWord[];
+
+  const completedByCourse = new Map<string, number>();
+  for (const row of lessonRows) {
+    completedByCourse.set(
+      row.courseSlug,
+      (completedByCourse.get(row.courseSlug) ?? 0) + 1,
+    );
+  }
+
+  return {
+    today: countOnDay(reviewedAt, now, timeZone),
+    streak: currentStreak(studiedAt, now, timeZone),
+    longest: longestStreak(studiedAt, now, timeZone),
+    memory: meanRetrievability(memoryWords, now),
+    memoryWords: memoryWords.length,
+    retentionMature: matureRetention(logs),
+    reviewsByDay: reviewsByDay(reviewedAt, now, timeZone),
+    reviewCountsByDay: reviewCountsByDay(reviewedAt, now, timeZone),
+    studiedDayKeys: [...daysInWindow(studiedAt, now, timeZone)].sort(),
+    stubborn: stubbornRows,
+    courses: courseRows.map((row) => ({
+      slug: row.courseSlug,
+      completed: row.completedAt !== null,
+      completedLessons: completedByCourse.get(row.courseSlug) ?? 0,
+    })),
+  };
 }
 
 /** One quiet line for Home: what happened today and how long the run is. */
-export async function getProgress(userId: string, now: Date) {
-  const since = startOfDay(now);
-  since.setDate(since.getDate() - STREAK_WINDOW_DAYS);
-
-  const logs = await getPrisma().reviewLog.findMany({
-    where: { word: { userId }, createdAt: { gte: since } },
-    select: { createdAt: true },
-  });
-
-  const reviewedAt = logs.map((log) => log.createdAt);
-
+export async function getProgress(
+  userId: string,
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+) {
+  const activity = await getStudyActivity(userId, now, timeZone);
   return {
-    today: countOnDay(reviewedAt, now),
-    streak: currentStreak(reviewedAt, now),
+    today: activity.today,
+    streak: activity.streak,
   };
 }
 

@@ -12,6 +12,9 @@ const schema = z.object({
 /**
  * Take back the most recent rating of a word: restore the state saved on the
  * review log and drop the log, so the mistake leaves no trace in history.
+ *
+ * v1 does not roll sitting counters back. Undo is a correction, not a study
+ * event, and the sitting's goods/agains can disagree with the remaining logs.
  */
 export async function POST(request: Request) {
   const session = await auth();

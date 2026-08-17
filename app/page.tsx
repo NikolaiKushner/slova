@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/lib/auth";
+import { SIGNED_IN_HOME } from "@/lib/auth.config";
 import { TRAININGS } from "@/lib/practice/catalog";
 import { redirect } from "next/navigation";
 import {
@@ -89,7 +90,7 @@ function Chip({ on = false, children }: { on?: boolean; children: string }) {
 
 export default async function LandingPage() {
   const session = await auth();
-  if (session?.user) redirect("/tasks/today");
+  if (session?.user) redirect(SIGNED_IN_HOME);
 
   const t = await getTranslations("landing");
   const trainings = await getTranslations("trainings");

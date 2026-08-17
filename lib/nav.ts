@@ -1,5 +1,5 @@
 /**
- * The four sections of the app and the pages inside them, in sidebar order.
+ * The sections of the app and the pages inside them, in sidebar order.
  *
  * This lives apart from the sidebar component on purpose. Route matching used
  * to be a chain of pathname-and-hash special cases inside the sidebar,
@@ -11,55 +11,31 @@
  */
 
 export type NavItem = {
-  titleKey:
-    | "learningMap"
-    | "today"
-    | "myProgress"
-    | "trainings"
-    | "grammar"
-    | "reading"
-    | "topics"
-    | "myCourses"
-    | "myWords"
-    | "mySets"
-    | "readyMadeSets";
+  titleKey: "trainings" | "grammar" | "myWords" | "mySets";
   href: string;
   /**
    * Paths this item should also light up for, when they sit outside its own
-   * `href`. The study player lives at `/study` but belongs to
-   * Practice → Vocabulary, and legacy routes redirect through here.
+   * `href`. The study player lives at `/study` but belongs to Trainings, and
+   * legacy routes redirect through here.
    */
   matches?: readonly string[];
 };
 
 export type NavSection = {
-  titleKey: "tasks" | "practice" | "courses" | "dictionary";
+  titleKey: "study" | "dictionary";
   items: readonly NavItem[];
 };
 
 export const NAV_SECTIONS: readonly NavSection[] = [
   {
-    titleKey: "tasks",
+    titleKey: "study",
     items: [
-      { titleKey: "learningMap", href: "/tasks" },
-      { titleKey: "today", href: "/tasks/today", matches: ["/home", "/study"] },
-      { titleKey: "myProgress", href: "/tasks/progress" },
-    ],
-  },
-  {
-    titleKey: "practice",
-    items: [
-      { titleKey: "trainings", href: "/practice", matches: ["/practice/vocabulary"] },
-      { titleKey: "grammar", href: "/practice/grammar" },
-      { titleKey: "reading", href: "/practice/reading" },
-    ],
-  },
-  {
-    titleKey: "courses",
-    items: [
+      {
+        titleKey: "trainings",
+        href: "/practice",
+        matches: ["/practice/vocabulary", "/study"],
+      },
       { titleKey: "grammar", href: "/courses/grammar" },
-      { titleKey: "topics", href: "/courses/topics" },
-      { titleKey: "myCourses", href: "/courses/my" },
     ],
   },
   {
@@ -71,7 +47,6 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         matches: ["/import"],
       },
       { titleKey: "mySets", href: "/dictionary/sets" },
-      { titleKey: "readyMadeSets", href: "/dictionary/catalog" },
     ],
   },
 ] as const;

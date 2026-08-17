@@ -283,7 +283,7 @@ Verified: `foreground/background` 14.97 · `muted-foreground/background` 6.13 ·
 | Progress track | `neutral-200` |
 | Incorrect | `danger-600` `#A14B44` |
 
-There are almost no charts in the product and none are needed. Progress is shown with bars and segments, not pie charts.
+`/progress` uses shadcn Chart **bars** (reviews over 28 days) and dictionary **segments** (`OverviewStats`). Pie, donut and RadialBar are forbidden — including the 485/1500 ring from mockups. `--chart-1`…`--chart-3` in `globals.css` alias onto learned / learning / untouched so the CLI rainbow never reaches the screen.
 
 ---
 
@@ -529,7 +529,7 @@ Default icon color `muted-foreground`; on an active menu item and on a mint plat
 |---|---|
 | Learning map | `map` |
 | Today | `calendar-check` |
-| My progress | `trending-up` |
+| My progress | `chart-no-axes-column` |
 | Practice | `repeat-2` |
 | Grammar (practice) | `a-large-small` |
 | Reading | `book-open-text` |
@@ -562,7 +562,7 @@ Default icon color `muted-foreground`; on an active menu item and on a mint plat
 npx shadcn@latest add button input textarea label select checkbox radio-group \
   card badge table tabs progress separator sheet dialog popover tooltip \
   dropdown-menu avatar skeleton scroll-area command pagination accordion \
-  alert sonner toggle-group form
+  alert sonner toggle-group form chart calendar
 ```
 
 ### Correspondences
@@ -584,6 +584,9 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 | «Мои слова» table | `Table` | Header `muted`, rows with `border-subtle` |
 | Pagination | `Pagination` | |
 | Course progress bar | `Progress` | Height 5px, `radius-full` |
+| Memory forecast on `/progress` | `Progress` | Same track; hide until ≥ 20 words with `stability` |
+| Study calendar | `Calendar` | Display only. `modifiers` paint days with `data-learning`. `timeZone` is the `tz` cookie. `onSelect` does not navigate. Tooltip: date + “N reviews”. |
+| Reviews, 28 days | `Chart` `BarChart` | `ChartContainer` / `ChartTooltip`. Fill `--chart-1` (learned). Not pie. |
 | Divider | `Separator` | |
 | Mobile sidebar | `Sheet side="left"` | |
 | Delete confirmation | `Dialog` / `AlertDialog` | |
@@ -713,7 +716,7 @@ Word form: monospace `token`, background `neutral-150`, `radius-sm`, padding 1.5
 └────────────┴──────────────────────────────────────┘
 ```
 
-**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Задания / Практика / Курсы / Словарь`, footer with the user. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
+**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. The account menu includes **Мой прогресс** (`/progress`, `chart-no-axes-column`); it is not a sidebar item. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
 
 ### 15.2 Focus mode (practice, brainstorm, lesson)
 
@@ -751,6 +754,22 @@ A course row is one action with a verb: not started → «Начать» to the 
 Container 700. Top bar with `ProgressSteps` and «Урок N из M · ~T минут». Body — sections with `overline` subheadings, separated by 44px. Sticky bottom bar: «К урокам» + «Начать практику · N вопросов».
 
 **Pass size.** Lesson lock-in is **10 questions** from a pool (≥16). Course final test is **12 questions**. Each attempt is taken anew: composition (for a lesson), order, and `choice` / `pick-sentence` options are shuffled. Do not show the same list from top to bottom.
+
+### 15.7 Progress (`/progress`)
+
+Container `container-wide` (840). Entry: account menu, not the sidebar. `/tasks/progress` redirects here.
+
+Order: `PageHeader` (eyebrow «Аккаунт», title «{имя}, ваш прогресс» or «Ваш прогресс») → if the dictionary is empty: `Empty` + «Добавить слова», no grid of zeros → otherwise:
+
+1. `Card` — current streak and record, Literata `numeral`. No hours.
+2. `OverviewStats` — learned / learning / not started. `hitRate` stays off.
+3. `Card` + `Calendar` — days with a word review **or** a finished lesson. Month navigation. Click does not start a training. Tooltip: date and “N отзывов” (or «Урок сдан» if the day is a lesson only). No horizontal scroll at 834 / 1194.
+4. `Card` + `Chart` `BarChart` — reviews for the last 28 days. Empty: `Empty` inside the card. Colors from §5.3.
+5. `Card` + `Progress` — «сейчас помните ≈ N%», caption that this is a forecast, not a grade. **Hidden** until there are ≥ 20 words with `stability`. Optional quiet line: mature retention.
+6. `Card` — up to five words with `lapses > 0`, English name only (the dictionary has no search-by-query). Not shown if none.
+7. `Card` — started grammar courses, lessons done, link to the course. Not a second calendar. Not shown if none.
+
+Do not draw hours, weekly stacked bars, a 1500 ring, hex badges, or pie/donut. Sitting minutes are written to Postgres; they appear on this screen only after a later batch, once ≥ 14 days of sittings exist. A single training may still show its own minutes on the summary screen (client).
 
 ---
 

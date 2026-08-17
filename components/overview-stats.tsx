@@ -14,7 +14,13 @@ import { cn } from "@/lib/utils";
  * because it is the shape of the answer to "am I getting anywhere": the
  * green end grows. Colours are the data tokens from §5.3.
  */
-export function OverviewStats({ overview }: { overview: Overview }) {
+export function OverviewStats({
+  overview,
+  showHitRate = false,
+}: {
+  overview: Overview;
+  showHitRate?: boolean;
+}) {
   const t = useTranslations("overview");
 
   if (overview.words === 0) {
@@ -68,7 +74,7 @@ export function OverviewStats({ overview }: { overview: Overview }) {
           )}
         </div>
 
-        {overview.hitRate !== null && (
+        {showHitRate && overview.hitRate !== null && (
           <p className="text-muted-foreground text-xs">
             {t("hitRate", { percent: Math.round(overview.hitRate * 100) })}
           </p>

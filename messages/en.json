@@ -22,6 +22,7 @@
     "courses": "Courses",
     "topics": "Topics",
     "myCourses": "My courses",
+    "study": "Study",
     "dictionary": "Dictionary",
     "myWords": "My words",
     "mySets": "My sets",
@@ -300,10 +301,41 @@
     "inSets": "{count, plural, one {in # set} other {in # sets}}",
     "hitRate": "{percent}% of translations came from the shared dictionary rather than being generated — those were instant and cost nothing."
   },
+  "progress": {
+    "eyebrow": "Account",
+    "title": "Your progress",
+    "titleNamed": "{name}, your progress",
+    "streak": "Streak",
+    "record": "Record",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "emptyTitle": "Nothing to show yet",
+    "emptyBody": "Add a few words and practise. This page fills in from what you actually did — not from a dashboard of zeros.",
+    "addWords": "Add words",
+    "calendar": "Study days",
+    "calendarHint": "A day lights up when you reviewed a word or finished a lesson.",
+    "reviewsOnDay": "{count, plural, one {# review} other {# reviews}}",
+    "lessonOnDay": "Lesson finished",
+    "reviewsChart": "Reviews",
+    "reviewsChartHint": "Last 28 days",
+    "reviews": "Reviews",
+    "reviewsEmptyTitle": "No reviews yet",
+    "reviewsEmptyBody": "Practise a few words and the last 28 days will fill in here.",
+    "memory": "What you remember now",
+    "memoryPercent": "≈ {percent}%",
+    "memoryCaption": "A forecast from the scheduler — not a grade. It moves as words wait for review.",
+    "retention": "Of reviews on words you already knew, {percent}% came back.",
+    "stubborn": "Words that slip",
+    "stubbornHint": "Most lapses so far. Open My words to look them up.",
+    "lapses": "{count, plural, one {# lapse} other {# lapses}}",
+    "courses": "Grammar",
+    "lessonsDone": "{done} of {total}"
+  },
   "practice": {
     "eyebrow": "Practice",
     "title": "Trainings",
     "description": "Every format asks the same words a different way — recognising one is easy, writing it from memory is not.",
+    "reviewedToday": "{count, plural, one {# reviewed today} other {# reviewed today}}",
+    "dayStreak": "{count, plural, one {#-day streak} other {#-day streak}}",
     "learnNew": "Learn new words",
     "practiseKnown": "Practise what you know",
     "whereFrom": "{title} · where from",
@@ -690,16 +722,6 @@
         "Your current level and how far the next one is"
       ]
     },
-    "myProgress": {
-      "eyebrow": "Tasks",
-      "title": "My progress",
-      "description": "What you have actually learned, without turning it into a dashboard.",
-      "planned": [
-        "Words moved from new to learning to learned",
-        "Streak and time spent, kept to one line",
-        "Which topics are lagging behind the rest"
-      ]
-    },
     "grammarPractice": {
       "eyebrow": "Practice",
       "title": "Grammar practice",
@@ -750,6 +772,7 @@
     "invalidProgress": "Invalid progress",
     "invalidUndo": "Invalid undo",
     "invalidReview": "Invalid review",
+    "invalidSitting": "Invalid sitting",
     "invalidSet": "Invalid set",
     "invalidResult": "Invalid result",
     "nothingToUndo": "Nothing to undo for this word.",

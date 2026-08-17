@@ -18,6 +18,7 @@ export const config = {
     "/study/:path*",
     "/home/:path*",
     "/import/:path*",
+    "/progress/:path*",
     "/login",
     "/register",
     "/forgot-password",

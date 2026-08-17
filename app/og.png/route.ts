@@ -1,6 +1,5 @@
 import { renderOgImage } from "@/lib/og-image";
 
-export const contentType = "image/png";
 export const dynamic = "force-static";
 
 /**

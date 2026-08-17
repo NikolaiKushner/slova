@@ -33,6 +33,7 @@ import { whenVoiceReady } from "@/lib/practice/speech";
 import { sourceQuery, type Source } from "@/lib/practice/source";
 import type { VerbFormsSitting } from "@/lib/practice/verb-forms";
 import { Eyebrow } from "@/components/slova/eyebrow";
+import { useStudySitting } from "@/hooks/use-study-sitting";
 
 /**
  * One training, one format, straight through the words.
@@ -129,6 +130,22 @@ export function PracticeSession({
     onDemandAudioEnabled,
   );
 
+  const inSession =
+    !loading &&
+    words.length > 0 &&
+    data?.sitting !== "caught-up" &&
+    !(kind === "verb-forms" && data?.sitting === "intro" && !previewed);
+
+  const { getIdAsync, elapsedMs, track, complete } = useStudySitting({
+    active: inSession,
+    resetKey: run,
+    kind: "practice",
+    label: kind,
+    sourceState: source.state,
+    setIds: source.setIds,
+    cardKey: word?.id ?? null,
+  });
+
   const question = useMemo(
     () =>
       word
@@ -169,33 +186,50 @@ export function PracticeSession({
    * "comes back in N days" has to be the schedule's answer rather than a
    * plausible-looking number.
    */
-  const record = useCallback((wordId: string, correct: boolean) => {
-    void fetch("/api/study/review", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wordId, rating: correct ? "good" : "again" }),
-    })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { word?: { intervalDays?: number } } | null) => {
-        const days = payload?.word?.intervalDays;
-        if (typeof days === "number") setInterval_(days);
-      })
-      .catch(() => {});
-  }, []);
+  const record = useCallback(
+    (wordId: string, given: Answered, elapsed: number) => {
+      const request = getIdAsync()
+        .then((sittingId) =>
+          fetch("/api/study/review", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              wordId,
+              rating: passed(given.verdict) ? "good" : "again",
+              sittingId: sittingId ?? undefined,
+              kind,
+              verdict: given.verdict,
+              elapsedMs: elapsed,
+            }),
+          }),
+        )
+        .then((response) => (response.ok ? response.json() : null))
+        .then((payload: { word?: { intervalDays?: number } } | null) => {
+          const days = payload?.word?.intervalDays;
+          if (typeof days === "number") setInterval_(days);
+        })
+        .catch(() => {});
+      track(request);
+    },
+    [kind, getIdAsync, track],
+  );
 
   function answer(given: Answered) {
     if (!word) return;
     setInterval_(null);
     setResult(given);
     if (passed(given.verdict)) setRight((count) => count + 1);
-    record(word.id, passed(given.verdict));
+    record(word.id, given, elapsedMs());
   }
 
   function next() {
     // Read the clock once, here, rather than during the render of the summary:
     // `Date.now()` in a render body would give a different answer every time
     // React looked at it.
-    if (index + 1 >= words.length) setSeconds((Date.now() - startedAt) / 1000);
+    if (index + 1 >= words.length) {
+      setSeconds((Date.now() - startedAt) / 1000);
+      void complete();
+    }
     setResult(null);
     setIndex((current) => current + 1);
   }

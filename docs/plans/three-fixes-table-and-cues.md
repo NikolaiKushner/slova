@@ -16,15 +16,15 @@ Three unrelated defects, one per screen.
    answers with zero rows, and the table goes blank while the words are still
    there.
 2. **A typed gap question does not say which word to inflect.**
-   `I ___ football.` with the input placeholder «Наберите форму» is
+   `I ___ football.` with the input placeholder "Type the form" is
    unanswerable. The dictionary form is in the content (`(do not play)`), but
    `typedPlaceholderHint` in `lib/courses/prompt.ts` deliberately drops it when
    it matches an accepted answer — and that is exactly this item. So the cue
    disappears precisely where it is needed. Also, a placeholder is the wrong
    place for it: a placeholder reads as the thing to type.
 3. **The progress count is printed twice.** `FocusTopBar` renders
-   `LinearProgress` with the label «3 из 10» under the bar, and `FocusHead`
-   prints «вопрос 3 из 10» directly under the task line. §15.2 of the design
+   `LinearProgress` with the label "3 of 10" under the bar, and `FocusHead`
+   prints "question 3 of 10" directly under the task line. §15.2 of the design
    system asks for progress in the top bar; the head is meant to be the task.
 
 ## Outcome
@@ -133,7 +133,7 @@ seven.
    - `cue` — the dictionary form to inflect, when the trailing parenthetical
      cannot carry it.
    - `task` — `"negative" | "question"`, an override for the task line. `I ___
-     football.` needs to say *make it negative*; «Впишите форму» does not, and
+     football.` needs to say *make it negative*; "Write the form" does not, and
      no cue can rescue a question that never said what it wants.
 2. **`lib/courses/prompt.ts`**: replace `typedPlaceholderHint` with
    `gapCue(exercise)` = explicit `cue` ?? trailing hint ?? `null`. The leak
@@ -143,7 +143,7 @@ seven.
    that lesson. What must never happen is the answer's own inflected form
    standing in as the cue — that is step 3.4, in content, where it belongs.
 3. **Rendering** (`exercise-view.tsx`): the cue goes in the prompt zone, under
-   the sentence — «форма слова: play», `text-caption text-muted-foreground`,
+   the sentence — "form of the word: play," `text-caption text-muted-foreground`,
    the word `lang="en"` and medium weight. The input's placeholder becomes
    plain `t("typeForm")` always. `FocusPrompt compact` is 96px; if sentence
    plus caption does not fit, the caption moves directly above the input rather
@@ -162,10 +162,10 @@ seven.
    anywhere and would now contradict `cue`. The three `to-be-present` negatives
    already do this correctly with `(be)` and stay as they are, but they gain
    `task: "negative"` for the same reason `ps-neg-04` does.
-5. **Messages**: `courses.formCue` («форма слова» / "form of"),
-   `courses.taskGapNegative` («Впишите отрицательную форму» / "Write the
-   negative"), `courses.taskGapQuestion` («Впишите вспомогательный глагол» /
-   "Write the auxiliary"). `lesson-player.tsx`'s `taskKey` learns the override.
+5. **Messages**: `courses.formCue` ("form of"),
+   `courses.taskGapNegative` ("Write the negative"), and
+   `courses.taskGapQuestion` ("Write the auxiliary"). `lesson-player.tsx`'s
+   `taskKey` learns the override.
    Both locales in the same commit — `i18n-messages.test.ts` checks parity.
 
 Tests:
