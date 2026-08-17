@@ -1,5 +1,5 @@
 /**
- * Loads `content/lexicon/en-ru-frequency.jsonl` into the shared base.
+ * Loads the shared base from the seed files in `content/lexicon/`.
  *
  * Run by hand against production after a deploy, not from the build: pushing
  * ten thousand rows on every deploy would be a slow way to achieve nothing.
@@ -9,6 +9,9 @@
  * lexicon has earned since (`llm` from a real miss, `import` from someone
  * typing) is left exactly alone. That asymmetry is the reason `source` exists
  * on the lexeme as well as on the translation.
+ *
+ * Default loads words, phrases and irregular verbs. A phrases-only re-run:
+ * `npm run db:seed-lexicon -- --kind=phrase`.
  */
 
 import { readFileSync } from "node:fs";
@@ -22,8 +25,24 @@ import { Prisma } from "@/app/generated/prisma/client";
 
 config({ path: [".env.local", ".env"] });
 
-const INPUT = "content/lexicon/en-ru-frequency.jsonl";
+const DATASETS = {
+  word: "content/lexicon/en-ru-frequency.jsonl",
+  phrase: "content/lexicon/en-ru-phrases.jsonl",
+} as const;
+
 const VERBS = "content/lexicon/en-irregular-verbs.jsonl";
+
+type SeedKind = keyof typeof DATASETS;
+
+function parseArgs(argv: string[]): { kinds: SeedKind[]; verbs: boolean } {
+  const kindArg = argv.find((arg) => arg.startsWith("--kind="));
+  if (!kindArg) return { kinds: ["word", "phrase"], verbs: true };
+
+  const value = kindArg.slice("--kind=".length);
+  if (value === "word") return { kinds: ["word"], verbs: true };
+  if (value === "phrase") return { kinds: ["phrase"], verbs: false };
+  throw new Error("Usage: seed-lexicon.ts [--kind=word|phrase]");
+}
 
 /** Rows per round trip. Large enough to be few trips, small enough to not time out. */
 const CHUNK = 500;
@@ -42,9 +61,22 @@ let translationsWritten = 0;
 
 // tsx compiles this to CommonJS, where top-level await is a syntax error.
 async function main(): Promise<void> {
-  const { entries, warnings, dropped } = parseDataset(readFileSync(INPUT, "utf8"));
+  const { kinds, verbs } = parseArgs(process.argv.slice(2));
+  prisma = getPrisma();
 
-  console.log(`${entries.length} usable entries; ${warnings.length} lines skipped`);
+  for (const kind of kinds) {
+    await seedDataset(DATASETS[kind], kind);
+  }
+
+  if (verbs) await seedVerbForms();
+}
+
+async function seedDataset(path: string, kind: SeedKind): Promise<void> {
+  const { entries, warnings, dropped } = parseDataset(readFileSync(path, "utf8"));
+
+  console.log(
+    `${path}: ${entries.length} usable entries; ${warnings.length} lines skipped`,
+  );
   for (const warning of warnings.slice(0, 10)) {
     console.log(`  line ${warning.line}: ${warning.reason}`);
   }
@@ -58,11 +90,14 @@ async function main(): Promise<void> {
   );
 
   if (entries.length === 0) {
-    console.error("Nothing to seed.");
-    process.exit(1);
+    console.error(`Nothing to seed from ${path}.`);
+    if (kind === "word") process.exit(1);
+    return;
   }
 
-  prisma = getPrisma();
+  lexemesTouched = 0;
+  lexemesEnriched = 0;
+  translationsWritten = 0;
 
   for (const [index, group] of chunk(entries, CHUNK).entries()) {
     await loadChunk(group);
@@ -72,13 +107,13 @@ async function main(): Promise<void> {
   }
   process.stdout.write("\n");
 
-  const seeded = await prisma.lexeme.count({ where: { source: "seed" } });
+  const seeded = await prisma.lexeme.count({
+    where: { source: "seed", kind: kind === "phrase" ? "phrase" : "word" },
+  });
   console.log(
     `\nlexemes touched: ${lexemesTouched}, enriched: ${lexemesEnriched}, translations written: ${translationsWritten}`,
   );
-  console.log(`Lexeme rows with source="seed": ${seeded}`);
-
-  await seedVerbForms();
+  console.log(`Lexeme rows with source="seed" kind="${kind === "phrase" ? "phrase" : "word"}": ${seeded}`);
 }
 
 /**

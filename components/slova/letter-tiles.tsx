@@ -2,16 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { tilesOf } from "@/lib/practice/question";
 import { cn } from "@/lib/utils";
 
 /**
- * "Assemble the word" — §14.
+ * "Assemble the word" — §14. A phrase is the same component with word tiles
+ * instead of letters: `give up` deals two tiles, never seven.
  *
- * Slots along the top, one per letter; shuffled tiles below. Checking happens
+ * Slots along the top, one per tile; shuffled tiles below. Checking happens
  * by itself when the last slot fills, so there is no button to hunt for, and
- * Backspace returns the last letter to the pile.
+ * Backspace returns the last tile to the pile.
  *
- * The word is spelled out in the slots when the guess is wrong. Being told
+ * The answer is spelled out in the slots when the guess is wrong. Being told
  * "incorrect" and not shown the spelling teaches nothing, and this is the rung
  * where spelling is the whole point.
  */
@@ -24,7 +26,7 @@ export function LetterTiles({
 }: {
   word: string;
   /**
-   * The tiles to offer. Questions arrive with their letters already shuffled
+   * The tiles to offer. Questions arrive with their tiles already shuffled
    * against the session seed, and reshuffling them here would undo that.
    */
   letters?: string[];
@@ -33,13 +35,17 @@ export function LetterTiles({
   onComplete: (guess: string) => void;
   className?: string;
 }) {
+  const units = useMemo(() => tilesOf(word), [word]);
+  const phrase = units.some((tile) => tile.length > 1);
+  const join = phrase ? " " : "";
   const letters = useMemo(
-    () => given ?? shuffle(word.split(""), word),
-    [given, word],
+    () => given ?? shuffle(units, word),
+    [given, units, word],
   );
+
   // Which tile index sits in each slot; null means the slot is empty.
   const [placed, setPlaced] = useState<(number | null)[]>(() =>
-    word.split("").map(() => null),
+    units.map(() => null),
   );
 
   /*
@@ -51,7 +57,7 @@ export function LetterTiles({
   const [builtFor, setBuiltFor] = useState(word);
   if (builtFor !== word) {
     setBuiltFor(word);
-    setPlaced(word.split("").map(() => null));
+    setPlaced(units.map(() => null));
   }
 
   const locked = verdict != null;
@@ -66,7 +72,7 @@ export function LetterTiles({
         const next = [...slots];
         next[free] = tile;
         if (next.every((slot) => slot !== null)) {
-          const guess = next.map((slot) => letters[slot!]).join("");
+          const guess = next.map((slot) => letters[slot!]).join(join);
           // Deferred: firing during the state update would have the parent
           // re-render this component from inside its own setState.
           queueMicrotask(() => onComplete(guess));
@@ -74,7 +80,7 @@ export function LetterTiles({
         return next;
       });
     },
-    [letters, locked, onComplete],
+    [join, letters, locked, onComplete],
   );
 
   const takeBack = useCallback(() => {
@@ -97,28 +103,30 @@ export function LetterTiles({
         return;
       }
       if (event.key.length !== 1) return;
-      const tile = letters.findIndex(
-        (letter, index) =>
-          !placed.includes(index) &&
-          letter.toLowerCase() === event.key.toLowerCase(),
-      );
+      const pressed = event.key.toLowerCase();
+      const tile = letters.findIndex((letter, index) => {
+        if (placed.includes(index)) return false;
+        const value = letter.toLowerCase();
+        return phrase ? value.startsWith(pressed) : value === pressed;
+      });
       if (tile !== -1) place(tile);
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [letters, locked, place, placed, takeBack]);
+  }, [letters, locked, phrase, place, placed, takeBack]);
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
       <div className="flex flex-wrap justify-center gap-1.5">
         {placed.map((tile, slot) => {
           const shown =
-            verdict === "incorrect" ? word[slot] : tile === null ? "" : letters[tile];
+            verdict === "incorrect" ? units[slot] : tile === null ? "" : letters[tile];
           return (
             <span
               key={slot}
               className={cn(
-                "font-display flex h-12 w-10 items-center justify-center border-b-2 text-[1.625rem] transition-colors coarse:h-[52px] coarse:w-11",
+                "font-display flex h-12 items-center justify-center border-b-2 text-[1.625rem] transition-colors coarse:h-[52px]",
+                phrase ? "min-w-14 px-1.5" : "w-10 coarse:w-11",
                 verdict === "correct"
                   ? "border-success text-success"
                   : verdict === "incorrect"
@@ -142,7 +150,10 @@ export function LetterTiles({
             lang="en"
             disabled={locked || placed.includes(tile)}
             onClick={() => place(tile)}
-            className="letter-tile focus-ring font-display border-border bg-card h-11 min-w-11 rounded-md border px-2 text-xl transition-all hover:-translate-y-0.5 hover:border-ring disabled:pointer-events-none disabled:opacity-25"
+            className={cn(
+              "focus-ring font-display border-border bg-card h-11 rounded-md border px-2 text-xl transition-all hover:-translate-y-0.5 hover:border-ring disabled:pointer-events-none disabled:opacity-25",
+              phrase ? "min-w-11 px-3" : "letter-tile min-w-11",
+            )}
           >
             {letter}
           </button>

@@ -110,3 +110,18 @@ Hand-curated. Ninety-five verbs, each with a past and a participle, plus
 `acceptPast` on `be` so `were` counts next to `was`. `npm run db:seed-lexicon`
 writes those onto `Lexeme.forms` after loading the frequency file. The same
 table is the factual core of the irregular-verbs course.
+
+## `en-ru-phrases.jsonl` — phrasal verbs and collocations
+
+Hand-curated. Three hundred and ninety everyday phrasal verbs, verb+noun
+collocations and discourse chunks (`give up`, `make a decision`, `by the way`).
+Not generated: `seed` is trusted, so a model's plausible-but-wrong collocation
+would be everyone's answer on the first write.
+
+`partOfSpeech` is `phrase` on every line. There is no IPA in this file — a
+transcription of a collocation is easy to get wrong, and an empty field is
+dropped rather than stored blank, same rule as the frequency file.
+
+`npm run db:seed-lexicon` loads it after the frequency file. A phrases-only
+re-run is `npm run db:seed-lexicon -- --kind=phrase`.
+

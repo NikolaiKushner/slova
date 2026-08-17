@@ -1,3 +1,4 @@
+import { kindOf } from "@/lib/lexicon/dataset";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { shuffle, type Rng } from "@/lib/practice/random";
 
@@ -19,20 +20,59 @@ export type Candidate = {
   id: string;
   /** The text that would appear as an option. */
   text: string;
+  /**
+   * Word vs phrase of the English side, not of `text`. A translation-to-word
+   * question shows English, but a word-to-translation question shows Russian
+   * — and «сдаться» is one word even when it stands for `give up`. Shape is
+   * a property of the lexeme, carried here so a phrase is not given away by
+   * sitting next to three single words.
+   */
+  shape?: "word" | "phrase";
+  partOfSpeech?: string | null;
 };
+
+export type DistractorOptions = {
+  shape?: "word" | "phrase";
+  partOfSpeech?: string | null;
+};
+
+function shapeOf(candidate: Candidate): "word" | "phrase" {
+  return candidate.shape ?? kindOf(candidate.text);
+}
+
+/** Letters of a word, words of a phrase — the length that actually shows. */
+function sizeOf(text: string): number {
+  return kindOf(text) === "phrase" ? text.trim().split(/\s+/).length : text.length;
+}
 
 /**
  * Bands, tried in order. Each is a plausibility test: a word of the same
  * length starting with the same letter is genuinely confusable, a word of
  * roughly the same length is somewhat, and anything else is filler.
  */
-const BANDS: ((answer: string, other: string) => boolean)[] = [
-  (answer, other) =>
-    Math.abs(other.length - answer.length) <= 1 && sameStart(answer, other, 2),
-  (answer, other) => Math.abs(other.length - answer.length) <= 2,
-  (answer, other) => sameStart(answer, other, 1),
-  () => true,
-];
+type Band = (answer: string, other: Candidate) => boolean;
+
+function bandsFor(partOfSpeech?: string | null): Band[] {
+  const pos = partOfSpeech?.trim() || null;
+  const samePos: Band = (_answer, other) =>
+    Boolean(pos && other.partOfSpeech && other.partOfSpeech === pos);
+
+  return [
+    (answer, other) =>
+      samePos(answer, other) &&
+      Math.abs(sizeOf(other.text) - sizeOf(answer)) <= 1 &&
+      sameStart(answer, other.text, 2),
+    (answer, other) =>
+      samePos(answer, other) &&
+      Math.abs(sizeOf(other.text) - sizeOf(answer)) <= 2,
+    (answer, other) =>
+      Math.abs(sizeOf(other.text) - sizeOf(answer)) <= 1 &&
+      sameStart(answer, other.text, 2),
+    (answer, other) => Math.abs(sizeOf(other.text) - sizeOf(answer)) <= 2,
+    (answer, other) => sameStart(answer, other.text, 1),
+    () => true,
+  ];
+}
 
 function sameStart(a: string, b: string, chars: number): boolean {
   return a.slice(0, chars).toLowerCase() === b.slice(0, chars).toLowerCase();
@@ -50,24 +90,32 @@ export function pickDistractors(
   pool: readonly Candidate[],
   count: number,
   rng: Rng,
+  options: DistractorOptions = {},
 ): string[] {
   const answerKey = normalizeKey(answer);
   const seen = new Set<string>([answerKey]);
 
-  const usable = pool.filter((candidate) => {
+  const unique = pool.filter((candidate) => {
     const key = normalizeKey(candidate.text);
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 
+  const answerShape = options.shape ?? kindOf(answer);
+  const sameShape = unique.filter((candidate) => shapeOf(candidate) === answerShape);
+  // Same shape is the whole point of this filter — a phrase next to three
+  // single words is guessed before it is read. Fall back only when the pool
+  // cannot fill the count, rather than returning a thin question.
+  const usable = sameShape.length >= count ? sameShape : unique;
+
   const chosen: string[] = [];
   const taken = new Set<string>();
 
-  for (const band of BANDS) {
+  for (const band of bandsFor(options.partOfSpeech)) {
     if (chosen.length >= count) break;
     const matching = usable.filter(
-      (candidate) => !taken.has(candidate.id) && band(answer, candidate.text),
+      (candidate) => !taken.has(candidate.id) && band(answer, candidate),
     );
     for (const candidate of shuffle(matching, rng)) {
       if (chosen.length >= count) break;

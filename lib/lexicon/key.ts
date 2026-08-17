@@ -54,21 +54,44 @@ export function normalizeKey(raw: string): string {
 
 export type AudioVariant = "normal" | "slow";
 
+function isUnsafeAudioKey(key: string): boolean {
+  return !key || key.includes("\0") || key.includes("..") || key.includes("\\");
+}
+
+function audioPath(filename: string, variant: AudioVariant): string {
+  return variant === "slow" ? `audio/en/slow/${filename}` : `audio/en/${filename}`;
+}
+
 /**
  * Object key for a shared recording. The default keeps every existing normal
  * URL stable; slow recordings live beside them in their own prefix.
+ *
+ * Spaces become underscores, same as slashes: a raw space in the key is
+ * survivable in a browser (WHATWG encodes it) and broken everywhere else —
+ * curl, a strict CDN rule, a shell script. Underscores are the one naming
+ * that does not need a second code path.
  */
 export function audioObjectKey(
   key: string,
   variant: AudioVariant = "normal",
 ): string | null {
-  if (!key || key.includes("\0") || key.includes("..") || key.includes("\\")) {
-    return null;
-  }
+  if (isUnsafeAudioKey(key)) return null;
+  const filename = `${key.replaceAll("/", "_").replaceAll(" ", "_")}.mp3`;
+  return audioPath(filename, variant);
+}
+
+/**
+ * The previous naming, with raw spaces left in the filename. Kept so the
+ * twenty-seven files minted before the underscore rule can be found and
+ * copied; not used to write new ones.
+ */
+export function legacyAudioObjectKey(
+  key: string,
+  variant: AudioVariant = "normal",
+): string | null {
+  if (isUnsafeAudioKey(key)) return null;
   const filename = `${key.replaceAll("/", "_")}.mp3`;
-  return variant === "slow"
-    ? `audio/en/slow/${filename}`
-    : `audio/en/${filename}`;
+  return audioPath(filename, variant);
 }
 
 /** True when two spellings are the same entry. */

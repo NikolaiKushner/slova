@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeKey, sameKey, audioObjectKey } from "@/lib/lexicon/key";
+import { normalizeKey, sameKey, audioObjectKey, legacyAudioObjectKey } from "@/lib/lexicon/key";
 
 describe("normalizeKey", () => {
   it("folds case", () => {
@@ -66,5 +66,24 @@ describe("audioObjectKey", () => {
   it("refuses traversal and turns slashes into underscores", () => {
     expect(audioObjectKey("../etc/passwd")).toBeNull();
     expect(audioObjectKey("was/were")).toBe("audio/en/was_were.mp3");
+  });
+
+  it("turns spaces into underscores so a phrase key is a legal object path", () => {
+    expect(audioObjectKey("data privacy")).toBe("audio/en/data_privacy.mp3");
+    expect(audioObjectKey("data privacy", "slow")).toBe(
+      "audio/en/slow/data_privacy.mp3",
+    );
+    expect(audioObjectKey("to bend over backwards")).toBe(
+      "audio/en/to_bend_over_backwards.mp3",
+    );
+  });
+});
+
+describe("legacyAudioObjectKey", () => {
+  it("keeps the space-bearing names the first phrase run minted", () => {
+    expect(legacyAudioObjectKey("data privacy", "slow")).toBe(
+      "audio/en/slow/data privacy.mp3",
+    );
+    expect(legacyAudioObjectKey("monitor")).toBe(audioObjectKey("monitor"));
   });
 });

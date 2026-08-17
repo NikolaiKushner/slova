@@ -1,6 +1,6 @@
 # Plan: expanding the word base, the audio, and what a learner can start from
 
-**Date:** 2026-08-17 · **Branch:** `lexicon-expansion` · **Status:** in progress
+**Date:** 2026-08-17 · **Branch:** `lexicon-expansion` · **Status:** code done; production seed/audio still to run
 **Source:** owner's question — how do we grow the word base and the audio, and
 what do we do about collocations and irregular verbs
 
@@ -43,7 +43,7 @@ builder handing out one tile per space.
 - [x] `verb-forms` is in `EXERCISE_KINDS`, deals a question from a triple, and
       is scheduled by the same FSRS path as every other format
       (own mode on `/practice`, 95 lexemes with `forms`)
-- [ ] A collocation survives `builder`, `judge` and `distractors` without
+- [x] A collocation survives `builder`, `judge` and `distractors` without
       giving itself away
 - [x] `npm test` green after every step
 
@@ -312,7 +312,22 @@ reads «зажигать». Audio is the infinitive's recording only. Seeded: 95
   infinitive for now or say plainly in the step that the other two use the
   browser voice.
 
-### 5. Collocations — engine first, content second — L · `[ ]`
+### 5. Collocations — engine first, content second — L · `[x]`
+
+**Done.** `scramble()` deals word tiles for a phrase and letter tiles for a
+word; `judge()` folds `a`/`an`/`the` per token on a multi-word answer and only
+strips `to` from the front, so `look forward to` stays a particle; distractors
+are drawn from the same English shape (and prefer the same part of speech),
+and the session pool always keeps a slice of lexicon phrases even when the
+learner's dictionary is all single words. Spaces in `audioObjectKey` are
+underscores; `legacyAudioObjectKey` plus `scripts/migrate-audio-keys.ts` copy
+the 27 files minted with a raw space. 390 curated rows in
+`content/lexicon/en-ru-phrases.jsonl`; `npm run db:seed-lexicon -- --kind=phrase`
+loads them.
+
+The 37 missing normal recordings, the R2 rename, and seeding the phrases
+against production are commands, not code — run after this lands, in that
+order, so new phrase files are never minted with a space in the key.
 
 - **Why last:** it is the only step that changes how an existing format grades
   an existing answer, and it wants the part of speech from step 2.
@@ -321,10 +336,10 @@ reads «зажигать». Audio is the infinitive's recording only. Seeded: 95
   token for a multi-word answer, not just at the front);
   `lib/practice/distractors.ts` (draw from candidates of the same shape —
   phrase with phrase, word with word); `lib/lexicon/key.ts`
-  (`audioObjectKey` — decide whether spaces are encoded or replaced, and
-  migrate the **27** existing files: 26 slow, 1 normal); then fill the 37
-  lexemes still missing a normal recording; a curated
-  `content/lexicon/en-ru-phrases.jsonl` of 300–500 phrasal verbs and
+  (`audioObjectKey` — spaces replaced with underscores, same as slashes);
+  `scripts/migrate-audio-keys.ts` (the **27** existing files: 26 slow, 1
+  normal); then fill the 37 lexemes still missing a normal recording; a curated
+  `content/lexicon/en-ru-phrases.jsonl` of 390 phrasal verbs and
   collocations, plus `--kind=phrase` on the seeder.
 - **Does:** a phrase can be studied in every format the app offers.
 - **Verify:** `npm test` with phrase cases across question/answer/distractors;

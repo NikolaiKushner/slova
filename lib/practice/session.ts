@@ -36,6 +36,13 @@ export const TRAINING_SIZE = 20;
 /** Distractors are drawn from here; more is better, past a point it is noise. */
 const POOL_SIZE = 80;
 
+/**
+ * Phrases held in the pool even when the learner's dictionary is all single
+ * words. Without them a collocation in the sitting has nothing same-shaped
+ * to sit next to, and the three wrong options give it away by length.
+ */
+const PHRASE_POOL = 24;
+
 export type PracticeSession = {
   words: PracticeWord[];
   pool: PracticeWord[];
@@ -192,6 +199,7 @@ async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> 
       audioUrl: true,
       audioSlowUrl: true,
       transcription: true,
+      partOfSpeech: true,
       forms: true,
     },
   });
@@ -204,6 +212,7 @@ async function withLexemeExtras(words: PracticeWord[]): Promise<PracticeWord[]> 
       audioUrl: lexeme?.audioUrl ?? null,
       audioSlowUrl: lexeme?.audioSlowUrl ?? null,
       transcription: lexeme?.transcription ?? null,
+      partOfSpeech: lexeme?.partOfSpeech ?? null,
       forms: asVerbForms(lexeme?.forms),
     };
   });
@@ -224,14 +233,67 @@ async function buildPool(userId: string): Promise<PracticeWord[]> {
     select: { id: true, front: true, back: true },
   });
 
-  const pool = [...own];
+  const pool: PracticeWord[] = [...own];
   const seen = new Set(own.map((word) => word.front.toLowerCase()));
 
-  if (pool.length >= POOL_SIZE) return pool;
+  if (pool.length < POOL_SIZE) {
+    const lexemes = await prisma.lexeme.findMany({
+      where: {
+        lang: STUDY_SOURCE_LANG,
+        translations: {
+          some: {
+            targetLang: STUDY_TARGET_LANG,
+            isGlobal: true,
+            version: LEXICON_VERSION,
+          },
+        },
+      },
+      take: POOL_SIZE,
+      select: {
+        id: true,
+        text: true,
+        partOfSpeech: true,
+        translations: {
+          where: {
+            targetLang: STUDY_TARGET_LANG,
+            isGlobal: true,
+            version: LEXICON_VERSION,
+          },
+          orderBy: { isPrimary: "desc" },
+          take: 1,
+          select: { text: true },
+        },
+      },
+    });
 
-  const lexemes = await prisma.lexeme.findMany({
+    for (const lexeme of lexemes) {
+      if (pool.length >= POOL_SIZE) break;
+      const translation = lexeme.translations[0]?.text;
+      if (!translation || seen.has(lexeme.text.toLowerCase())) continue;
+      seen.add(lexeme.text.toLowerCase());
+      // Prefixed so an id from the shared base can never be mistaken for one of
+      // the user's words if it ever reaches a write path.
+      pool.push({
+        id: `lex:${lexeme.id}`,
+        front: lexeme.text,
+        back: translation,
+        partOfSpeech: lexeme.partOfSpeech,
+      });
+    }
+  }
+
+  return mixPhraseDistractors(pool);
+}
+
+async function mixPhraseDistractors(pool: PracticeWord[]): Promise<PracticeWord[]> {
+  const seen = new Set(pool.map((word) => word.front.toLowerCase()));
+  const have = pool.filter((word) => word.front.includes(" ")).length;
+  if (have >= PHRASE_POOL) return pool;
+
+  const phrases = await getPrisma().lexeme.findMany({
     where: {
       lang: STUDY_SOURCE_LANG,
+      kind: "phrase",
       translations: {
         some: {
           targetLang: STUDY_TARGET_LANG,
@@ -240,10 +302,11 @@ async function buildPool(userId: string): Promise<PracticeWord[]> {
         },
       },
     },
-    take: POOL_SIZE,
+    take: PHRASE_POOL,
     select: {
       id: true,
       text: true,
+      partOfSpeech: true,
       translations: {
         where: {
           targetLang: STUDY_TARGET_LANG,
@@ -257,15 +320,18 @@ async function buildPool(userId: string): Promise<PracticeWord[]> {
     },
   });
 
-  for (const lexeme of lexemes) {
-    if (pool.length >= POOL_SIZE) break;
+  const extra: PracticeWord[] = [];
+  for (const lexeme of phrases) {
     const translation = lexeme.translations[0]?.text;
     if (!translation || seen.has(lexeme.text.toLowerCase())) continue;
     seen.add(lexeme.text.toLowerCase());
-    // Prefixed so an id from the shared base can never be mistaken for one of
-    // the user's words if it ever reaches a write path.
-    pool.push({ id: `lex:${lexeme.id}`, front: lexeme.text, back: translation });
+    extra.push({
+      id: `lex:${lexeme.id}`,
+      front: lexeme.text,
+      back: translation,
+      partOfSpeech: lexeme.partOfSpeech,
+    });
   }
 
-  return pool;
+  return extra.length === 0 ? pool : [...pool, ...extra];
 }

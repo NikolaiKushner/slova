@@ -97,5 +97,31 @@ export function createR2Storage(
 
       return `${config.publicBaseUrl}/${path}`;
     },
+
+    /**
+     * Copy an object onto a new key inside the same bucket. Used to rename
+     * the phrase recordings that were minted with a raw space in the path.
+     */
+    async copyAudio(from: string, to: string): Promise<string> {
+      const source = `/${config.bucket}/${encodeURI(from)}`;
+      const response = await client.fetch(
+        `https://${config.accountId}.r2.cloudflarestorage.com/${config.bucket}/${to}`,
+        {
+          method: "PUT",
+          headers: {
+            "x-amz-copy-source": source,
+            "x-amz-metadata-directive": "COPY",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `copy ${response.status} ${(await response.text()).slice(0, 120)}`,
+        );
+      }
+
+      return `${config.publicBaseUrl}/${to}`;
+    },
   };
 }

@@ -664,6 +664,7 @@ Props: `word`, `onComplete(guess)`.
 - Letter tiles: 42×42 (touch 48×48), `radius-md`, hover `translateY(-2px)`, used — `opacity 0.25`, `disabled`.
 - Keyboard input, `Backspace` returns the last one.
 - Checking happens automatically when the last cell is filled.
+- **A phrase is the same component with word tiles.** `give up` deals two tiles, never seven. Word tiles are auto-width (`min-width` 44, padding 12), same height as letter tiles. The first letter of a remaining tile still types from the keyboard.
 
 ### `<AnswerFeedback>`
 Result row under the answer. Props: `state`, `correctAnswer?`, `note?`.

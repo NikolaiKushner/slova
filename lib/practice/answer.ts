@@ -19,8 +19,22 @@ export type Verdict = "correct" | "almost" | "wrong";
 /** Articles are noise in a vocabulary answer: "a cat" and "cat" are the same. */
 const LEADING_ARTICLE = /^(a|an|the|to)\s+/i;
 
+/** Dropped as their own token in a phrase. `to` is not here — it is a particle. */
+const ARTICLE_TOKENS = new Set(["a", "an", "the"]);
+
 function comparable(text: string): string {
-  return normalizeKey(text).replace(LEADING_ARTICLE, "").trim();
+  const key = normalizeKey(text);
+  if (!key.includes(" ")) {
+    // One-word answers keep the old rule: only a leading article is noise.
+    // Folding every token would turn "the" into an empty string.
+    return key.replace(LEADING_ARTICLE, "").trim();
+  }
+
+  const tokens = key.split(" ");
+  // Infinitive `to give up` and `give up` are the same phrase; a particle
+  // `look forward to` is not, so `to` only comes off the front.
+  if (tokens[0] === "to") tokens.shift();
+  return tokens.filter((token) => !ARTICLE_TOKENS.has(token)).join(" ");
 }
 
 /**

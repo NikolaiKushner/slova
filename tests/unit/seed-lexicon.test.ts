@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { kindOf, parseDataset } from "@/lib/lexicon/dataset";
 import { normalizeKey } from "@/lib/lexicon/key";
 
@@ -209,5 +210,22 @@ describe("kindOf", () => {
   it("tells a phrase from a word by the space in it", () => {
     expect(kindOf("cat")).toBe("word");
     expect(kindOf("discharge summary")).toBe("phrase");
+  });
+});
+
+describe("en-ru-phrases.jsonl", () => {
+  const { entries, warnings } = parseDataset(
+    readFileSync("content/lexicon/en-ru-phrases.jsonl", "utf8"),
+  );
+
+  it("is well-formed and inside the planned size", () => {
+    expect(warnings).toEqual([]);
+    expect(entries.length).toBeGreaterThanOrEqual(300);
+    expect(entries.length).toBeLessThanOrEqual(500);
+  });
+
+  it("is only phrases, marked as such", () => {
+    expect(entries.every((entry) => kindOf(entry.text) === "phrase")).toBe(true);
+    expect(entries.every((entry) => entry.partOfSpeech === "phrase")).toBe(true);
   });
 });
