@@ -39,3 +39,78 @@ jobs:
           AUTH_URL: http://localhost:3000
           AUTH_GOOGLE_ID: ci-client-id
           AUTH_GOOGLE_SECRET: ci-client-secret
+
+  integration-and-e2e:
+    if: >-
+      vars.NEON_PROJECT_ID != '' &&
+      vars.NEON_TEST_PARENT_BRANCH != '' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set test branch expiry
+        run: echo "NEON_BRANCH_EXPIRES_AT=$(date -u -d '+1 day' +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+
+      - name: Create isolated Neon branch
+        id: create-branch
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          parent_branch: ${{ vars.NEON_TEST_PARENT_BRANCH }}
+          branch_name: test/ci-${{ github.run_id }}-${{ github.run_attempt }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          prisma: true
+          expires_at: ${{ env.NEON_BRANCH_EXPIRES_AT }}
+
+      - name: Apply test migrations
+        run: npm run db:migrate-test
+        env:
+          TEST_DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          TEST_DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+          TEST_DATABASE_ENVIRONMENT: ci
+
+      - name: Integration tests
+        run: npm run test:integration
+        env:
+          TEST_DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          TEST_DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+          TEST_DATABASE_ENVIRONMENT: ci
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+          TEST_DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          TEST_DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+          TEST_DATABASE_ENVIRONMENT: ci
+          E2E_TEST_USER_EMAIL: ${{ secrets.E2E_TEST_USER_EMAIL }}
+          E2E_TEST_USER_PASSWORD: ${{ secrets.E2E_TEST_USER_PASSWORD }}
+          AUTH_SECRET: ci-test-secret-at-least-32-characters-long
+          AUTH_URL: http://localhost:3000
+          AUTH_GOOGLE_ID: ci-client-id
+          AUTH_GOOGLE_SECRET: ci-client-secret
+
+      - name: Delete isolated Neon branch
+        if: always() && steps.create-branch.outputs.branch_id != ''
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: ${{ steps.create-branch.outputs.branch_id }}
+          api_key: ${{ secrets.NEON_API_KEY }}

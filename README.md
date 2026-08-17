@@ -91,14 +91,21 @@ that checks the lockfile the way CI does, then runs `npm test`.
 | Command | What it does |
 |---|---|
 | `npm test` | Unit tests over `tests/unit` — seconds, and the one check worth its cost |
+| `npm run test:integration` | Database tests against an explicit isolated test branch |
+| `npm run test:e2e` | Reset the test fixture, then run authenticated Playwright tests |
 | `npm run lint` / `npx tsc --noEmit` | Also run in CI |
 | `npm run db:seed` | Demo user and a small set |
+| `npm run db:prepare-test` | Migrate the isolated test database and reset its fixture |
+| `npm run db:seed-test-user` | Reset the deterministic user in the isolated test database |
 | `npm run lexicon:build` | Translate the frequency list through the Batch API |
 | `npm run db:seed-lexicon` | Load that dataset into the shared base |
 | `npm run lexicon:audio` | Record every word and upload it to R2 |
 
 The last three cost money and are run by hand, once. `content/lexicon/SOURCE.md`
 records where the word list came from and under what terms.
+
+Database and browser test setup is documented in `docs/testing.md`. These
+suites are deliberately separate from `npm test`, including in CI and Vercel.
 
 ## Stack
 

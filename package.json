@@ -14,10 +14,15 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run --config vitest.config.mts",
+    "test:integration": "vitest run --config vitest.integration.config.mts",
+    "test:e2e": "npm run db:prepare-test && playwright test",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:migrate-test": "tsx scripts/migrate-test-database.ts",
+    "db:seed-test-user": "tsx scripts/seed-test-user.ts",
+    "db:prepare-test": "npm run db:migrate-test && npm run db:seed-test-user",
     "db:seed-lexicon": "tsx scripts/seed-lexicon.ts",
     "lexicon:build": "tsx scripts/build-lexicon.ts",
     "lexicon:audio": "tsx scripts/build-audio.ts",
@@ -59,6 +64,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
