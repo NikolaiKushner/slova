@@ -405,7 +405,6 @@
     "oneSourceNote": "Every format starts from the same choice above — there is no second screen any more.",
     "youWrote": "you wrote <given></given>",
     "youBuilt": "you built <given></given>",
-    "wordOf": "word {current} of {total}",
     "rightN": "{count} right",
     "missedN": "{count} missed",
     "backIn": "back in {days, plural, one {# day} other {# days}}",
@@ -535,11 +534,13 @@
     "openFullLesson": "Open the full lesson",
     "ruleOpenedOnMiss": "opened because of a miss",
     "hintRule": "the rule",
-    "questionOf": "question {current} of {total}",
     "taskChoice": "Choose the right form",
     "taskPick": "Which sentence is right?",
     "taskGap": "Type the form",
-    "taskTransform": "Change the sentence"
+    "taskGapNegative": "Make it negative",
+    "taskGapQuestion": "Type the auxiliary",
+    "taskTransform": "Change the sentence",
+    "formCue": "form of"
   },
   "dictionary": {
     "eyebrow": "Dictionary",

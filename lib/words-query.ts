@@ -10,11 +10,15 @@ import { LEARNED_INTERVAL_DAYS } from "@/lib/word-rating";
  * here, once, where it can be tested without a database.
  */
 
-/** Rows per page. Ten fits on a screen without scrolling past the controls. */
-export const DEFAULT_PAGE_SIZE = 10;
+/**
+ * Rows per page. Twenty-five, because the table scrolls inside its own pane
+ * now: the old ten was chosen to fit above the pagination, and paying twenty
+ * pages for 200 words to keep a control in view is the wrong trade.
+ */
+export const DEFAULT_PAGE_SIZE = 25;
 
 /** What the page-size control offers. */
-export const PAGE_SIZES = [10, 25, 50] as const;
+export const PAGE_SIZES = [10, 25, 50, 100] as const;
 export const MAX_PAGE_SIZE = 100;
 
 export const SORT_FIELDS = ["word", "translation", "rating", "added"] as const;
@@ -137,6 +141,19 @@ export function wordsSkip(query: WordsQuery): number {
 /** How many pages the whole result set makes; always at least one. */
 export function pageCount(total: number, pageSize: number): number {
   return Math.max(1, Math.ceil(total / pageSize));
+}
+
+/**
+ * The page that actually exists, given how many rows there turned out to be.
+ *
+ * A page number is a guess made before counting: page 20 was real until the
+ * words on it were deleted or a filter narrowed the list to two. Asking the
+ * database for that page answers with nothing, which reads as "you have no
+ * words" rather than "that page is gone" — so the count decides, and the last
+ * page that exists is where the request lands.
+ */
+export function clampPage(page: number, total: number, pageSize: number): number {
+  return Math.min(Math.max(page, 1), pageCount(total, pageSize));
 }
 
 /** Re-exported so the table and the query agree on where "learned" begins. */

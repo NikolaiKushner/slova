@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { gradeExercise, type GrammarVerdict } from "@/lib/courses/answer";
 import { resolveCourseAudio } from "@/lib/courses/audio";
-import { endingAgainst, splitGapPrompt, typedPlaceholderHint } from "@/lib/courses/prompt";
+import { endingAgainst, gapCue, splitGapPrompt } from "@/lib/courses/prompt";
 import { speakText } from "@/lib/courses/speak-text";
 import { cn } from "@/lib/utils";
 
@@ -45,16 +45,30 @@ export function GrammarQuestion({
   return <Typed exercise={exercise} answered={answered} onAnswered={onAnswered} />;
 }
 
+/**
+ * The line above the question. A gap can override it: "type the form" does not
+ * say that `I ___ football.` wants a negative, and no cue can say it either.
+ */
 export function taskKey(
-  kind: Exercise["kind"],
-): "taskChoice" | "taskPick" | "taskGap" | "taskTransform" {
-  switch (kind) {
+  exercise: Exercise,
+):
+  | "taskChoice"
+  | "taskPick"
+  | "taskGap"
+  | "taskGapNegative"
+  | "taskGapQuestion"
+  | "taskTransform" {
+  switch (exercise.kind) {
     case "choice":
       return "taskChoice";
     case "pick-sentence":
       return "taskPick";
     case "gap":
-      return "taskGap";
+      return exercise.task === "negative"
+        ? "taskGapNegative"
+        : exercise.task === "question"
+          ? "taskGapQuestion"
+          : "taskGap";
     case "transform":
       return "taskTransform";
   }
@@ -109,17 +123,47 @@ function Prompt({
         : filledForm(exercise.answer, gap.hint ? [gap.hint] : []);
 
   return (
-    <p lang="en" className="font-display text-[2rem] leading-snug font-medium">
-      {gap.before}
-      <span
-        className={cn(
-          "inline-block min-w-[110px] border-b-2 text-center align-baseline transition-colors duration-(--motion-fast)",
-          fill ? "border-success text-success" : "border-input",
-        )}
-      >
-        {fill ?? "\u00a0"}
+    <>
+      <p lang="en" className="font-display text-[2rem] leading-snug font-medium">
+        {gap.before}
+        <span
+          className={cn(
+            "inline-block min-w-[110px] border-b-2 text-center align-baseline transition-colors duration-(--motion-fast)",
+            fill ? "border-success text-success" : "border-input",
+          )}
+        >
+          {fill ?? "\u00a0"}
+        </span>
+        {gap.after}
+      </p>
+      {exercise.kind === "gap" ? <FormCue exercise={exercise} /> : null}
+    </>
+  );
+}
+
+/**
+ * The word the blank is a form of, under the sentence.
+ *
+ * Beside the prompt rather than inside the input: a placeholder reads as the
+ * thing to type, and it disappears the moment anything is typed \u2014 exactly when
+ * a person is checking what they were asked for. Small and quiet, because it is
+ * the question's footnote, not a hint.
+ */
+function FormCue({
+  exercise,
+}: {
+  exercise: Extract<Exercise, { kind: "gap" }>;
+}) {
+  const t = useTranslations("courses");
+  const cue = gapCue(exercise);
+  if (!cue) return null;
+
+  return (
+    <p className="text-muted-foreground text-caption">
+      {t("formCue")}:{" "}
+      <span lang="en" className="text-foreground font-medium">
+        {cue}
       </span>
-      {gap.after}
     </p>
   );
 }
@@ -253,9 +297,7 @@ function Typed({
           }
         }}
         placeholder={
-          exercise.kind === "transform"
-            ? t("typeSentence")
-            : (typedPlaceholderHint(exercise) ?? t("typeForm"))
+          exercise.kind === "transform" ? t("typeSentence") : t("typeForm")
         }
         aria-label={practice("yourAnswer")}
         autoFocus

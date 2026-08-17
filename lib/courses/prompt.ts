@@ -1,4 +1,4 @@
-import { acceptedAnswers, type Exercise } from "@/content/courses/schema";
+import type { Exercise } from "@/content/courses/schema";
 
 /**
  * How a grammar prompt is drawn: a sentence with a gap, or a whole line.
@@ -57,18 +57,26 @@ export function endingAgainst(answer: string, others: readonly string[]): {
 }
 
 /**
- * Dictionary-form cue for a typed gap. Null when there is no hint, or when
- * the hint is the answer itself — that would print the key in the box.
+ * The dictionary form a typed gap asks you to inflect — `play` under
+ * `I ___ football.`
+ *
+ * Shown beside the sentence, never inside the input: a placeholder reads as the
+ * thing to type. Without it the question cannot be answered at all — the blank
+ * names no word, and the courses do not share a vocabulary you could guess it
+ * from.
+ *
+ * `cue` wins over the prompt's trailing `(word)`, which is what the seven
+ * negative and question items need: their parenthetical is the answer, and a
+ * cue that is the answer is a different exercise. Nothing is filtered here —
+ * a cue that gives the answer away is a content mistake, caught by the test
+ * over every course rather than hidden at render time, which is how
+ * `I ___ football.` came to show no cue at all.
  */
-export function typedPlaceholderHint(
+export function gapCue(
   exercise: Extract<Exercise, { kind: "gap" }>,
 ): string | null {
-  const { hint } = splitGapPrompt(exercise.prompt);
-  if (!hint) return null;
-  const leaked = acceptedAnswers(exercise).some(
-    (item) => item.trim().toLowerCase() === hint.trim().toLowerCase(),
-  );
-  return leaked ? null : hint;
+  if (exercise.cue) return exercise.cue;
+  return splitGapPrompt(exercise.prompt).hint;
 }
 
 function sharedPrefixLength(a: string, b: string): number {

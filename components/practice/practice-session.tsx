@@ -261,10 +261,9 @@ export function PracticeSession({
         />
       }
     >
-      <FocusHead
-        task={trainings(`${kind}.task` as "typing.task")}
-        step={t("wordOf", { current: index + 1, total: words.length })}
-      />
+      {/* No count here: the top bar's progress bar already carries it, and
+          printing "word 3 of 10" under "3 of 10" says nothing twice (§15.2). */}
+      <FocusHead task={trainings(`${kind}.task` as "typing.task")} />
 
       {question && (
         <>

@@ -11,6 +11,7 @@ import { allowAttemptDurable } from "@/lib/rate-limit";
 import { bulkIdsSchema, filingSchema } from "@/lib/words";
 import { addWords } from "@/lib/words/add";
 import {
+  clampPage,
   pageCount,
   parseWordsQuery,
   wordsOrderBy,
@@ -36,25 +37,32 @@ export async function GET(request: Request) {
   const where = wordsWhere(session.user.id, query);
   const prisma = getPrisma();
 
-  const [total, rows] = await Promise.all([
-    prisma.userWord.count({ where }),
-    prisma.userWord.findMany({
-      where,
-      orderBy: wordsOrderBy(query),
-      skip: wordsSkip(query),
-      take: query.pageSize,
-      select: {
-        id: true,
-        front: true,
-        back: true,
-        introducedAt: true,
-        intervalDays: true,
-        dueAt: true,
-        createdAt: true,
-        sets: { select: { set: { select: { id: true, title: true } } } },
-      },
-    }),
-  ]);
+  /*
+   * Counted before the rows are fetched, rather than alongside them: the count
+   * is what says whether the requested page still exists. Deleting the last
+   * page's words, or narrowing a filter, leaves a URL pointing past the end,
+   * and a parallel count cannot stop that query from coming back empty. One
+   * extra round trip buys a list that is never blank while words remain.
+   */
+  const total = await prisma.userWord.count({ where });
+  const paged = { ...query, page: clampPage(query.page, total, query.pageSize) };
+
+  const rows = await prisma.userWord.findMany({
+    where,
+    orderBy: wordsOrderBy(paged),
+    skip: wordsSkip(paged),
+    take: paged.pageSize,
+    select: {
+      id: true,
+      front: true,
+      back: true,
+      introducedAt: true,
+      intervalDays: true,
+      dueAt: true,
+      createdAt: true,
+      sets: { select: { set: { select: { id: true, title: true } } } },
+    },
+  });
 
   return NextResponse.json({
     words: rows.map((word) => ({
@@ -66,10 +74,12 @@ export async function GET(request: Request) {
       dueAt: word.dueAt,
       createdAt: word.createdAt,
     })),
-    page: query.page,
-    pageSize: query.pageSize,
+    // The page that was served, not the one that was asked for. The table
+    // writes it back into the URL, so a reload asks for a page that exists.
+    page: paged.page,
+    pageSize: paged.pageSize,
     total,
-    pages: pageCount(total, query.pageSize),
+    pages: pageCount(total, paged.pageSize),
   });
 }
 

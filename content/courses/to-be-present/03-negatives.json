@@ -98,6 +98,7 @@
       "ruleId": "tb-negative",
       "kind": "gap",
       "prompt": "I ___ a teacher. (be)",
+      "task": "negative",
       "answer": "am not",
       "accept": ["I'm not"]
     },
@@ -154,6 +155,7 @@
       "ruleId": "tb-negative",
       "kind": "gap",
       "prompt": "He ___ happy. (be)",
+      "task": "negative",
       "answer": "isn't",
       "accept": ["is not"]
     },
@@ -201,6 +203,7 @@
       "ruleId": "tb-negative",
       "kind": "gap",
       "prompt": "We ___ in the park. (be)",
+      "task": "negative",
       "answer": "aren't",
       "accept": ["are not"]
     },

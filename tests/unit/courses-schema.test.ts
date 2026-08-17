@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { exerciseSchema, type Exercise } from "@/content/courses/schema";
+import { acceptedAnswers, exerciseSchema, type Exercise } from "@/content/courses/schema";
 import {
   CourseContentError,
   listedAvailableSlugs,
@@ -8,7 +8,7 @@ import {
   parsePack,
 } from "@/lib/courses/load";
 import { LESSON_PRACTICE_POOL_MIN, TEST_SITTING_SIZE } from "@/lib/courses/practice";
-import { typedPlaceholderHint } from "@/lib/courses/prompt";
+import { gapCue } from "@/lib/courses/prompt";
 
 describe("present-simple pack", () => {
   it("parses and satisfies the bank rule", () => {
@@ -195,14 +195,12 @@ describe("irregular-verbs pack", () => {
   });
 
   /**
-   * The trap this course is uniquely exposed to. `typedPlaceholderHint`
-   * suppresses a `(hint)` that equals the answer, so that it cannot print the
-   * key in the box — and this is the one course where the dictionary form and
-   * the past tense are routinely the same word (cut, put, read). A gap written
-   * `Yesterday I ___ my finger. (hurt)` would then reach the learner with no
-   * cue at all, and "cut" would be as good an answer as "hurt".
+   * Same-form verbs (cut, put, hurt) make the dictionary form equal the
+   * answer. The old placeholder leak-guard hid the cue in that case, which is
+   * why this course would have been mute on those items. `gapCue` does not
+   * filter; this assertion is that the content still names the verb.
    */
-  it("never deals a gap whose cue is suppressed for equalling the answer", () => {
+  it("names the verb on every gap, including where it equals the answer", () => {
     const loaded = loadCourse("irregular-verbs");
     const gaps = [
       ...loaded.lessons.flatMap((lesson) => lesson.blocks),
@@ -214,7 +212,7 @@ describe("irregular-verbs pack", () => {
 
     expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) {
-      expect(typedPlaceholderHint(gap)).not.toBeNull();
+      expect(gapCue(gap), gap.id).not.toBeNull();
     }
   });
 });
@@ -255,7 +253,7 @@ describe("catalog", () => {
     }
   });
 
-  it("does not put the answer in a gap placeholder", () => {
+  it("gives every gap a dictionary-form cue that is not the inflected answer", () => {
     for (const slug of listedAvailableSlugs()) {
       const loaded = loadCourse(slug);
       const exercises = [
@@ -266,17 +264,49 @@ describe("catalog", () => {
       ];
       for (const exercise of exercises) {
         if (exercise.kind !== "gap") continue;
-        const hint = typedPlaceholderHint(exercise);
-        if (!hint) continue;
-        expect(hint.toLowerCase(), `${slug}:${exercise.id}`).not.toBe(
-          exercise.answer.toLowerCase(),
-        );
+        const cue = gapCue(exercise);
+        expect(cue, `${slug}:${exercise.id}`).toBeTruthy();
+        // `(do not play)` / `(doesn't drink)` — a cue that is the answer, with
+        // a space or an apostrophe, is the shape that used to mute the question.
+        const leaked = acceptedAnswers(exercise).some((item) => {
+          const answer = item.trim().toLowerCase();
+          return answer === cue!.trim().toLowerCase() && /['’\s]/.test(item);
+        });
+        expect(leaked, `${slug}:${exercise.id}`).toBe(false);
       }
     }
   });
 });
 
 describe("invariants", () => {
+  it("parses a gap with an explicit cue and task", () => {
+    const parsed = exerciseSchema.safeParse({
+      type: "exercise",
+      id: "x",
+      ruleId: "ps-negative-dont",
+      kind: "gap",
+      prompt: "I ___ football.",
+      cue: "play",
+      task: "negative",
+      answer: "don't play",
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects an unknown gap task", () => {
+    const parsed = exerciseSchema.safeParse({
+      type: "exercise",
+      id: "x",
+      ruleId: "ps-negative-dont",
+      kind: "gap",
+      prompt: "I ___ football.",
+      cue: "play",
+      task: "passive",
+      answer: "don't play",
+    });
+    expect(parsed.success).toBe(false);
+  });
+
   it("rejects an unknown kind at parse time", () => {
     const parsed = exerciseSchema.safeParse({
       type: "exercise",

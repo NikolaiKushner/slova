@@ -376,12 +376,8 @@ export function LessonSession({
         task={
           current.kind === "pick-sentence" || current.kind === "transform"
             ? current.prompt
-            : t(taskKey(current.kind))
+            : t(taskKey(current))
         }
-        step={t("questionOf", {
-          current: index + 1,
-          total: exercises.length,
-        })}
       />
 
       <FocusPrompt compact>

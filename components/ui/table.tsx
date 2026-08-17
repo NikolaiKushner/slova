@@ -4,11 +4,26 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({
+  className,
+  containerClassName,
+  containerRef,
+  ...props
+}: React.ComponentProps<"table"> & {
+  /*
+   * The scroll container, exposed because it is the only element that can own
+   * a vertical scroll: it already scrolls horizontally, and a second scroller
+   * nested inside it would become the sticky header's containing block and
+   * pin the header to a box that never moves.
+   */
+  containerClassName?: string
+  containerRef?: React.Ref<HTMLDivElement>
+}) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      ref={containerRef}
+      className={cn("relative w-full overflow-x-auto", containerClassName)}
     >
       <table
         data-slot="table"

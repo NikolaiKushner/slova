@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { endingAgainst, splitGapPrompt, typedPlaceholderHint } from "@/lib/courses/prompt";
+import { endingAgainst, gapCue, splitGapPrompt } from "@/lib/courses/prompt";
 
 describe("splitGapPrompt", () => {
   it("splits on underscores and lifts a trailing hint", () => {
@@ -33,10 +33,24 @@ describe("splitGapPrompt", () => {
   });
 });
 
-describe("typedPlaceholderHint", () => {
-  it("keeps a dictionary form that is not the answer", () => {
+describe("gapCue", () => {
+  it("prefers an explicit cue over a trailing parenthetical", () => {
     expect(
-      typedPlaceholderHint({
+      gapCue({
+        type: "exercise",
+        id: "x",
+        ruleId: "ps-negative-dont",
+        kind: "gap",
+        prompt: "I ___ football. (do not play)",
+        cue: "play",
+        answer: "don't play",
+      }),
+    ).toBe("play");
+  });
+
+  it("falls back to the trailing parenthetical", () => {
+    expect(
+      gapCue({
         type: "exercise",
         id: "x",
         ruleId: "ps-third-person-s",
@@ -47,28 +61,32 @@ describe("typedPlaceholderHint", () => {
     ).toBe("live");
   });
 
-  it("hides a hint that already is the answer", () => {
+  it("is null when there is nothing to show", () => {
     expect(
-      typedPlaceholderHint({
+      gapCue({
         type: "exercise",
         id: "x",
-        ruleId: "tb-form-are",
+        ruleId: "ps-base-form",
         kind: "gap",
-        prompt: "You ___ a teacher. (are)",
-        answer: "are",
+        prompt: "I ___ football.",
+        answer: "play",
       }),
     ).toBeNull();
+  });
+
+  it("keeps a dictionary form even when it is the answer", () => {
+    // The old placeholder leak-guard hid this, which is how `You ___ a new
+    // bag. (need)` became mute. The question is still "-s or no -s".
     expect(
-      typedPlaceholderHint({
+      gapCue({
         type: "exercise",
-        id: "y",
-        ruleId: "ps-negative-dont",
+        id: "x",
+        ruleId: "ps-base-form",
         kind: "gap",
-        prompt: "I ___ football. (do not play)",
-        answer: "don't play",
-        accept: ["do not play"],
+        prompt: "You ___ a new bag. (need)",
+        answer: "need",
       }),
-    ).toBeNull();
+    ).toBe("need");
   });
 });
 

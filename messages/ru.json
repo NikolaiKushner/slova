@@ -405,7 +405,6 @@
     "oneSourceNote": "Любой формат запускается по тому же выбору сверху — отдельного экрана больше нет.",
     "youWrote": "вы написали <given></given>",
     "youBuilt": "вы собрали <given></given>",
-    "wordOf": "слово {current} из {total}",
     "rightN": "{count} верно",
     "missedN": "{count} мимо",
     "backIn": "вернётся через {days, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
@@ -535,11 +534,13 @@
     "openFullLesson": "Открыть урок целиком",
     "ruleOpenedOnMiss": "открыто из-за ошибки",
     "hintRule": "правило",
-    "questionOf": "вопрос {current} из {total}",
     "taskChoice": "Выберите верную форму",
     "taskPick": "Какое предложение верное?",
     "taskGap": "Впишите форму",
-    "taskTransform": "Преобразуйте предложение"
+    "taskGapNegative": "Впишите отрицательную форму",
+    "taskGapQuestion": "Впишите вспомогательный глагол",
+    "taskTransform": "Преобразуйте предложение",
+    "formCue": "форма слова"
   },
   "dictionary": {
     "eyebrow": "Словарь",

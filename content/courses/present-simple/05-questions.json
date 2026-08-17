@@ -106,7 +106,9 @@
       "id": "ps-q-06",
       "ruleId": "ps-question-do",
       "kind": "gap",
-      "prompt": "___ you need more time? (Do)",
+      "prompt": "___ you need more time?",
+      "cue": "do",
+      "task": "question",
       "answer": "Do"
     },
     {
@@ -159,7 +161,9 @@
       "id": "ps-q-12",
       "ruleId": "ps-question-does",
       "kind": "gap",
-      "prompt": "___ she like tea? (Does)",
+      "prompt": "___ she like tea?",
+      "cue": "do",
+      "task": "question",
       "answer": "Does"
     },
     {

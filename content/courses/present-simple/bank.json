@@ -139,7 +139,9 @@
     "id": "ps-bank-16",
     "ruleId": "ps-negative-doesnt",
     "kind": "gap",
-    "prompt": "She ___ here. (doesn't live)",
+    "prompt": "She ___ here.",
+    "cue": "live",
+    "task": "negative",
     "answer": "doesn't live",
     "accept": ["does not live"]
   },
@@ -175,7 +177,9 @@
     "id": "ps-bank-20",
     "ruleId": "ps-question-does",
     "kind": "gap",
-    "prompt": "___ he work here? (Does)",
+    "prompt": "___ he work here?",
+    "cue": "do",
+    "task": "question",
     "answer": "Does"
   }
 ]

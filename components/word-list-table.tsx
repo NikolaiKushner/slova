@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowDown, ArrowUp, BookText, SearchX } from "lucide-react";
@@ -46,7 +46,7 @@ import { DEFAULT_PAGE_SIZE, PAGE_SIZES, nextSort, type SortField } from "@/lib/w
 import { cn } from "@/lib/utils";
 
 /**
- * Every word already added, ten at a time unless asked otherwise.
+ * Every word already added, twenty-five at a time unless asked otherwise.
  *
  * Searching, filtering, sorting and paging all happen in the database, and all
  * of them live in the URL. That is the difference between a filter and a view:
@@ -61,6 +61,14 @@ type Payload = {
   pages: number;
   total: number;
 };
+
+/**
+ * The list scrolls inside itself rather than lengthening the page. A hundred
+ * rows is a legitimate page size and an eight-screen table is not: the search
+ * box above and the pagination below both have to stay reachable, and the
+ * column heading has to stay readable, which is what the sticky header is for.
+ */
+const PANE = "max-h-[65vh] min-h-[280px] overflow-y-auto overscroll-contain";
 
 const SORTABLE: SortField[] = ["word", "translation"];
 
@@ -83,6 +91,7 @@ export function WordListTable() {
   // same address, no navigation would happen, and the table would keep showing
   // what is no longer there.
   const [reload, setReload] = useState(0);
+  const pane = useRef<HTMLDivElement | null>(null);
 
   const page = Math.max(1, Number.parseInt(params.get("page") ?? "1", 10) || 1);
   const query = params.get("q") ?? "";
@@ -100,6 +109,7 @@ export function WordListTable() {
 
     const request = new URLSearchParams(search);
     request.set("pageSize", String(size));
+    const asked = Math.max(1, Number.parseInt(request.get("page") ?? "1", 10) || 1);
 
     fetch(`/api/words?${request.toString()}`)
       .then((response) => (response.ok ? response.json() : null))
@@ -107,6 +117,20 @@ export function WordListTable() {
         if (ignore) return;
         setData(payload);
         setLoading(false);
+        /*
+         * Only when this response was clamped — asked for 20, served 8.
+         * Comparing the live URL to the last payload is the opposite: clicking
+         * "2" updates the URL while the last payload is still page 1, which
+         * reads as a clamp and writes the URL back. That is why the table
+         * stopped changing page.
+         */
+        if (!payload || payload.page === asked) return;
+        const next = new URLSearchParams(search);
+        if (payload.page > 1) next.set("page", String(payload.page));
+        else next.delete("page");
+        router.replace(next.toString() ? `?${next.toString()}` : "?", {
+          scroll: false,
+        });
       })
       .catch(() => {
         if (!ignore) setLoading(false);
@@ -115,7 +139,16 @@ export function WordListTable() {
     return () => {
       ignore = true;
     };
-  }, [search, size, reload]);
+  }, [search, size, reload, router]);
+
+  /*
+   * A new page or a new filter starts at the top of the pane. Without this the
+   * scroll position outlives the list it belonged to: pressing "2" leaves you
+   * halfway down page two, looking at rows you have no reason to be at.
+   */
+  useEffect(() => {
+    pane.current?.scrollTo({ top: 0 });
+  }, [search, size]);
 
   useEffect(() => {
     let ignore = false;
@@ -279,9 +312,19 @@ export function WordListTable() {
             )}
             aria-busy={loading}
           >
-            <Table className="table-fixed">
-              <TableHeader>
-                <TableRow className="border-border bg-muted/50 hover:bg-muted/50">
+            <Table
+              className="table-fixed"
+              containerClassName={PANE}
+              containerRef={pane}
+            >
+              {/*
+                Pinned while the rows scroll under it. The background has to be
+                opaque for that — the old `muted/50` let the rows show through
+                the heading — and the rule under it belongs on the cells, since
+                a border on a sticky `tr` does not travel with it.
+              */}
+              <TableHeader className="sticky top-0 z-10 [&_tr]:border-0">
+                <TableRow className="bg-muted hover:bg-muted [&>*]:border-border [&>*]:border-b">
                   <TableHead className={cn("w-[46px] ps-4", COLUMN_LABEL)}>
                     <Checkbox
                       checked={allTicked}
