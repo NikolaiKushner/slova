@@ -119,6 +119,33 @@ export function scheduleReview(
 }
 
 /**
+ * Probability of recall right now, 0–1. Null until the word has a memory —
+ * stability is what FSRS needs, and a word nobody has reviewed has none.
+ */
+export function retrievabilityOf(
+  word: ScheduledWord,
+  now: Date = new Date(),
+): number | null {
+  if (word.stability === null || word.difficulty === null) return null;
+  return scheduler.get_retrievability(toCard(word), now, false);
+}
+
+export function meanRetrievability(
+  words: ScheduledWord[],
+  now: Date = new Date(),
+): number | null {
+  let sum = 0;
+  let count = 0;
+  for (const word of words) {
+    const r = retrievabilityOf(word, now);
+    if (r === null) continue;
+    sum += r;
+    count += 1;
+  }
+  return count === 0 ? null : sum / count;
+}
+
+/**
  * A word leaving Brainstorm, where the whole ladder was watched rather than a
  * single answer — so all four grades are available and worth using. A clean
  * run really is an easier word than one that took six goes, and this is the

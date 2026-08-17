@@ -13,6 +13,7 @@ import {
   lessonPool,
   practiceSessionSize,
 } from "@/lib/courses/practice";
+import { persistEnd } from "@/lib/sitting-store";
 
 export const LESSON_PASS_PERCENT = 80;
 export const TEST_PASS_PERCENT = 90;
@@ -77,6 +78,7 @@ export async function saveLessonProgress(input: {
   lessonSlug: string;
   right: number;
   missedRuleIds: string[];
+  sittingId?: string;
   now?: Date;
 }): Promise<LessonRecord> {
   const loaded = loadCourse(input.courseSlug);
@@ -204,6 +206,15 @@ export async function saveLessonProgress(input: {
         completedAt: null,
       },
       data: { completedAt: now },
+    });
+  }
+
+  if (input.sittingId) {
+    // This attempt's misses, not the accumulated UserLesson list.
+    await persistEnd(input.userId, input.sittingId, "completed", {
+      now,
+      score: percent,
+      missedRuleIds,
     });
   }
 

@@ -25,6 +25,7 @@ export const PROTECTED_PREFIXES = [
   "/study",
   "/home",
   "/import",
+  "/progress",
 ] as const;
 
 export const authConfig = {

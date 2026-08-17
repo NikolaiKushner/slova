@@ -35,6 +35,7 @@ import {
   practiceSessionSize,
 } from "@/lib/courses/practice";
 import { cn } from "@/lib/utils";
+import { useStudySitting } from "@/hooks/use-study-sitting";
 
 type View = "lesson" | "practice" | "done";
 
@@ -77,6 +78,7 @@ export function LessonSession({
   const [ruleOpen, setRuleOpen] = useState(false);
   const [ruleAuto, setRuleAuto] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sittingGen, setSittingGen] = useState(0);
 
   function startPractice() {
     setExercises(
@@ -89,6 +91,7 @@ export function LessonSession({
     setMissedRuleIds([]);
     setRuleOpen(false);
     setRuleAuto(false);
+    setSittingGen((n) => n + 1);
     setView("practice");
   }
 
@@ -105,9 +108,23 @@ export function LessonSession({
     ? rules.find((item) => item.id === current.ruleId)
     : undefined;
 
+  const practiceOpen =
+    exercises.length > 0 &&
+    (view === "practice" || view === "done" || view === "lesson");
+
+  const { getIdAsync, touch, flush, complete } = useStudySitting({
+    active: practiceOpen,
+    resetKey: sittingGen,
+    kind: "grammar",
+    label: `${courseSlug}/${lesson.slug}`,
+    sourceState: "all",
+    cardKey: current?.id ?? null,
+  });
+
   function answer(given: GrammarAnswered) {
     if (!current || result) return;
     setResult(given);
+    void touch({ rating: given.verdict === "correct" ? "good" : "again" });
     if (given.verdict === "correct") {
       setRight((count) => count + 1);
       setRuleAuto(false);
@@ -129,6 +146,8 @@ export function LessonSession({
     setRuleAuto(false);
     if (nextIndex >= exercises.length) {
       setSaving(true);
+      await flush();
+      const sittingId = await getIdAsync();
       await fetch("/api/courses/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -137,8 +156,10 @@ export function LessonSession({
           lessonSlug: lesson.slug,
           right,
           missedRuleIds,
+          sittingId: sittingId ?? undefined,
         }),
       }).catch(() => {});
+      await complete({ missedRuleIds });
       setSaving(false);
       setView("done");
       return;
@@ -154,6 +175,9 @@ export function LessonSession({
     lesson.slug,
     right,
     missedRuleIds,
+    getIdAsync,
+    flush,
+    complete,
   ]);
 
   const enterLock = useRef(false);

@@ -24,10 +24,12 @@ model User {
 
   createdAt DateTime @default(now())
 
-  accounts Account[]
-  words    UserWord[]
-  sets     WordSet[]
-  courses  UserCourse[]
+  accounts   Account[]
+  words      UserWord[]
+  sets       WordSet[]
+  courses    UserCourse[]
+  sittings   StudySitting[]
+  reviewLogs ReviewLog[]
 }
 
 /// A login method attached to a User. Google stores the OAuth tokens here;
@@ -159,10 +161,27 @@ model WordSetItem {
 model ReviewLog {
   id        String   @id @default(cuid())
   wordId    String
+  /// Copied from the word so progress can count days without joining UserWord.
+  /// Backfilled on existing rows; new writes set it.
+  userId    String
+  sittingId String?
   rating    String
   createdAt DateTime @default(now())
 
-  word UserWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  /// ExerciseKind, or "study" / "graduate". Null on rows from before sittings.
+  kind String?
+  /// "correct" | "almost" | "wrong". Null on study cards and on old rows.
+  verdict String?
+  /// Show → answer, clamped 1..120000. Tea between cards is not a review.
+  elapsedMs Int?
+  /// Interval the scheduler chose after this rating; prev already lives above.
+  nextIntervalDays Float?
+  /// Brainstorm only: misses on the ladder. Null everywhere else.
+  errors Int?
+
+  word    UserWord      @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sitting StudySitting? @relation(fields: [sittingId], references: [id], onDelete: SetNull)
 
   // Word state just before this rating, so a misclick can be taken back.
   prevIntervalDays Float?
@@ -178,6 +197,52 @@ model ReviewLog {
 
   @@index([wordId])
   @@index([wordId, createdAt])
+  @@index([userId, createdAt])
+  @@index([sittingId])
+}
+
+/// One visit to a training or a lesson — not one review. Hours, weekly bars
+/// and "practice vs grammar" will sum these; until then they just accumulate.
+model StudySitting {
+  id     String @id @default(cuid())
+  userId String
+
+  /// "practice" | "brainstorm" | "study" | "grammar"
+  kind String
+  /// Format slug, or "courseSlug/lessonSlug" for a lesson.
+  label String
+
+  /// "due" | "new" | "hard" | "all" — the filter at the start, not what they did.
+  sourceState String
+  setIds      String[] @default([])
+
+  dueAtStart Int @default(0)
+  newAtStart Int @default(0)
+
+  startedAt DateTime
+  lastAt    DateTime
+  endedAt   DateTime?
+
+  /// "completed" | "abandoned". Null while the tab is still open.
+  endedReason String?
+
+  /// lastAt − startedAt. The summary screen and a pause after the last
+  /// answer do not count; a sitting stale for 3 hours closes at lastAt.
+  durationSec Int @default(0)
+  reviews     Int @default(0)
+  goods       Int @default(0)
+  agains      Int @default(0)
+  introduced  Int @default(0)
+
+  /// Lesson percent; null on word sittings.
+  score         Int?
+  /// Missed rules of this attempt, not the accumulated UserLesson list.
+  missedRuleIds String[] @default([])
+
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs ReviewLog[]
+
+  @@index([userId, startedAt])
 }
 
 /// What one user spent, and got, in one UTC day.

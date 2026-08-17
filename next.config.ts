@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
       // readable in one place.
       { source: "/home", destination: "/practice", permanent: true },
       { source: "/tasks/today", destination: "/practice", permanent: true },
+      { source: "/tasks/progress", destination: "/progress", permanent: false },
       { source: "/tasks", destination: "/practice", permanent: false },
       { source: "/import", destination: "/dictionary", permanent: true },
       // Adding words stopped being its own screen: the box sits on top of the

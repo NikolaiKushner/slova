@@ -1,199 +1,292 @@
-# Plan: меню — делать, потом иметь
+# Plan: navigation — do first, own second
 
 **Date:** 2026-08-17 · **Branch:** `nav-ia` · **Status:** in progress
-**Source:** разбор сайдбара + скриншот целевой IA (Главная / Learn / Словарь / Профиль). Решение: секции 1 и 2 со скриншота не рисуем.
+**Source:** sidebar review and a target IA screenshot (Home / Learn /
+Dictionary / Profile). Decision: do not implement sections 1 and 2 from the
+screenshot.
 
 ## Problem
 
-Сайдбар описывает продукт, которым Slova ещё не является. Из двенадцати пунктов шесть — заглушки. Первый пункт — мёртвая «Карта обучения». «Грамматика» стоит дважды. «Задания» звучит как школьный журнал. На iPad в ландшафте меню не влезает без `@media(max-height:800px)` в `components/layout/sidebar.tsx`.
+The sidebar describes a product that Slova is not yet. Six of its twelve items
+are placeholders. The first item is a dead-end Learning Map. Grammar appears
+twice. Tasks sounds like a school journal. In iPad landscape, the menu does not
+fit without `@media(max-height:800px)` in
+`components/layout/sidebar.tsx`.
 
-Целевая схема со скриншота (Dashboard → Learn → Словарь → Профиль) копирует Duolingo. Slova устроен иначе: человек сам тащит слова, потом их тренирует. Отдельная «Главная» и широкая «Практика & Обучение» (тренировки + грамматика + чтение + курсы/темы) для меню слишком много и сейчас, и потом.
+The target structure in the screenshot (Dashboard → Learn → Dictionary →
+Profile) copies Duolingo. Slova works differently: people bring their own
+words, then practise them. Separate Home and broad Practice & Learning
+sections (trainings + grammar + reading + courses/topics) put too much in the
+menu, both now and later.
 
 ## Outcome
 
-Слева четыре живых пункта. Сначала делать, потом иметь. После входа — сразу Тренировки, не дашборд. Заглушки из меню пропадают. Карта, чтение, темы, готовые наборы и прогресс как раздел — не пункты; куда они лягут, если появятся, записано ниже.
+The sidebar has four working items. Activities come first, owned material
+second. After sign-in, the user lands directly on Trainings rather than a
+dashboard. Placeholders disappear from the menu. The map, reading, topics,
+curated sets, and progress as a section are not navigation items; their future
+locations are recorded below.
 
 ## Success criteria
 
-- [x] В сайдбаре ровно: Тренировки, Грамматика, Мои слова, Мои наборы
-- [x] «Грамматика» встречается один раз и ведёт на `/courses/grammar`
-- [x] Ни одного пункта-заглушки; «Сегодня» и «Карта» в меню нет
-- [x] `SIGNED_IN_HOME` = `/practice`; логотип, логин и выход из сессии ведут туда
-- [x] `/home`, `/tasks`, `/tasks/today` открывают Тренировки
-- [ ] На iPad mini landscape все пункты видны без скролла сайдбара и без сжатия по высоте
-- [x] `npm test` зелёный; `tests/unit/nav.test.ts` описывает новую карту
-- [x] `docs/design-system.md` §15.1 совпадает с живым меню
+- [x] The sidebar contains exactly: Trainings, Grammar, My words, My sets
+- [x] Grammar appears once and links to `/courses/grammar`
+- [x] There are no placeholder items; Today and Map are absent
+- [x] `SIGNED_IN_HOME` = `/practice`; the logo, sign-in, and session exit
+      lead there
+- [x] `/home`, `/tasks`, and `/tasks/today` open Trainings
+- [ ] On iPad mini landscape, every item is visible without sidebar scrolling
+      or vertical compression
+- [x] `npm test` is green; `tests/unit/nav.test.ts` describes the new map
+- [x] §15.1 of `docs/design-system.md` matches the live menu
 
 ## Non-goals
 
-- Не строить карту, чтение, готовые наборы, тематические курсы, дашборд прогресса
-- Не переносить `OverviewStats` с Сегодня на Тренировки или в профиль — экран `/tasks/today` уходит редиректом, виджет позже
-- Не склеивать «Мои слова» и «Мои наборы» в табы (идея со скриншота — когда появится каталог)
-- Не вводить секцию «Учёба» / «Learn» и не вводить «Главную»
-- Не трогать FocusShell, поиск, аккаунт, сворачивание сайдбара
-- Не новый визуальный язык: токены, иконки 17px, `radius-sm`, цвет секций `eyebrow`
-- Не мержить в `main` без вопроса
+- Do not build the map, reading, curated sets, topical courses, or a progress
+  dashboard
+- Do not move `OverviewStats` from Today to Trainings or Profile:
+  `/tasks/today` redirects and the widget can be placed later
+- Do not merge My words and My sets into tabs; revisit the screenshot's idea
+  when a catalog exists
+- Do not introduce a Learn section or a Home item
+- Do not change FocusShell, search, account controls, or sidebar collapsing
+- Do not create a new visual language: keep the tokens, 17px icons,
+  `radius-sm`, and `eyebrow` section color
+- Do not merge into `main` without asking
 
 ## Context found in the codebase
 
-Живое:
+Working screens:
 
-| Экран | Путь | В новом меню |
+| Screen | Path | In the new menu |
 |---|---|---|
-| Тренировки | `/practice` | да, первый |
-| Грамматика | `/courses/grammar` | да |
-| Мои слова | `/dictionary` | да |
-| Мои наборы | `/dictionary/sets` | да |
-| Сегодня | `/tasks/today` | нет, редирект на `/practice` |
-| Мои курсы | `/courses/my` | нет, ссылка с каталога |
+| Trainings | `/practice` | yes, first |
+| Grammar | `/courses/grammar` | yes |
+| My words | `/dictionary` | yes |
+| My sets | `/dictionary/sets` | yes |
+| Today | `/tasks/today` | no, redirects to `/practice` |
+| My courses | `/courses/my` | no, linked from the catalog |
 
-Заглушки, тоже не в меню: `/tasks`, `/tasks/progress`, `/practice/grammar`, `/practice/reading`, `/courses/topics`, `/dictionary/catalog`.
+The remaining placeholders are also absent from the menu:
+`/practice/grammar`, `/practice/reading`, `/courses/topics`, and
+`/dictionary/catalog`. `/tasks` redirects to Trainings, while
+`/tasks/progress` redirects to the working `/progress` screen.
 
-Дом сейчас размазан: `SIGNED_IN_HOME` в `lib/auth.config.ts`, редирект в `app/page.tsx`, логотип в `components/layout/sidebar.tsx`, выход из сессии в `components/study-session.tsx`, `/home` в `next.config.ts`. Всё указывает на `/tasks/today`.
+The application home was previously spread across `SIGNED_IN_HOME` in
+`lib/auth.config.ts`, the redirect in `app/page.tsx`, the logo in
+`components/layout/sidebar.tsx`, the session exit in
+`components/study-session.tsx`, and `/home` in `next.config.ts`. Every
+one of them pointed to `/tasks/today`.
 
-Карта навигации — `lib/nav.ts`. Иконки — `components/layout/sidebar.tsx`. Подписи — `messages/{ru,en}.json` → `nav`. Спека §15.1: «Задания / Практика / Курсы / Словарь».
+The navigation map is `lib/nav.ts`. Icons live in
+`components/layout/sidebar.tsx`. Labels are under `nav` in
+`messages/{ru,en}.json`. §15.1 of the specification previously listed Tasks
+/ Practice / Courses / Dictionary.
 
-Каталог грамматики уже фильтрует «мой уровень» и сортирует `started`. «Мои курсы» — второй вход, не новая модель. Практика грамматики (`/practice/grammar`) в копирайте заглушки дублирует то, что курс уже делает. «Темы» и «Готовые наборы» в `comingSoon` — одна фича в двух секциях.
+The grammar catalog already filters by the user's level and sorts started
+courses. My courses is a secondary entry point, not a new model. The Grammar
+practice placeholder (`/practice/grammar`) duplicates work the course already
+does. Topics and Curated sets under `comingSoon` are one feature exposed in
+two sections.
 
-Сессия `/study` сейчас подсвечивает Сегодня (`matches` в `lib/nav.ts`). Сессию начинают с Тренировок — подсветка должна уйти туда.
+The `/study` session previously highlighted Today through `matches` in
+`lib/nav.ts`. Because sessions start from Trainings, that highlight should
+move there.
 
 ## Design
 
-**Chosen: четыре пункта, без Главной и без Learn.**
+**Chosen: four items, without Home or Learn.**
 
 ```
 ┌─────────────────────┐
 │  Slova        🔍  ⇤ │
 ├─────────────────────┤
-│  Занятия            │
-│    Тренировки       │
-│    Грамматика       │
+│  Study              │
+│    Trainings        │
+│    Grammar          │
 │                     │
-│  Словарь            │
-│    Мои слова        │
-│    Мои наборы       │
+│  Dictionary         │
+│    My words         │
+│    My sets          │
 │                     │
 ├─────────────────────┤
 │  NI  Nikolai     ↕  │
 └─────────────────────┘
 ```
 
-Тренировки и Грамматика стоят под «Занятия» — два способа заниматься, не «Learn» со скриншота. Словарь остаётся группой — два пункта про одно имущество. Порядок: ежедневный жест сверху (открыл → занимаешься), инвентарь ниже.
+Trainings and Grammar sit under Study: they are two ways to study, not the
+Learn section from the screenshot. Dictionary remains a group because both
+items describe owned material. The order puts the daily action first (open the
+app and practise) and inventory second.
 
-Дом приложения — `/practice`. Source bar уже умеет «к повторению»; отдельный экран «Сегодня» больше не место в продукте. `/tasks/today` и `/tasks` редиректят туда же, чтобы не оставлять сироту и не показывать заглушку карты над бывшим домом.
+The application home is `/practice`. Its source bar already exposes material
+due for review, so a separate Today screen no longer has a place in the
+product. Both `/tasks/today` and `/tasks` redirect there to avoid an orphaned
+route or a map placeholder above the former home.
 
-«Мои курсы» живут по URL, в `NAV_SECTIONS` их нет. С каталога — ссылка, если есть начатые.
+My courses keeps its URL but is absent from `NAV_SECTIONS`. The catalog links
+to it when there are started courses.
 
-Со скриншота берём только это:
+Only these ideas are retained from the screenshot:
 
-| Идея со скриншота | Решение |
+| Screenshot idea | Decision |
 |---|---|
-| 1. Главная (Сегодня + карта) | Не рисуем. Карту не строим: продукт не линейный путь |
-| 2. Практика & Обучение (4 пункта) | Не рисуем как секцию. В меню остаются только два живых: Тренировки и Грамматика. Две грамматики склеиваются в `/courses/grammar` |
-| 3. Словарь: все слова + наборы с каталогом | Слова и наборы — да. Каталог как вкладка наборов — когда каталог появится, не сейчас |
-| 4. Профиль & прогресс | Не пункт меню. Цифры позже в профиле или на Тренировках |
+| 1. Home (Today + map) | Do not render it. Do not build the map: the product is not a linear path |
+| 2. Practice & Learning (four items) | Do not render it as a section. Keep only the two working items: Trainings and Grammar. Merge both grammar entries into `/courses/grammar` |
+| 3. Dictionary: all words + sets with a catalog | Keep words and sets. Add the catalog as a sets tab when it exists, not now |
+| 4. Profile & progress | Do not make it a sidebar item. Put metrics in Profile or Trainings later |
 
-Когда фичи появятся — не рождая Главную и Learn:
+Place future features without creating Home or Learn:
 
-| Фича | Куда |
+| Feature | Location |
 |---|---|
-| Карта обучения | Никуда в меню. Если когда-нибудь — это другой продукт |
-| Сегодня / обзор | Не пункт. Срок = source bar. Виджет серии — профиль или шапка Тренировок, отдельным шагом |
-| Практика грамматики | Внутри курса |
-| Чтение | Третий пункт рядом с Тренировками и Грамматикой, всё ещё без заголовка Learn |
-| Темы + готовые наборы | Один вход: вкладка на «Мои наборы», не сосед в меню и не «Курсы / Темы» |
-| Мои курсы | Секция каталога, не пункт |
-| Мой прогресс | Профиль |
+| Learning map | Nowhere in the menu. If it ever exists, it belongs to a different product model |
+| Today / overview | Not an item. Due dates belong in the source bar. Add a streak widget to Profile or the Trainings header as a separate step |
+| Grammar practice | Inside a course |
+| Reading | A third item beside Trainings and Grammar, still without a Learn heading |
+| Topics + curated sets | One entry: a tab in My sets, not a sibling menu item and not Courses / Topics |
+| My courses | A catalog section, not an item |
+| My progress | Profile |
 
-**Why over the alternatives:**
+**Why this approach instead of the alternatives:**
 
 | Approach | How | Trade-off | Verdict |
 |---|---|---|---|
-| A (chosen) 4 пункта, дом = Тренировки | Меню = то, что работает; нет Dashboard/Learn | Экран Сегодня пропадает из навигации | выбран |
-| B Пять пунктов, «Сегодня» первым без секции | Как в предыдущей версии этого плана | Дашборд без заголовка — всё ещё секция 1 со скриншота | отвергнут: «1 убираем» |
-| C Схема со скриншота целиком | Главная / Learn / Словарь / Профиль | Половина пунктов — будущее; Learn смешивает четыре разных дела | отвергнут: «1 и 2 не рисуем» |
-| D Плоский список без «Словарь» | Четыре пункта в один столбец | На четырёх пунктах заголовок словаря почти лишний, но пара слов/наборов иначе читается как ещё две тренировки | запасной, если после шага 2 на mini всё ещё тесно |
+| A (chosen): four items, home = Trainings | The menu contains what works; no Dashboard or Learn | Today disappears from navigation | chosen |
+| B: five items, Today first with no section | The previous version of this plan | A dashboard without a heading is still section 1 from the screenshot | rejected: section 1 must go |
+| C: reproduce the screenshot | Home / Learn / Dictionary / Profile | Half of the items are future work; Learn mixes four different activities | rejected: sections 1 and 2 must not be rendered |
+| D: flat list without Dictionary | Four items in one column | With only four items, the Dictionary heading is almost redundant, but without it words and sets read like two more trainings | fallback if step 2 is still too tight on iPad mini |
 
-**What would change this decision:** если «Сегодня» должен остаться входом после логина. Тогда подход B, этот план не начинать с `SIGNED_IN_HOME`.
+**What would change this decision:** a requirement to keep Today as the
+post-sign-in destination. In that case, choose approach B and do not begin this
+plan by changing `SIGNED_IN_HOME`.
 
-**Touches:** UI (`lib/nav.ts`, `components/layout/sidebar.tsx`, `messages/{ru,en}.json`) · дом (`lib/auth.config.ts`, `app/page.tsx`, `next.config.ts`, `components/study-session.tsx`) · тесты (`tests/unit/nav.test.ts`) · спека §15.1 · README. Схема, API, миграции, зависимости — нет.
+**Touches:** UI (`lib/nav.ts`, `components/layout/sidebar.tsx`,
+`messages/{ru,en}.json`) · home (`lib/auth.config.ts`, `app/page.tsx`,
+`next.config.ts`, `components/study-session.tsx`) · tests
+(`tests/unit/nav.test.ts`) · §15.1 of the specification · README. No schema,
+API, migration, or dependency changes.
 
 ## Steps
 
-### 1. Карта в `NAV_SECTIONS` — S · `[x]`
+### 1. Update `NAV_SECTIONS` — S · `[x]`
 
-- **Why first:** подсветка, тултипы и тесты живут от этой таблицы.
-- **Files:** `lib/nav.ts` (edit), `tests/unit/nav.test.ts` (edit), `messages/ru.json` + `messages/en.json` ключ `nav` (edit)
-- **Does:** две секции. Первая — `study` («Занятия»): пункты Тренировки `/practice` (`matches`: `/practice/vocabulary`, `/study`) и Грамматика `/courses/grammar`. Вторая — `dictionary`: Мои слова (`matches`: `/import`), Мои наборы. `/courses/my` не пункт; уроки курса подсвечивают Грамматику как сейчас.
-- **Verify:** `npm test -- tests/unit/nav.test.ts` — четыре href; `/study` → `/practice`; `/courses/grammar/present-simple/forms` → `/courses/grammar`; `/dictionary/sets/abc` → `/dictionary/sets`; `/tasks/today` → `null` (редирект ещё не обязан быть в этом шаге)
+- **Why first:** highlights, tooltips, and tests are all driven by this table.
+- **Files:** `lib/nav.ts` (edit), `tests/unit/nav.test.ts` (edit), and the
+  `nav` keys in `messages/ru.json` and `messages/en.json` (edit)
+- **Does:** create two sections. The first is `study` (Study), containing
+  Trainings at `/practice` (matching `/practice/vocabulary` and `/study`)
+  and Grammar at `/courses/grammar`. The second is `dictionary`, containing
+  My words (matching `/import`) and My sets. `/courses/my` is not an item;
+  course lessons continue to highlight Grammar.
+- **Verify:** `npm test -- tests/unit/nav.test.ts` — four hrefs;
+  `/study` → `/practice`;
+  `/courses/grammar/present-simple/forms` → `/courses/grammar`;
+  `/dictionary/sets/abc` → `/dictionary/sets`;
+  `/tasks/today` → `null` (the redirect need not exist in this step)
 - **Depends on:** —
 
-### 2. Сайдбар, иконки, ритм — S · `[x]`
+### 2. Sidebar, icons, and rhythm — S · `[x]`
 
-- **Files:** `components/layout/sidebar.tsx` (`NAV_ICONS`, цикл секций, логотип `href={SIGNED_IN_HOME}` или `/practice`, комментарий про 12 пунктов, `@media(max-height:800px)`)
-- **Does:** иконки только для четырёх href. Убрать сжатие по высоте. Группа без лейбла без лишнего `h-6`.
-- **Verify:** браузер, 834 и 1194, высота ~744. Четыре пункта на экране. Подсветка на тренировках / уроке грамматики / слове / наборе.
+- **Files:** `components/layout/sidebar.tsx` (`NAV_ICONS`, the section
+  loop, logo `href={SIGNED_IN_HOME}` or `/practice`, the comment about
+  twelve items, and `@media(max-height:800px)`)
+- **Does:** keep icons for only four hrefs. Remove vertical compression. Do not
+  reserve an extra `h-6` for an unlabeled group.
+- **Verify:** inspect at widths 834 and 1194 and a height around 744. All four
+  items remain visible. Highlights work on Trainings, a grammar lesson, a
+  word, and a set.
 - **Depends on:** 1
 
-### 3. Дом = Тренировки — S · `[x]`
+### 3. Home = Trainings — S · `[x]`
 
-- **Files:** `lib/auth.config.ts` (`SIGNED_IN_HOME`), `app/page.tsx`, `next.config.ts` (`/home` → `/practice`; добавить `/tasks` и `/tasks/today` → `/practice`), `components/study-session.tsx` (выход на `SIGNED_IN_HOME` или `/practice`), `app/(app)/tasks/page.tsx` и `app/(app)/tasks/today/page.tsx` — либо удалить и положиться на `next.config`, либо `redirect("/practice")` если редирект конфига не покрывает
-- **Does:** логин, лендинг для вошедших, логотип, `/home`, бывший дом и корень карты ведут на Тренировки. Страницы-заглушки `/tasks/progress` и остальные Coming soon не трогаем — просто нет входа из меню.
-- **Verify:** без сессии `/` — лендинг; с сессией `/` и `/tasks/today` и `/home` — `/practice`. Выход из вопроса — Тренировки. `npm test`
+- **Files:** `lib/auth.config.ts` (`SIGNED_IN_HOME`), `app/page.tsx`,
+  `next.config.ts` (`/home` → `/practice`; add `/tasks` and
+  `/tasks/today` → `/practice`), `components/study-session.tsx` (exit to
+  `SIGNED_IN_HOME` or `/practice`), and
+  `app/(app)/tasks/page.tsx` plus `app/(app)/tasks/today/page.tsx`: either
+  remove them and rely on `next.config`, or call `redirect("/practice")`
+  if config redirects do not cover them
+- **Does:** sign-in, the authenticated landing page, logo, `/home`, the former
+  home, and the map root all lead to Trainings. Leave remaining coming-soon
+  routes alone; they simply have no menu entry. `/tasks/progress` was later
+  redirected to the working `/progress` page.
+- **Verify:** signed out, `/` shows the landing page; signed in, `/`,
+  `/tasks/today`, and `/home` lead to `/practice`. Exiting a question
+  returns to Trainings. Run `npm test`.
 - **Depends on:** 1
 
-Постоянный редирект `/home` уже `permanent: true` на Сегодня. Новый destination `/practice` — тоже permanent, старый URL и так сгорел.
+The permanent `/home` redirect already pointed to Today. Keep it permanent
+when changing its destination to `/practice`; the old URL was already retired.
 
-### 4. Вход в «Мои курсы» с каталога — S · `[x]`
+### 4. Link My courses from the catalog — S · `[x]`
 
-- **Files:** `components/courses/grammar-catalog.tsx` или `app/(app)/courses/grammar/page.tsx`
-- **Does:** ссылка на `/courses/my`, если есть начатые. Иначе страница сирота — допустимо, на неё всё ещё можно зайти с урока через существующий `PageBack` наоборот не попадёшь; тогда ссылка всегда, даже при нуле (пустой список уже умеет).
-- **Verify:** с каталога открываются начатые курсы.
+- **Files:** `components/courses/grammar-catalog.tsx` or
+  `app/(app)/courses/grammar/page.tsx`
+- **Does:** link to `/courses/my` when there are started courses. If the page
+  would otherwise be orphaned, an always-visible link is acceptable because
+  its existing empty state already works.
+- **Verify:** started courses can be opened from the catalog.
 - **Depends on:** 1
 
-### 5. Спека и README — S · `[x]`
+### 5. Specification and README — S · `[x]`
 
-- **Files:** `docs/design-system.md` §15.1, `README.md` таблица Screens, этот файл — отметить шаги
-- **Does:** спека: пункты Тренировки, Грамматика, затем секция Словарь. README не обещает в сайдбаре Сегодня, карту, чтение, темы, готовые наборы.
-- **Verify:** §15.1 рядом с живым сайдбаром.
+- **Files:** §15.1 of `docs/design-system.md`, the Screens table in
+  `README.md`, and this file to mark completed steps
+- **Does:** document Trainings and Grammar followed by the Dictionary section.
+  The README no longer promises Today, the map, reading, topics, or curated
+  sets in the sidebar.
+- **Verify:** compare §15.1 with the live sidebar.
 - **Depends on:** 2
 
-Шаги 3, 4 и 5 после шага 2 можно параллелить.
+Steps 3, 4, and 5 can run in parallel after step 2.
 
 ## Risks
 
 | Risk | Early signal | Cheapest way to resolve it now |
 |---|---|---|
-| «Сегодня» всё-таки хотели как дом | Владелец открывает приложение и ищет цифры | Не начинать шаг 3; вернуться к подходу B |
-| Потеря `OverviewStats` | На Тренировках нет серии и обзора словаря | Сознательно в Non-goals; вернуть виджетом отдельным шагом |
-| `/courses/my` потеряется | Каталог без ссылки | Шаг 4 |
-| Закладки `/tasks/today` | Кто-то ждал обзор | Редирект на Тренировки честнее сироты |
-| Permanent `/home` уже указывал на Сегодня | Старые клиенты кэшировали | Новый permanent на `/practice`; `/home` и так не живая страница |
+| Today was actually intended to remain home | The owner opens the app and looks for metrics | Do not start step 3; return to approach B |
+| Loss of `OverviewStats` | Trainings has no streak or dictionary overview | Deliberately a non-goal; restore it as a widget in a separate step |
+| `/courses/my` becomes hard to find | The catalog has no link | Step 4 |
+| Existing `/tasks/today` bookmarks | Someone expected the overview | Redirecting to Trainings is more honest than leaving an orphan |
+| Permanent `/home` already pointed to Today | Old clients cached it | Replace it with a permanent redirect to `/practice`; `/home` is not a live page |
 
 ## Rollback
 
-Только UI, копирайт и редиректы. `git revert`. Данных нет. Permanent-редирект `/home` после выката откатывается новым деплоем.
+Only UI, copy, and redirects change. Use `git revert`; no data is involved. A
+deployed permanent `/home` redirect can be reversed by a later deployment.
 
 ## Test plan
 
-- Unit: `tests/unit/nav.test.ts` — состав, нет дублей href, longest-claim для наборов и уроков, `/study` → Тренировки, `/import` → Мои слова, `/tasks/today` → `null`
-- В сессии: `npm test` и взгляд на 834 / 1194 / низкое окно; логин → Тренировки
-- Намеренно не тестируем: FocusShell, поиск, содержимое coming-soon страниц
+- Unit: `tests/unit/nav.test.ts` — composition, no duplicate hrefs,
+  longest-claim behavior for sets and lessons, `/study` → Trainings,
+  `/import` → My words, and `/tasks/today` → `null`
+- In-session: run `npm test` and inspect widths 834 and 1194 plus a short
+  window; sign-in should lead to Trainings
+- Intentionally not tested: FocusShell, search, and the contents of
+  coming-soon pages
 
 ## Rollout
 
-Без флага. Ветка, `npm test` + взгляд, в `main` когда батч готов и есть согласие. После деплоя: войти — Тренировки; четыре пункта; урок грамматики подсвечивает Грамматику; `/tasks/today` не в меню и не открывается как страница.
+No flag. Keep the work on the branch, run `npm test`, and inspect it before
+merging to `main` once the batch is ready and approved. After deployment:
+sign-in leads to Trainings; the sidebar has four items; a grammar lesson
+highlights Grammar; `/tasks/today` is absent from the menu and no longer opens
+as a page.
 
 ## Open questions
 
-Нет. «1 и 2 со скриншота не рисуем», дом = Тренировки, «Мои курсы» — ссылка с каталога.
+None. Sections 1 and 2 from the screenshot are not rendered, home is Trainings,
+and My courses is linked from the catalog.
 
 ## Deferred / out of scope
 
-- Виджет серии и обзора словаря на Тренировках или в профиле (то, что было на Сегодня)
-- Чтение как третий пункт рядом с Тренировками
-- Готовые наборы вкладкой на «Мои наборы» (и не плодить рядом «Темы»)
-- «В процессе» внутри каталога грамматики вместо отдельной `/courses/my`
-- Табы «все слова / наборы» на одном экране
-- Плоский список без заголовка «Словарь» (подход D)
-- Карта обучения
+- The streak widget on Trainings and the `/progress` screen are done; progress
+  is reached from the account menu, not the sidebar
+- Reading as a third item beside Trainings
+- Curated sets as a tab in My sets, without adding Topics beside it
+- An In progress section inside the grammar catalog instead of a separate
+  `/courses/my`
+- All words / sets tabs on a single screen
+- A flat list without the Dictionary heading (approach D)
+- Learning map

@@ -50,10 +50,11 @@ grammar explanations.
 
 | Where | What |
 |---|---|
-| **Trainings** | Six formats plus Brainstorm. The source (sets and due/new/hard) is chosen once, at the top of the page. This is where you land after sign-in |
-| **Grammar** | Present Simple and *to be*; the rest of the A1–B1 shelf is Coming soon |
+| **Trainings** | Six vocabulary formats, Brainstorm, and irregular-verb forms. The source (sets and due/new/hard) is chosen once, at the top of the page. This is where you land after sign-in. A streak line sits under the header when there is something to say. |
+| **Grammar** | Present Simple, *to be*, and irregular verbs; the rest of the A1–B1 shelf is Coming soon |
 | **My words** | Everything you have — search, filter, sort, edit, bulk actions |
 | **My sets** | Sets as tags, not folders |
+| **My progress** | Account menu, not the sidebar. Streak and record, study calendar, dictionary bar, reviews, memory. Minutes of each sitting are stored; hours wait until there are enough days. |
 
 Seven ways to be asked a word: recognise it, recognise it backwards, hear it
 and choose, assemble it from letters, hear it and write it, write it from the

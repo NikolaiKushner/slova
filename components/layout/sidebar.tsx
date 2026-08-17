@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bookmark,
+  ChartNoAxesColumn,
   ChevronsUpDown,
   LibraryBig,
   LogOut,
@@ -89,6 +90,7 @@ function SidebarUserMenu() {
   const { data } = useSession();
   const { isMobile } = useSidebar();
   const t = useTranslations("chrome");
+  const nav = useTranslations("nav");
   const email = data?.user?.email ?? "";
   const name = data?.user?.name || email.split("@")[0] || t("account");
   const initials = userInitials(data?.user?.name, email);
@@ -144,6 +146,11 @@ function SidebarUserMenu() {
         <div className="px-1 py-1">
           <LocaleSwitcher variant="plain" />
         </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem render={<Link href="/progress" />}>
+          <ChartNoAxesColumn />
+          {nav("myProgress")}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"

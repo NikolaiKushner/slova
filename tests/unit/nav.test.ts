@@ -40,6 +40,8 @@ describe("activeNavHref", () => {
     expect(activeNavHref("/tasks")).toBeNull();
     expect(activeNavHref("/home")).toBeNull();
     expect(activeNavHref("/courses/my")).toBeNull();
+    expect(activeNavHref("/progress")).toBeNull();
+    expect(activeNavHref("/tasks/progress")).toBeNull();
   });
 
   it("only matches on a segment boundary", () => {

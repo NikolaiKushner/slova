@@ -39,6 +39,7 @@ import {
 import { buildQuestion, type PracticeWord } from "@/lib/practice/question";
 import { speak, whenVoiceReady } from "@/lib/practice/speech";
 import { sourceQuery, type Source } from "@/lib/practice/source";
+import { useStudySitting } from "@/hooks/use-study-sitting";
 
 /**
  * Brainstorm: the ladder, drawn.
@@ -129,6 +130,15 @@ export function BrainstormSession({ source }: { source: Source }) {
     return buildQuestion(task.step, word, data?.pool ?? [], `${data?.seed ?? ""}-${task.step}`);
   }, [task, word, data]);
 
+  const { getIdAsync, touch, track, complete } = useStudySitting({
+    active: started && !!data?.words.length,
+    kind: "brainstorm",
+    label: "brainstorm",
+    sourceState: source.state,
+    setIds: source.setIds,
+    cardKey: task?.wordId ?? null,
+  });
+
   /**
    * Hand a finished word to the scheduler with what the session learned about
    * it: a clean run starts further out than one that took six goes.
@@ -137,13 +147,22 @@ export function BrainstormSession({ source }: { source: Source }) {
     for (const wordId of state.mastered) {
       const word = state.words.find((w) => w.wordId === wordId);
       if (!word) continue;
-      void fetch("/api/practice/graduate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wordId, errors: word.errors }),
-      }).catch(() => {});
+      const request = getIdAsync()
+        .then((sittingId) =>
+          fetch("/api/practice/graduate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              wordId,
+              errors: word.errors,
+              sittingId: sittingId ?? undefined,
+            }),
+          }),
+        )
+        .then(() => undefined, () => undefined);
+      track(request);
     }
-  }, []);
+  }, [getIdAsync, track]);
 
   function next() {
     if (!state) return;
@@ -155,6 +174,7 @@ export function BrainstormSession({ source }: { source: Source }) {
     if (isFinished(advanced)) {
       handOver(advanced);
       if (startedAt) setElapsed(Math.round((Date.now() - startedAt) / 1000));
+      void complete();
     }
   }
 
@@ -275,6 +295,7 @@ export function BrainstormSession({ source }: { source: Source }) {
           onAnswered={(given) => {
             setAnswers((count) => count + 1);
             setResult(given);
+            void touch();
           }}
           part="answer"
           onDemandAudioEnabled={data.onDemandAudioEnabled}
