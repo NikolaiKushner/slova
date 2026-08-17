@@ -33,10 +33,11 @@ cent.
 
 **On-demand pronunciation is off by default.** When
 `TTS_ON_DEMAND_ENABLED=true`, the authenticated `/api/audio` endpoint accepts
-one explicit text of at most 200 characters. It checks `Lexeme` first, then
-atomically reserves a small daily request-and-character budget before calling
-OpenAI and uploading to R2. Failed paid-path attempts stay reserved, so retries
-cannot turn a provider outage into an unlimited bill.
+one explicit text of at most 200 characters. It may fill missing audio only for
+an existing shared `Lexeme`; arbitrary account input can never create shared
+rows or R2 objects. It then atomically reserves a small daily
+request-and-character budget before calling OpenAI. Failed paid-path attempts
+stay reserved, so retries cannot turn a provider outage into an unlimited bill.
 
 **The scheduler is FSRS.** Three numbers per word — how long the memory lasts,
 how hard that word is for you, how likely you are to recall it now — instead of
@@ -97,6 +98,7 @@ that checks the lockfile the way CI does, then runs `npm test`.
 | `npm run db:seed` | Demo user and a small set |
 | `npm run db:prepare-test` | Migrate the isolated test database and reset its fixture |
 | `npm run db:seed-test-user` | Reset the deterministic user in the isolated test database |
+| `npm run budget:status` | Print today's durable provider-cap status; exits 2 when a cap alert exists |
 | `npm run lexicon:build` | Translate the frequency list through the Batch API |
 | `npm run db:seed-lexicon` | Load that dataset into the shared base |
 | `npm run lexicon:audio` | Record every word and upload it to R2 |
@@ -106,6 +108,8 @@ records where the word list came from and under what terms.
 
 Database and browser test setup is documented in `docs/testing.md`. These
 suites are deliberately separate from `npm test`, including in CI and Vercel.
+Paid-provider hard ceilings and their current worst-case cost are documented in
+`docs/provider-spend.md`.
 
 ## Stack
 

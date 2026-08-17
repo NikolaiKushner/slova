@@ -8,7 +8,11 @@ import {
   TRANSLATION_ITEM_DEPTH,
   type TranslationItem,
 } from "@/lib/llm/prompt";
-import { tryReserveRequest } from "@/lib/llm/budget";
+import {
+  conservativeInputTokenReservation,
+  reconcileLlmUsage,
+  reserveLlmUsage,
+} from "@/lib/llm/budget";
 import { activeModel } from "@/lib/llm/models";
 import { cleanCell, looksTransliterated, matchCase } from "@/lib/normalize";
 
@@ -67,12 +71,26 @@ export async function* translateBatch(
   if (misses.length === 0) return;
   usage.llmMisses = misses.length;
 
-  await tryReserveRequest(options.userId);
-
   const missKeys = new Set(misses.map((text) => normalizeKey(text)));
   const model = activeModel();
   const request = buildTranslationRequest(misses.map((text) => ({ text })));
-  const stream = llm().messages.stream(request);
+  const client = llm();
+  const counted = await client.messages.countTokens({
+    model: request.model,
+    messages: request.messages,
+    system: request.system,
+    output_config: request.output_config,
+  });
+  const reservation = {
+    inputTokens: conservativeInputTokenReservation(
+      request,
+      counted.input_tokens,
+    ),
+    outputTokens: request.max_tokens,
+  };
+  await reserveLlmUsage(options.userId, reservation);
+
+  const stream = client.messages.stream(request);
 
   const scanner = new JsonArrayStream<TranslationItem>({
     depth: TRANSLATION_ITEM_DEPTH,
@@ -100,6 +118,10 @@ export async function* translateBatch(
   usage.requests += 1;
   usage.inputTokens += final.usage.input_tokens;
   usage.outputTokens += final.usage.output_tokens;
+  await reconcileLlmUsage(options.userId, reservation, {
+    inputTokens: final.usage.input_tokens,
+    outputTokens: final.usage.output_tokens,
+  });
 
   // Written after the stream rather than per row: the point of the base is the
   // next list, not this one, and one batched write beats N round trips while

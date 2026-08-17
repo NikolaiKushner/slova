@@ -45,6 +45,7 @@ describe("TTS budget", () => {
   it("reserves requests and characters in one conditional update", async () => {
     const usage = {
       upsert: vi.fn().mockResolvedValue({}),
+      findUnique: vi.fn().mockResolvedValue(null),
       updateMany: vi
         .fn()
         .mockResolvedValueOnce({ count: 1 })
@@ -90,7 +91,8 @@ describe("TTS budget", () => {
   it("rejects when the atomic reservation changes no row", async () => {
     const usage = {
       upsert: vi.fn().mockResolvedValue({}),
-      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+      findUnique: vi.fn().mockResolvedValue({ requests: 50, characters: 0 }),
+      updateMany: vi.fn().mockResolvedValueOnce({ count: 0 }),
     };
 
     await expect(
@@ -102,13 +104,16 @@ describe("TTS budget", () => {
       }),
     ).rejects.toBeInstanceOf(TtsBudgetExceededError);
     expect(usage.updateMany).toHaveBeenCalledTimes(1);
-    expect(usage.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
+    expect(usage.upsert).toHaveBeenLastCalledWith({
+      where: {
+        userId_day: {
           userId: GLOBAL_TTS_USAGE_USER_ID,
-        }),
-      }),
-    );
+          day: "2026-08-16",
+        },
+      },
+      create: expect.objectContaining({ capReason: "requests", capAttempts: 1 }),
+      update: expect.objectContaining({ capReason: "requests" }),
+    });
   });
 
   it("uses conservative configurable global defaults", () => {
@@ -122,5 +127,14 @@ describe("TTS budget", () => {
         TTS_GLOBAL_DAILY_CHARACTERS: "700",
       }),
     ).toEqual({ requests: 7, characters: 700 });
+  });
+
+  it("does not let environment overrides raise hard global maxima", () => {
+    expect(
+      activeGlobalTtsLimits({
+        TTS_GLOBAL_DAILY_REQUESTS: "1000",
+        TTS_GLOBAL_DAILY_CHARACTERS: "1000000",
+      }),
+    ).toEqual({ requests: 100, characters: 10_000 });
   });
 });

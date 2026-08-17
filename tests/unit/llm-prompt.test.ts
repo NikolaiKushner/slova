@@ -90,6 +90,11 @@ describe("buildTranslationRequest", () => {
     expect(request.output_config?.effort).toBe("low");
   });
 
+  it("does not let an unknown environment model bypass the cost ceiling", () => {
+    process.env.LLM_MODEL = "claude-unpriced-future-model";
+    expect(buildTranslationRequest(ROWS).model).toBe(DEFAULT_MODEL);
+  });
+
   it("carries no prefix cache breakpoint — Haiku would ignore one silently", () => {
     expect(JSON.stringify(buildTranslationRequest(ROWS))).not.toContain(
       "cache_control",

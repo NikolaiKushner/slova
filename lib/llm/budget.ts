@@ -10,9 +10,10 @@ import { getPrisma } from "@/lib/prisma";
  * file. A second, app-wide ceiling sits on the same table so extra accounts
  * cannot multiply the personal allowance.
  *
- * The request slot is reserved atomically (`tryReserveRequest`) so parallel
- * calls cannot all slip through a read-then-call gap. Token cost is still
- * added after the model answers, because it is unknown until then.
+ * Request and token ceilings are reserved atomically before inference. Input
+ * tokens come from Anthropic's token-count endpoint; output reserves the
+ * request's hard `max_tokens` ceiling. A completed request returns only the
+ * unused part of that reservation, so parallel streams cannot overspend.
  */
 
 /** What a day of usage looks like to the limit check. */
@@ -23,6 +24,31 @@ export type UsageCounts = {
 };
 
 export type Limits = UsageCounts;
+
+export type TokenReservation = Pick<
+  UsageCounts,
+  "inputTokens" | "outputTokens"
+>;
+
+const INPUT_TOKEN_COUNT_MARGIN = 256;
+const INPUT_TOKEN_FRAMING_ALLOWANCE = 1_024;
+
+/**
+ * Anthropic documents token counting as an estimate that can differ slightly
+ * from billed input. The serialized UTF-8 byte length is a deliberately loose
+ * tokenizer-independent ceiling for request content; the fixed allowance
+ * covers message framing that is not represented by that JSON.
+ */
+export function conservativeInputTokenReservation(
+  request: unknown,
+  countedTokens: number,
+): number {
+  const bytes = new TextEncoder().encode(JSON.stringify(request)).byteLength;
+  return Math.max(
+    countedTokens + INPUT_TOKEN_COUNT_MARGIN,
+    bytes + INPUT_TOKEN_FRAMING_ALLOWANCE,
+  );
+}
 
 /**
  * Measured, not guessed: one 40-word list costs ~$0.004 — 612 input and 706
@@ -58,6 +84,10 @@ function envInt(name: string, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function boundedEnvInt(name: string, hardMaximum: number): number {
+  return Math.min(envInt(name, hardMaximum), hardMaximum);
+}
+
 export function activeLimits(): Limits {
   return {
     requests: envInt("LLM_DAILY_REQUESTS", DEFAULT_LIMITS.requests),
@@ -68,15 +98,15 @@ export function activeLimits(): Limits {
 
 export function activeGlobalLimits(): Limits {
   return {
-    requests: envInt(
+    requests: boundedEnvInt(
       "LLM_GLOBAL_DAILY_REQUESTS",
       DEFAULT_GLOBAL_LIMITS.requests,
     ),
-    inputTokens: envInt(
+    inputTokens: boundedEnvInt(
       "LLM_GLOBAL_DAILY_INPUT_TOKENS",
       DEFAULT_GLOBAL_LIMITS.inputTokens,
     ),
-    outputTokens: envInt(
+    outputTokens: boundedEnvInt(
       "LLM_GLOBAL_DAILY_OUTPUT_TOKENS",
       DEFAULT_GLOBAL_LIMITS.outputTokens,
     ),
@@ -152,12 +182,17 @@ export function checkBudget(
 export class BudgetExceededError extends Error {
   readonly reason: string;
   readonly retryAfter: number;
+  readonly usageUserId: string;
 
-  constructor(verdict: Extract<BudgetVerdict, { withinBudget: false }>) {
+  constructor(
+    verdict: Extract<BudgetVerdict, { withinBudget: false }>,
+    usageUserId: string,
+  ) {
     super(verdict.message);
     this.name = "BudgetExceededError";
     this.reason = verdict.reason;
     this.retryAfter = verdict.retryAfter;
+    this.usageUserId = usageUserId;
   }
 }
 
@@ -208,7 +243,7 @@ export async function assertWithinBudget(
   now: Date = new Date(),
 ): Promise<void> {
   const verdict = checkBudget(await usageToday(userId, now), activeLimits(), now);
-  if (!verdict.withinBudget) throw new BudgetExceededError(verdict);
+  if (!verdict.withinBudget) throw new BudgetExceededError(verdict, userId);
 }
 
 function requestsSpentOut(
@@ -231,6 +266,7 @@ async function reserveSlot(
   userId: string,
   day: string,
   limits: Limits,
+  reservation: TokenReservation,
   now: Date,
   revealRequestLimit: boolean,
 ): Promise<void> {
@@ -240,40 +276,61 @@ async function reserveSlot(
     update: {},
   });
 
-  const used = await usage.findUnique({
-    where: { userId_day: { userId, day } },
-    select: { requests: true, inputTokens: true, outputTokens: true },
-  });
-  const tokenVerdict = checkBudget(
-    {
-      requests: 0,
-      inputTokens: used?.inputTokens ?? 0,
-      outputTokens: used?.outputTokens ?? 0,
-    },
-    { ...limits, requests: Number.MAX_SAFE_INTEGER },
-    now,
-  );
-  if (!tokenVerdict.withinBudget) throw new BudgetExceededError(tokenVerdict);
-
   const reserved = await usage.updateMany({
-    where: { userId, day, requests: { lt: limits.requests } },
-    data: { requests: { increment: 1 } },
+    where: {
+      userId,
+      day,
+      requests: { lt: limits.requests },
+      inputTokens: { lte: limits.inputTokens - reservation.inputTokens },
+      outputTokens: { lte: limits.outputTokens - reservation.outputTokens },
+    },
+    data: {
+      requests: { increment: 1 },
+      inputTokens: { increment: reservation.inputTokens },
+      outputTokens: { increment: reservation.outputTokens },
+    },
   });
-  if (reserved.count === 0) {
-    throw new BudgetExceededError(
-      requestsSpentOut(limits.requests, now, revealRequestLimit),
-    );
+  if (reserved.count === 1) return;
+
+  const used =
+    (await usage.findUnique({
+      where: { userId_day: { userId, day } },
+      select: { requests: true, inputTokens: true, outputTokens: true },
+    })) ?? EMPTY;
+  const retryAfter = secondsUntilReset(now);
+  let verdict: Extract<BudgetVerdict, { withinBudget: false }>;
+  if (used.requests + 1 > limits.requests) {
+    verdict = requestsSpentOut(limits.requests, now, revealRequestLimit);
+  } else if (
+    used.outputTokens + reservation.outputTokens >
+    limits.outputTokens
+  ) {
+    verdict = {
+      withinBudget: false,
+      reason: "outputTokens",
+      message: `Today's translation allowance is used up. ${RESET_HINT}`,
+      retryAfter,
+    };
+  } else {
+    verdict = {
+      withinBudget: false,
+      reason: "inputTokens",
+      message: `Today's translation allowance is used up. ${RESET_HINT}`,
+      retryAfter,
+    };
   }
+  throw new BudgetExceededError(verdict, userId);
 }
 
 /**
- * Atomically spend one request slot on both the person and the app-wide
- * ceiling. Parallel calls cannot all slip through a read-then-call gap: the
- * increment itself is the gate. Global is reserved first so extra accounts
- * cannot multiply the bill.
+ * Atomically reserve one request plus its input/output bounds on both the
+ * person and the app-wide ceiling. Parallel calls cannot all slip through a
+ * read-then-call gap: the conditional increment itself is the gate. Global is
+ * reserved first so extra accounts cannot multiply the bill.
  */
-export async function tryReserveRequest(
+export async function reserveLlmUsage(
   userId: string,
+  reservation: TokenReservation,
   now: Date = new Date(),
   {
     limits = activeLimits(),
@@ -292,22 +349,92 @@ export async function tryReserveRequest(
       GLOBAL_LLM_USAGE_USER_ID,
       day,
       globalLimits,
+      reservation,
       now,
       false,
     );
-    await reserveSlot(usage, userId, day, limits, now, true);
+    await reserveSlot(usage, userId, day, limits, reservation, now, true);
   };
 
-  if (dependencies.transaction) {
-    await dependencies.transaction(reserve);
-  } else {
-    await reserve(dependencies.usage);
+  try {
+    if (dependencies.transaction) {
+      await dependencies.transaction(reserve);
+    } else {
+      await reserve(dependencies.usage);
+    }
+  } catch (error) {
+    if (error instanceof BudgetExceededError) {
+      await dependencies.usage.upsert({
+        where: { userId_day: { userId: error.usageUserId, day } },
+        create: {
+          userId: error.usageUserId,
+          day,
+          capReachedAt: now,
+          capReason: error.reason,
+          capAttempts: 1,
+        },
+        update: {
+          capReachedAt: now,
+          capReason: error.reason,
+          capAttempts: { increment: 1 },
+        },
+      });
+    }
+    throw error;
   }
 }
 
-export type UsageDelta = Partial<
-  UsageCounts & { lexiconHits: number; llmMisses: number }
->;
+/**
+ * Replaces a conservative completed reservation with provider-reported usage.
+ * If reconciliation fails, the larger reservation remains charged.
+ */
+export async function reconcileLlmUsage(
+  userId: string,
+  reservation: TokenReservation,
+  actual: TokenReservation,
+  now: Date = new Date(),
+  dependencies: LlmBudgetDependencies = defaultDependencies(),
+): Promise<void> {
+  if (
+    actual.inputTokens > reservation.inputTokens ||
+    actual.outputTokens > reservation.outputTokens
+  ) {
+    throw new Error("Provider usage exceeded its reserved token ceiling.");
+  }
+
+  const day = utcDay(now);
+  const inputTokens = reservation.inputTokens - actual.inputTokens;
+  const outputTokens = reservation.outputTokens - actual.outputTokens;
+  if (inputTokens === 0 && outputTokens === 0) return;
+
+  const reconcile = async (usage: LlmUsageDelegate) => {
+    for (const usageUserId of [GLOBAL_LLM_USAGE_USER_ID, userId]) {
+      const updated = await usage.updateMany({
+        where: {
+          userId: usageUserId,
+          day,
+          inputTokens: { gte: inputTokens },
+          outputTokens: { gte: outputTokens },
+        },
+        data: {
+          inputTokens: { decrement: inputTokens },
+          outputTokens: { decrement: outputTokens },
+        },
+      });
+      if (updated.count !== 1) {
+        throw new Error("LLM token reservation could not be reconciled.");
+      }
+    }
+  };
+
+  if (dependencies.transaction) {
+    await dependencies.transaction(reconcile);
+  } else {
+    await reconcile(dependencies.usage);
+  }
+}
+
+export type UsageDelta = Partial<{ lexiconHits: number; llmMisses: number }>;
 
 /**
  * Add to today's row, creating it if this is the day's first call. Hits are
@@ -321,9 +448,6 @@ export async function recordUsage(
 ): Promise<void> {
   const day = utcDay(now);
   const amounts = {
-    requests: delta.requests ?? 0,
-    inputTokens: delta.inputTokens ?? 0,
-    outputTokens: delta.outputTokens ?? 0,
     lexiconHits: delta.lexiconHits ?? 0,
     llmMisses: delta.llmMisses ?? 0,
   };
@@ -333,31 +457,8 @@ export async function recordUsage(
     where: { userId_day: { userId, day } },
     create: { userId, day, ...amounts },
     update: {
-      requests: { increment: amounts.requests },
-      inputTokens: { increment: amounts.inputTokens },
-      outputTokens: { increment: amounts.outputTokens },
       lexiconHits: { increment: amounts.lexiconHits },
       llmMisses: { increment: amounts.llmMisses },
     },
   });
-
-  // Requests were reserved atomically before the call. Tokens are only known
-  // afterwards, and the global ceiling has to see them or it is requests-only.
-  if (amounts.inputTokens > 0 || amounts.outputTokens > 0) {
-    await prisma.llmUsage.upsert({
-      where: {
-        userId_day: { userId: GLOBAL_LLM_USAGE_USER_ID, day },
-      },
-      create: {
-        userId: GLOBAL_LLM_USAGE_USER_ID,
-        day,
-        inputTokens: amounts.inputTokens,
-        outputTokens: amounts.outputTokens,
-      },
-      update: {
-        inputTokens: { increment: amounts.inputTokens },
-        outputTokens: { increment: amounts.outputTokens },
-      },
-    });
-  }
 }

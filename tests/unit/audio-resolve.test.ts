@@ -18,7 +18,7 @@ function dependencies(
     validatePaidPath: vi.fn(),
     synthesize: vi.fn().mockResolvedValue(new Uint8Array([1, 2])),
     upload: vi.fn().mockResolvedValue("https://audio.test/hello.mp3"),
-    storeLexeme: vi.fn().mockResolvedValue(undefined),
+    storeAudio: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -28,9 +28,7 @@ describe("resolveAudio", () => {
     let cachedUrl: string | null = null;
     const order: string[] = [];
     const deps = dependencies({
-      findLexeme: vi.fn(async () =>
-        cachedUrl ? { audioUrl: cachedUrl, text: "Hello" } : null,
-      ),
+      findLexeme: vi.fn(async () => ({ audioUrl: cachedUrl, text: "Hello" })),
       synthesize: vi.fn(async () => {
         order.push("synthesize");
         return new Uint8Array([1]);
@@ -39,7 +37,7 @@ describe("resolveAudio", () => {
         order.push("upload");
         return "https://audio.test/hello.mp3";
       }),
-      storeLexeme: vi.fn(async ({ audioUrl }) => {
+      storeAudio: vi.fn(async ({ audioUrl }) => {
         order.push("store");
         cachedUrl = audioUrl;
       }),
@@ -93,6 +91,10 @@ describe("resolveAudio", () => {
 
   it("keeps each failed provider attempt reserved", async () => {
     const deps = dependencies({
+      findLexeme: vi.fn().mockResolvedValue({
+        audioUrl: null,
+        text: "hello",
+      }),
       synthesize: vi.fn().mockRejectedValue(new Error("provider down")),
     });
 
@@ -106,7 +108,7 @@ describe("resolveAudio", () => {
     }
 
     expect(deps.reserve).toHaveBeenCalledTimes(2);
-    expect(deps.storeLexeme).not.toHaveBeenCalled();
+    expect(deps.storeAudio).not.toHaveBeenCalled();
   });
 
   it("speaks an existing lexeme's canonical text", async () => {
@@ -123,13 +125,19 @@ describe("resolveAudio", () => {
     });
 
     expect(deps.synthesize).toHaveBeenCalledWith("Hello");
-    expect(deps.storeLexeme).toHaveBeenCalledWith(
-      expect.objectContaining({ key: "hello", text: "Hello" }),
-    );
+    expect(deps.storeAudio).toHaveBeenCalledWith({
+      key: "hello",
+      audioUrl: "https://audio.test/hello.mp3",
+    });
   });
 
   it("never speaks or stores a list marker stripped by normalizeKey", async () => {
-    const deps = dependencies();
+    const deps = dependencies({
+      findLexeme: vi.fn().mockResolvedValue({
+        audioUrl: null,
+        text: "hello",
+      }),
+    });
 
     await resolveAudio("user-1", "1. hello", {
       environment: { TTS_ON_DEMAND_ENABLED: "true" },
@@ -137,9 +145,10 @@ describe("resolveAudio", () => {
     });
 
     expect(deps.synthesize).toHaveBeenCalledWith("hello");
-    expect(deps.storeLexeme).toHaveBeenCalledWith(
-      expect.objectContaining({ key: "hello", text: "hello" }),
-    );
+    expect(deps.storeAudio).toHaveBeenCalledWith({
+      key: "hello",
+      audioUrl: "https://audio.test/hello.mp3",
+    });
     expect(deps.upload).toHaveBeenCalledWith(
       expect.not.stringContaining("1. hello"),
       expect.any(Uint8Array),
@@ -153,15 +162,13 @@ describe("resolveAudio", () => {
       releaseWaiter = resolve;
     });
     const deps = dependencies({
-      findLexeme: vi.fn(async () =>
-        cachedUrl ? { audioUrl: cachedUrl, text: "hello" } : null,
-      ),
+      findLexeme: vi.fn(async () => ({ audioUrl: cachedUrl, text: "hello" })),
       claimGeneration: vi
         .fn()
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(false),
       sleep: vi.fn(async () => generated),
-      storeLexeme: vi.fn(async ({ audioUrl }) => {
+      storeAudio: vi.fn(async ({ audioUrl }) => {
         cachedUrl = audioUrl;
         releaseWaiter?.();
       }),
@@ -186,6 +193,10 @@ describe("resolveAudio", () => {
 
   it("does not call the provider when budget reservation fails", async () => {
     const deps = dependencies({
+      findLexeme: vi.fn().mockResolvedValue({
+        audioUrl: null,
+        text: "hello",
+      }),
       reserve: vi.fn().mockRejectedValue(new Error("global cap")),
     });
 
@@ -198,5 +209,22 @@ describe("resolveAudio", () => {
 
     expect(deps.synthesize).not.toHaveBeenCalled();
     expect(deps.upload).not.toHaveBeenCalled();
+  });
+
+  it("does not synthesize or store arbitrary account text", async () => {
+    const deps = dependencies();
+
+    await expect(
+      resolveAudio("user-1", "not in the shared catalogue", {
+        environment: { TTS_ON_DEMAND_ENABLED: "true" },
+        dependencies: deps,
+      }),
+    ).rejects.toThrow("limited to existing lexemes");
+
+    expect(deps.validatePaidPath).not.toHaveBeenCalled();
+    expect(deps.reserve).not.toHaveBeenCalled();
+    expect(deps.synthesize).not.toHaveBeenCalled();
+    expect(deps.upload).not.toHaveBeenCalled();
+    expect(deps.storeAudio).not.toHaveBeenCalled();
   });
 });

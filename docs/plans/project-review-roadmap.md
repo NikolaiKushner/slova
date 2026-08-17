@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** planned; implementation not started  
+**Status:** implementation in progress; Phases 0 and 8 complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -69,6 +69,7 @@ slightly stronger than the code warrants in a few places.
 
 **Priority:** P0  
 **Estimate:** 1-2 days
+**Status:** implemented 2026-08-18
 
 Create one deterministic test user that an agent and Playwright can use for
 authenticated flows. This fixture must be safe to run repeatedly and must not
@@ -327,6 +328,8 @@ column, and `ReviewLog` has no uniqueness that would deduplicate an answer.
 
 **Priority:** P0  
 **Estimate:** 1-2 days
+**Status:** implemented 2026-08-18; operational decisions are recorded in
+`docs/provider-spend.md`.
 
 The original review covered rate limiting only as an authentication concern. The
 two paid providers are the one class of defect that costs money rather than
