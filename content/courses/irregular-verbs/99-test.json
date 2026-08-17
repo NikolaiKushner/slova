@@ -1,0 +1,118 @@
+{
+  "slug": "test",
+  "title": "Course test",
+  "titleRu": "Проверка всего курса",
+  "estMinutes": 7,
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Двенадцать вопросов по всем пяти группам. Проверяется одно: та ли форма и на том ли месте."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-01",
+      "ruleId": "iv-no-ed",
+      "kind": "choice",
+      "prompt": "The trip ___ us a lot of money.",
+      "options": ["cost", "costed", "costs"],
+      "answer": "cost"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-02",
+      "ruleId": "iv-two-alike",
+      "kind": "gap",
+      "prompt": "I ___ her at the station. (meet)",
+      "answer": "met"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-03",
+      "ruleId": "iv-vowel",
+      "kind": "choice",
+      "prompt": "The concert ___ at nine yesterday.",
+      "options": ["began", "begun", "beginned"],
+      "answer": "began"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-04",
+      "ruleId": "iv-third-form",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["I have wrote the letter.", "I have written the letter."],
+      "answer": "I have written the letter."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-05",
+      "ruleId": "iv-special",
+      "kind": "choice",
+      "prompt": "We ___ at the beach all day.",
+      "options": ["were", "was", "been"],
+      "answer": "were"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-06",
+      "ruleId": "iv-after-did",
+      "kind": "transform",
+      "prompt": "Сделайте вопрос.",
+      "source": "He took the money.",
+      "answer": "Did he take the money?"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-07",
+      "ruleId": "iv-en",
+      "kind": "gap",
+      "prompt": "She ___ the glass by accident. (break)",
+      "answer": "broke"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-08",
+      "ruleId": "iv-same",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["He shutted the door.", "He shut the door."],
+      "answer": "He shut the door."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-09",
+      "ruleId": "iv-two-alike",
+      "kind": "choice",
+      "prompt": "They ___ the house two years ago.",
+      "options": ["built", "builded", "builds"],
+      "answer": "built"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-10",
+      "ruleId": "iv-third-form",
+      "kind": "choice",
+      "prompt": "I have never ___ such a film.",
+      "options": ["seen", "saw", "see"],
+      "answer": "seen"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-11",
+      "ruleId": "iv-vowel",
+      "kind": "gap",
+      "prompt": "He ___ all the juice. (drink)",
+      "answer": "drank"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-test-12",
+      "ruleId": "iv-after-did",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "She went to school.",
+      "answer": "She didn't go to school.",
+      "accept": ["She did not go to school."]
+    }
+  ]
+}

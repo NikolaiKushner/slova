@@ -1,0 +1,15 @@
+{
+  "slug": "irregular-verbs",
+  "title": "Irregular verbs",
+  "titleRu": "Неправильные глаголы",
+  "level": "A2",
+  "order": 3,
+  "estMinutes": 35,
+  "lessons": ["same", "two-alike", "vowel", "en", "special", "test"],
+  "outcomes": [
+    "Не добавлять **-ed** туда, где у глагола своя форма: **went**, а не goed",
+    "Узнавать глагол по группе, а не заучивать все сто подряд: **cut — cut — cut**, **buy — bought — bought**, **sing — sang — sung**",
+    "Ставить вторую форму после подлежащего, а третью — после **have / has**: I **saw** him, но I have **seen** him",
+    "Возвращать глагол в начальную форму после **did** и **didn't**"
+  ]
+}

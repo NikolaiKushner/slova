@@ -1,0 +1,260 @@
+{
+  "slug": "en",
+  "title": "Third form in -en",
+  "titleRu": "take — took — taken",
+  "estMinutes": 6,
+  "ruleCard": {
+    "rows": [
+      { "label": "начальная", "form": "take", "ruleId": "iv-en" },
+      { "label": "прошедшее", "form": "took", "ruleId": "iv-en" },
+      { "label": "третья форма", "form": "taken", "ruleId": "iv-en" }
+    ],
+    "note": "Все три разные, третья оканчивается на **-en** или **-n** и идёт после **have / has**."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Последняя большая группа: все три формы разные. Но третья узнаётся сразу — она оканчивается на **-en** или **-n** и почти всегда похожа на начальную."
+    },
+    {
+      "type": "heading",
+      "title": "Начальная + -en"
+    },
+    {
+      "type": "explanation",
+      "md": "У части глаголов третья форма — это начальная с **-en** или **-n** на конце."
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее", "Третья форма"],
+      "rows": [
+        ["take — брать", "took", "taken"],
+        ["give — давать", "gave", "given"],
+        ["eat — есть", "ate", "eaten"],
+        ["fall — падать", "fell", "fallen"],
+        ["see — видеть", "saw", "seen"],
+        ["know — знать", "knew", "known"],
+        ["grow — расти", "grew", "grown"],
+        ["throw — бросать", "threw", "thrown"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "He took my umbrella by mistake.",
+      "ru": "Он взял мой зонт по ошибке."
+    },
+    {
+      "type": "example",
+      "en": "I have taken the wrong bus.",
+      "ru": "Я сел не на тот автобус."
+    },
+    {
+      "type": "heading",
+      "title": "o в прошедшем, -en в третьей"
+    },
+    {
+      "type": "explanation",
+      "md": "Вторая подгруппа: в прошедшем времени появляется **o**, а третья форма добавляет к нему **-en**."
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее", "Третья форма"],
+      "rows": [
+        ["speak — говорить", "spoke", "spoken"],
+        ["break — ломать", "broke", "broken"],
+        ["choose — выбирать", "chose", "chosen"],
+        ["drive — водить", "drove", "driven"],
+        ["write — писать", "wrote", "written"],
+        ["steal — красть", "stole", "stolen"],
+        ["forget — забывать", "forgot", "forgotten"],
+        ["wear — носить", "wore", "worn"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "Someone broke the window last night.",
+      "ru": "Кто-то разбил окно вчера вечером."
+    },
+    {
+      "type": "example",
+      "en": "The window has been broken since Monday.",
+      "ru": "Окно разбито с понедельника."
+    },
+    {
+      "type": "heading",
+      "title": "Одна ловушка"
+    },
+    {
+      "type": "explanation",
+      "md": "У **show** прошедшее время правильное — **showed**, а третья форма неправильная — **shown**. Такой глагол в группе один, и его стоит запомнить отдельно."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "iv-third-form",
+      "md": "Форма на **-en** не ставится вместо прошедшего времени. **I seen him yesterday** и **He taken it** — ошибки. Без have / has нужна вторая форма: I **saw** him, He **took** it."
+    },
+    {
+      "type": "rules",
+      "items": [
+        {
+          "tag": "Признак",
+          "md": "Третья форма оканчивается на **-en** / **-n**: taken, given, written, known."
+        },
+        {
+          "tag": "Подгруппа",
+          "md": "spoke → spoken, broke → broken, chose → chosen. В прошедшем **o**, в третьей **o + -en**."
+        },
+        {
+          "tag": "Исключение",
+          "md": "show → **showed** → **shown**."
+        }
+      ]
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "take, give, eat, see", "v": "taken, given, eaten, seen" },
+        { "k": "speak, break, write", "v": "spoken, broken, written" },
+        { "k": "без have", "v": "вторая форма: saw, took, broke" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-01",
+      "ruleId": "iv-en",
+      "kind": "gap",
+      "prompt": "He ___ my umbrella by mistake. (take)",
+      "answer": "took"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-02",
+      "ruleId": "iv-third-form",
+      "kind": "choice",
+      "prompt": "I have ___ the wrong bus.",
+      "options": ["taken", "took", "take"],
+      "answer": "taken"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-03",
+      "ruleId": "iv-en",
+      "kind": "choice",
+      "prompt": "Someone ___ the window last night.",
+      "options": ["broke", "broken", "breaked"],
+      "answer": "broke"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-04",
+      "ruleId": "iv-third-form",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["I seen him yesterday.", "I saw him yesterday."],
+      "answer": "I saw him yesterday."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-05",
+      "ruleId": "iv-en",
+      "kind": "gap",
+      "prompt": "She ___ me her phone number. (give)",
+      "answer": "gave"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-06",
+      "ruleId": "iv-en",
+      "kind": "choice",
+      "prompt": "He ___ the letter an hour ago.",
+      "options": ["wrote", "written", "writed"],
+      "answer": "wrote"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-07",
+      "ruleId": "iv-third-form",
+      "kind": "gap",
+      "prompt": "I have ___ this film before. (see)",
+      "answer": "seen"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-08",
+      "ruleId": "iv-en",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "She speaks to the manager.",
+      "answer": "She spoke to the manager."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-09",
+      "ruleId": "iv-third-form",
+      "kind": "choice",
+      "prompt": "The car has been ___ since Monday.",
+      "options": ["stolen", "stole", "steal"],
+      "answer": "stolen"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-10",
+      "ruleId": "iv-en",
+      "kind": "gap",
+      "prompt": "We ___ dinner at seven. (eat)",
+      "answer": "ate"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-11",
+      "ruleId": "iv-third-form",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["He has forgot my name.", "He has forgotten my name."],
+      "answer": "He has forgotten my name."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-12",
+      "ruleId": "iv-en",
+      "kind": "choice",
+      "prompt": "She ___ the red dress to the party.",
+      "options": ["wore", "worn", "weared"],
+      "answer": "wore"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-13",
+      "ruleId": "iv-en",
+      "kind": "gap",
+      "prompt": "They ___ the blue one in the end. (choose)",
+      "answer": "chose"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-14",
+      "ruleId": "iv-third-form",
+      "kind": "choice",
+      "prompt": "The photo was ___ on the website.",
+      "options": ["shown", "showed", "show"],
+      "answer": "shown"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-15",
+      "ruleId": "iv-en",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "He drives to work.",
+      "answer": "He drove to work."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-en-16",
+      "ruleId": "iv-third-form",
+      "kind": "gap",
+      "prompt": "The tree has ___ a lot this year. (grow)",
+      "answer": "grown"
+    }
+  ]
+}

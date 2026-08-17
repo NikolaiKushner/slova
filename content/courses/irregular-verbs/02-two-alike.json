@@ -1,0 +1,286 @@
+{
+  "slug": "two-alike",
+  "title": "Second and third the same",
+  "titleRu": "Вторая и третья совпадают",
+  "estMinutes": 6,
+  "ruleCard": {
+    "rows": [
+      { "label": "начальная", "form": "buy", "ruleId": "iv-two-alike" },
+      { "label": "прошедшее", "form": "bought", "ruleId": "iv-two-alike" },
+      { "label": "третья форма", "form": "bought", "ruleId": "iv-two-alike" }
+    ],
+    "note": "Выучили одну форму — знаете обе. После **did** глагол возвращается в начальную."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Самая большая группа неправильных глаголов. Вторая и третья формы у них совпадают, поэтому запомнить надо не три слова, а два."
+    },
+    {
+      "type": "heading",
+      "title": "-ought и -aught"
+    },
+    {
+      "type": "explanation",
+      "md": "Здесь глагол меняется целиком, но окончание у всей подгруппы одно."
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее и третья"],
+      "rows": [
+        ["buy — покупать", "bought"],
+        ["bring — приносить", "brought"],
+        ["think — думать", "thought"],
+        ["fight — драться", "fought"],
+        ["teach — учить", "taught"],
+        ["catch — ловить", "caught"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I bought a new phone last week.",
+      "ru": "Я купил новый телефон на прошлой неделе."
+    },
+    {
+      "type": "heading",
+      "title": "Короткий гласный и -t"
+    },
+    {
+      "type": "explanation",
+      "md": "Вторая подгруппа: гласный укорачивается, на конце появляется **-t** или **-d**."
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее и третья"],
+      "rows": [
+        ["keep — хранить", "kept"],
+        ["sleep — спать", "slept"],
+        ["feel — чувствовать", "felt"],
+        ["leave — уходить", "left"],
+        ["lose — терять", "lost"],
+        ["send — посылать", "sent"],
+        ["spend — тратить", "spent"],
+        ["build — строить", "built"]
+      ]
+    },
+    {
+      "type": "heading",
+      "title": "Остальные из группы"
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее и третья"],
+      "rows": [
+        ["make — делать", "made"],
+        ["say — говорить", "said"],
+        ["pay — платить", "paid"],
+        ["have — иметь", "had"],
+        ["hear — слышать", "heard"],
+        ["find — находить", "found"],
+        ["get — получать", "got"],
+        ["tell — рассказывать", "told"],
+        ["sell — продавать", "sold"],
+        ["meet — встречать", "met"],
+        ["win — выигрывать", "won"],
+        ["hold — держать", "held"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "She told me the truth.",
+      "ru": "Она сказала мне правду."
+    },
+    {
+      "type": "example",
+      "en": "We lost the keys and found them an hour later.",
+      "ru": "Мы потеряли ключи и нашли их через час."
+    },
+    {
+      "type": "heading",
+      "title": "После did — начальная форма"
+    },
+    {
+      "type": "explanation",
+      "md": "В вопросе и отрицании прошедшее время берёт на себя **did**. Глагол после него возвращается в начальную форму."
+    },
+    {
+      "type": "example",
+      "en": "Did you buy the tickets?",
+      "ru": "Ты купил билеты?"
+    },
+    {
+      "type": "example",
+      "en": "I didn't hear the question.",
+      "ru": "Я не услышал вопрос."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "iv-after-did",
+      "md": "Не Did you bought и не I didn't heard. Прошедшее время показывается **один раз** — в **did**. Дальше идёт словарная форма."
+    },
+    {
+      "type": "rules",
+      "items": [
+        {
+          "tag": "Форма",
+          "md": "buy → **bought** → **bought**. Вторая и третья одинаковые."
+        },
+        {
+          "tag": "Подгруппы",
+          "md": "**-ought / -aught**: bought, brought, thought, taught. **-t / -d**: kept, slept, left, sent."
+        },
+        {
+          "tag": "did",
+          "md": "Did you **buy**? I didn't **buy**. Начальная форма после did."
+        }
+      ]
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "buy, bring, think, teach, catch", "v": "-ought / -aught" },
+        { "k": "keep, sleep, feel, leave, send", "v": "-t на конце" },
+        { "k": "did + начальная форма", "v": "Did you buy? I didn't buy." }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-01",
+      "ruleId": "iv-two-alike",
+      "kind": "gap",
+      "prompt": "I ___ a new phone last week. (buy)",
+      "answer": "bought"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-02",
+      "ruleId": "iv-two-alike",
+      "kind": "choice",
+      "prompt": "She ___ me the truth.",
+      "options": ["told", "telled", "tells"],
+      "answer": "told"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-03",
+      "ruleId": "iv-after-did",
+      "kind": "choice",
+      "prompt": "Did you ___ the tickets?",
+      "options": ["buy", "bought", "buys"],
+      "answer": "buy"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-04",
+      "ruleId": "iv-two-alike",
+      "kind": "gap",
+      "prompt": "We ___ the keys in the car. (find)",
+      "answer": "found"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-05",
+      "ruleId": "iv-after-did",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["I didn't heard the question.", "I didn't hear the question."],
+      "answer": "I didn't hear the question."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-06",
+      "ruleId": "iv-two-alike",
+      "kind": "gap",
+      "prompt": "He ___ badly last night. (sleep)",
+      "answer": "slept"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-07",
+      "ruleId": "iv-two-alike",
+      "kind": "choice",
+      "prompt": "They ___ the house in 1990.",
+      "options": ["built", "builded", "builds"],
+      "answer": "built"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-08",
+      "ruleId": "iv-two-alike",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "She teaches French.",
+      "answer": "She taught French."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-09",
+      "ruleId": "iv-two-alike",
+      "kind": "gap",
+      "prompt": "I ___ about it all day. (think)",
+      "answer": "thought"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-10",
+      "ruleId": "iv-after-did",
+      "kind": "choice",
+      "prompt": "Did she ___ you the money?",
+      "options": ["send", "sent", "sends"],
+      "answer": "send"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-11",
+      "ruleId": "iv-two-alike",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["We losed the game.", "We lost the game."],
+      "answer": "We lost the game."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-12",
+      "ruleId": "iv-two-alike",
+      "kind": "gap",
+      "prompt": "He ___ a lot of money on the car. (spend)",
+      "answer": "spent"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-13",
+      "ruleId": "iv-two-alike",
+      "kind": "choice",
+      "prompt": "We ___ them at the station.",
+      "options": ["met", "meeted", "meets"],
+      "answer": "met"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-14",
+      "ruleId": "iv-after-did",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "She brought the book.",
+      "answer": "She didn't bring the book.",
+      "accept": ["She did not bring the book."]
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-15",
+      "ruleId": "iv-two-alike",
+      "kind": "gap",
+      "prompt": "They ___ the old car last year. (sell)",
+      "answer": "sold"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-two-16",
+      "ruleId": "iv-two-alike",
+      "kind": "choice",
+      "prompt": "The team ___ the match on Sunday.",
+      "options": ["won", "winned", "wins"],
+      "answer": "won"
+    }
+  ]
+}

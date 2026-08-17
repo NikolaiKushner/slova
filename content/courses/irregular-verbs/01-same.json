@@ -1,0 +1,263 @@
+{
+  "slug": "same",
+  "title": "One form for all three",
+  "titleRu": "Одна форма на все три",
+  "estMinutes": 5,
+  "ruleCard": {
+    "rows": [
+      { "label": "начальная", "form": "cut", "ruleId": "iv-same" },
+      { "label": "прошедшее", "form": "cut", "ruleId": "iv-same" },
+      { "label": "третья форма", "form": "cut", "ruleId": "iv-same" }
+    ],
+    "note": "Форма не меняется. Время показывает само предложение: **yesterday**, **last week**."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "У правильного глагола прошедшее время делается одинаково: work → work**ed**, open → open**ed**. У неправильного — своя форма, которую надо знать: go → **went**, buy → **bought**."
+    },
+    {
+      "type": "explanation",
+      "md": "Неправильных глаголов около двух сотен, но учить их по одному не нужно: они делятся на несколько групп. Начнём с самой лёгкой."
+    },
+    {
+      "type": "heading",
+      "title": "Три формы глагола"
+    },
+    {
+      "type": "explanation",
+      "md": "У любого английского глагола три формы. Первая — словарная. Вторая — прошедшее время. Третья идёт после **have / has**."
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее", "Третья форма"],
+      "rows": [
+        ["work", "worked", "worked"],
+        ["buy", "bought", "bought"],
+        ["cut", "cut", "cut"]
+      ]
+    },
+    {
+      "type": "heading",
+      "title": "Группа, которая не меняется"
+    },
+    {
+      "type": "explanation",
+      "md": "У этих глаголов все три формы одинаковые. Писать нечего — надо только не добавить **-ed**."
+    },
+    {
+      "type": "table",
+      "headers": ["Глагол", "Все три формы"],
+      "rows": [
+        ["cut — резать", "cut"],
+        ["put — класть", "put"],
+        ["let — позволять", "let"],
+        ["set — ставить", "set"],
+        ["hit — ударять", "hit"],
+        ["cost — стоить", "cost"],
+        ["hurt — причинять боль", "hurt"],
+        ["shut — закрывать", "shut"],
+        ["read — читать", "read"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I cut the bread every morning.",
+      "ru": "Я режу хлеб каждое утро."
+    },
+    {
+      "type": "example",
+      "en": "I cut the bread yesterday.",
+      "ru": "Я порезал хлеб вчера."
+    },
+    {
+      "type": "example",
+      "en": "The ticket cost ten pounds last year.",
+      "ru": "Билет стоил десять фунтов в прошлом году."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "iv-no-ed",
+      "md": "Главная ошибка группы — **-ed** по привычке: cutted, putted, costed, hurted. Таких слов нет. Если глагол неправильный, **-ed** не добавляется никогда."
+    },
+    {
+      "type": "explanation",
+      "md": "Отдельно стоит **read**. Пишется во всех трёх формах одинаково, а читается по-разному: начальная — [riːd], прошедшее и третья — [red]. На письме разницы нет, в речи есть."
+    },
+    {
+      "type": "rules",
+      "items": [
+        {
+          "tag": "Форма",
+          "md": "cut → cut → cut. Одно слово на все три позиции."
+        },
+        {
+          "tag": "Время",
+          "md": "Показывает предложение, а не глагол: **yesterday**, **last week**, **an hour ago**."
+        },
+        {
+          "tag": "Запрет",
+          "md": "Никаких cutted, putted, costed."
+        }
+      ]
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "cut, put, let, set", "v": "не меняются" },
+        { "k": "hit, cost, hurt, shut", "v": "не меняются" },
+        { "k": "read", "v": "пишется так же, читается [red]" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-01",
+      "ruleId": "iv-no-ed",
+      "kind": "choice",
+      "prompt": "Yesterday I ___ my finger.",
+      "options": ["hurt", "hurted", "hurts"],
+      "answer": "hurt"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-02",
+      "ruleId": "iv-no-ed",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["She cutted the cake.", "She cut the cake."],
+      "answer": "She cut the cake."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-03",
+      "ruleId": "iv-same",
+      "kind": "choice",
+      "prompt": "He ___ the door and left.",
+      "options": ["shut", "shutted", "shuts"],
+      "answer": "shut"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-04",
+      "ruleId": "iv-same",
+      "kind": "choice",
+      "prompt": "The ticket ___ ten pounds last year.",
+      "options": ["cost", "costed", "costs"],
+      "answer": "cost"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-05",
+      "ruleId": "iv-no-ed",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": [
+        "I putted the keys on the table.",
+        "I put the keys on the table."
+      ],
+      "answer": "I put the keys on the table."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-06",
+      "ruleId": "iv-same",
+      "kind": "choice",
+      "prompt": "They ___ us go home early.",
+      "options": ["let", "letted", "lets"],
+      "answer": "let"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-07",
+      "ruleId": "iv-same",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "The book costs five pounds.",
+      "answer": "The book cost five pounds."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-08",
+      "ruleId": "iv-same",
+      "kind": "choice",
+      "prompt": "She ___ the whole book last night.",
+      "options": ["read", "readed", "reads"],
+      "answer": "read"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-09",
+      "ruleId": "iv-no-ed",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["The light hurted my eyes.", "The light hurt my eyes."],
+      "answer": "The light hurt my eyes."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-10",
+      "ruleId": "iv-same",
+      "kind": "choice",
+      "prompt": "We ___ the table an hour ago.",
+      "options": ["set", "setted", "sets"],
+      "answer": "set"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-11",
+      "ruleId": "iv-same",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "He puts the box in the car.",
+      "answer": "He put the box in the car."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-12",
+      "ruleId": "iv-same",
+      "kind": "choice",
+      "prompt": "The news ___ very quickly.",
+      "options": ["spread", "spreaded", "spreads"],
+      "answer": "spread"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-13",
+      "ruleId": "iv-no-ed",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": [
+        "He quitted his job last month.",
+        "He quit his job last month."
+      ],
+      "answer": "He quit his job last month."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-14",
+      "ruleId": "iv-no-ed",
+      "kind": "choice",
+      "prompt": "The ball ___ the window yesterday.",
+      "options": ["hit", "hitted", "hits"],
+      "answer": "hit"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-15",
+      "ruleId": "iv-no-ed",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["We letted them stay.", "We let them stay."],
+      "answer": "We let them stay."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-same-16",
+      "ruleId": "iv-same",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "The trip costs a lot.",
+      "answer": "The trip cost a lot."
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { exerciseSchema } from "@/content/courses/schema";
+import { exerciseSchema, type Exercise } from "@/content/courses/schema";
 import {
   CourseContentError,
   listedAvailableSlugs,
@@ -156,12 +156,76 @@ describe("to-be-present pack", () => {
   });
 });
 
+describe("irregular-verbs pack", () => {
+  it("parses and groups the verbs by pattern", () => {
+    const loaded = loadCourse("irregular-verbs");
+    expect(loaded.course.titleRu).toBe("Неправильные глаголы");
+    expect(loaded.course.level).toBe("A2");
+    expect(loaded.lessons.map((lesson) => lesson.slug)).toEqual([
+      "same",
+      "two-alike",
+      "vowel",
+      "en",
+      "special",
+      "test",
+    ]);
+    expect(loaded.rules.map((rule) => rule.id).sort()).toEqual([
+      "iv-after-did",
+      "iv-en",
+      "iv-no-ed",
+      "iv-same",
+      "iv-special",
+      "iv-third-form",
+      "iv-two-alike",
+      "iv-vowel",
+    ]);
+  });
+
+  it("mixes every rule into the test", () => {
+    const loaded = loadCourse("irregular-verbs");
+    const test = loaded.lessons.find((lesson) => lesson.slug === "test");
+    const inTest = new Set(
+      test?.blocks
+        .filter((block) => block.type === "exercise")
+        .map((block) => block.ruleId),
+    );
+    expect([...inTest].sort()).toEqual(
+      loaded.rules.map((rule) => rule.id).sort(),
+    );
+  });
+
+  /**
+   * The trap this course is uniquely exposed to. `typedPlaceholderHint`
+   * suppresses a `(hint)` that equals the answer, so that it cannot print the
+   * key in the box — and this is the one course where the dictionary form and
+   * the past tense are routinely the same word (cut, put, read). A gap written
+   * `Yesterday I ___ my finger. (hurt)` would then reach the learner with no
+   * cue at all, and "cut" would be as good an answer as "hurt".
+   */
+  it("never deals a gap whose cue is suppressed for equalling the answer", () => {
+    const loaded = loadCourse("irregular-verbs");
+    const gaps = [
+      ...loaded.lessons.flatMap((lesson) => lesson.blocks),
+      ...loaded.bank,
+    ].filter(
+      (block): block is Extract<Exercise, { kind: "gap" }> =>
+        block.type === "exercise" && block.kind === "gap",
+    );
+
+    expect(gaps.length).toBeGreaterThan(0);
+    for (const gap of gaps) {
+      expect(typedPlaceholderHint(gap)).not.toBeNull();
+    }
+  });
+});
+
 describe("catalog", () => {
-  it("lists present-simple and to-be-present as available", () => {
+  it("lists the three finished courses as available", () => {
     const catalog = loadCatalog();
     expect(listedAvailableSlugs(catalog)).toEqual([
       "present-simple",
       "to-be-present",
+      "irregular-verbs",
     ]);
     expect(catalog.groups.map((group) => group.id)).toEqual(["a1", "a2", "b1"]);
     expect(catalog.groups[0]?.courses.map((entry) => entry.slug)).toEqual([

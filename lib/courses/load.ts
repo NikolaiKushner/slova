@@ -1,4 +1,13 @@
 import catalogJson from "@/content/courses/catalog.json";
+import irregularVerbsBank from "@/content/courses/irregular-verbs/bank.json";
+import irregularVerbsCourse from "@/content/courses/irregular-verbs/course.json";
+import irregularVerbsSame from "@/content/courses/irregular-verbs/01-same.json";
+import irregularVerbsTwoAlike from "@/content/courses/irregular-verbs/02-two-alike.json";
+import irregularVerbsVowel from "@/content/courses/irregular-verbs/03-vowel.json";
+import irregularVerbsEn from "@/content/courses/irregular-verbs/04-en.json";
+import irregularVerbsSpecial from "@/content/courses/irregular-verbs/05-special.json";
+import irregularVerbsTest from "@/content/courses/irregular-verbs/99-test.json";
+import irregularVerbsRules from "@/content/courses/irregular-verbs/rules.json";
 import presentSimpleBank from "@/content/courses/present-simple/bank.json";
 import presentSimpleCourse from "@/content/courses/present-simple/course.json";
 import presentSimpleForms from "@/content/courses/present-simple/01-forms.json";
@@ -74,6 +83,19 @@ const PACKS: Record<string, CoursePackJson> = {
       test: toBePresentTest,
     },
     bank: toBePresentBank,
+  },
+  "irregular-verbs": {
+    course: irregularVerbsCourse,
+    rules: irregularVerbsRules,
+    lessons: {
+      same: irregularVerbsSame,
+      "two-alike": irregularVerbsTwoAlike,
+      vowel: irregularVerbsVowel,
+      en: irregularVerbsEn,
+      special: irregularVerbsSpecial,
+      test: irregularVerbsTest,
+    },
+    bank: irregularVerbsBank,
   },
 };
 

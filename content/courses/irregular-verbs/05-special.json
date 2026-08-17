@@ -1,0 +1,260 @@
+{
+  "slug": "special",
+  "title": "The ones on their own",
+  "titleRu": "be, go, do, come",
+  "estMinutes": 6,
+  "ruleCard": {
+    "rows": [
+      { "label": "be", "form": "was / were — been", "ruleId": "iv-special" },
+      { "label": "go", "form": "went — gone", "ruleId": "iv-special" },
+      { "label": "do", "form": "did — done", "ruleId": "iv-special" },
+      { "label": "come", "form": "came — come", "ruleId": "iv-special" }
+    ],
+    "note": "Ни одной группы. Эти четыре — самые частые в языке, их учат поодиночке."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Осталось несколько глаголов, которые не похожи ни на что. Это плохая новость только на вид: их мало, а встречаются они чаще всех остальных вместе взятых."
+    },
+    {
+      "type": "heading",
+      "title": "Четыре главных"
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее", "Третья форма"],
+      "rows": [
+        ["be — быть", "was / were", "been"],
+        ["go — идти", "went", "gone"],
+        ["do — делать", "did", "done"],
+        ["come — приходить", "came", "come"]
+      ]
+    },
+    {
+      "type": "explanation",
+      "md": "У **be** прошедшее время зависит от лица: **I / he / she / it was**, но **you / we / they were**. Это единственный глагол в языке, у которого в прошедшем времени две формы."
+    },
+    {
+      "type": "example",
+      "en": "I was at home and they were at work.",
+      "ru": "Я был дома, а они были на работе."
+    },
+    {
+      "type": "example",
+      "en": "She went to London last year.",
+      "ru": "Она ездила в Лондон в прошлом году."
+    },
+    {
+      "type": "heading",
+      "title": "И ещё два"
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная", "Прошедшее", "Третья форма"],
+      "rows": [
+        ["become — становиться", "became", "become"],
+        ["run — бегать", "ran", "run"]
+      ]
+    },
+    {
+      "type": "explanation",
+      "md": "У **come**, **become** и **run** третья форма совпадает с начальной, а прошедшее время отличается. Такой рисунок больше нигде не встречается."
+    },
+    {
+      "type": "example",
+      "en": "He has become a good teacher.",
+      "ru": "Он стал хорошим учителем."
+    },
+    {
+      "type": "heading",
+      "title": "do в двух ролях"
+    },
+    {
+      "type": "explanation",
+      "md": "**did** — это и прошедшее время глагола do, и помощник для вопроса и отрицания. В одном предложении обе роли встречаются вместе."
+    },
+    {
+      "type": "example",
+      "en": "What did you do yesterday?",
+      "ru": "Что ты делал вчера?"
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "iv-after-did",
+      "md": "После **did / didn't** глагол всегда в начальной форме, даже если это **go** или **be**: Did you **go**? — не Did you went. I didn't **do** it — не I didn't did it."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "iv-special",
+      "md": "**gone** и **been** — не одно и то же. He has **gone** to London — уехал и он там. He has **been** to London — был и вернулся."
+    },
+    {
+      "type": "rules",
+      "items": [
+        {
+          "tag": "be",
+          "md": "I / he / she was, you / we / they were, третья форма **been**."
+        },
+        {
+          "tag": "come, become, run",
+          "md": "Третья форма равна начальной: come → came → **come**."
+        },
+        {
+          "tag": "did",
+          "md": "Did you **go**? I didn't **do** it. После did — начальная форма."
+        }
+      ]
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "be", "v": "was / were — been" },
+        { "k": "go / do", "v": "went — gone / did — done" },
+        { "k": "come, become, run", "v": "третья = начальная" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-01",
+      "ruleId": "iv-special",
+      "kind": "choice",
+      "prompt": "She ___ to London last year.",
+      "options": ["went", "gone", "goed"],
+      "answer": "went"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-02",
+      "ruleId": "iv-special",
+      "kind": "choice",
+      "prompt": "They ___ at work yesterday.",
+      "options": ["were", "was", "been"],
+      "answer": "were"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-03",
+      "ruleId": "iv-after-did",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["Did you went to the party?", "Did you go to the party?"],
+      "answer": "Did you go to the party?"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-04",
+      "ruleId": "iv-special",
+      "kind": "gap",
+      "prompt": "I ___ at home all evening. (be)",
+      "answer": "was"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-05",
+      "ruleId": "iv-special",
+      "kind": "choice",
+      "prompt": "He has ___ a good teacher.",
+      "options": ["become", "became", "becomed"],
+      "answer": "become"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-06",
+      "ruleId": "iv-after-did",
+      "kind": "choice",
+      "prompt": "What did you ___ yesterday?",
+      "options": ["do", "did", "done"],
+      "answer": "do"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-07",
+      "ruleId": "iv-special",
+      "kind": "gap",
+      "prompt": "She ___ home late last night. (come)",
+      "answer": "came"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-08",
+      "ruleId": "iv-special",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["He has went to London.", "He has gone to London."],
+      "answer": "He has gone to London."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-09",
+      "ruleId": "iv-special",
+      "kind": "choice",
+      "prompt": "The children ___ in the park an hour ago.",
+      "options": ["ran", "run", "runned"],
+      "answer": "ran"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-10",
+      "ruleId": "iv-after-did",
+      "kind": "transform",
+      "prompt": "Сделайте вопрос.",
+      "source": "She went to the cinema.",
+      "answer": "Did she go to the cinema?"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-11",
+      "ruleId": "iv-special",
+      "kind": "gap",
+      "prompt": "We ___ our homework before dinner. (do)",
+      "answer": "did"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-12",
+      "ruleId": "iv-special",
+      "kind": "choice",
+      "prompt": "I have ___ to Berlin twice.",
+      "options": ["been", "was", "gone"],
+      "answer": "been"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-13",
+      "ruleId": "iv-after-did",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["I didn't did it.", "I didn't do it."],
+      "answer": "I didn't do it."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-14",
+      "ruleId": "iv-special",
+      "kind": "choice",
+      "prompt": "The shop ___ closed on Sunday.",
+      "options": ["was", "were", "been"],
+      "answer": "was"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-15",
+      "ruleId": "iv-special",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "He becomes very quiet.",
+      "answer": "He became very quiet."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-sp-16",
+      "ruleId": "iv-after-did",
+      "kind": "transform",
+      "prompt": "Сделайте отрицание.",
+      "source": "They came early.",
+      "answer": "They didn't come early.",
+      "accept": ["They did not come early."]
+    }
+  ]
+}
