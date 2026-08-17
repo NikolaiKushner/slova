@@ -31,11 +31,11 @@ builder handing out one tile per space.
 - [ ] `Lexeme` rows with `audioSlowUrl` ≈ rows with `audioUrl` (today: 0 vs 8,177)
 - [ ] `Lexeme.transcription` and `Lexeme.partOfSpeech` populated for every
       `source="seed"` row (today: 0 and 0)
-- [ ] `content/courses/audio-manifest.json` has an entry per course example
-      (today: `"entries": {}`)
+- [x] `content/courses/audio-manifest.json` has an entry per course example
+      (was `"entries": {}`, now 51 texts × normal + slow)
 - [ ] `content/lexicon/en-ru-frequency.jsonl` covers the input list, or the
       remainder is written down as refused-on-purpose
-- [ ] `irregular-verbs` is an available course in `content/courses/catalog.json`
+- [x] `irregular-verbs` is an available course in `content/courses/catalog.json`
 - [ ] `verb-forms` is in `EXERCISE_KINDS`, deals a question from a triple, and
       is scheduled by the same FSRS path as every other format
 - [ ] A collocation survives `builder`, `judge` and `distractors` without
@@ -157,7 +157,14 @@ one Prisma migration (verb forms) · no new dependencies.
 
 ## Steps
 
-### 1. Run the three pipelines that already exist — S · `[ ]`
+### 1. Run the three pipelines that already exist — S · `[~]`
+
+**Approved and started 2026-08-17.** Dry runs gave the real figures: slow
+audio $0.86 (8,214 words, 57,248 characters), course audio $0.03 (51 texts,
+102 recordings). Course audio is **done** — the manifest holds 51 entries with
+a normal and a slow URL each. Slow audio and the missing-word batch are still
+running; neither has been verified in a browser yet.
+
 
 - **Why first:** it is the only step with no decisions in it, and it fills
   columns the UI already reads. Everything after it is code.
@@ -197,7 +204,15 @@ one Prisma migration (verb forms) · no new dependencies.
   transcription when the answer is revealed and nothing before it.
 - **Depends on:** 1 (so the batch spend happens once, not twice)
 
-### 3. Irregular verbs — the course — M · `[ ]`
+### 3. Irregular verbs — the course — M · `[x]`
+
+**Done, except the browser look.** 95 verbs in
+`content/lexicon/en-irregular-verbs.jsonl` (moved here from step 4 — the table
+is the factual core of both), five lessons by pattern family, a 12-question
+test and a 24-item bank. `npm test` green at 406, `tsc --noEmit` clean. The
+screen itself has **not** been looked at: the Chrome extension is not
+connected, and `/courses/**` is behind auth that I must not sign into.
+
 
 - **Why before the format:** it is content on an engine that already works, and
   writing the lessons is what settles the pattern families the format will
