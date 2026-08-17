@@ -184,7 +184,18 @@ running; neither has been verified in a browser yet.
 - **Note:** spends money and writes to the production base and R2. Confirm the
   dry-run figure with the owner before the paid call.
 
-### 2. Transcription and part of speech — dataset v2 — M · `[ ]`
+### 2. Transcription and part of speech — dataset v2 — M · `[x]`
+
+**Code done; the batch that fills the file has not been run.** `TOKENS_PER_ROW`
+went 80 → 160 and the enrichment pass asks 50 words a request rather than 100,
+because at 100 the three-field answer reaches the 8000-token ceiling and a
+truncated response loses whole rows. Part of speech is a closed `enum`, not
+free text. Two decisions worth keeping in view: an empty field is a decline and
+is left off the entry rather than stored blank, and a transcription is checked
+by alphabet rather than length — `roughly wah-ter` is shorter than a real
+transcribed phrase, so only "reaches outside plain ASCII" separates IPA from a
+respelling. `npm test` 418 green, `tsc` and `eslint` clean.
+
 
 - **Why now:** `partOfSpeech` is what step 5 needs to stop a collocation from
   being given away by its neighbours, and `transcription` lights up a branch of
