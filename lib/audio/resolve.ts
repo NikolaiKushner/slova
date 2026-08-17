@@ -12,7 +12,7 @@ import { synthesizeSpeech } from "@/lib/audio/tts";
 import { STUDY_SOURCE_LANG } from "@/lib/languages";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { getPrisma } from "@/lib/prisma";
-import { allowAttemptDurable } from "@/lib/rate-limit";
+import { allowFixedWindowAttempt } from "@/lib/rate-limit";
 
 export class AudioUnavailableError extends Error {
   constructor(message = "On-demand speech is unavailable.") {
@@ -58,7 +58,7 @@ function defaultDependencies(): ResolveAudioDependencies {
       });
     },
     claimGeneration(key) {
-      return allowAttemptDurable(audioGenerationClaimKey(key), 1, 30_000);
+      return allowFixedWindowAttempt(audioGenerationClaimKey(key), 1, 30_000);
     },
     sleep(milliseconds) {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));

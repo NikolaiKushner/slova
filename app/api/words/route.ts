@@ -7,7 +7,7 @@ import { getPrisma } from "@/lib/prisma";
 import { normalizeRow } from "@/lib/normalize";
 import { ratingOf } from "@/lib/word-rating";
 import { recordTranslations } from "@/lib/lexicon/write";
-import { allowAttemptDurable } from "@/lib/rate-limit";
+import { allowFixedWindowAttempt } from "@/lib/rate-limit";
 import { reportServerFailure } from "@/lib/server-metrics";
 import { bulkIdsSchema, filingSchema } from "@/lib/words";
 import { addWords } from "@/lib/words/add";
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
     return jsonError("unauthorized", 401);
   }
   const userId = session.user.id;
-  if (!(await allowAttemptDurable(`words:${userId}`, 40, 60 * 60 * 1000))) {
+  if (!(await allowFixedWindowAttempt(`words:${userId}`, 40, 60 * 60 * 1000))) {
     return jsonError("tooManyWrites", 429);
   }
 
@@ -281,7 +281,7 @@ export async function PATCH(request: Request) {
     });
   }
   await prisma.wordSet.update({
-    where: { id: targetSetId },
+    where: { id: targetSetId, userId },
     data: { updatedAt: new Date() },
   });
 

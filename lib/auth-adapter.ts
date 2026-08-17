@@ -59,41 +59,65 @@ export const authAdapter: Adapter = {
   },
 
   async updateUser(data) {
-    const updated = await getPrisma().user.update({
+    const prisma = getPrisma();
+    const update = {
+      name: data.name,
+      image: data.image,
+      email: data.email?.toLowerCase(),
+      emailVerified: data.emailVerified,
+    };
+    if (data.emailVerified) {
+      // With Google, Auth.js verifies the address before linkAccount. Strip a
+      // password that was never inbox-verified in the same transition, or an
+      // address squat would become a working credentials account.
+      await prisma.user.updateMany({
+        where: { id: data.id, emailVerified: null },
+        data: { ...update, passwordHash: null },
+      });
+    }
+    const updated = await prisma.user.update({
       where: { id: data.id },
-      data: {
-        name: data.name,
-        image: data.image,
-        email: data.email?.toLowerCase(),
-        emailVerified: data.emailVerified,
-      },
+      data: update,
     });
     return toAdapterUser(updated);
   },
 
   async linkAccount(account) {
-    await getPrisma().account.create({
-      data: {
-        userId: account.userId,
-        type: account.type,
-        provider: account.provider,
-        providerAccountId: account.providerAccountId,
-        refresh_token: account.refresh_token,
-        access_token: account.access_token,
-        expires_at: account.expires_at,
-        token_type: account.token_type,
-        scope: account.scope,
-        id_token: account.id_token,
-        session_state:
-          typeof account.session_state === "string"
-            ? account.session_state
-            : undefined,
-      },
+    const prisma = getPrisma();
+    await prisma.$transaction(async (transaction) => {
+      if (account.provider === "google") {
+        await transaction.user.updateMany({
+          where: { id: account.userId, emailVerified: null },
+          data: { emailVerified: new Date(), passwordHash: null },
+        });
+      }
+      await transaction.account.create({
+        data: {
+          userId: account.userId,
+          type: account.type,
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          refresh_token: account.refresh_token,
+          access_token: account.access_token,
+          expires_at: account.expires_at,
+          token_type: account.token_type,
+          scope: account.scope,
+          id_token: account.id_token,
+          session_state:
+            typeof account.session_state === "string"
+              ? account.session_state
+              : undefined,
+        },
+      });
     });
   },
 
   async createVerificationToken(data) {
-    return getPrisma().verificationToken.create({ data });
+    return getPrisma().verificationToken.upsert({
+      where: { identifier: data.identifier },
+      create: data,
+      update: { token: data.token, expires: data.expires },
+    });
   },
 
   async useVerificationToken({ identifier, token }) {

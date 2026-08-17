@@ -12,6 +12,8 @@ const REQUIRED = {
     "Neon connection string. Vercel → Storage → Neon sets this; check the name is exactly DATABASE_URL, not POSTGRES_URL.",
   AUTH_SECRET: "openssl rand -base64 32",
   AUTH_URL: "Public origin, e.g. https://slova.study or http://localhost:3000.",
+  CRON_SECRET:
+    "openssl rand -base64 32. Vercel uses it to authenticate the daily security cleanup cron.",
   AUTH_GOOGLE_ID: "Google Cloud Console → Credentials → OAuth client (Web).",
   AUTH_GOOGLE_SECRET: "Same OAuth client as AUTH_GOOGLE_ID.",
   AUTH_RESEND_KEY:

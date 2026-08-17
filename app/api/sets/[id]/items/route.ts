@@ -53,7 +53,7 @@ export async function POST(request: Request, { params }: Params) {
     skipDuplicates: true,
   });
   await prisma.wordSet.update({
-    where: { id: set.id },
+    where: { id: set.id, userId: session.user.id },
     data: { updatedAt: new Date() },
   });
 
@@ -92,7 +92,7 @@ export async function DELETE(request: Request, { params }: Params) {
     where: { wordId: word.id, setId: set.id },
   });
   await prisma.wordSet.update({
-    where: { id: set.id },
+    where: { id: set.id, userId: session.user.id },
     data: { updatedAt: new Date() },
   });
 

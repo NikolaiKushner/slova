@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** implementation in progress; Phases 0, 8, 1, 2, and 3 complete
+**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, and 5 complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -250,6 +250,7 @@ column, and `ReviewLog` has no uniqueness that would deduplicate an answer.
 
 **Priority:** P1  
 **Estimate:** 2-3 days
+**Status:** implemented 2026-08-18
 
 - Hash a replacement password before consuming its reset token.
 - Atomically validate and consume verification/reset tokens together with the
@@ -259,11 +260,11 @@ column, and `ReviewLog` has no uniqueness that would deduplicate an answer.
 - Add Auth.js adapter-level tests for the unverified password account followed
   by Google account-linking sequence.
 - Add an IP dimension to credential-login rate limiting in addition to email.
-- Decide whether the limiter is fixed-window or sliding-window and make its
-  name, behavior, and tests agree.
-- Replace the current multi-query limiter mutation with an atomic operation.
-  `allowAttemptDurable` currently issues an upsert, a window-reset update, and
-  an increment as three separate queries.
+- Use the documented fixed-window policy and keep its name, behavior, and tests
+  aligned.
+- Replace the former multi-query limiter mutation with an atomic operation.
+  Before this phase, `allowAttemptDurable` issued an upsert, a window-reset
+  update, and an increment as three separate queries.
 - Add TTL cleanup for expired rate-limit keys. Expired windows are reset in
   place, so the `RateLimit` table grows once per distinct key and never shrinks.
 - Add the same cleanup for expired `VerificationToken` rows, which are removed

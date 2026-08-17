@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
 import { buildPracticeSession } from "@/lib/practice/session";
 import { toSourceState } from "@/lib/practice/source";
+import { parseRepeatedSetIds } from "@/lib/request-query";
 
 /**
  * The words for one run of a training, plus the pool its wrong answers come
@@ -25,7 +26,9 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   // Repeated rather than comma-joined: a set id is opaque and a separator
   // inside one would be silently wrong rather than loudly.
-  const setIds = params.getAll("set").map((id) => id.trim()).filter(Boolean);
+  const parsedSetIds = parseRepeatedSetIds(params);
+  if (!parsedSetIds.ok) return jsonError("invalidSet", 400);
+  const setIds = parsedSetIds.ids;
   const brainstorm = params.get("mode") === "brainstorm";
   // Anything unrecognised falls back to "due" rather than erroring: a bad
   // query string should not be able to break a training.

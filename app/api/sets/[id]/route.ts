@@ -77,7 +77,7 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 
   const set = await getPrisma().wordSet.update({
-    where: { id },
+    where: { id, userId: session.user.id },
     data: parsed.data,
   });
 
@@ -103,6 +103,8 @@ export async function DELETE(_request: Request, { params }: Params) {
     return jsonError("notFound", 404);
   }
 
-  await getPrisma().wordSet.delete({ where: { id } });
+  await getPrisma().wordSet.delete({
+    where: { id, userId: session.user.id },
+  });
   return NextResponse.json({ ok: true });
 }

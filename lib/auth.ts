@@ -6,12 +6,13 @@ import { authAdapter } from "@/lib/auth-adapter";
 import { authConfig } from "@/lib/auth.config";
 import { googleLinkPasswordHash } from "@/lib/auth-policy";
 import { sessionIsCurrent } from "@/lib/auth-session";
+import { clientIpFromHeaders } from "@/lib/client-ip";
 import {
   isEmail,
   normalizeEmail,
   verifyPassword,
 } from "@/lib/password";
-import { allowAttemptDurable } from "@/lib/rate-limit";
+import { allowFixedWindowAttempt } from "@/lib/rate-limit";
 
 class EmailNotVerified extends CredentialsSignin {
   code = "email_not_verified";
@@ -34,7 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const emailRaw =
           typeof credentials?.email === "string" ? credentials.email : "";
         const password =
@@ -42,7 +43,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!isEmail(emailRaw) || !password) return null;
 
         const email = normalizeEmail(emailRaw);
-        if (!(await allowAttemptDurable(`login:${email}`, 10, 15 * 60 * 1000))) {
+        const ip = clientIpFromHeaders(request.headers);
+        const [emailAllowed, ipAllowed] = await Promise.all([
+          allowFixedWindowAttempt(`login:email:${email}`, 10, 15 * 60 * 1000),
+          allowFixedWindowAttempt(`login:ip:${ip}`, 30, 15 * 60 * 1000),
+        ]);
+        if (!emailAllowed || !ipAllowed) {
           return null;
         }
 

@@ -5,7 +5,8 @@ import {
   registrationPlan,
 } from "@/lib/auth-policy";
 import { isEmail } from "@/lib/password-rules";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createFixedWindowRateLimiter } from "@/lib/rate-limit";
+import { clientIpFromHeaders } from "@/lib/client-ip";
 
 describe("registrationPlan", () => {
   it("creates a new row when the address is free", () => {
@@ -65,16 +66,30 @@ describe("googleLinkPasswordHash", () => {
 
 describe("rate limiter", () => {
   it("allows up to the limit inside the window, then refuses", () => {
-    const allow = createRateLimiter();
+    const allow = createFixedWindowRateLimiter();
     expect(allow("k", 2, 1000, 0)).toBe(true);
     expect(allow("k", 2, 1000, 1)).toBe(true);
     expect(allow("k", 2, 1000, 2)).toBe(false);
   });
 
   it("forgets hits once the window has passed", () => {
-    const allow = createRateLimiter();
+    const allow = createFixedWindowRateLimiter();
     expect(allow("k", 1, 1000, 0)).toBe(true);
     expect(allow("k", 1, 1000, 1000)).toBe(true);
+  });
+});
+
+describe("client IP", () => {
+  it("uses the first valid forwarding address", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "203.0.113.7, 10.0.0.1",
+    });
+    expect(clientIpFromHeaders(headers)).toBe("203.0.113.7");
+  });
+
+  it("collapses malformed values into one bounded limiter key", () => {
+    const headers = new Headers({ "x-forwarded-for": "not-an-ip" });
+    expect(clientIpFromHeaders(headers)).toBe("unknown");
   });
 });
 

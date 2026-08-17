@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
 import { verbTableAsWords } from "@/lib/lexicon/forms";
-import { allowAttemptDurable } from "@/lib/rate-limit";
+import { allowFixedWindowAttempt } from "@/lib/rate-limit";
 import { getPrisma } from "@/lib/prisma";
 import { addWords } from "@/lib/words/add";
 
@@ -24,7 +24,7 @@ export async function POST() {
     return jsonError("unauthorized", 401);
   }
   const userId = session.user.id;
-  if (!(await allowAttemptDurable(`words:${userId}`, 40, 60 * 60 * 1000))) {
+  if (!(await allowFixedWindowAttempt(`words:${userId}`, 40, 60 * 60 * 1000))) {
     return jsonError("tooManyWrites", 429);
   }
 

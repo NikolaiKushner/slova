@@ -10,7 +10,7 @@ import {
   emptyBatchOutcome,
   translateBatch,
 } from "@/lib/llm/translate-batch";
-import { allowAttemptDurable } from "@/lib/rate-limit";
+import { allowFixedWindowAttempt } from "@/lib/rate-limit";
 import {
   reportServerFailure,
   reportServerMetric,
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     return jsonError("unauthorized", 401);
   }
   const userId = session.user.id;
-  if (!(await allowAttemptDurable(`translate:${userId}`, 30, 60 * 60 * 1000))) {
+  if (!(await allowFixedWindowAttempt(`translate:${userId}`, 30, 60 * 60 * 1000))) {
     return jsonError("tooManyTranslations", 429);
   }
 

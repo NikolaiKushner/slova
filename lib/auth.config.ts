@@ -28,6 +28,12 @@ export const PROTECTED_PREFIXES = [
   "/progress",
 ] as const;
 
+/** Unauthenticated machine endpoints enforce their own narrow credentials. */
+export const PUBLIC_API_PATHS = [
+  "/api/cron/cleanup",
+  "/api/security/csp-report",
+] as const;
+
 export const authConfig = {
   session: { strategy: "jwt" },
   pages: {
@@ -48,6 +54,13 @@ export const authConfig = {
       );
 
       if (isProtected) return isLoggedIn;
+      if (
+        PUBLIC_API_PATHS.includes(
+          pathname as (typeof PUBLIC_API_PATHS)[number],
+        )
+      ) {
+        return true;
+      }
       if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth")) {
         return isLoggedIn;
       }
