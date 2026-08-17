@@ -38,6 +38,7 @@ function Row({ title, children }: { title: string; children: React.ReactNode }) 
 export default function KitPage() {
   const [playing, setPlaying] = useState(false);
   const [built, setBuilt] = useState<"correct" | "incorrect" | null>(null);
+  const [builtPhrase, setBuiltPhrase] = useState<"correct" | "incorrect" | null>(null);
 
   return (
     <div className="container-wide px-6 py-12">
@@ -158,6 +159,21 @@ export default function KitPage() {
         <p className="text-muted-foreground mt-3 text-caption">
           Letters type from the keyboard, Backspace returns the last one,
           checking happens when the last cell fills.
+        </p>
+      </Row>
+
+      <Row title="Assemble a phrase">
+        <LetterTiles
+          word="give up"
+          letters={["up", "give"]}
+          verdict={builtPhrase}
+          onComplete={(guess) =>
+            setBuiltPhrase(guess === "give up" ? "correct" : "incorrect")
+          }
+        />
+        <p className="text-muted-foreground mt-3 text-caption">
+          A phrase deals word tiles. The first letter still types from the
+          keyboard.
         </p>
       </Row>
 

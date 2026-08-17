@@ -1,3 +1,5 @@
+import { kindOf } from "@/lib/lexicon/dataset";
+import type { VerbForms } from "@/lib/lexicon/forms";
 import {
   buildOptions,
   pickDistractors,
@@ -8,7 +10,7 @@ import { seedFrom, seededRng, shuffle } from "@/lib/practice/random";
 /**
  * Turning a word into a question.
  *
- * Six formats, one function. They differ along two axes and nothing else: what
+ * Seven formats, one function. They differ along two axes and nothing else: what
  * the learner is shown (the English word, its translation, or a sound) and
  * what they have to produce (pick from options, assemble from letters, or type
  * it out). Recognition is easy and cheap, production is hard and worth more —
@@ -23,6 +25,7 @@ export const EXERCISE_KINDS = [
   "builder",
   "listening",
   "typing",
+  "verb-forms",
 ] as const;
 
 export type ExerciseKind = (typeof EXERCISE_KINDS)[number];
@@ -39,6 +42,10 @@ export type PracticeWord = {
   audioSlowUrl?: string | null;
   /** IPA from the shared base, when it has any. Shown with the answer. */
   transcription?: string | null;
+  /** Closed vocabulary from the shared base; used to pick distractors. */
+  partOfSpeech?: string | null;
+  /** Irregular forms, when the shared base has them. */
+  forms?: VerbForms | null;
 };
 
 export type Question =
@@ -66,7 +73,7 @@ export type Question =
       audioUrl?: string | null;
       audioSlowUrl?: string | null;
       transcription?: string | null;
-      /** Shuffled letters of the answer, exactly those and no others. */
+      /** Shuffled tiles of the answer — letters of a word, words of a phrase. */
       letters: string[];
       answer: string;
     }
@@ -79,6 +86,21 @@ export type Question =
       audioSlowUrl?: string | null;
       transcription?: string | null;
       answer: string;
+    }
+  | {
+      kind: "verb-forms";
+      wordId: string;
+      /** The infinitive. */
+      prompt: string;
+      /** The translation, under the infinitive — not the thing being judged. */
+      caption?: string;
+      speak?: string;
+      audioUrl?: string | null;
+      audioSlowUrl?: string | null;
+      transcription?: string | null;
+      past: string;
+      participle: string;
+      acceptPast?: string[];
     };
 
 /** How many options a choice question offers, the right one included. */
@@ -161,6 +183,23 @@ export function buildQuestion(
         answer: word.front,
       };
     }
+
+    case "verb-forms": {
+      const forms = word.forms;
+      return {
+        kind,
+        wordId: word.id,
+        prompt: word.front,
+        caption: word.forms?.gloss ?? word.back,
+        speak: word.front,
+        audioUrl: word.audioUrl ?? null,
+        audioSlowUrl: word.audioSlowUrl ?? null,
+        transcription: word.transcription ?? null,
+        past: forms?.past ?? "",
+        participle: forms?.participle ?? "",
+        ...(forms?.acceptPast ? { acceptPast: forms.acceptPast } : {}),
+      };
+    }
   }
 }
 
@@ -173,27 +212,49 @@ function choiceOn(
 ) {
   const candidates: Candidate[] = pool
     .filter((other) => other.id !== word.id)
-    .map((other) => ({ id: other.id, text: side === "front" ? other.front : other.back }));
+    .map((other) => ({
+      id: other.id,
+      text: side === "front" ? other.front : other.back,
+      shape: kindOf(other.front),
+      partOfSpeech: other.partOfSpeech ?? null,
+    }));
 
-  const distractors = pickDistractors(answer, candidates, OPTION_COUNT - 1, rng);
+  const distractors = pickDistractors(answer, candidates, OPTION_COUNT - 1, rng, {
+    shape: kindOf(word.front),
+    partOfSpeech: word.partOfSpeech,
+  });
   return buildOptions(answer, distractors, rng);
 }
 
 /**
- * The letters of the answer, shuffled — and never landing back on the answer,
- * which would make the exercise a no-op. Spaces are kept as their own tile so
- * a phrase can still be assembled.
+ * Tiles the builder deals. A word is letters; a phrase is its words. The old
+ * half-measure — one tile per character, spaces included — handed `give up`
+ * seven tiles and made assembling it a spelling test of a collocation.
+ */
+export function tilesOf(answer: string): string[] {
+  const text = answer.trim();
+  return kindOf(text) === "phrase" ? text.split(/\s+/) : [...answer];
+}
+
+function assembled(tiles: readonly string[], answer: string): string {
+  return kindOf(answer.trim()) === "phrase" ? tiles.join(" ") : tiles.join("");
+}
+
+/**
+ * The tiles of the answer, shuffled — and never landing back on the answer,
+ * which would make the exercise a no-op.
  */
 function scramble(answer: string, rng: ReturnType<typeof seededRng>): string[] {
-  const letters = [...answer];
-  if (letters.length < 2) return letters;
+  const tiles = tilesOf(answer);
+  if (tiles.length < 2) return tiles;
 
+  const original = assembled(tiles, answer);
   for (let attempt = 0; attempt < 5; attempt++) {
-    const shuffled = shuffle(letters, rng);
-    if (shuffled.join("") !== answer) return shuffled;
+    const shuffled = shuffle(tiles, rng);
+    if (assembled(shuffled, answer) !== original) return shuffled;
   }
   // A word of repeated letters ("aaa") cannot be shuffled into anything else.
-  return shuffle(letters, rng);
+  return shuffle(tiles, rng);
 }
 
 /** Whether a format needs sound, and therefore a voice to be available. */
@@ -203,5 +264,5 @@ export function needsAudio(kind: ExerciseKind): boolean {
 
 /** Whether the answer is typed rather than chosen. */
 export function isTyped(kind: ExerciseKind): boolean {
-  return kind === "listening" || kind === "typing";
+  return kind === "listening" || kind === "typing" || kind === "verb-forms";
 }

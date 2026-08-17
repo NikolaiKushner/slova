@@ -66,6 +66,21 @@ const gapExerciseSchema = z.object({
   prompt: nonEmpty,
   answer: nonEmpty,
   accept: z.array(nonEmpty).optional(),
+  /**
+   * The dictionary form the blank asks you to inflect, shown beside the
+   * sentence. Normally it is the trailing `(word)` of the prompt; this field is
+   * for the items where that parenthetical cannot be the cue — a negative or a
+   * question, where the fully formed answer would be the only thing to put
+   * there. Never a form of the answer: a cue is not a hint.
+   */
+  cue: nonEmpty.optional(),
+  /**
+   * What the blank wants, when "write the form" does not say it. A gap is
+   * otherwise unanswerable where the sentence gives no sign that it should
+   * come out negative or as a question. Named, not free text, so the wording
+   * stays in `messages/` with every other string.
+   */
+  task: z.enum(["negative", "question"]).optional(),
 });
 
 const transformExerciseSchema = z.object({

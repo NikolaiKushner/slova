@@ -1,0 +1,213 @@
+[
+  {
+    "type": "exercise",
+    "id": "iv-bank-01",
+    "ruleId": "iv-no-ed",
+    "kind": "choice",
+    "prompt": "The stone ___ the wall.",
+    "options": ["hit", "hitted", "hits"],
+    "answer": "hit"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-02",
+    "ruleId": "iv-no-ed",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение верное?",
+    "options": ["She putted it back.", "She put it back."],
+    "answer": "She put it back."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-03",
+    "ruleId": "iv-no-ed",
+    "kind": "choice",
+    "prompt": "My back ___ all week.",
+    "options": ["hurt", "hurted", "hurts"],
+    "answer": "hurt"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-04",
+    "ruleId": "iv-same",
+    "kind": "choice",
+    "prompt": "They ___ the shop at six.",
+    "options": ["shut", "shutted", "shuts"],
+    "answer": "shut"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-05",
+    "ruleId": "iv-same",
+    "kind": "transform",
+    "prompt": "Поставьте в прошедшее время.",
+    "source": "The bag costs twenty euros.",
+    "answer": "The bag cost twenty euros."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-06",
+    "ruleId": "iv-same",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение верное?",
+    "options": ["He readed the whole page.", "He read the whole page."],
+    "answer": "He read the whole page."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-07",
+    "ruleId": "iv-two-alike",
+    "kind": "gap",
+    "prompt": "She ___ me about it. (tell)",
+    "answer": "told"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-08",
+    "ruleId": "iv-two-alike",
+    "kind": "choice",
+    "prompt": "He ___ the bill.",
+    "options": ["paid", "payed", "pays"],
+    "answer": "paid"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-09",
+    "ruleId": "iv-two-alike",
+    "kind": "gap",
+    "prompt": "We ___ the letter on Friday. (send)",
+    "answer": "sent"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-10",
+    "ruleId": "iv-two-alike",
+    "kind": "transform",
+    "prompt": "Поставьте в прошедшее время.",
+    "source": "She brings the coffee.",
+    "answer": "She brought the coffee."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-11",
+    "ruleId": "iv-vowel",
+    "kind": "gap",
+    "prompt": "The bell ___ twice. (ring)",
+    "answer": "rang"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-12",
+    "ruleId": "iv-vowel",
+    "kind": "choice",
+    "prompt": "He ___ across the river.",
+    "options": ["swam", "swum", "swimmed"],
+    "answer": "swam"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-13",
+    "ruleId": "iv-vowel",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение верное?",
+    "options": ["She drunk the tea quickly.", "She drank the tea quickly."],
+    "answer": "She drank the tea quickly."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-14",
+    "ruleId": "iv-en",
+    "kind": "gap",
+    "prompt": "He ___ the door open. (throw)",
+    "answer": "threw"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-15",
+    "ruleId": "iv-en",
+    "kind": "choice",
+    "prompt": "She ___ him last summer.",
+    "options": ["knew", "known", "knowed"],
+    "answer": "knew"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-16",
+    "ruleId": "iv-en",
+    "kind": "transform",
+    "prompt": "Поставьте в прошедшее время.",
+    "source": "He forgets the address.",
+    "answer": "He forgot the address."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-17",
+    "ruleId": "iv-third-form",
+    "kind": "choice",
+    "prompt": "They have ___ the car already.",
+    "options": ["driven", "drove", "drive"],
+    "answer": "driven"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-18",
+    "ruleId": "iv-third-form",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение верное?",
+    "options": ["He has ate lunch.", "He has eaten lunch."],
+    "answer": "He has eaten lunch."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-19",
+    "ruleId": "iv-third-form",
+    "kind": "gap",
+    "prompt": "She has ___ the same coat for years. (wear)",
+    "answer": "worn"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-20",
+    "ruleId": "iv-special",
+    "kind": "choice",
+    "prompt": "He ___ ill last week.",
+    "options": ["was", "were", "been"],
+    "answer": "was"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-21",
+    "ruleId": "iv-special",
+    "kind": "gap",
+    "prompt": "They ___ home very late. (come)",
+    "answer": "came"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-22",
+    "ruleId": "iv-special",
+    "kind": "pick-sentence",
+    "prompt": "Какое предложение верное?",
+    "options": ["We goed to the market.", "We went to the market."],
+    "answer": "We went to the market."
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-23",
+    "ruleId": "iv-after-did",
+    "kind": "choice",
+    "prompt": "Did they ___ the film?",
+    "options": ["see", "saw", "seen"],
+    "answer": "see"
+  },
+  {
+    "type": "exercise",
+    "id": "iv-bank-24",
+    "ruleId": "iv-after-did",
+    "kind": "transform",
+    "prompt": "Сделайте отрицание.",
+    "source": "He sold the bike.",
+    "answer": "He didn't sell the bike.",
+    "accept": ["He did not sell the bike."]
+  }
+]

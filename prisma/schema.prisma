@@ -255,6 +255,10 @@ model Lexeme {
 
   transcription String?
   partOfSpeech  String?
+  /// Irregular verb forms, shared like the translation. Null on everything
+  /// else. Shape: `{ past, participle }` plus optional `acceptPast` for the
+  /// one verb that has two (`be` → was / were).
+  forms Json?
 
   imageUrl    String?
   imageSource String?

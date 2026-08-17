@@ -1,0 +1,237 @@
+{
+  "slug": "vowel",
+  "title": "i — a — u",
+  "titleRu": "sing — sang — sung",
+  "estMinutes": 5,
+  "ruleCard": {
+    "rows": [
+      { "label": "начальная", "form": "sing", "ruleId": "iv-vowel" },
+      { "label": "прошедшее", "form": "sang", "ruleId": "iv-vowel" },
+      { "label": "третья форма", "form": "sung", "ruleId": "iv-vowel" }
+    ],
+    "note": "Меняется только гласная: **i → a → u**. Третья форма идёт после **have / has**."
+  },
+  "blocks": [
+    {
+      "type": "explanation",
+      "md": "Небольшая, но очень удобная группа: слово не меняется, меняется одна гласная в середине. Знаете правило — знаете все три формы сразу."
+    },
+    {
+      "type": "heading",
+      "title": "Гласная по цепочке"
+    },
+    {
+      "type": "table",
+      "headers": ["Начальная (i)", "Прошедшее (a)", "Третья форма (u)"],
+      "rows": [
+        ["sing — петь", "sang", "sung"],
+        ["drink — пить", "drank", "drunk"],
+        ["begin — начинать", "began", "begun"],
+        ["swim — плавать", "swam", "swum"],
+        ["ring — звонить", "rang", "rung"],
+        ["sink — тонуть", "sank", "sunk"]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "She sang a song at the party.",
+      "ru": "Она спела песню на вечеринке."
+    },
+    {
+      "type": "example",
+      "en": "The film began at eight.",
+      "ru": "Фильм начался в восемь."
+    },
+    {
+      "type": "heading",
+      "title": "Где вторая, а где третья"
+    },
+    {
+      "type": "explanation",
+      "md": "Именно в этой группе разница видна лучше всего. Вторая форма стоит сама по себе. Третья — только после **have** или **has**."
+    },
+    {
+      "type": "table",
+      "headers": ["Вторая форма", "Третья форма"],
+      "rows": [
+        ["I sang yesterday.", "I have sung before."],
+        ["He drank the water.", "He has drunk the water."],
+        ["The film began.", "The film has begun."]
+      ]
+    },
+    {
+      "type": "example",
+      "en": "I have never drunk coffee.",
+      "ru": "Я никогда не пил кофе."
+    },
+    {
+      "type": "pitfall",
+      "ruleId": "iv-third-form",
+      "md": "Третья форма не заменяет прошедшее время. **I sung a song yesterday** — ошибка, надо **sang**. И наоборот: **I have sang** — тоже ошибка, после have только **sung**."
+    },
+    {
+      "type": "rules",
+      "items": [
+        {
+          "tag": "Цепочка",
+          "md": "**i → a → u**: sing, sang, sung. Одна гласная — три формы."
+        },
+        {
+          "tag": "Вторая",
+          "md": "Стоит одна, без помощников: She **sang**."
+        },
+        {
+          "tag": "Третья",
+          "md": "Только после have / has: She has **sung**."
+        }
+      ]
+    },
+    {
+      "type": "recap",
+      "items": [
+        { "k": "sing, drink, begin", "v": "sang, drank, began" },
+        { "k": "swim, ring, sink", "v": "swam, rang, sank" },
+        { "k": "have / has + u", "v": "sung, drunk, begun" }
+      ]
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-01",
+      "ruleId": "iv-vowel",
+      "kind": "gap",
+      "prompt": "She ___ a song at the party. (sing)",
+      "answer": "sang"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-02",
+      "ruleId": "iv-vowel",
+      "kind": "choice",
+      "prompt": "The film ___ at eight yesterday.",
+      "options": ["began", "begun", "beginned"],
+      "answer": "began"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-03",
+      "ruleId": "iv-third-form",
+      "kind": "choice",
+      "prompt": "I have never ___ coffee.",
+      "options": ["drunk", "drank", "drink"],
+      "answer": "drunk"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-04",
+      "ruleId": "iv-vowel",
+      "kind": "gap",
+      "prompt": "He ___ two glasses of water. (drink)",
+      "answer": "drank"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-05",
+      "ruleId": "iv-third-form",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["The lesson has began.", "The lesson has begun."],
+      "answer": "The lesson has begun."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-06",
+      "ruleId": "iv-vowel",
+      "kind": "choice",
+      "prompt": "We ___ in the lake last summer.",
+      "options": ["swam", "swum", "swimmed"],
+      "answer": "swam"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-07",
+      "ruleId": "iv-vowel",
+      "kind": "gap",
+      "prompt": "The phone ___ three times. (ring)",
+      "answer": "rang"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-08",
+      "ruleId": "iv-third-form",
+      "kind": "choice",
+      "prompt": "She has ___ in this choir for years.",
+      "options": ["sung", "sang", "sing"],
+      "answer": "sung"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-09",
+      "ruleId": "iv-vowel",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["I sung a song yesterday.", "I sang a song yesterday."],
+      "answer": "I sang a song yesterday."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-10",
+      "ruleId": "iv-vowel",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "The ship sinks slowly.",
+      "answer": "The ship sank slowly."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-11",
+      "ruleId": "iv-third-form",
+      "kind": "pick-sentence",
+      "prompt": "Какое предложение верное?",
+      "options": ["He has drank all the milk.", "He has drunk all the milk."],
+      "answer": "He has drunk all the milk."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-12",
+      "ruleId": "iv-vowel",
+      "kind": "gap",
+      "prompt": "The meeting ___ an hour late. (begin)",
+      "answer": "began"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-13",
+      "ruleId": "iv-vowel",
+      "kind": "choice",
+      "prompt": "Someone ___ the bell an hour ago.",
+      "options": ["rang", "rung", "ringed"],
+      "answer": "rang"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-14",
+      "ruleId": "iv-third-form",
+      "kind": "gap",
+      "prompt": "I have ___ in this lake many times. (swim)",
+      "answer": "swum"
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-15",
+      "ruleId": "iv-vowel",
+      "kind": "transform",
+      "prompt": "Поставьте в прошедшее время.",
+      "source": "She drinks tea in the morning.",
+      "answer": "She drank tea in the morning."
+    },
+    {
+      "type": "exercise",
+      "id": "iv-vow-16",
+      "ruleId": "iv-third-form",
+      "kind": "choice",
+      "prompt": "The boat has ___ near the shore.",
+      "options": ["sunk", "sank", "sink"],
+      "answer": "sunk"
+    }
+  ]
+}

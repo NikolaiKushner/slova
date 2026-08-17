@@ -10,7 +10,8 @@ import { LetterTiles } from "@/components/slova/letter-tiles";
 import { OptionButton, OptionList } from "@/components/slova/option-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { judge, passed, type Verdict } from "@/lib/practice/answer";
+import { Label } from "@/components/ui/label";
+import { judge, judgeForms, passed, type Verdict } from "@/lib/practice/answer";
 import type { Question } from "@/lib/practice/question";
 import { speak } from "@/lib/practice/speech";
 
@@ -88,6 +89,8 @@ export function QuestionView({
       <Choices key={key} question={question} onAnswered={onAnswered} />
     ) : "letters" in question ? (
       <Builder key={key} question={question} onAnswered={onAnswered} />
+    ) : question.kind === "verb-forms" ? (
+      <VerbForms key={key} question={question} onAnswered={onAnswered} />
     ) : (
       <Typed key={key} question={question} onAnswered={onAnswered} answered={answered} />
     ));
@@ -156,6 +159,10 @@ function Prompt({
       ) : (
         <p className="font-display text-3xl">{question.speak}</p>
       )}
+
+      {"caption" in question && question.caption ? (
+        <p className="text-muted-foreground text-body-sm">{question.caption}</p>
+      ) : null}
 
       {hasSound && !rescued && (
         <Button
@@ -385,4 +392,137 @@ function Typed({
       </div>
     </div>
   );
+}
+
+function VerbForms({
+  question,
+  onAnswered,
+}: {
+  question: Extract<Question, { kind: "verb-forms" }>;
+  onAnswered: (result: Answered) => void;
+}) {
+  const [past, setPast] = useState("");
+  const [participle, setParticiple] = useState("");
+  const [done, setDone] = useState(false);
+  const t = useTranslations("practice");
+  const common = useTranslations("common");
+
+  function submit() {
+    if (done || !past.trim() || !participle.trim()) return;
+    const verdict = judgeForms(
+      { past, participle },
+      {
+        past: question.past,
+        participle: question.participle,
+        acceptPast: question.acceptPast,
+      },
+    );
+    setDone(true);
+    onAnswered({ verdict, given: `${past} / ${participle}` });
+  }
+
+  if (done) {
+    const pastVerdict = fieldVerdict(past, question.past, question.acceptPast);
+    const participleVerdict = judge(participle, question.participle);
+    return (
+      <div className="grid w-full grid-cols-2 gap-3">
+        <AnswerReveal
+          answer={question.past}
+          given={pastVerdict === "correct" ? undefined : past}
+          note={t("pastForm")}
+          correct={pastVerdict === "correct"}
+        />
+        <AnswerReveal
+          answer={question.participle}
+          given={participleVerdict === "correct" ? undefined : participle}
+          note={t("participleForm")}
+          correct={participleVerdict === "correct"}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <FormField
+          id="verb-past"
+          label={t("pastForm")}
+          value={past}
+          onChange={setPast}
+          onSubmit={submit}
+          autoFocus
+        />
+        <FormField
+          id="verb-participle"
+          label={t("participleForm")}
+          value={participle}
+          onChange={setParticiple}
+          onSubmit={submit}
+        />
+      </div>
+      <div className="flex justify-center">
+        <Button
+          type="button"
+          size="lg"
+          className="h-[52px]"
+          onClick={submit}
+          disabled={!past.trim() || !participle.trim()}
+        >
+          {common("check")}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function FormField({
+  id,
+  label,
+  value,
+  onChange,
+  onSubmit,
+  autoFocus,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  autoFocus?: boolean;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <Label htmlFor={id} className="text-muted-foreground text-caption justify-center">
+        {label}
+      </Label>
+      <Input
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            onSubmit();
+          }
+        }}
+        autoFocus={autoFocus}
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        className="font-display h-[52px] rounded-lg text-center text-[1.0625rem]"
+      />
+    </div>
+  );
+}
+
+function fieldVerdict(
+  given: string,
+  expected: string,
+  extras: readonly string[] = [],
+): Verdict {
+  const verdicts = [expected, ...extras].map((form) => judge(given, form));
+  if (verdicts.includes("correct")) return "correct";
+  if (verdicts.includes("almost")) return "almost";
+  return "wrong";
 }

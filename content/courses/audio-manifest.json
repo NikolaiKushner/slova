@@ -1,5 +1,261 @@
 {
   "version": 1,
   "source": "openai:tts-1:alloy",
-  "entries": {}
+  "entries": {
+    "Anna is a teacher. My brother is tired. The shop is open.": {
+      "text": "Anna is a teacher. My brother is tired. The shop is open.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/4f4bad4b36af4852f38a44251f81a24888f5b8a1bc15b05c4df661eefd8c7bb0.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/4f4bad4b36af4852f38a44251f81a24888f5b8a1bc15b05c4df661eefd8c7bb0.mp3"
+    },
+    "Anna works. My sister speaks English. The shop opens at nine.": {
+      "text": "Anna works. My sister speaks English. The shop opens at nine.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/46ca81f9a7fb7917cd3223f9d67f74072a0942a1607271f1e6fdbc4853b091b3.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/46ca81f9a7fb7917cd3223f9d67f74072a0942a1607271f1e6fdbc4853b091b3.mp3"
+    },
+    "Are you at work?": {
+      "text": "Are you at work?",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/437a71b0718bcb43eafd9bf070f4be876f62aadff7691f62f18f0ec2a3238752.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/437a71b0718bcb43eafd9bf070f4be876f62aadff7691f62f18f0ec2a3238752.mp3"
+    },
+    "Are you from Berlin?": {
+      "text": "Are you from Berlin?",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/94bfa7d69dd36e6ad4dd91a4e604ed46529a017bd0ae7c390a2623fa971f211d.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/94bfa7d69dd36e6ad4dd91a4e604ed46529a017bd0ae7c390a2623fa971f211d.mp3"
+    },
+    "Do you live here?": {
+      "text": "Do you live here?",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/a44eb1d1a09beafe5d15e82c3c53f18d51f48fc940ee9afb7b2ad545c2665958.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/a44eb1d1a09beafe5d15e82c3c53f18d51f48fc940ee9afb7b2ad545c2665958.mp3"
+    },
+    "Do you work here?": {
+      "text": "Do you work here?",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/d3b205318cdb4049486b7392aae3dca9d33fc294794976aa6a8dfb959404cac0.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/d3b205318cdb4049486b7392aae3dca9d33fc294794976aa6a8dfb959404cac0.mp3"
+    },
+    "Does she play tennis?": {
+      "text": "Does she play tennis?",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/385d5bd66a5be85de3786330fc540c9921d92a323080cb07e31064a1b22c14a5.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/385d5bd66a5be85de3786330fc540c9921d92a323080cb07e31064a1b22c14a5.mp3"
+    },
+    "He is a teacher.": {
+      "text": "He is a teacher.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/7690899b098355374518411919b9a293438281897eb5366f604e713838da1325.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/7690899b098355374518411919b9a293438281897eb5366f604e713838da1325.mp3"
+    },
+    "He is tired. It is cold.": {
+      "text": "He is tired. It is cold.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/f9d76155f602ce2db8a35a78be36ac4437622d37f3e0ce6bf97434e1c5798318.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/f9d76155f602ce2db8a35a78be36ac4437622d37f3e0ce6bf97434e1c5798318.mp3"
+    },
+    "He lives here.": {
+      "text": "He lives here.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/093db99517ef6d4236efb9df3dc01e8d539b15c8936c0d06e873dd8b0b9b4853.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/093db99517ef6d4236efb9df3dc01e8d539b15c8936c0d06e873dd8b0b9b4853.mp3"
+    },
+    "I am a student.": {
+      "text": "I am a student.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/0c00f6707d412bc9618460454a48fc3145313d7a1cef684a9d2f1127836963c2.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/0c00f6707d412bc9618460454a48fc3145313d7a1cef684a9d2f1127836963c2.mp3"
+    },
+    "I am a teacher.": {
+      "text": "I am a teacher.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/15bc67331df18c7cd2c71f9f07eb5deba834f28db77451d11513f90abedb1e4f.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/15bc67331df18c7cd2c71f9f07eb5deba834f28db77451d11513f90abedb1e4f.mp3"
+    },
+    "I don't like coffee.": {
+      "text": "I don't like coffee.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/64804b3963823da7ad1d309e93de23ef015d006aedf39f652c061b86bd573a7a.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/64804b3963823da7ad1d309e93de23ef015d006aedf39f652c061b86bd573a7a.mp3"
+    },
+    "I drink coffee every morning.": {
+      "text": "I drink coffee every morning.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/dc0d40f9047c055b45689f52a659450ef46d124816ba468e158e274f3169e523.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/dc0d40f9047c055b45689f52a659450ef46d124816ba468e158e274f3169e523.mp3"
+    },
+    "I need more time.": {
+      "text": "I need more time.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/2e8d97e60a0a80f2e00ea910ba261395c4ac58c9b5b9934b5f168966c7157357.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/2e8d97e60a0a80f2e00ea910ba261395c4ac58c9b5b9934b5f168966c7157357.mp3"
+    },
+    "I walk to work every day.": {
+      "text": "I walk to work every day.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/b423e610667d3a83bb70ef039894ecc39d2f9d32acf9b54f4ce54d19713a1ca7.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/b423e610667d3a83bb70ef039894ecc39d2f9d32acf9b54f4ce54d19713a1ca7.mp3"
+    },
+    "I work here.": {
+      "text": "I work here.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/7f3a819eb3a3bf033a05cfa82fd4e38c21d9fbab5f0038b7fb98ce42b7d119de.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/7f3a819eb3a3bf033a05cfa82fd4e38c21d9fbab5f0038b7fb98ce42b7d119de.mp3"
+    },
+    "I'm a student. She's tired. They're at home.": {
+      "text": "I'm a student. She's tired. They're at home.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/2b0e294bce9065bbed891c808e8166d1832082885c87ab5ada1eed674516ca6a.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/2b0e294bce9065bbed891c808e8166d1832082885c87ab5ada1eed674516ca6a.mp3"
+    },
+    "I'm not a teacher.": {
+      "text": "I'm not a teacher.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/5043de8c87b9be5526cb683ba6c730cc6d7497c746cd69921d97d4bcf65c3a4f.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/5043de8c87b9be5526cb683ba6c730cc6d7497c746cd69921d97d4bcf65c3a4f.mp3"
+    },
+    "Is she at home?": {
+      "text": "Is she at home?",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/86fbf23ffe39c84efcab96a15fdc1a58a6ac4dfa655a86de626e6f06d2c337a9.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/86fbf23ffe39c84efcab96a15fdc1a58a6ac4dfa655a86de626e6f06d2c337a9.mp3"
+    },
+    "My parents are at home. The shops are closed.": {
+      "text": "My parents are at home. The shops are closed.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/e027b9147d9ab36b4e7c29369366f1df4f30480405bf5531b18a816a1eeb3747.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/e027b9147d9ab36b4e7c29369366f1df4f30480405bf5531b18a816a1eeb3747.mp3"
+    },
+    "My parents work. The shops open at nine.": {
+      "text": "My parents work. The shops open at nine.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/490694392e4d5678cc78850f2026f5e1ac58b8cb7bdf55942853364555d88f21.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/490694392e4d5678cc78850f2026f5e1ac58b8cb7bdf55942853364555d88f21.mp3"
+    },
+    "She doesn't live here.": {
+      "text": "She doesn't live here.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/7b133f874854c60d149abab616b8e60be22ae30e016d8404596f04985f4704e3.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/7b133f874854c60d149abab616b8e60be22ae30e016d8404596f04985f4704e3.mp3"
+    },
+    "She is a teacher.": {
+      "text": "She is a teacher.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/e573966447d1b0212a7c982dfa0b40cc88feb9ffc3b58584383daf52e0b3ae78.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/e573966447d1b0212a7c982dfa0b40cc88feb9ffc3b58584383daf52e0b3ae78.mp3"
+    },
+    "She is a teacher. She works in a school.": {
+      "text": "She is a teacher. She works in a school.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/89041b0e37025d40756858549be99f9fcd7e34359c1f0a735ab6325f8cb7e52a.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/89041b0e37025d40756858549be99f9fcd7e34359c1f0a735ab6325f8cb7e52a.mp3"
+    },
+    "She is from Berlin.": {
+      "text": "She is from Berlin.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/afb67dc376dc92196efa66334479e6be505cf88d0e873c2a5b650a794e006f1d.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/afb67dc376dc92196efa66334479e6be505cf88d0e873c2a5b650a794e006f1d.mp3"
+    },
+    "She is tired.": {
+      "text": "She is tired.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/96ec35ce1bc30d1cc397be8023c2a5c0b639b57a2f7e251c433bd74ac8083437.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/96ec35ce1bc30d1cc397be8023c2a5c0b639b57a2f7e251c433bd74ac8083437.mp3"
+    },
+    "She isn't tired.": {
+      "text": "She isn't tired.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/0fbb8af6f62c4bec24e62e64b71083beeb540a52d3d69958c8563020f55626b9.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/0fbb8af6f62c4bec24e62e64b71083beeb540a52d3d69958c8563020f55626b9.mp3"
+    },
+    "She likes tea.": {
+      "text": "She likes tea.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/03f93ad3299680520b943d60b9d619b90a908165f3d7ea3bfda61bb40e8cc4a0.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/03f93ad3299680520b943d60b9d619b90a908165f3d7ea3bfda61bb40e8cc4a0.mp3"
+    },
+    "She plays tennis on Sundays.": {
+      "text": "She plays tennis on Sundays.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/50205616f562f04bfa3f78613a62c40b7b60cfbf4225048050aa19ed498387ae.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/50205616f562f04bfa3f78613a62c40b7b60cfbf4225048050aa19ed498387ae.mp3"
+    },
+    "She works here.": {
+      "text": "She works here.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/0e07443ddc008fafcb9709f0c48524d177a61c85a6484759ae44e37ab88b8c57.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/0e07443ddc008fafcb9709f0c48524d177a61c85a6484759ae44e37ab88b8c57.mp3"
+    },
+    "The shop is in London.": {
+      "text": "The shop is in London.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/9f8f5b29f248fffb04239f54d4f0c996c35984fb0a2c292e178c88f1b9a77c08.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/9f8f5b29f248fffb04239f54d4f0c996c35984fb0a2c292e178c88f1b9a77c08.mp3"
+    },
+    "The shop is open.": {
+      "text": "The shop is open.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/86172495e393b0e3dc0084ce899fad67a050edfada39cd6166951e83288dd450.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/86172495e393b0e3dc0084ce899fad67a050edfada39cd6166951e83288dd450.mp3"
+    },
+    "The shop opens at nine.": {
+      "text": "The shop opens at nine.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/26807498437bc4093727d2ffcc17dd25237d573ac6e5f0fb65a9764f637a3c29.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/26807498437bc4093727d2ffcc17dd25237d573ac6e5f0fb65a9764f637a3c29.mp3"
+    },
+    "They are at home.": {
+      "text": "They are at home.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/1e067dc5d2927fbdc056bf2756b26a0d70d348413a3040f51bc15c6bfaf529a2.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/1e067dc5d2927fbdc056bf2756b26a0d70d348413a3040f51bc15c6bfaf529a2.mp3"
+    },
+    "They are here.": {
+      "text": "They are here.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/57b4a203a175a94fdf0a2a6278d89fee36c2940dfd62945715d59bf2be6baafb.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/57b4a203a175a94fdf0a2a6278d89fee36c2940dfd62945715d59bf2be6baafb.mp3"
+    },
+    "They aren't at home.": {
+      "text": "They aren't at home.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/357179dfa94b4fca8c45d6e773a6163ae3e745c7ea23a1097a6fe619445dfad4.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/357179dfa94b4fca8c45d6e773a6163ae3e745c7ea23a1097a6fe619445dfad4.mp3"
+    },
+    "They live here.": {
+      "text": "They live here.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/15aab205577026546c0d4666a38e4a3c19b0fbd116e256c47b3e0950c550aa43.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/15aab205577026546c0d4666a38e4a3c19b0fbd116e256c47b3e0950c550aa43.mp3"
+    },
+    "They live in Berlin.": {
+      "text": "They live in Berlin.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/88b382a6868b4cbbc8d95653caee905f3132daef28b9e1cdd588b2115f3fbc5c.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/88b382a6868b4cbbc8d95653caee905f3132daef28b9e1cdd588b2115f3fbc5c.mp3"
+    },
+    "They play football.": {
+      "text": "They play football.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/f058c630d2206dccb39263c9282024ecaaa411f07723d65766591569e78cfbcc.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/f058c630d2206dccb39263c9282024ecaaa411f07723d65766591569e78cfbcc.mp3"
+    },
+    "Tom likes coffee.": {
+      "text": "Tom likes coffee.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/2683499e308e22709465599309c8f801136ef421d024aeae09a33daf72ba4997.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/2683499e308e22709465599309c8f801136ef421d024aeae09a33daf72ba4997.mp3"
+    },
+    "Water boils at 100 degrees.": {
+      "text": "Water boils at 100 degrees.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/e46a15407b0f18a78e4ab01c5107b6bd5647fe2334db127ecd043d007d6f1345.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/e46a15407b0f18a78e4ab01c5107b6bd5647fe2334db127ecd043d007d6f1345.mp3"
+    },
+    "Water freezes in winter.": {
+      "text": "Water freezes in winter.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/6c57ca3887f0fd25f5d2364f55f70763cb9639b9e949ac7e60afb61cc5d48635.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/6c57ca3887f0fd25f5d2364f55f70763cb9639b9e949ac7e60afb61cc5d48635.mp3"
+    },
+    "We like this song.": {
+      "text": "We like this song.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/0e173b5e317ea341aaff0b0f1117100f5e0c227bdd7d444b9222483dd36365db.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/0e173b5e317ea341aaff0b0f1117100f5e0c227bdd7d444b9222483dd36365db.mp3"
+    },
+    "We play football on Sundays.": {
+      "text": "We play football on Sundays.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/df0af07f13cc1e71ad6c60c8bbafebb9f3d81d7ff166bac5aed5280c735181d1.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/df0af07f13cc1e71ad6c60c8bbafebb9f3d81d7ff166bac5aed5280c735181d1.mp3"
+    },
+    "We play football.": {
+      "text": "We play football.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/e310d27ccc798b6615510690e37d9536fc4587f6fa8ba31c5b1a5a360f067aac.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/e310d27ccc798b6615510690e37d9536fc4587f6fa8ba31c5b1a5a360f067aac.mp3"
+    },
+    "You are a student.": {
+      "text": "You are a student.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/d972e919877d1d411384502c7ee83b37daf1a177bb1c1b10296466716e0cce5c.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/d972e919877d1d411384502c7ee83b37daf1a177bb1c1b10296466716e0cce5c.mp3"
+    },
+    "You are tired.": {
+      "text": "You are tired.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/ca869e4730633da465d408421e93ec677cf665012131cbad68dc40165d0abd2d.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/ca869e4730633da465d408421e93ec677cf665012131cbad68dc40165d0abd2d.mp3"
+    },
+    "You like coffee.": {
+      "text": "You like coffee.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/5f48564fc6f53f340a44160107881fe250ed66ba417782af6f41693731431d9b.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/5f48564fc6f53f340a44160107881fe250ed66ba417782af6f41693731431d9b.mp3"
+    },
+    "You like this song.": {
+      "text": "You like this song.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/c283d1f8951314ef8c79905e2d0c8fe480a0ab4dfb9ee27bd22cb5ea31850816.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/c283d1f8951314ef8c79905e2d0c8fe480a0ab4dfb9ee27bd22cb5ea31850816.mp3"
+    },
+    "You work here.": {
+      "text": "You work here.",
+      "normalUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/normal/d63a3de9186e04dfd691fe6ce2b326ea1e2b6cf003855afc88c348037821af50.mp3",
+      "slowUrl": "https://pub-6d0ece1c8e364f528a50bde509442f44.r2.dev/audio/courses/v1/slow/d63a3de9186e04dfd691fe6ce2b326ea1e2b6cf003855afc88c348037821af50.mp3"
+    }
+  }
 }

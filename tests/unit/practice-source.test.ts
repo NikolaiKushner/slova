@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_SOURCE_STATE,
   HARD_LAPSES,
+  keyFilter,
   setFilter,
   sourceQuery,
   stateFilter,
@@ -66,6 +67,13 @@ describe("setFilter", () => {
     expect(setFilter(["a", "b"])).toEqual({
       sets: { some: { setId: { in: ["a", "b"] } } },
     });
+  });
+});
+
+describe("keyFilter", () => {
+  it("restricts a session to those keys, including none", () => {
+    expect(keyFilter(["go", "be"])).toEqual({ key: { in: ["go", "be"] } });
+    expect(keyFilter([])).toEqual({ key: { in: [] } });
   });
 });
 

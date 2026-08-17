@@ -19,8 +19,22 @@ export type Verdict = "correct" | "almost" | "wrong";
 /** Articles are noise in a vocabulary answer: "a cat" and "cat" are the same. */
 const LEADING_ARTICLE = /^(a|an|the|to)\s+/i;
 
+/** Dropped as their own token in a phrase. `to` is not here — it is a particle. */
+const ARTICLE_TOKENS = new Set(["a", "an", "the"]);
+
 function comparable(text: string): string {
-  return normalizeKey(text).replace(LEADING_ARTICLE, "").trim();
+  const key = normalizeKey(text);
+  if (!key.includes(" ")) {
+    // One-word answers keep the old rule: only a leading article is noise.
+    // Folding every token would turn "the" into an empty string.
+    return key.replace(LEADING_ARTICLE, "").trim();
+  }
+
+  const tokens = key.split(" ");
+  // Infinitive `to give up` and `give up` are the same phrase; a particle
+  // `look forward to` is not, so `to` only comes off the front.
+  if (tokens[0] === "to") tokens.shift();
+  return tokens.filter((token) => !ARTICLE_TOKENS.has(token)).join(" ");
 }
 
 /**
@@ -88,4 +102,32 @@ export function judge(given: string, expected: string): Verdict {
  */
 export function passed(verdict: Verdict): boolean {
   return verdict !== "wrong";
+}
+
+/**
+ * Two fields, one verdict. A miss in either is a miss — the card is the
+ * triple, not one form — and "almost" wins only when neither is wrong, so a
+ * typo in `gone` still shows the spelling without failing `went`.
+ */
+export function judgeForms(
+  given: { past: string; participle: string },
+  expected: { past: string; participle: string; acceptPast?: readonly string[] },
+): Verdict {
+  const past = judgeAgainst(given.past, expected.past, expected.acceptPast);
+  const participle = judge(given.participle, expected.participle);
+
+  if (past === "wrong" || participle === "wrong") return "wrong";
+  if (past === "almost" || participle === "almost") return "almost";
+  return "correct";
+}
+
+function judgeAgainst(
+  given: string,
+  expected: string,
+  extras: readonly string[] = [],
+): Verdict {
+  const verdicts = [expected, ...extras].map((form) => judge(given, form));
+  if (verdicts.includes("correct")) return "correct";
+  if (verdicts.includes("almost")) return "almost";
+  return "wrong";
 }

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "iv-no-ed",
+    "title": "No -ed on an irregular verb",
+    "anchorMd": "У неправильного глагола прошедшее время — своя форма, а не **-ed**: go → **went**, buy → **bought**, take → **took**. Слов goed, buyed, taked не существует. Правило одно: если глагол неправильный, **-ed** к нему не добавляется никогда."
+  },
+  {
+    "id": "iv-same",
+    "title": "cut — cut — cut",
+    "anchorMd": "У части глаголов все три формы одинаковые: **cut, put, let, hit, cost, hurt, shut, read**. Форма не меняется — время показывает само предложение: I **cut** it every day. I **cut** it yesterday."
+  },
+  {
+    "id": "iv-two-alike",
+    "title": "buy — bought — bought",
+    "anchorMd": "Самая большая группа: вторая и третья формы совпадают. buy → **bought** → **bought**, tell → **told** → **told**, keep → **kept** → **kept**. Выучили одну форму — знаете обе."
+  },
+  {
+    "id": "iv-vowel",
+    "title": "sing — sang — sung",
+    "anchorMd": "Группа с чередованием гласной **i → a → u**: sing → **sang** → **sung**, drink → **drank** → **drunk**, begin → **began** → **begun**, swim → **swam** → **swum**. В прошедшем времени **a**, в третьей форме **u**."
+  },
+  {
+    "id": "iv-en",
+    "title": "take — took — taken",
+    "anchorMd": "Здесь все три формы разные, а третья оканчивается на **-en** или **-n**: take → took → **taken**, write → wrote → **written**, know → knew → **known**, see → saw → **seen**. Именно эта форма идёт после have / has."
+  },
+  {
+    "id": "iv-special",
+    "title": "be, go, do, come",
+    "anchorMd": "Самые частые глаголы не попадают ни в одну группу и запоминаются поодиночке: be → **was / were** → **been**, go → **went** → **gone**, do → **did** → **done**, come → **came** → **come**."
+  },
+  {
+    "id": "iv-after-did",
+    "title": "did + base form",
+    "anchorMd": "**did** и **didn't** уже несут прошедшее время, поэтому глагол возвращается в начальную форму: Did you **go**? I didn't **see** him. Не Did you went и не I didn't saw — прошедшее время показано один раз, в **did**."
+  },
+  {
+    "id": "iv-third-form",
+    "title": "have / has + third form",
+    "anchorMd": "Третья форма не заменяет прошедшее время: она стоит после **have / has**. I **saw** him yesterday, но I have **seen** him. Сказать I have saw или He has went нельзя."
+  }
+]

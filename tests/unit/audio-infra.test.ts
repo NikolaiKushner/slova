@@ -104,6 +104,28 @@ describe("createR2Storage", () => {
       }),
     );
   });
+
+  it("copies an object onto a new key without downloading it", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    const storage = createR2Storage(completeEnvironment, () => ({
+      fetch: fetchMock,
+    }));
+
+    await expect(
+      storage.copyAudio("audio/en/data privacy.mp3", "audio/en/data_privacy.mp3"),
+    ).resolves.toBe("https://audio.example.test/audio/en/data_privacy.mp3");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://account.r2.cloudflarestorage.com/audio/audio/en/data_privacy.mp3",
+      expect.objectContaining({
+        method: "PUT",
+        headers: {
+          "x-amz-copy-source": "/audio/audio/en/data%20privacy.mp3",
+          "x-amz-metadata-directive": "COPY",
+        },
+      }),
+    );
+  });
 });
 
 describe("runtimeAudioObjectKey", () => {

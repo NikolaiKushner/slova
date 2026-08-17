@@ -88,7 +88,9 @@
       "id": "ps-neg-04",
       "ruleId": "ps-negative-dont",
       "kind": "gap",
-      "prompt": "I ___ football. (do not play)",
+      "prompt": "I ___ football.",
+      "cue": "play",
+      "task": "negative",
       "answer": "don't play",
       "accept": ["do not play"]
     },
@@ -144,7 +146,9 @@
       "id": "ps-neg-10",
       "ruleId": "ps-negative-doesnt",
       "kind": "gap",
-      "prompt": "He ___ tea. (doesn't drink)",
+      "prompt": "He ___ tea.",
+      "cue": "drink",
+      "task": "negative",
       "answer": "doesn't drink",
       "accept": ["does not drink"]
     },
@@ -191,7 +195,9 @@
       "id": "ps-neg-15",
       "ruleId": "ps-negative-dont",
       "kind": "gap",
-      "prompt": "We ___ here. (don't live)",
+      "prompt": "We ___ here.",
+      "cue": "live",
+      "task": "negative",
       "answer": "don't live",
       "accept": ["do not live"]
     },

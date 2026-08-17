@@ -50,6 +50,7 @@
       "title": "A2",
       "titleRu": "Элементарный",
       "courses": [
+        { "slug": "irregular-verbs", "status": "available" },
         {
           "slug": "past-continuous",
           "status": "coming",

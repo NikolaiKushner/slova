@@ -10,6 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDelete } from "@/components/confirm-delete";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ROW_ICON, ROW_ICON_DESTROY } from "@/components/word-table";
 import { WordRating } from "@/components/word-rating";
 import { cn } from "@/lib/utils";
@@ -39,11 +44,13 @@ export function WordListRow({
   selected,
   onSelect,
   onChanged,
+  onSetFilter,
 }: {
   word: WordRow;
   selected: boolean;
   onSelect: (selected: boolean) => void;
   onChanged: () => void;
+  onSetFilter?: (setId: string) => void;
 }) {
   const t = useTranslations("dictionary");
   const [editing, setEditing] = useState(false);
@@ -117,7 +124,7 @@ export function WordListRow({
           aria-label={t("selectWord", { word: word.front })}
         />
       </TableCell>
-      <TableCell className="overflow-hidden font-medium text-ellipsis">
+      <TableCell className="overflow-hidden font-medium text-ellipsis leading-5">
         {editing ? (
           <Input
             value={front}
@@ -133,7 +140,7 @@ export function WordListRow({
         )}
       </TableCell>
 
-      <TableCell>
+      <TableCell className="leading-5">
         {editing ? (
           <Input
             value={back}
@@ -149,22 +156,14 @@ export function WordListRow({
         {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
       </TableCell>
 
-      <TableCell>
-        {word.sets.length === 0 ? (
-          <span className="text-muted-foreground">—</span>
-        ) : (
-          <span className="flex flex-wrap gap-1">
-            {word.sets.map((set) => (
-              <Badge key={set.id} variant="secondary">
-                {set.title}
-              </Badge>
-            ))}
-          </span>
-        )}
+      <TableCell className="w-[148px] max-w-[148px] overflow-hidden whitespace-normal">
+        <SetBadges sets={word.sets} onFilter={onSetFilter} />
       </TableCell>
 
-      <TableCell>
-        <WordRating rating={word.rating} />
+      <TableCell className="w-[104px]">
+        <span className="inline-flex h-5 items-center">
+          <WordRating rating={word.rating} />
+        </span>
       </TableCell>
 
       <TableCell className="w-[78px] pe-3 text-right">
@@ -251,4 +250,42 @@ function onKeys(save: () => void, cancel: () => void) {
       cancel();
     }
   };
+}
+
+function SetBadges({
+  sets,
+  onFilter,
+}: {
+  sets: { id: string; title: string }[];
+  onFilter?: (setId: string) => void;
+}) {
+  const t = useTranslations("dictionary");
+  if (sets.length === 0) return null;
+
+  return (
+    <span className="flex w-full min-w-0 flex-col items-start gap-1">
+      {sets.map((set) => (
+        <Tooltip key={set.id}>
+          <TooltipTrigger
+            render={
+              <button
+                type="button"
+                onClick={() => onFilter?.(set.id)}
+                aria-label={t("showSet", { title: set.title })}
+                className="min-w-0 max-w-full overflow-hidden rounded-full border-0 bg-transparent p-0 leading-none"
+              />
+            }
+          >
+            <Badge
+              variant="secondary"
+              className="pointer-events-none h-5 max-w-full min-w-0 shrink truncate px-1.5 text-[11px] font-medium"
+            >
+              <span className="min-w-0 truncate">{set.title}</span>
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent className="coarse:hidden">{set.title}</TooltipContent>
+        </Tooltip>
+      ))}
+    </span>
+  );
 }

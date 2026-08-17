@@ -54,6 +54,11 @@ export const TRAININGS: Training[] = [
     slug: "typing",
     audio: false,
   },
+  {
+    id: "verb-forms",
+    slug: "verb-forms",
+    audio: false,
+  },
 ];
 
 export function trainingBySlug(slug: string): Training | undefined {

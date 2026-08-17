@@ -223,7 +223,11 @@ export function BrainstormSession({ source }: { source: Source }) {
   const mastered = state.mastered.length + state.struggling.length;
   const current = state.words.find((entry) => entry.wordId === task.wordId);
   const answer =
-    "answer" in question ? question.answer : question.options[question.answerIndex];
+    "answer" in question
+      ? question.answer
+      : "options" in question
+        ? question.options[question.answerIndex]
+        : question.prompt;
 
   return (
     <FocusShell

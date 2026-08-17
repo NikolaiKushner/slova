@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  clampPage,
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
+  PAGE_SIZES,
   nextSort,
   pageCount,
   parseWordsQuery,
@@ -15,7 +17,7 @@ const parse = (search: string) => parseWordsQuery(new URLSearchParams(search));
 
 describe("parseWordsQuery", () => {
   it("has usable defaults for a bare URL", () => {
-    expect(DEFAULT_PAGE_SIZE).toBe(10);
+    expect(DEFAULT_PAGE_SIZE).toBe(25);
     expect(parse("")).toEqual({
       page: 1,
       pageSize: DEFAULT_PAGE_SIZE,
@@ -131,6 +133,38 @@ describe("paging arithmetic", () => {
     expect(pageCount(0, 25)).toBe(1);
     expect(pageCount(25, 25)).toBe(1);
     expect(pageCount(26, 25)).toBe(2);
+  });
+
+  it("offers every page size the parser will accept", () => {
+    expect(PAGE_SIZES).toContain(DEFAULT_PAGE_SIZE);
+    for (const size of PAGE_SIZES) {
+      expect(parse(`pageSize=${size}`).pageSize).toBe(size);
+    }
+    expect(PAGE_SIZES[PAGE_SIZES.length - 1]).toBe(MAX_PAGE_SIZE);
+  });
+});
+
+describe("clampPage", () => {
+  it("keeps a page that exists", () => {
+    expect(clampPage(1, 60, 25)).toBe(1);
+    expect(clampPage(3, 60, 25)).toBe(3);
+  });
+
+  it("falls back to the last page there is", () => {
+    // The words on page 3 were deleted while the URL still said page 3.
+    expect(clampPage(3, 26, 25)).toBe(2);
+    expect(clampPage(20, 5, 25)).toBe(1);
+  });
+
+  it("never returns page zero, however the list emptied", () => {
+    expect(clampPage(4, 0, 25)).toBe(1);
+    expect(clampPage(0, 60, 25)).toBe(1);
+    expect(clampPage(-3, 60, 25)).toBe(1);
+  });
+
+  it("leaves an exact boundary alone", () => {
+    expect(clampPage(2, 50, 25)).toBe(2);
+    expect(clampPage(3, 50, 25)).toBe(2);
   });
 });
 

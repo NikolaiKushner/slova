@@ -457,7 +457,7 @@ Implementation: `@media (pointer: coarse)` increases paddings, not fonts.
 - Screen rotation must not lose practice session state.
 - In iPad portrait (768–834) the sidebar is hidden, content takes the width with 32 padding.
 - Bottom sticky panel (lesson) on touch: height 64px + `env(safe-area-inset-bottom)`.
-- `overscroll-behavior: contain` on scrolling panels, so rubber-band scroll does not drag the whole page.
+- `overscroll-behavior: none` on `<html>` and on scrolling panels (`overscroll-none` / `overscroll-y-none`), so a Mac rubber-band does not stretch the pane or drag the page.
 
 ### Other
 
@@ -664,6 +664,7 @@ Props: `word`, `onComplete(guess)`.
 - Letter tiles: 42×42 (touch 48×48), `radius-md`, hover `translateY(-2px)`, used — `opacity 0.25`, `disabled`.
 - Keyboard input, `Backspace` returns the last one.
 - Checking happens automatically when the last cell is filled.
+- **A phrase is the same component with word tiles.** `give up` deals two tiles, never seven. Word tiles are auto-width (`min-width` 44, padding 12), same height as letter tiles. The first letter of a remaining tile still types from the keyboard.
 
 ### `<AnswerFeedback>`
 Result row under the answer. Props: `state`, `correctAnswer?`, `note?`.
@@ -678,7 +679,7 @@ Props: `state`, `sets`, `counts`, `onChange`.
 Counters are recalculated on the fly when filters change. If the result is < 5 words — show a `warning` warning, but do not block.
 
 ### `<WordRow>`
-Words table row: checkbox, English, Russian, set badge, «выучено» scale (5 dots 6px, gap 4px), actions on hover.
+Words table row: checkbox, English, Russian, set badges (full title, stacked; column max-width 148px, truncated with ellipsis and a tooltip for the full name), «выучено» scale (5 dots 6px, gap 4px), actions on hover.
 
 ### `<LessonRow>`
 Lesson row: marker (checkmark in a `green-700` circle / number in a circle), title `h4`, translation `caption`, time, chevron. Next lesson — background `neutral-25` + 2px left inset `green-700` + «Продолжить» badge.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { exerciseSchema } from "@/content/courses/schema";
+import { acceptedAnswers, exerciseSchema, type Exercise } from "@/content/courses/schema";
 import {
   CourseContentError,
   listedAvailableSlugs,
@@ -8,7 +8,7 @@ import {
   parsePack,
 } from "@/lib/courses/load";
 import { LESSON_PRACTICE_POOL_MIN, TEST_SITTING_SIZE } from "@/lib/courses/practice";
-import { typedPlaceholderHint } from "@/lib/courses/prompt";
+import { gapCue } from "@/lib/courses/prompt";
 
 describe("present-simple pack", () => {
   it("parses and satisfies the bank rule", () => {
@@ -156,12 +156,74 @@ describe("to-be-present pack", () => {
   });
 });
 
+describe("irregular-verbs pack", () => {
+  it("parses and groups the verbs by pattern", () => {
+    const loaded = loadCourse("irregular-verbs");
+    expect(loaded.course.titleRu).toBe("Неправильные глаголы");
+    expect(loaded.course.level).toBe("A2");
+    expect(loaded.lessons.map((lesson) => lesson.slug)).toEqual([
+      "same",
+      "two-alike",
+      "vowel",
+      "en",
+      "special",
+      "test",
+    ]);
+    expect(loaded.rules.map((rule) => rule.id).sort()).toEqual([
+      "iv-after-did",
+      "iv-en",
+      "iv-no-ed",
+      "iv-same",
+      "iv-special",
+      "iv-third-form",
+      "iv-two-alike",
+      "iv-vowel",
+    ]);
+  });
+
+  it("mixes every rule into the test", () => {
+    const loaded = loadCourse("irregular-verbs");
+    const test = loaded.lessons.find((lesson) => lesson.slug === "test");
+    const inTest = new Set(
+      test?.blocks
+        .filter((block) => block.type === "exercise")
+        .map((block) => block.ruleId),
+    );
+    expect([...inTest].sort()).toEqual(
+      loaded.rules.map((rule) => rule.id).sort(),
+    );
+  });
+
+  /**
+   * Same-form verbs (cut, put, hurt) make the dictionary form equal the
+   * answer. The old placeholder leak-guard hid the cue in that case, which is
+   * why this course would have been mute on those items. `gapCue` does not
+   * filter; this assertion is that the content still names the verb.
+   */
+  it("names the verb on every gap, including where it equals the answer", () => {
+    const loaded = loadCourse("irregular-verbs");
+    const gaps = [
+      ...loaded.lessons.flatMap((lesson) => lesson.blocks),
+      ...loaded.bank,
+    ].filter(
+      (block): block is Extract<Exercise, { kind: "gap" }> =>
+        block.type === "exercise" && block.kind === "gap",
+    );
+
+    expect(gaps.length).toBeGreaterThan(0);
+    for (const gap of gaps) {
+      expect(gapCue(gap), gap.id).not.toBeNull();
+    }
+  });
+});
+
 describe("catalog", () => {
-  it("lists present-simple and to-be-present as available", () => {
+  it("lists the three finished courses as available", () => {
     const catalog = loadCatalog();
     expect(listedAvailableSlugs(catalog)).toEqual([
       "present-simple",
       "to-be-present",
+      "irregular-verbs",
     ]);
     expect(catalog.groups.map((group) => group.id)).toEqual(["a1", "a2", "b1"]);
     expect(catalog.groups[0]?.courses.map((entry) => entry.slug)).toEqual([
@@ -191,7 +253,7 @@ describe("catalog", () => {
     }
   });
 
-  it("does not put the answer in a gap placeholder", () => {
+  it("gives every gap a dictionary-form cue that is not the inflected answer", () => {
     for (const slug of listedAvailableSlugs()) {
       const loaded = loadCourse(slug);
       const exercises = [
@@ -202,17 +264,49 @@ describe("catalog", () => {
       ];
       for (const exercise of exercises) {
         if (exercise.kind !== "gap") continue;
-        const hint = typedPlaceholderHint(exercise);
-        if (!hint) continue;
-        expect(hint.toLowerCase(), `${slug}:${exercise.id}`).not.toBe(
-          exercise.answer.toLowerCase(),
-        );
+        const cue = gapCue(exercise);
+        expect(cue, `${slug}:${exercise.id}`).toBeTruthy();
+        // `(do not play)` / `(doesn't drink)` — a cue that is the answer, with
+        // a space or an apostrophe, is the shape that used to mute the question.
+        const leaked = acceptedAnswers(exercise).some((item) => {
+          const answer = item.trim().toLowerCase();
+          return answer === cue!.trim().toLowerCase() && /['’\s]/.test(item);
+        });
+        expect(leaked, `${slug}:${exercise.id}`).toBe(false);
       }
     }
   });
 });
 
 describe("invariants", () => {
+  it("parses a gap with an explicit cue and task", () => {
+    const parsed = exerciseSchema.safeParse({
+      type: "exercise",
+      id: "x",
+      ruleId: "ps-negative-dont",
+      kind: "gap",
+      prompt: "I ___ football.",
+      cue: "play",
+      task: "negative",
+      answer: "don't play",
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects an unknown gap task", () => {
+    const parsed = exerciseSchema.safeParse({
+      type: "exercise",
+      id: "x",
+      ruleId: "ps-negative-dont",
+      kind: "gap",
+      prompt: "I ___ football.",
+      cue: "play",
+      task: "passive",
+      answer: "don't play",
+    });
+    expect(parsed.success).toBe(false);
+  });
+
   it("rejects an unknown kind at parse time", () => {
     const parsed = exerciseSchema.safeParse({
       type: "exercise",

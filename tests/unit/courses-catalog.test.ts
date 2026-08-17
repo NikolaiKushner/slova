@@ -19,11 +19,12 @@ import {
 } from "@/lib/courses/catalog-view";
 
 describe("grammarCatalog", () => {
-  it("puts Present Simple and to be live, the rest on the coming shelf", () => {
+  it("puts the finished courses live, the rest on the coming shelf", () => {
     const catalog = grammarCatalog();
     expect(catalog.available.map((course) => course.slug)).toEqual([
       "present-simple",
       "to-be-present",
+      "irregular-verbs",
     ]);
     expect(catalog.available[0]).toMatchObject({
       href: "/courses/grammar/present-simple",

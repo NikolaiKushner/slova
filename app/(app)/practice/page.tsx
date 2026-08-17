@@ -7,6 +7,7 @@ import {
   Headphones,
   Keyboard,
   Languages,
+  ListOrdered,
   Puzzle,
   RotateCcw,
   Sparkles,
@@ -36,11 +37,10 @@ import { DEFAULT_SOURCE_STATE, sourceQuery } from "@/lib/practice/source";
 /**
  * Where a session starts.
  *
- * The page answers one question — what to practise — and then offers three
- * ways to do it: mixed review, brainstorm for new words, or a single format.
- * All three inherit the source chosen at the top, which is why the second
- * screen that used to ask "which sets?" on the way into every training is
- * gone. That was a product decision and it is recorded in docs/MIGRATION.md.
+ * The page answers one question — what to practise — and then offers mixed
+ * review, brainstorm, or a single format, all from the source bar. Verb forms
+ * sit below that, as their own block: the 95 triples, not those words asked
+ * another way.
  *
  * Icons live here rather than in the catalog — same split as the sidebar, so
  * `lib/practice` stays free of `lucide-react`.
@@ -53,6 +53,7 @@ const TRAINING_ICONS: Record<TrainingId, LucideIcon> = {
   builder: Puzzle,
   listening: Headphones,
   typing: Keyboard,
+  "verb-forms": ListOrdered,
 };
 
 /** Roughly half a minute a word for review, closer to a minute for new ones. */
@@ -77,7 +78,9 @@ export default function PracticePage() {
   const chosen = counts?.states[source.state] ?? 0;
   const fresh = counts?.states.new ?? 0;
 
-  const formats = TRAININGS.filter((training) => training.id !== "brainstorm");
+  const formats = TRAININGS.filter(
+    (training) => training.id !== "brainstorm" && training.id !== "verb-forms",
+  );
 
   function open(slug: string, state = source.state) {
     router.push(`/practice/${slug}?${sourceQuery({ ...source, state })}`);
@@ -148,6 +151,17 @@ export default function PracticePage() {
       <p className="text-muted-foreground mt-3 text-caption">
         {t("oneSourceNote")}
       </p>
+
+      <SectionLabel>{t("verbFormsSection")}</SectionLabel>
+      <ModeCard
+        icon={ListOrdered}
+        title={trainings("verb-forms.title")}
+        body={t("verbFormsBody")}
+        meta={t("verbFormsMeta")}
+        action={t("verbFormsAction")}
+        variant="outline"
+        onStart={() => router.push("/practice/verb-forms")}
+      />
     </PageContainer>
   );
 }

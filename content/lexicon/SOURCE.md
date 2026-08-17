@@ -37,6 +37,15 @@ Filtering applied on the way in, which is all the editing we do:
 
 9,822 words survive of 9,884.
 
+### What the second pass refused
+
+`npm run lexicon:build -- --missing` asked about the 1,649 words the first run
+left blank. 63 came back with a gloss (`the` as «определённый артикль»); the
+other **1,576** were declined on purpose. They are proper nouns, brands, place
+names and abbreviations (`john`, `microsoft`, `uk`, `rss`). A learner who
+pastes those still goes through the ordinary miss path. The file is not
+missing rows; those words are not vocabulary.
+
 ## `en-ru-frequency.jsonl` — the translations (output)
 
 **Ours.** Produced by `npm run lexicon:build`, which sends the word list through
@@ -58,3 +67,61 @@ Rebuilding: `npm run lexicon:build` (costs roughly $0.50 and takes up to an hour
 through the Batch API), then `npm run db:seed-lexicon` to load it. Both are
 idempotent — re-running replaces `source="seed"` rows and leaves everything the
 lexicon has since earned by itself (`llm`, `import`) alone.
+
+### Line format
+
+A line is `{"text", "translation"}` plus two optional fields:
+
+```json
+{"text":"water","translation":"вода","transcription":"ˈwɔːtər","partOfSpeech":"noun"}
+```
+
+`transcription` is IPA without slashes; `partOfSpeech` is one of the closed
+vocabulary in `PARTS_OF_SPEECH` (`lib/llm/prompt.ts`). Both are **optional in
+the file and required in the schema** — structured outputs has no notion of an
+optional property, so the model answers `""` where it has nothing, and the
+parser leaves the field off the entry rather than storing a blank. A blank
+stored in the column would read as "we looked and there is none", which is the
+same trap the empty-translation rule above exists to avoid.
+
+Lines written before these fields existed stay valid and load unchanged.
+
+### Filling them in
+
+`npm run lexicon:build -- --enrich` reads this file rather than the word list,
+asks only about lines that are missing a field, and rewrites the file in place
+in its original order. The stored translation is kept even though the model
+returns one: the schema requires the field, but a re-translation would revise
+meanings that have already been seeded, reviewed and shipped, and that is not
+what an enrichment pass is for.
+
+Three modes, and they do not overlap:
+
+| Flag | Population | Writes |
+|---|---|---|
+| *(none)* / `--force` | the whole word list | replaces the file |
+| `--missing` | words with no line yet | appends |
+| `--enrich` | lines missing a transcription or part of speech | rewrites in place |
+| `--resume <id>` | with `--missing` or `--enrich` | collects an already-submitted batch instead of creating one |
+
+## `en-irregular-verbs.jsonl` — the triples
+
+Hand-curated. Ninety-five verbs, each with a past and a participle, plus
+`acceptPast` on `be` so `were` counts next to `was`. `npm run db:seed-lexicon`
+writes those onto `Lexeme.forms` after loading the frequency file. The same
+table is the factual core of the irregular-verbs course.
+
+## `en-ru-phrases.jsonl` — phrasal verbs and collocations
+
+Hand-curated. Three hundred and ninety everyday phrasal verbs, verb+noun
+collocations and discourse chunks (`give up`, `make a decision`, `by the way`).
+Not generated: `seed` is trusted, so a model's plausible-but-wrong collocation
+would be everyone's answer on the first write.
+
+`partOfSpeech` is `phrase` on every line. There is no IPA in this file — a
+transcription of a collocation is easy to get wrong, and an empty field is
+dropped rather than stored blank, same rule as the frequency file.
+
+`npm run db:seed-lexicon` loads it after the frequency file. A phrases-only
+re-run is `npm run db:seed-lexicon -- --kind=phrase`.
+

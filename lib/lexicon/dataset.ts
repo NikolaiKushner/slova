@@ -1,4 +1,5 @@
 import { normalizeKey } from "@/lib/lexicon/key";
+import { isPartOfSpeech, type PartOfSpeech } from "@/lib/llm/prompt";
 import { cleanCell, looksTransliterated, matchCase } from "@/lib/normalize";
 
 /**
@@ -19,6 +20,10 @@ export type DatasetEntry = {
   /** normalizeKey(text) — what the runtime will look words up by. */
   key: string;
   translation: string;
+  /** IPA without slashes. Absent when the file has none or it failed the check. */
+  transcription?: string;
+  /** Absent when the file has none or the value is outside the vocabulary. */
+  partOfSpeech?: PartOfSpeech;
 };
 
 export type ParseWarning = {
@@ -27,10 +32,66 @@ export type ParseWarning = {
   content: string;
 };
 
+/**
+ * Enrichment fields thrown away, counted rather than warned about.
+ *
+ * A warning means a line was skipped, and the loader prints it that way. A bad
+ * transcription is not that: the translation on the line is still worth having
+ * and still gets stored, so dropping the field must not read as losing the
+ * word. Counted, because silently discarding model output is how a prompt
+ * regression goes unnoticed for a whole run.
+ */
+export type ParseDropped = {
+  transcription: number;
+  partOfSpeech: number;
+};
+
 export type ParseResult = {
   entries: DatasetEntry[];
   warnings: ParseWarning[];
+  dropped: ParseDropped;
 };
+
+/** `/ˈwɔːtər/` and `[ˈwɔːtər]` are the same transcription written three ways. */
+const WRAPPING_IPA_DELIMITERS = /^[/[\]]+|[/[\]]+$/gu;
+
+/**
+ * Comfortably past the longest real transcription in the base — `artificial
+ * intelligence` runs to about 25 characters — and short enough to catch an
+ * answer that turned into an explanation.
+ */
+const MAX_TRANSCRIPTION_LENGTH = 48;
+
+/**
+ * A character outside printable ASCII. Written as a range rather than `\x00`
+ * so no control character appears in the pattern.
+ */
+const NON_ASCII = /[^ -~]/u;
+
+/**
+ * Two checks, because length alone is not a signal: a model that answers with
+ * prose instead of IPA writes something like `roughly wah-ter`, which is
+ * shorter than a transcribed phrase and would sail through a size limit.
+ *
+ * What separates them is the alphabet. IPA borrows the Latin letters, so
+ * script cannot identify it on its own — but English IPA always reaches for
+ * something outside plain ASCII: a stress mark in `ˈwɔːtər`, a length mark, or
+ * one of the vowels that has no ASCII spelling at all (`kæt`, `pɪn`, `bɛd`).
+ * Prose spelled out in Latin letters has none of those. Cyrillic is the
+ * opposite failure — the model answering in the wrong alphabet entirely, the
+ * same one `looksTransliterated` catches on the translation side.
+ *
+ * It fails safe in the direction that matters: a real transcription wrongly
+ * dropped is a word without IPA, while prose wrongly stored is a word that
+ * teaches the wrong pronunciation and is never asked about again.
+ */
+function usableTranscription(raw: string): string | null {
+  const text = cleanCell(raw).replace(WRAPPING_IPA_DELIMITERS, "").trim();
+  if (!text || text.length > MAX_TRANSCRIPTION_LENGTH) return null;
+  if (/\p{Script=Cyrillic}/u.test(text)) return null;
+  if (!NON_ASCII.test(text)) return null;
+  return text;
+}
 
 /**
  * Every entry goes through the same `normalizeKey` and the same cleanup the
@@ -41,6 +102,7 @@ export type ParseResult = {
 export function parseDataset(text: string): ParseResult {
   const entries: DatasetEntry[] = [];
   const warnings: ParseWarning[] = [];
+  const dropped: ParseDropped = { transcription: 0, partOfSpeech: 0 };
   const seen = new Map<string, number>();
 
   const lines = text.split("\n");
@@ -117,10 +179,34 @@ export function parseDataset(text: string): ParseResult {
     }
 
     seen.set(key, lineNumber);
-    entries.push({ text: source, key, translation });
+
+    // Absent and unusable are the same outcome here — the entry lands without
+    // the field. A blank stored in the column would read as "we looked and
+    // there is none", which is exactly the confusion the empty translation
+    // rule above exists to prevent.
+    let transcription: string | null = null;
+    if (typeof record.transcription === "string" && record.transcription.trim()) {
+      transcription = usableTranscription(record.transcription);
+      if (!transcription) dropped.transcription += 1;
+    }
+
+    let partOfSpeech: PartOfSpeech | null = null;
+    if (typeof record.partOfSpeech === "string" && record.partOfSpeech.trim()) {
+      const candidate = record.partOfSpeech.trim().toLowerCase();
+      if (isPartOfSpeech(candidate)) partOfSpeech = candidate;
+      else dropped.partOfSpeech += 1;
+    }
+
+    entries.push({
+      text: source,
+      key,
+      translation,
+      ...(transcription ? { transcription } : {}),
+      ...(partOfSpeech ? { partOfSpeech } : {}),
+    });
   }
 
-  return { entries, warnings };
+  return { entries, warnings, dropped };
 }
 
 /** Word or phrase — the shared base keeps both, and tells them apart by this. */

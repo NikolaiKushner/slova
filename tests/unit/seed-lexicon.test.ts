@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { kindOf, parseDataset } from "@/lib/lexicon/dataset";
 import { normalizeKey } from "@/lib/lexicon/key";
 
@@ -98,9 +99,133 @@ describe("parseDataset", () => {
   });
 });
 
+describe("parseDataset — enrichment fields", () => {
+  const enriched = (extra: Record<string, unknown>) =>
+    JSON.stringify({ text: "water", translation: "вода", ...extra });
+
+  it("reads a v1 line, which carries neither field, without complaint", () => {
+    const { entries, dropped } = parseDataset(line("cat", "кот"));
+    expect(entries[0]).toEqual({ text: "cat", key: "cat", translation: "кот" });
+    expect(dropped).toEqual({ transcription: 0, partOfSpeech: 0 });
+  });
+
+  it("keeps a transcription and a known part of speech", () => {
+    const { entries, dropped } = parseDataset(
+      enriched({ transcription: "ˈwɔːtər", partOfSpeech: "noun" }),
+    );
+    expect(entries[0]).toMatchObject({
+      transcription: "ˈwɔːtər",
+      partOfSpeech: "noun",
+    });
+    expect(dropped).toEqual({ transcription: 0, partOfSpeech: 0 });
+  });
+
+  it("strips the slashes and brackets a transcription may be wrapped in", () => {
+    const slashes = parseDataset(enriched({ transcription: "/ˈwɔːtər/" }));
+    const brackets = parseDataset(enriched({ transcription: "[ˈwɔːtər]" }));
+    expect(slashes.entries[0].transcription).toBe("ˈwɔːtər");
+    expect(brackets.entries[0].transcription).toBe("ˈwɔːtər");
+  });
+
+  /**
+   * The empty string is the model's documented way of declining the field, so
+   * it is an answer rather than a failure — nothing is dropped and nothing is
+   * counted. Storing it would put a blank in the column, which reads as "we
+   * looked and there is none".
+   */
+  it("treats an empty field as a decline, not as a value or a drop", () => {
+    const { entries, dropped } = parseDataset(
+      enriched({ transcription: "", partOfSpeech: "" }),
+    );
+    expect(entries[0].transcription).toBeUndefined();
+    expect(entries[0].partOfSpeech).toBeUndefined();
+    expect(dropped).toEqual({ transcription: 0, partOfSpeech: 0 });
+  });
+
+  it("drops a part of speech outside the vocabulary and counts it", () => {
+    const { entries, dropped } = parseDataset(enriched({ partOfSpeech: "gerund" }));
+    expect(entries).toHaveLength(1);
+    expect(entries[0].partOfSpeech).toBeUndefined();
+    expect(dropped.partOfSpeech).toBe(1);
+  });
+
+  it("accepts a part of speech the model capitalised", () => {
+    const { entries, dropped } = parseDataset(enriched({ partOfSpeech: "Noun" }));
+    expect(entries[0].partOfSpeech).toBe("noun");
+    expect(dropped.partOfSpeech).toBe(0);
+  });
+
+  it("drops a transcription written in the wrong alphabet", () => {
+    // The failure this mirrors is real on the translation side: the model
+    // answering in Cyrillic where IPA was asked for.
+    const { entries, dropped } = parseDataset(enriched({ transcription: "вода" }));
+    expect(entries[0].transcription).toBeUndefined();
+    expect(dropped.transcription).toBe(1);
+  });
+
+  /**
+   * The prose an unsure model writes instead of IPA is shorter than a
+   * transcribed phrase, so a length limit does not catch it. What does is the
+   * alphabet: English IPA always reaches outside plain ASCII, and a
+   * respelling never does.
+   */
+  it("drops a plain-ASCII respelling, which is prose and not IPA", () => {
+    const { entries, dropped } = parseDataset(
+      enriched({ transcription: "roughly wah-ter" }),
+    );
+    expect(entries[0].transcription).toBeUndefined();
+    expect(dropped.transcription).toBe(1);
+  });
+
+  it("keeps a short monosyllable, which carries no stress mark", () => {
+    const { entries, dropped } = parseDataset(
+      JSON.stringify({ text: "cat", translation: "кот", transcription: "kæt" }),
+    );
+    expect(entries[0].transcription).toBe("kæt");
+    expect(dropped.transcription).toBe(0);
+  });
+
+  it("drops a transcription long enough to be an explanation", () => {
+    const { entries, dropped } = parseDataset(
+      enriched({
+        transcription: "ˈwɔːtər — but the second vowel reduces in fast speech, roughly",
+      }),
+    );
+    expect(entries[0].transcription).toBeUndefined();
+    expect(dropped.transcription).toBe(1);
+  });
+
+  /** A bad field costs the field, never the word — the translation still lands. */
+  it("keeps the entry when only an enrichment field is unusable", () => {
+    const { entries, warnings } = parseDataset(
+      enriched({ transcription: "вода", partOfSpeech: "gerund" }),
+    );
+    expect(entries).toHaveLength(1);
+    expect(entries[0].translation).toBe("вода");
+    expect(warnings).toEqual([]);
+  });
+});
+
 describe("kindOf", () => {
   it("tells a phrase from a word by the space in it", () => {
     expect(kindOf("cat")).toBe("word");
     expect(kindOf("discharge summary")).toBe("phrase");
+  });
+});
+
+describe("en-ru-phrases.jsonl", () => {
+  const { entries, warnings } = parseDataset(
+    readFileSync("content/lexicon/en-ru-phrases.jsonl", "utf8"),
+  );
+
+  it("is well-formed and inside the planned size", () => {
+    expect(warnings).toEqual([]);
+    expect(entries.length).toBeGreaterThanOrEqual(300);
+    expect(entries.length).toBeLessThanOrEqual(500);
+  });
+
+  it("is only phrases, marked as such", () => {
+    expect(entries.every((entry) => kindOf(entry.text) === "phrase")).toBe(true);
+    expect(entries.every((entry) => entry.partOfSpeech === "phrase")).toBe(true);
   });
 });
