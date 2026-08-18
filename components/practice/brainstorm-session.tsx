@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { AnswerFeedback } from "@/components/slova/answer-feedback";
 import { Eyebrow } from "@/components/slova/eyebrow";
 import { KeyHints } from "@/components/slova/key-hints";
+import { MutationStatus } from "@/components/slova/mutation-status";
 import { StageRail, type StageRailWord } from "@/components/slova/stage-rail";
 import {
   FocusAnswer,
@@ -40,6 +41,7 @@ import { buildQuestion, type PracticeWord } from "@/lib/practice/question";
 import { speak, whenVoiceReady } from "@/lib/practice/speech";
 import { sourceQuery, type Source } from "@/lib/practice/source";
 import { useStudySitting } from "@/hooks/use-study-sitting";
+import { useReliableMutations } from "@/hooks/use-reliable-mutations";
 
 /**
  * Brainstorm: the ladder, drawn.
@@ -78,6 +80,15 @@ export function BrainstormSession({ source }: { source: Source }) {
    * So a change of size veils the list instead and leaves it in place.
    */
   const [reloading, setReloading] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  const {
+    submit: submitMutation,
+    flush: flushMutations,
+    retryFailed,
+    phase: mutationPhase,
+    online,
+    failedCount,
+  } = useReliableMutations();
   const [state, setState] = useState<BrainstormState | null>(null);
   const [result, setResult] = useState<Answered | null>(null);
   // The words are read before they are drilled, not during.
@@ -130,7 +141,7 @@ export function BrainstormSession({ source }: { source: Source }) {
     return buildQuestion(task.step, word, data?.pool ?? [], `${data?.seed ?? ""}-${task.step}`);
   }, [task, word, data]);
 
-  const { getIdAsync, touch, track, complete } = useStudySitting({
+  const { getIdAsync, touch, complete } = useStudySitting({
     active: started && !!data?.words.length,
     kind: "brainstorm",
     label: "brainstorm",
@@ -147,35 +158,40 @@ export function BrainstormSession({ source }: { source: Source }) {
     for (const wordId of state.mastered) {
       const word = state.words.find((w) => w.wordId === wordId);
       if (!word) continue;
-      const request = getIdAsync()
-        .then((sittingId) =>
-          fetch("/api/practice/graduate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+      const operationId = crypto.randomUUID();
+      void submitMutation({
+        id: operationId,
+        endpoint: "/api/practice/graduate",
+        body: async () => {
+          const sittingId = await getIdAsync();
+          return {
               wordId,
+              operationId,
               errors: word.errors,
               sittingId: sittingId ?? undefined,
-            }),
-          }),
-        )
-        .then(() => undefined, () => undefined);
-      track(request);
+          };
+        },
+      });
     }
-  }, [getIdAsync, track]);
+  }, [getIdAsync, submitMutation]);
 
-  function next() {
-    if (!state) return;
+  async function next() {
+    if (!state || finishing) return;
     const correct = result ? passed(result.verdict) : true;
     setResult(null);
 
     const advanced = answerBrainstorm(state, correct);
-    setState(advanced);
     if (isFinished(advanced)) {
+      setFinishing(true);
       handOver(advanced);
+      await flushMutations();
+      await complete();
       if (startedAt) setElapsed(Math.round((Date.now() - startedAt) / 1000));
-      void complete();
+      setState(advanced);
+      setFinishing(false);
+      return;
     }
+    setState(advanced);
   }
 
   if (loading) {
@@ -220,16 +236,24 @@ export function BrainstormSession({ source }: { source: Source }) {
 
   if (isFinished(state)) {
     return (
-      <Summary
-        state={state}
-        words={data.words}
-        answers={answers}
-        seconds={elapsed}
-        onAgain={() => {
-          setStarted(false);
-          setState(startBrainstorm(data.words, hasAudio ? AUDIO_LADDER : DEFAULT_LADDER));
-        }}
-      />
+      <>
+        <MutationStatus
+          phase={mutationPhase}
+          failedCount={failedCount}
+          online={online}
+          onRetry={() => void retryFailed()}
+        />
+        <Summary
+          state={state}
+          words={data.words}
+          answers={answers}
+          seconds={elapsed}
+          onAgain={() => {
+            setStarted(false);
+            setState(startBrainstorm(data.words, hasAudio ? AUDIO_LADDER : DEFAULT_LADDER));
+          }}
+        />
+      </>
     );
   }
 
@@ -268,6 +292,12 @@ export function BrainstormSession({ source }: { source: Source }) {
         />
       }
     >
+      <MutationStatus
+        phase={mutationPhase}
+        failedCount={failedCount}
+        online={online}
+        onRetry={() => void retryFailed()}
+      />
       {/* Same head as a single-format session: what is being asked, then where
           you are. The rung replaces the word count; nothing else differs. */}
       <FocusHead
@@ -318,7 +348,12 @@ export function BrainstormSession({ source }: { source: Source }) {
           className="min-w-0 flex-1"
         />
         {result !== null ? (
-          <Button size="default" onClick={next} autoFocus>
+          <Button
+            size="default"
+            onClick={() => void next()}
+            disabled={finishing}
+            autoFocus
+          >
             {common("next")}
           </Button>
         ) : null}

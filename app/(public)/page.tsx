@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { SIGNED_IN_HOME } from "@/lib/auth.config";
 import { TRAININGS } from "@/lib/practice/catalog";
 import { redirect } from "next/navigation";
@@ -89,7 +89,7 @@ function Chip({ on = false, children }: { on?: boolean; children: string }) {
 }
 
 export default async function LandingPage() {
-  const session = await auth();
+  const session = await getSession();
   if (session?.user) redirect(SIGNED_IN_HOME);
 
   const t = await getTranslations("landing");

@@ -22,9 +22,9 @@ type ModelCapabilities = {
 };
 
 /**
- * Only models we would plausibly point `LLM_MODEL` at. An unknown id falls
- * back to the conservative shape below rather than failing to boot: a typo in
- * an env var should degrade the request, not the deployment.
+ * Only models we deliberately allow `LLM_MODEL` to select. Keeping this list
+ * closed is part of the spend ceiling: an environment typo or a newly released
+ * premium model must not silently change the project's worst-case daily cost.
  */
 const CAPABILITIES: Record<string, ModelCapabilities> = {
   "claude-haiku-4-5": { supportsEffort: false },
@@ -47,5 +47,6 @@ export function capabilitiesOf(model: string): ModelCapabilities {
 
 /** The model this deployment talks to. */
 export function activeModel(): string {
-  return process.env.LLM_MODEL?.trim() || DEFAULT_MODEL;
+  const configured = process.env.LLM_MODEL?.trim();
+  return configured && configured in CAPABILITIES ? configured : DEFAULT_MODEL;
 }

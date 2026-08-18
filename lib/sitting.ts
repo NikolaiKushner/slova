@@ -153,6 +153,30 @@ export function touchSitting(
   return next;
 }
 
+/** Reverse the count deltas from one persisted review without rewinding time. */
+export function undoSittingTouch(
+  sitting: SittingDraft,
+  input: {
+    rating: "again" | "good";
+    introduced: boolean;
+    graduation?: boolean;
+  },
+): SittingDraft {
+  const next = { ...sitting };
+  if (!input.graduation) {
+    next.reviews = Math.max(0, next.reviews - 1);
+    if (input.rating === "good") {
+      next.goods = Math.max(0, next.goods - 1);
+    } else {
+      next.agains = Math.max(0, next.agains - 1);
+    }
+  }
+  if (input.introduced) {
+    next.introduced = Math.max(0, next.introduced - 1);
+  }
+  return next;
+}
+
 /**
  * Close a sitting. Duration still comes from lastAt, not `now` — so finishing
  * the summary, closing the tab, or going stale does not add idle time.

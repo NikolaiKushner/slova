@@ -12,7 +12,7 @@ import { synthesizeSpeech } from "@/lib/audio/tts";
 import { STUDY_SOURCE_LANG } from "@/lib/languages";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { getPrisma } from "@/lib/prisma";
-import { allowAttemptDurable } from "@/lib/rate-limit";
+import { allowFixedWindowAttempt } from "@/lib/rate-limit";
 
 export class AudioUnavailableError extends Error {
   constructor(message = "On-demand speech is unavailable.") {
@@ -43,9 +43,8 @@ export type ResolveAudioDependencies = {
   validatePaidPath(): void;
   synthesize(text: string): Promise<Uint8Array>;
   upload(path: string, audio: Uint8Array): Promise<string>;
-  storeLexeme(input: {
+  storeAudio(input: {
     key: string;
-    text: string;
     audioUrl: string;
   }): Promise<void>;
 };
@@ -59,7 +58,7 @@ function defaultDependencies(): ResolveAudioDependencies {
       });
     },
     claimGeneration(key) {
-      return allowAttemptDurable(audioGenerationClaimKey(key), 1, 30_000);
+      return allowFixedWindowAttempt(audioGenerationClaimKey(key), 1, 30_000);
     },
     sleep(milliseconds) {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -80,19 +79,10 @@ function defaultDependencies(): ResolveAudioDependencies {
     async upload(path, audio) {
       return createR2Storage().putAudio(path, audio);
     },
-    async storeLexeme({ key, text, audioUrl }) {
-      await getPrisma().lexeme.upsert({
+    async storeAudio({ key, audioUrl }) {
+      await getPrisma().lexeme.update({
         where: { lang_key: { lang: STUDY_SOURCE_LANG, key } },
-        create: {
-          lang: STUDY_SOURCE_LANG,
-          key,
-          text,
-          kind: key.includes(" ") ? "phrase" : "word",
-          source: "tts",
-          audioUrl,
-          audioSource: NORMAL_AUDIO_PROFILE.source,
-        },
-        update: {
+        data: {
           audioUrl,
           audioSource: NORMAL_AUDIO_PROFILE.source,
         },
@@ -141,6 +131,12 @@ export async function resolveAudio(
     return { url: cached.audioUrl, source: "cache" };
   }
 
+  // On-demand speech may fill a hole in the curated/shared catalogue, but it
+  // may never turn arbitrary account input into a permanent shared row/object.
+  if (!cached) {
+    throw new AudioUnavailableError("Speech is limited to existing lexemes.");
+  }
+
   if (environment.TTS_ON_DEMAND_ENABLED !== "true") {
     throw new AudioUnavailableError();
   }
@@ -156,15 +152,13 @@ export async function resolveAudio(
     throw new AudioUnavailableError("Speech generation is already in progress.");
   }
 
-  // Existing entries keep their curated spelling. A new entry uses the safe
-  // normalized key, never list markers or punctuation stripped by normalizeKey.
-  const synthesisText = cached?.text ?? key;
+  const synthesisText = cached.text;
   await dependencies.reserve(userId, synthesisText.length);
 
   const path = runtimeAudioObjectKey(synthesisText);
   const audio = await dependencies.synthesize(synthesisText);
   const audioUrl = await dependencies.upload(path, audio);
-  await dependencies.storeLexeme({ key, text: synthesisText, audioUrl });
+  await dependencies.storeAudio({ key, audioUrl });
   await dependencies.record(userId, { syntheses: 1 });
 
   return { url: audioUrl, source: "synthesized" };

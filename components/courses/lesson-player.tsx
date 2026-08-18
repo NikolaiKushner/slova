@@ -27,6 +27,7 @@ import { AnswerFeedback } from "@/components/slova/answer-feedback";
 import { Eyebrow } from "@/components/slova/eyebrow";
 import { KeyHints } from "@/components/slova/key-hints";
 import { ProgressSteps } from "@/components/slova/progress-steps";
+import { MutationStatus } from "@/components/slova/mutation-status";
 import { Button } from "@/components/ui/button";
 import {
   dealLessonPractice,
@@ -36,6 +37,7 @@ import {
 } from "@/lib/courses/practice";
 import { cn } from "@/lib/utils";
 import { useStudySitting } from "@/hooks/use-study-sitting";
+import { useReliableMutations } from "@/hooks/use-reliable-mutations";
 
 type View = "lesson" | "practice" | "done";
 
@@ -79,6 +81,13 @@ export function LessonSession({
   const [ruleAuto, setRuleAuto] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sittingGen, setSittingGen] = useState(0);
+  const {
+    submit: submitMutation,
+    retryFailed,
+    phase: mutationPhase,
+    online,
+    failedCount,
+  } = useReliableMutations();
 
   function startPractice() {
     setExercises(
@@ -148,17 +157,19 @@ export function LessonSession({
       setSaving(true);
       await flush();
       const sittingId = await getIdAsync();
-      await fetch("/api/courses/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const operationId = crypto.randomUUID();
+      await submitMutation({
+        id: operationId,
+        endpoint: "/api/courses/progress",
+        body: {
           courseSlug,
           lessonSlug: lesson.slug,
+          operationId,
           right,
           missedRuleIds,
           sittingId: sittingId ?? undefined,
-        }),
-      }).catch(() => {});
+        },
+      });
       await complete({ missedRuleIds });
       setSaving(false);
       setView("done");
@@ -178,6 +189,7 @@ export function LessonSession({
     getIdAsync,
     flush,
     complete,
+    submitMutation,
   ]);
 
   const enterLock = useRef(false);
@@ -306,6 +318,12 @@ export function LessonSession({
           />
         }
       >
+        <MutationStatus
+          phase={mutationPhase}
+          failedCount={failedCount}
+          online={online}
+          onRetry={() => void retryFailed()}
+        />
         <LessonSummary
           right={right}
           total={exercises.length}
@@ -396,6 +414,12 @@ export function LessonSession({
         />
       }
     >
+      <MutationStatus
+        phase={mutationPhase}
+        failedCount={failedCount}
+        online={online}
+        onRetry={() => void retryFailed()}
+      />
       <FocusHead
         task={
           current.kind === "pick-sentence" || current.kind === "transform"

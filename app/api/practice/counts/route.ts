@@ -9,6 +9,7 @@ import {
   stateFilter,
   type SourceState,
 } from "@/lib/practice/source";
+import { parseRepeatedSetIds } from "@/lib/request-query";
 
 /**
  * How many words each choice in the source panel would actually give you.
@@ -26,10 +27,9 @@ export async function GET(request: Request) {
   if (!session?.user?.id) return jsonError("unauthorized", 401);
 
   const userId = session.user.id;
-  const setIds = new URL(request.url).searchParams
-    .getAll("set")
-    .map((id) => id.trim())
-    .filter(Boolean);
+  const parsedSetIds = parseRepeatedSetIds(new URL(request.url).searchParams);
+  if (!parsedSetIds.ok) return jsonError("invalidSet", 400);
+  const setIds = parsedSetIds.ids;
 
   const prisma = getPrisma();
   // One instant for every count on the page: read per-query, a word could be

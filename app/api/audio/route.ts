@@ -10,7 +10,7 @@ import {
   resolveAudio,
 } from "@/lib/audio/resolve";
 import { jsonError } from "@/lib/i18n/api-error";
-import { allowAttemptDurable } from "@/lib/rate-limit";
+import { allowFixedWindowAttempt } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   }
   const userId = session.user.id;
 
-  if (!(await allowAttemptDurable(`audio:${userId}`, 30, 60 * 60 * 1_000))) {
+  if (!(await allowFixedWindowAttempt(`audio:${userId}`, 30, 60 * 60 * 1_000))) {
     return noStoreError("tooManyAudioRequests", 429);
   }
 

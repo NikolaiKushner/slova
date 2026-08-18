@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MutationStatus } from "@/components/slova/mutation-status";
 import { SIGNED_IN_HOME } from "@/lib/auth.config";
 import { useStudySitting } from "@/hooks/use-study-sitting";
+import { useReliableMutations } from "@/hooks/use-reliable-mutations";
 
 type StudyWord = {
   id: string;
@@ -30,8 +32,17 @@ export function StudySession({ setId }: Props) {
   const [done, setDone] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   const [busy, setBusy] = useState(false);
-  /** Indexes of words rated this session, most recent last. */
-  const [history, setHistory] = useState<number[]>([]);
+  const {
+    submit: submitMutation,
+    retryFailed,
+    phase: mutationPhase,
+    online,
+    failedCount,
+  } = useReliableMutations();
+  /** Exact review operations from this session, most recent last. */
+  const [history, setHistory] = useState<
+    { index: number; operationId: string }[]
+  >([]);
 
   useEffect(() => {
     const qs = setId ? `?setId=${encodeURIComponent(setId)}` : "";
@@ -59,59 +70,72 @@ export function StudySession({ setId }: Props) {
   const rate = useCallback(
     async (rating: "again" | "good") => {
       const current = words[index];
-      if (!current || busy) return;
+      if (!current || busy || failedCount > 0) return;
 
       setBusy(true);
       const sittingId = await getIdAsync();
-      await fetch("/api/study/review", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const operationId = crypto.randomUUID();
+      await submitMutation({
+        id: operationId,
+        endpoint: "/api/study/review",
+        body: {
           wordId: current.id,
+          operationId,
           rating,
           sittingId: sittingId ?? undefined,
           kind: "study",
           elapsedMs: elapsedMs(),
-        }),
-      });
-      setReviewed((n) => n + 1);
-      setHistory((h) => [...h, index]);
-      setFlipped(false);
-      setBusy(false);
+        },
+        async onSuccess() {
+          setReviewed((n) => n + 1);
+          setHistory((h) => [...h, { index, operationId }]);
+          setFlipped(false);
 
-      if (index + 1 >= words.length) {
-        void complete();
-        setDone(true);
-      } else {
-        setIndex((i) => i + 1);
-      }
+          if (index + 1 >= words.length) {
+            await complete();
+            setDone(true);
+          } else {
+            setIndex((i) => i + 1);
+          }
+        },
+      });
+      setBusy(false);
     },
-    [busy, words, index, getIdAsync, elapsedMs, complete],
+    [
+      busy,
+      words,
+      index,
+      getIdAsync,
+      elapsedMs,
+      complete,
+      failedCount,
+      submitMutation,
+    ],
   );
 
   /** Step back onto the last rated card and restore what the rating changed. */
   const undo = useCallback(async () => {
     const previous = history[history.length - 1];
-    if (previous === undefined || busy) return;
+    if (!previous || busy || failedCount > 0) return;
 
-    const target = words[previous];
+    const target = words[previous.index];
     if (!target) return;
 
     setBusy(true);
-    const res = await fetch("/api/study/undo", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wordId: target.id }),
+    await submitMutation({
+      id: `undo:${previous.operationId}`,
+      endpoint: "/api/study/undo",
+      body: { operationId: previous.operationId },
+      onSuccess() {
+        setHistory((h) => h.slice(0, -1));
+        setReviewed((n) => Math.max(0, n - 1));
+        setIndex(previous.index);
+        setFlipped(true);
+        setDone(false);
+      },
     });
     setBusy(false);
-    if (!res.ok) return;
-
-    setHistory((h) => h.slice(0, -1));
-    setReviewed((n) => Math.max(0, n - 1));
-    setIndex(previous);
-    setFlipped(true);
-    setDone(false);
-  }, [busy, words, history]);
+  }, [busy, words, history, failedCount, submitMutation]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -159,6 +183,12 @@ export function StudySession({ setId }: Props) {
   if (done || !word) {
     return (
       <div className="space-y-4 text-center">
+        <MutationStatus
+          phase={mutationPhase}
+          failedCount={failedCount}
+          online={online}
+          onRetry={() => void retryFailed()}
+        />
         <h2 className="font-display text-3xl tracking-tight">{t("niceWork")}</h2>
         <p className="text-muted-foreground">
           {t("reviewedSession", { count: reviewed })}
@@ -189,6 +219,12 @@ export function StudySession({ setId }: Props) {
 
   return (
     <div className="mx-auto w-full max-w-lg space-y-6">
+      <MutationStatus
+        phase={mutationPhase}
+        failedCount={failedCount}
+        online={online}
+        onRetry={() => void retryFailed()}
+      />
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           {index + 1} / {words.length}
@@ -220,7 +256,7 @@ export function StudySession({ setId }: Props) {
           type="button"
           variant="outline"
           size="lg"
-          disabled={!flipped || busy}
+          disabled={!flipped || busy || failedCount > 0}
           onClick={() => rate("again")}
         >
           {t("again")}
@@ -228,7 +264,7 @@ export function StudySession({ setId }: Props) {
         <Button
           type="button"
           size="lg"
-          disabled={!flipped || busy}
+          disabled={!flipped || busy || failedCount > 0}
           onClick={() => rate("good")}
         >
           {t("knowIt")}
@@ -240,7 +276,7 @@ export function StudySession({ setId }: Props) {
           type="button"
           variant="ghost"
           size="sm"
-          disabled={busy || history.length === 0}
+          disabled={busy || history.length === 0 || failedCount > 0}
           onClick={undo}
         >
           <Undo2 />

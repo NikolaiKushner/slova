@@ -13,18 +13,18 @@ there directly.
   touched the build, schema or environment.
 - Merge to `main` when the batch is genuinely ready to ship, and ask first
   unless the maintainer already said to go.
-- Branches do not get preview deploys (`vercel.json` allows only `main`), so a
-  branch costs nothing to sit on.
+- Branches do not get preview deploys until Preview has an isolated Neon
+  database (`vercel.json` allows only `main`). See `docs/deployment.md`.
 - Keep tests in `tests/unit` in step with code changes.
 
 ## Verification
 
-`main` auto-deploys to Vercel, and nothing gates the push any more. So the
-cheap check moved locally, and the slow ones stayed in CI:
+`main` auto-deploys to Vercel. The project currently has one maintainer, so CI
+is intentionally a smoke alarm rather than a required pull-request gate; local
+checks catch errors before a round trip to CI:
 
 - **Run `npm test` before pushing to `main`.** It is vitest over `tests/unit`
-  and takes seconds. This is the one local check that is worth its cost, and it
-  is now the only thing standing between a typo and production.
+  and takes seconds.
 - **A pre-commit hook runs `npm run check:lockfile` then `npm test`.** The
   lockfile check uses npm 10, the same major CI and Vercel use. Local npm 11
   will happily `npm ci` a lockfile that GitHub's npm 10 rejects. `npm install`
@@ -34,14 +34,15 @@ cheap check moved locally, and the slow ones stayed in CI:
   the layout, the keyboard and the sound all fail in ways `tsc` cannot see.
   Start `npm run dev`, open the screen, and look at it before saying it works.
   Automated e2e suites still belong in CI, not in a session.
-- CI (`.github/workflows/ci.yml`) runs on every push to `main`: unit tests →
-  Prisma generate → production build. It no longer blocks anything — treat it
-  as a smoke alarm. If it goes red, fix forward with another commit.
+- CI (`.github/workflows/ci.yml`) runs unit tests, lint, TypeScript, and a
+  production build. The database-backed job remains isolated from the fast
+  quality job. Reconsider making it a required status check when another person
+  begins shipping changes.
 - **Vercel does gate.** `buildCommand` runs `npm run vercel:preflight` first —
-  environment check, unit tests, then `prisma migrate deploy`. Any of the three
+  environment check, unit tests, then read-only migration status. Any of the three
   failing fails the build, and a failed build never replaces the live
-  deployment. Tests catch code; `scripts/check-env.mjs` catches the missing
-  variable that otherwise shows up as an opaque Prisma or NextAuth error.
+  deployment. Production migrations are applied separately before merge; see
+  `docs/deployment.md`.
 
 ## Design system
 
@@ -69,8 +70,9 @@ shadcn/ui already has, are not accepted.
   CI runs `npm ci` and Vercel infers npm from it. Never commit a second
   lockfile: Vercel prefers `pnpm-lock.yaml` when present, which silently
   installs a different dependency set from CI.
-- Vercel deploys **only `main`** (`vercel.json` → `git.deploymentEnabled`).
-  Branches get CI, not preview deployments.
+- Vercel deploys **only `main`** until Preview has an isolated database
+  (`vercel.json` → `git.deploymentEnabled`). Branches get CI, not preview
+  deployments.
 - Demo user from `npm run db:seed`: `demo@slova.app` (Google, or register a password).
 - After editing `prisma/schema.prisma`, run `npx prisma migrate dev` and
   commit the migration.

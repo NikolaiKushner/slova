@@ -33,10 +33,11 @@ cent.
 
 **On-demand pronunciation is off by default.** When
 `TTS_ON_DEMAND_ENABLED=true`, the authenticated `/api/audio` endpoint accepts
-one explicit text of at most 200 characters. It checks `Lexeme` first, then
-atomically reserves a small daily request-and-character budget before calling
-OpenAI and uploading to R2. Failed paid-path attempts stay reserved, so retries
-cannot turn a provider outage into an unlimited bill.
+one explicit text of at most 200 characters. It may fill missing audio only for
+an existing shared `Lexeme`; arbitrary account input can never create shared
+rows or R2 objects. It then atomically reserves a small daily
+request-and-character budget before calling OpenAI. Failed paid-path attempts
+stay reserved, so retries cannot turn a provider outage into an unlimited bill.
 
 **The scheduler is FSRS.** Three numbers per word — how long the memory lasts,
 how hard that word is for you, how likely you are to recall it now — instead of
@@ -82,7 +83,7 @@ OpenAI and R2 credentials are required by `npm run check:env` only when
 `TTS_ON_DEMAND_ENABLED=true`; they remain server-only and must never use a
 `NEXT_PUBLIC_*` name.
 
-CI and Vercel install with **npm 10** (Node 22). A lockfile written by npm 11
+CI and Vercel install with **npm 10.9.9** (Node 22). A lockfile written by npm 11
 fails `npm ci` there. After clone, `npm install` turns on a pre-commit hook
 that checks the lockfile the way CI does, then runs `npm test`.
 
@@ -91,14 +92,30 @@ that checks the lockfile the way CI does, then runs `npm test`.
 | Command | What it does |
 |---|---|
 | `npm test` | Unit tests over `tests/unit` — seconds, and the one check worth its cost |
-| `npm run lint` / `npx tsc --noEmit` | Also run in CI |
+| `npm run test:integration` | Database tests against an explicit isolated test branch |
+| `npm run test:e2e` | Reset the test fixture, then run authenticated Playwright tests |
+| `npm run lint` / `npm run typecheck` | Also run in CI |
+| `npm run db:migrate:deploy` | Apply reviewed migrations separately from an application build |
+| `npm run db:migrate:status` | Read-only check used by the Vercel preflight |
 | `npm run db:seed` | Demo user and a small set |
+| `npm run db:prepare-test` | Migrate the isolated test database and reset its fixture |
+| `npm run db:seed-test-user` | Reset the deterministic user in the isolated test database |
+| `npm run budget:status` | Print today's durable provider-cap status; exits 2 when a cap alert exists |
+| `npm run account:data` | Export or verifiably delete one account through the maintainer workflow |
+| `npm run restore:verify` | Read-only validation of a restored Neon branch and migration history |
 | `npm run lexicon:build` | Translate the frequency list through the Batch API |
 | `npm run db:seed-lexicon` | Load that dataset into the shared base |
 | `npm run lexicon:audio` | Record every word and upload it to R2 |
 
 The last three cost money and are run by hand, once. `content/lexicon/SOURCE.md`
 records where the word list came from and under what terms.
+
+Database and browser test setup is documented in `docs/testing.md`. These
+suites are deliberately separate from `npm test`, including in CI and Vercel.
+Paid-provider hard ceilings and their current worst-case cost are documented in
+`docs/provider-spend.md`. Account requests, backups, and restore rehearsals are
+documented in `docs/operations.md`. Runtime pins, CI gates, previews, and the
+production migration sequence are documented in `docs/deployment.md`.
 
 ## Stack
 

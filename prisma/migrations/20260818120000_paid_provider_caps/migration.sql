@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "LlmUsage"
+ADD COLUMN "capReachedAt" TIMESTAMP(3),
+ADD COLUMN "capReason" TEXT,
+ADD COLUMN "capAttempts" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "TtsUsage"
+ADD COLUMN "capReachedAt" TIMESTAMP(3),
+ADD COLUMN "capReason" TEXT,
+ADD COLUMN "capAttempts" INTEGER NOT NULL DEFAULT 0;

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
 import { getPrisma } from "@/lib/prisma";
 import { getStudySummary } from "@/lib/study-queue";
+import { requestTimeZone } from "@/lib/request-timezone";
 
 export async function GET() {
   const session = await auth();
@@ -10,7 +11,12 @@ export async function GET() {
     return jsonError("unauthorized", 401);
   }
 
-  const summary = await getStudySummary(session.user.id, new Date());
+  const timeZone = await requestTimeZone();
+  const summary = await getStudySummary(
+    session.user.id,
+    new Date(),
+    timeZone,
+  );
 
   const setCount = await getPrisma().wordSet.count({
     where: { userId: session.user.id },

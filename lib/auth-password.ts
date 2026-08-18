@@ -6,7 +6,7 @@ import {
 } from "@/lib/auth-email";
 import {
   appOrigin,
-  consumeToken,
+  consumeTokenWithUserUpdate,
   issueToken,
 } from "@/lib/auth-tokens";
 import { registrationPlan } from "@/lib/auth-policy";
@@ -127,7 +127,14 @@ export async function completePasswordReset(
   if (issue) return { ok: false, error: issue };
 
   const email = normalizeEmail(emailRaw);
-  const used = await consumeToken("reset", email, token);
+  // Scrypt is intentionally expensive. Finish it before consuming the
+  // one-time link so a hashing failure cannot burn an otherwise valid reset.
+  const passwordHash = await hashPassword(password);
+  const used = await consumeTokenWithUserUpdate("reset", email, token, {
+    passwordHash,
+    emailVerified: new Date(),
+    sessionVersion: { increment: 1 },
+  });
   if (!used) {
     return {
       ok: false,
@@ -135,14 +142,6 @@ export async function completePasswordReset(
     };
   }
 
-  await getPrisma().user.updateMany({
-    where: { email },
-    data: {
-      passwordHash: await hashPassword(password),
-      emailVerified: new Date(),
-      sessionVersion: { increment: 1 },
-    },
-  });
   return { ok: true };
 }
 
@@ -155,7 +154,9 @@ export async function confirmEmailAddress(
   }
 
   const email = normalizeEmail(emailRaw);
-  const used = await consumeToken("verify", email, token);
+  const used = await consumeTokenWithUserUpdate("verify", email, token, {
+    emailVerified: new Date(),
+  });
   if (!used) {
     return {
       ok: false,
@@ -163,9 +164,5 @@ export async function confirmEmailAddress(
     };
   }
 
-  await getPrisma().user.update({
-    where: { email },
-    data: { emailVerified: new Date() },
-  });
   return { ok: true };
 }

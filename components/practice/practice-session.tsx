@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { ChevronLeft } from "lucide-react";
@@ -16,6 +16,7 @@ import {
 } from "@/components/layout/focus-shell";
 import { AnswerFeedback } from "@/components/slova/answer-feedback";
 import { KeyHints } from "@/components/slova/key-hints";
+import { MutationStatus } from "@/components/slova/mutation-status";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { DrillSkeleton } from "@/components/practice/session-skeleton";
@@ -34,6 +35,7 @@ import { sourceQuery, type Source } from "@/lib/practice/source";
 import type { VerbFormsSitting } from "@/lib/practice/verb-forms";
 import { Eyebrow } from "@/components/slova/eyebrow";
 import { useStudySitting } from "@/hooks/use-study-sitting";
+import { useReliableMutations } from "@/hooks/use-reliable-mutations";
 
 /**
  * One training, one format, straight through the words.
@@ -84,6 +86,16 @@ export function PracticeSession({
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [seconds, setSeconds] = useState(0);
   const [previewed, setPreviewed] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const {
+    submit: submitMutation,
+    flush: flushMutations,
+    retryFailed,
+    phase: mutationPhase,
+    online,
+    failedCount,
+  } = useReliableMutations();
 
   useEffect(() => {
     let ignore = false;
@@ -136,7 +148,7 @@ export function PracticeSession({
     data?.sitting !== "caught-up" &&
     !(kind === "verb-forms" && data?.sitting === "intro" && !previewed);
 
-  const { getIdAsync, elapsedMs, track, complete } = useStudySitting({
+  const { getIdAsync, elapsedMs, complete } = useStudySitting({
     active: inSession,
     resetKey: run,
     kind: "practice",
@@ -179,39 +191,33 @@ export function PracticeSession({
                   : []),
               ];
 
-  /*
-   * Sent and not waited on: a training that pauses between questions to wait
-   * for the network is a worse training, and a lost rating costs one interval.
-   * The reply is used when it arrives — it carries the real next interval, and
-   * "comes back in N days" has to be the schedule's answer rather than a
-   * plausible-looking number.
-   */
+  // Answers stay non-blocking between cards, but every operation is tracked,
+  // retried, and flushed before the summary replaces the session.
   const record = useCallback(
     (wordId: string, given: Answered, elapsed: number) => {
-      const request = getIdAsync()
-        .then((sittingId) =>
-          fetch("/api/study/review", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+      const operationId = crypto.randomUUID();
+      void submitMutation<{ word?: { intervalDays?: number } }>({
+        id: operationId,
+        endpoint: "/api/study/review",
+        body: async () => {
+          const sittingId = await getIdAsync();
+          return {
               wordId,
+              operationId,
               rating: passed(given.verdict) ? "good" : "again",
               sittingId: sittingId ?? undefined,
               kind,
               verdict: given.verdict,
               elapsedMs: elapsed,
-            }),
-          }),
-        )
-        .then((response) => (response.ok ? response.json() : null))
-        .then((payload: { word?: { intervalDays?: number } } | null) => {
+          };
+        },
+        onSuccess(payload) {
           const days = payload?.word?.intervalDays;
           if (typeof days === "number") setInterval_(days);
-        })
-        .catch(() => {});
-      track(request);
+        },
+      });
     },
-    [kind, getIdAsync, track],
+    [kind, getIdAsync, submitMutation],
   );
 
   function answer(given: Answered) {
@@ -222,17 +228,57 @@ export function PracticeSession({
     record(word.id, given, elapsedMs());
   }
 
-  function next() {
+  const next = useCallback(async () => {
     // Read the clock once, here, rather than during the render of the summary:
     // `Date.now()` in a render body would give a different answer every time
     // React looked at it.
     if (index + 1 >= words.length) {
+      setFinishing(true);
       setSeconds((Date.now() - startedAt) / 1000);
-      void complete();
+      await flushMutations();
+      await complete();
+      setFinishing(false);
     }
     setResult(null);
     setIndex((current) => current + 1);
-  }
+  }, [complete, flushMutations, index, startedAt, words.length]);
+
+  useEffect(() => {
+    if (result === null) return;
+
+    const frame = requestAnimationFrame(() => {
+      nextButtonRef.current?.focus({ preventScroll: true });
+    });
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key !== "Enter" ||
+        event.repeat ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest("button, a, input, textarea, select, [contenteditable]")
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      void next();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [next, result]);
 
   function restart() {
     setLoading(true);
@@ -242,6 +288,7 @@ export function PracticeSession({
     setStartedAt(Date.now());
     setSeconds(0);
     setPreviewed(false);
+    setFinishing(false);
     setRun((current) => current + 1);
   }
 
@@ -332,12 +379,20 @@ export function PracticeSession({
 
   if (index >= words.length) {
     return (
-      <DrillSummary
-        right={right}
-        total={words.length}
-        seconds={seconds}
-        onRestart={restart}
-      />
+      <>
+        <MutationStatus
+          phase={mutationPhase}
+          failedCount={failedCount}
+          online={online}
+          onRetry={() => void retryFailed()}
+        />
+        <DrillSummary
+          right={right}
+          total={words.length}
+          seconds={seconds}
+          onRestart={restart}
+        />
+      </>
     );
   }
 
@@ -375,6 +430,12 @@ export function PracticeSession({
         />
       }
     >
+      <MutationStatus
+        phase={mutationPhase}
+        failedCount={failedCount}
+        online={online}
+        onRetry={() => void retryFailed()}
+      />
       {/* No count here: the top bar's progress bar already carries it, and
           printing "word 3 of 10" under "3 of 10" says nothing twice (§15.2). */}
       <FocusHead task={trainings(`${kind}.task` as "typing.task")} />
@@ -423,9 +484,10 @@ export function PracticeSession({
               className="min-w-0 flex-1"
             />
             <Button
+              ref={nextButtonRef}
               size="lg"
-              onClick={next}
-              autoFocus
+              onClick={() => void next()}
+              disabled={finishing}
               className={result === null ? "invisible" : undefined}
             >
               {common("next")}

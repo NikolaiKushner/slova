@@ -45,6 +45,8 @@ describe("TTS budget", () => {
   it("reserves requests and characters in one conditional update", async () => {
     const usage = {
       upsert: vi.fn().mockResolvedValue({}),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
+      findUnique: vi.fn().mockResolvedValue(null),
       updateMany: vi
         .fn()
         .mockResolvedValueOnce({ count: 1 })
@@ -90,7 +92,12 @@ describe("TTS budget", () => {
   it("rejects when the atomic reservation changes no row", async () => {
     const usage = {
       upsert: vi.fn().mockResolvedValue({}),
-      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
+      findUnique: vi.fn().mockResolvedValue({ requests: 50, characters: 0 }),
+      updateMany: vi
+        .fn()
+        .mockResolvedValueOnce({ count: 0 })
+        .mockResolvedValueOnce({ count: 1 }),
     };
 
     await expect(
@@ -101,14 +108,23 @@ describe("TTS budget", () => {
         dependencies: { usage },
       }),
     ).rejects.toBeInstanceOf(TtsBudgetExceededError);
-    expect(usage.updateMany).toHaveBeenCalledTimes(1);
-    expect(usage.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          userId: GLOBAL_TTS_USAGE_USER_ID,
-        }),
-      }),
-    );
+    expect(usage.createMany).toHaveBeenLastCalledWith({
+      data: [
+        { userId: GLOBAL_TTS_USAGE_USER_ID, day: "2026-08-16" },
+      ],
+      skipDuplicates: true,
+    });
+    expect(usage.updateMany).toHaveBeenNthCalledWith(2, {
+      where: {
+        userId: GLOBAL_TTS_USAGE_USER_ID,
+        day: "2026-08-16",
+      },
+      data: {
+        capReachedAt: now,
+        capReason: "requests",
+        capAttempts: { increment: 1 },
+      },
+    });
   });
 
   it("uses conservative configurable global defaults", () => {
@@ -122,5 +138,14 @@ describe("TTS budget", () => {
         TTS_GLOBAL_DAILY_CHARACTERS: "700",
       }),
     ).toEqual({ requests: 7, characters: 700 });
+  });
+
+  it("does not let environment overrides raise hard global maxima", () => {
+    expect(
+      activeGlobalTtsLimits({
+        TTS_GLOBAL_DAILY_REQUESTS: "1000",
+        TTS_GLOBAL_DAILY_CHARACTERS: "1000000",
+      }),
+    ).toEqual({ requests: 100, characters: 10_000 });
   });
 });

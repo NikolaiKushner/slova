@@ -231,6 +231,21 @@ async function seedVerbForms(): Promise<void> {
       }),
       skipDuplicates: true,
     });
+    const seeded = await prisma.lexemeTranslation.findMany({
+      where: {
+        lexemeId: { in: missing.map((row) => row.id) },
+        targetLang: STUDY_TARGET_LANG,
+        source: "seed",
+      },
+      select: { id: true },
+    });
+    await prisma.lexemeTranslationConfirmation.createMany({
+      data: seeded.map((row) => ({
+        translationId: row.id,
+        userId: "__seed_lexicon__",
+      })),
+      skipDuplicates: true,
+    });
   }
 
   const withForms = await prisma.lexeme.count({
@@ -280,10 +295,18 @@ async function loadChunk(group: readonly DatasetEntry[]): Promise<void> {
       lexemeId: { in: ids },
       targetLang: STUDY_TARGET_LANG,
       source: "curated",
+      isGlobal: true,
     },
-    select: { lexemeId: true },
+    orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }, { id: "asc" }],
+    select: { id: true, lexemeId: true },
   });
-  const outranked = new Set(curated.map((row) => row.lexemeId));
+  const curatedPrimaryByLexeme = new Map<string, string>();
+  for (const row of curated) {
+    if (!curatedPrimaryByLexeme.has(row.lexemeId)) {
+      curatedPrimaryByLexeme.set(row.lexemeId, row.id);
+    }
+  }
+  const outranked = new Set(curatedPrimaryByLexeme.keys());
 
   const rows = group.flatMap((entry) => {
     const lexemeId = idByKey.get(entry.key);
@@ -303,22 +326,46 @@ async function loadChunk(group: readonly DatasetEntry[]): Promise<void> {
     ];
   });
 
+  // Clear the old selection before inserting the trusted replacement. The
+  // partial unique index means the invariant also holds halfway through this
+  // maintenance operation, not only after the script finishes.
+  await prisma.lexemeTranslation.updateMany({
+    where: {
+      lexemeId: { in: ids },
+      targetLang: STUDY_TARGET_LANG,
+      isPrimary: true,
+    },
+    data: { isPrimary: false },
+  });
+
   const written = await prisma.lexemeTranslation.createMany({
     data: rows,
     skipDuplicates: true,
   });
   translationsWritten += written.count;
 
-  // Seed outranks what the model guessed and what a user typed, so anything
-  // weaker stops being the primary answer for these words.
-  await prisma.lexemeTranslation.updateMany({
+  const curatedPrimaryIds = [...curatedPrimaryByLexeme.values()];
+  if (curatedPrimaryIds.length > 0) {
+    await prisma.lexemeTranslation.updateMany({
+      where: { id: { in: curatedPrimaryIds } },
+      data: { isPrimary: true },
+    });
+  }
+
+  const seeded = await prisma.lexemeTranslation.findMany({
     where: {
-      lexemeId: { in: ids.filter((id) => !outranked.has(id)) },
+      lexemeId: { in: ids },
       targetLang: STUDY_TARGET_LANG,
-      source: { in: ["llm", "import"] },
-      isPrimary: true,
+      source: "seed",
     },
-    data: { isPrimary: false },
+    select: { id: true },
+  });
+  await prisma.lexemeTranslationConfirmation.createMany({
+    data: seeded.map((row) => ({
+      translationId: row.id,
+      userId: "__seed_lexicon__",
+    })),
+    skipDuplicates: true,
   });
 }
 

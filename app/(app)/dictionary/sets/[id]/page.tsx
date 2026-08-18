@@ -1,8 +1,7 @@
 import { BookText } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/lib/auth";
-import { getPrisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import { SetWords } from "@/components/set-words";
 import { DeleteSetButton } from "@/components/delete-set-button";
@@ -14,39 +13,32 @@ import { Section } from "@/components/section";
 import { getNewAllowance, setSummary } from "@/lib/study-queue";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getSetDetail } from "@/lib/set-queries";
+import { requestTimeZone } from "@/lib/request-timezone";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function SetPage({ params }: Props) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) redirect("/login");
 
   const t = await getTranslations("dictionary");
   const chrome = await getTranslations("chrome");
   const { id } = await params;
-  const set = await getPrisma().wordSet.findFirst({
-    where: { id, userId: session.user.id },
-    include: {
-      items: { orderBy: { addedAt: "asc" }, include: { word: true } },
-    },
-  });
+  const now = new Date();
+  const set = await getSetDetail(session.user.id, id, now);
   if (!set) notFound();
 
-  const words = set.items.map((item) => item.word);
-  const now = new Date();
-  const dueCount = words.filter(
-    (word) => word.introducedAt !== null && word.dueAt <= now,
-  ).length;
-  const unseenCount = words.filter((word) => word.introducedAt === null).length;
-  const allowance = await getNewAllowance(session.user.id, now);
-  const studiable = dueCount + Math.min(unseenCount, allowance);
+  const timeZone = await requestTimeZone();
+  const allowance = await getNewAllowance(session.user.id, now, timeZone);
+  const studiable = set.due + Math.min(set.unseen, allowance);
 
   return (
     <PageContainer container="list">
       <PageHeader
         eyebrow={t("setEyebrow")}
         title={set.title}
-        description={setSummary(words.length, dueCount, unseenCount, {
+        description={setSummary(set.words.length, set.due, set.unseen, {
           words: (count) => t("summaryWords", { count }),
           due: (count) => t("summaryDue", { count }),
           unseen: (count) => t("summaryNew", { count }),
@@ -70,16 +62,12 @@ export default async function SetPage({ params }: Props) {
       <div className="space-y-10">
         <Section
           title={chrome("words")}
-          hint={t("wordsSaved", { count: words.length })}
+          hint={t("wordsSaved", { count: set.words.length })}
         >
-          {words.length > 0 ? (
+          {set.words.length > 0 ? (
             <SetWords
               setId={set.id}
-              words={words.map((word) => ({
-                id: word.id,
-                front: word.front,
-                back: word.back,
-              }))}
+              words={set.words}
             />
           ) : (
             <EmptyState

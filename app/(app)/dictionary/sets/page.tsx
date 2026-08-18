@@ -2,32 +2,23 @@ import { Layers } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/lib/auth";
-import { getPrisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 import { EmptyState } from "@/components/empty-state";
 import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
 import { setSummary } from "@/lib/study-queue";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { getSetCards } from "@/lib/set-queries";
 
 export default async function SetsPage() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) redirect("/login");
 
   const t = await getTranslations("dictionary");
   const common = await getTranslations("common");
   const now = new Date();
-  const sets = await getPrisma().wordSet.findMany({
-    where: { userId: session.user.id },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      _count: { select: { items: true } },
-      items: {
-        select: { word: { select: { dueAt: true, introducedAt: true } } },
-      },
-    },
-  });
+  const sets = await getSetCards(session.user.id, now);
 
   return (
     <PageContainer container="list">
@@ -63,14 +54,6 @@ export default async function SetsPage() {
         ) : (
           <ul className="space-y-2">
             {sets.map((set) => {
-              const words = set.items.map((item) => item.word);
-              const due = words.filter(
-                (word) => word.introducedAt !== null && word.dueAt <= now,
-              ).length;
-              const unseen = words.filter(
-                (word) => word.introducedAt === null,
-              ).length;
-
               return (
                 <li key={set.id}>
                   <Link
@@ -80,7 +63,7 @@ export default async function SetsPage() {
                     <div>
                       <p className="font-medium text-foreground">{set.title}</p>
                       <p className="text-sm text-muted-foreground">
-                        {setSummary(set._count.items, due, unseen, {
+                        {setSummary(set.total, set.due, set.unseen, {
                           words: (count) => t("summaryWords", { count }),
                           due: (count) => t("summaryDue", { count }),
                           unseen: (count) => t("summaryNew", { count }),

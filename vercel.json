@@ -7,5 +7,11 @@
       "main": true
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/cleanup",
+      "schedule": "17 3 * * *"
+    }
+  ],
   "buildCommand": "npm run vercel:preflight && npm run build"
 }

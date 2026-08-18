@@ -24,10 +24,11 @@ async function queueSnapshot(
   sourceState: SittingDraft["sourceState"],
   setIds: string[],
   now: Date,
+  timeZone?: string,
 ) {
   if (kind === "grammar") return { dueAtStart: 0, newAtStart: 0 };
   if (kind === "study") {
-    const summary = await getStudySummary(userId, now);
+    const summary = await getStudySummary(userId, now, timeZone);
     return { dueAtStart: summary.dueReviews, newAtStart: summary.unseen };
   }
 
@@ -67,6 +68,7 @@ export async function persistStart(
     sourceState: SittingDraft["sourceState"];
     setIds: string[];
     now?: Date;
+    timeZone?: string;
   },
 ): Promise<string> {
   const now = input.now ?? new Date();
@@ -77,6 +79,7 @@ export async function persistStart(
     input.sourceState,
     input.setIds,
     now,
+    input.timeZone,
   );
   const draft = startSitting({ ...input, ...snapshot, now });
   const created = await getPrisma().studySitting.create({
@@ -167,6 +170,36 @@ export async function persistTouch(
   }
 }
 
+/** Reverse the count deltas contributed by one exact review operation. */
+export async function persistReviewUndo(
+  userId: string,
+  id: string,
+  input: {
+    rating: "again" | "good";
+    introduced: boolean;
+    graduation: boolean;
+  },
+  db: PrismaClient | Prisma.TransactionClient = getPrisma(),
+): Promise<void> {
+  const reviews = input.graduation ? 0 : 1;
+  const goods = !input.graduation && input.rating === "good" ? 1 : 0;
+  const agains = !input.graduation && input.rating === "again" ? 1 : 0;
+  const introduced = input.introduced ? 1 : 0;
+
+  // GREATEST protects legacy or manually repaired sittings whose counters may
+  // already be below the log-derived value. The log tombstone and these
+  // deltas run in the same transaction, so neither half can survive alone.
+  await db.$executeRaw`
+    UPDATE "StudySitting"
+    SET
+      "reviews" = GREATEST(0, "reviews" - ${reviews}),
+      "goods" = GREATEST(0, "goods" - ${goods}),
+      "agains" = GREATEST(0, "agains" - ${agains}),
+      "introduced" = GREATEST(0, "introduced" - ${introduced})
+    WHERE "id" = ${id} AND "userId" = ${userId}
+  `;
+}
+
 export async function persistEnd(
   userId: string,
   id: string,
@@ -176,16 +209,16 @@ export async function persistEnd(
     score?: number;
     missedRuleIds?: string[];
   },
+  db: PrismaClient | Prisma.TransactionClient = getPrisma(),
 ): Promise<void> {
-  const prisma = getPrisma();
-  const row = await prisma.studySitting.findFirst({
+  const row = await db.studySitting.findFirst({
     where: { id, userId },
     select: { endedAt: true, lastAt: true },
   });
   if (!row) return;
   const now = extra?.now ?? new Date();
   if (extra?.score !== undefined || extra?.missedRuleIds !== undefined) {
-    await prisma.studySitting.updateMany({
+    await db.studySitting.updateMany({
       where: { id, userId },
       data: {
         ...(extra.score !== undefined ? { score: extra.score } : {}),
@@ -196,7 +229,7 @@ export async function persistEnd(
     });
   }
   if (row.endedAt) return;
-  await prisma.studySitting.updateMany({
+  await db.studySitting.updateMany({
     where: { id, userId, endedAt: null },
     data: {
       endedAt: isStale(row.lastAt, now) ? row.lastAt : now,

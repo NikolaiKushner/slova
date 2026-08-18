@@ -1,6 +1,6 @@
 import { normalizeKey } from "@/lib/lexicon/key";
 import { lookupBatch } from "@/lib/lexicon/lookup";
-import { recordTranslations } from "@/lib/lexicon/write";
+import type { IncomingTranslation } from "@/lib/lexicon/write";
 import { llm } from "@/lib/llm/client";
 import { JsonArrayStream } from "@/lib/llm/json-array-stream";
 import {
@@ -8,7 +8,11 @@ import {
   TRANSLATION_ITEM_DEPTH,
   type TranslationItem,
 } from "@/lib/llm/prompt";
-import { tryReserveRequest } from "@/lib/llm/budget";
+import {
+  conservativeInputTokenReservation,
+  reconcileLlmUsage,
+  reserveLlmUsage,
+} from "@/lib/llm/budget";
 import { activeModel } from "@/lib/llm/models";
 import { cleanCell, looksTransliterated, matchCase } from "@/lib/normalize";
 
@@ -38,6 +42,9 @@ export type BatchUsage = {
 
 export type BatchOutcome = {
   usage: BatchUsage;
+  cacheWrites: IncomingTranslation[];
+  lookupLatencyMs: number;
+  modelLatencyMs: number;
 };
 
 /**
@@ -55,7 +62,9 @@ export async function* translateBatch(
 ): AsyncGenerator<TranslatedRow> {
   const usage = outcome.usage;
 
+  const lookupStartedAt = performance.now();
   const { hits, misses } = await lookupBatch(texts);
+  outcome.lookupLatencyMs = Math.round(performance.now() - lookupStartedAt);
 
   for (const text of texts) {
     const hit = hits.get(normalizeKey(text));
@@ -67,18 +76,31 @@ export async function* translateBatch(
   if (misses.length === 0) return;
   usage.llmMisses = misses.length;
 
-  await tryReserveRequest(options.userId);
-
   const missKeys = new Set(misses.map((text) => normalizeKey(text)));
   const model = activeModel();
+  const modelStartedAt = performance.now();
   const request = buildTranslationRequest(misses.map((text) => ({ text })));
-  const stream = llm().messages.stream(request);
+  const client = llm();
+  const counted = await client.messages.countTokens({
+    model: request.model,
+    messages: request.messages,
+    system: request.system,
+    output_config: request.output_config,
+  });
+  const reservation = {
+    inputTokens: conservativeInputTokenReservation(
+      request,
+      counted.input_tokens,
+    ),
+    outputTokens: request.max_tokens,
+  };
+  await reserveLlmUsage(options.userId, reservation);
+
+  const stream = client.messages.stream(request);
 
   const scanner = new JsonArrayStream<TranslationItem>({
     depth: TRANSLATION_ITEM_DEPTH,
   });
-  const produced: { text: string; translation: string }[] = [];
-
   for await (const event of stream) {
     if (
       event.type !== "content_block_delta" ||
@@ -91,7 +113,7 @@ export async function* translateBatch(
       const row = clean(item);
       if (!row) continue;
       if (!missKeys.has(normalizeKey(row.text))) continue;
-      produced.push(row);
+      outcome.cacheWrites.push({ ...row, source: "llm", model });
       yield { ...row, from: "llm" };
     }
   }
@@ -100,16 +122,11 @@ export async function* translateBatch(
   usage.requests += 1;
   usage.inputTokens += final.usage.input_tokens;
   usage.outputTokens += final.usage.output_tokens;
-
-  // Written after the stream rather than per row: the point of the base is the
-  // next list, not this one, and one batched write beats N round trips while
-  // somebody is watching the table fill in.
-  if (produced.length > 0) {
-    await recordTranslations(
-      produced.map((row) => ({ ...row, source: "llm" as const, model })),
-      { userId: options.userId },
-    );
-  }
+  await reconcileLlmUsage(options.userId, reservation, {
+    inputTokens: final.usage.input_tokens,
+    outputTokens: final.usage.output_tokens,
+  });
+  outcome.modelLatencyMs = Math.round(performance.now() - modelStartedAt);
 }
 
 /**
@@ -136,5 +153,14 @@ export function emptyUsage(): BatchUsage {
     requests: 0,
     inputTokens: 0,
     outputTokens: 0,
+  };
+}
+
+export function emptyBatchOutcome(): BatchOutcome {
+  return {
+    usage: emptyUsage(),
+    cacheWrites: [],
+    lookupLatencyMs: 0,
+    modelLatencyMs: 0,
   };
 }

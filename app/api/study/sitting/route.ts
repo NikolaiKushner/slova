@@ -11,6 +11,7 @@ import {
   isSittingKind,
 } from "@/lib/sitting";
 import { persistEnd, persistStart, persistTouch } from "@/lib/sitting-store";
+import { requestTimeZone } from "@/lib/request-timezone";
 
 const startSchema = z.object({
   kind: z.enum(SITTING_KINDS),
@@ -56,7 +57,11 @@ export async function POST(request: Request) {
   if (!parsed.success) return jsonError("invalidSitting", 400);
   if (!isSittingKind(parsed.data.kind)) return jsonError("invalidSitting", 400);
 
-  const id = await persistStart(session.user.id, parsed.data);
+  const timeZone = await requestTimeZone();
+  const id = await persistStart(session.user.id, {
+    ...parsed.data,
+    timeZone,
+  });
   return NextResponse.json({ id });
 }
 

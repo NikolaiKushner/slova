@@ -30,6 +30,14 @@ function envInt(
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function boundedEnvInt(
+  environment: Environment,
+  name: string,
+  hardMaximum: number,
+): number {
+  return Math.min(envInt(environment, name, hardMaximum), hardMaximum);
+}
+
 export function activeTtsLimits(
   environment: Environment = process.env,
 ): TtsLimits {
@@ -51,12 +59,12 @@ export function activeGlobalTtsLimits(
   environment: Environment = process.env,
 ): TtsLimits {
   return {
-    requests: envInt(
+    requests: boundedEnvInt(
       environment,
       "TTS_GLOBAL_DAILY_REQUESTS",
       DEFAULT_GLOBAL_TTS_LIMITS.requests,
     ),
-    characters: envInt(
+    characters: boundedEnvInt(
       environment,
       "TTS_GLOBAL_DAILY_CHARACTERS",
       DEFAULT_GLOBAL_TTS_LIMITS.characters,
@@ -104,20 +112,25 @@ export function checkTtsLimits(
 export class TtsBudgetExceededError extends Error {
   readonly reason: keyof TtsUsageCounts;
   readonly retryAfter: number;
+  readonly usageUserId: string;
 
   constructor(
     reason: keyof TtsUsageCounts,
     retryAfter: number,
+    usageUserId: string,
   ) {
     super("The daily speech allowance is used up.");
     this.name = "TtsBudgetExceededError";
     this.reason = reason;
     this.retryAfter = retryAfter;
+    this.usageUserId = usageUserId;
   }
 }
 
 type TtsUsageDelegate = {
   upsert(args: object): Promise<unknown>;
+  createMany(args: object): Promise<{ count: number }>;
+  findUnique(args: object): Promise<TtsUsageCounts | null>;
   updateMany(args: object): Promise<{ count: number }>;
 };
 
@@ -146,11 +159,11 @@ async function reserveUsageRow(
   day: string,
   characters: number,
   limits: TtsLimits,
-): Promise<boolean> {
-  await usage.upsert({
-    where: { userId_day: { userId, day } },
-    create: { userId, day },
-    update: {},
+  now: Date,
+): Promise<void> {
+  await usage.createMany({
+    data: [{ userId, day }],
+    skipDuplicates: true,
   });
   const reserved = await usage.updateMany({
     where: {
@@ -164,7 +177,20 @@ async function reserveUsageRow(
       characters: { increment: characters },
     },
   });
-  return reserved.count === 1;
+  if (reserved.count === 1) return;
+
+  const used =
+    (await usage.findUnique({
+      where: { userId_day: { userId, day } },
+      select: { requests: true, characters: true },
+    })) ?? { requests: 0, characters: 0 };
+  const verdict = checkTtsLimits(used, characters, limits, now);
+  const reason = verdict.withinBudget ? "characters" : verdict.reason;
+  throw new TtsBudgetExceededError(
+    reason,
+    ttsSecondsUntilReset(now),
+    userId,
+  );
 }
 
 /**
@@ -188,39 +214,46 @@ export async function reserveTtsUsage(
 ): Promise<void> {
   const day = ttsUtcDay(now);
   const reserve = async (usage: TtsUsageDelegate) => {
-    const globalReserved = await reserveUsageRow(
+    await reserveUsageRow(
       usage,
       GLOBAL_TTS_USAGE_USER_ID,
       day,
       characters,
       globalLimits,
+      now,
     );
-    if (!globalReserved) {
-      throw new TtsBudgetExceededError(
-        characters > globalLimits.characters ? "characters" : "requests",
-        ttsSecondsUntilReset(now),
-      );
-    }
-
-    const userReserved = await reserveUsageRow(
+    await reserveUsageRow(
       usage,
       userId,
       day,
       characters,
       limits,
+      now,
     );
-    if (!userReserved) {
-      throw new TtsBudgetExceededError(
-        characters > limits.characters ? "characters" : "requests",
-        ttsSecondsUntilReset(now),
-      );
-    }
   };
 
-  if (dependencies.transaction) {
-    await dependencies.transaction(reserve);
-  } else {
-    await reserve(dependencies.usage);
+  try {
+    if (dependencies.transaction) {
+      await dependencies.transaction(reserve);
+    } else {
+      await reserve(dependencies.usage);
+    }
+  } catch (error) {
+    if (error instanceof TtsBudgetExceededError) {
+      await dependencies.usage.createMany({
+        data: [{ userId: error.usageUserId, day }],
+        skipDuplicates: true,
+      });
+      await dependencies.usage.updateMany({
+        where: { userId: error.usageUserId, day },
+        data: {
+          capReachedAt: now,
+          capReason: error.reason,
+          capAttempts: { increment: 1 },
+        },
+      });
+    }
+    throw error;
   }
 }
 

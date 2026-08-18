@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Providers } from "@/components/providers";
 import { inter, literata } from "@/app/fonts";
 import { SITE_ORIGIN } from "@/lib/site";
 import "./globals.css";
@@ -74,9 +72,7 @@ export default async function RootLayout({
       {/* suppressHydrationWarning: password managers / extensions inject attrs on body */}
       <body className="grain flex min-h-full flex-col font-sans" suppressHydrationWarning>
         <div className="relative z-[1] flex min-h-full flex-1 flex-col">
-          <NextIntlClientProvider>
-            <Providers>{children}</Providers>
-          </NextIntlClientProvider>
+          {children}
         </div>
         <Analytics />
         <SpeedInsights />

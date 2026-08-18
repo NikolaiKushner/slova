@@ -1,6 +1,8 @@
 import { createHash, randomBytes } from "node:crypto";
 
+import type { Prisma } from "@/app/generated/prisma/client";
 import { getPrisma } from "@/lib/prisma";
+import { runSerializable } from "@/lib/serializable-transaction";
 
 export type TokenPurpose = "verify" | "reset";
 
@@ -26,36 +28,47 @@ export function hashToken(token: string) {
 export async function issueToken(purpose: TokenPurpose, email: string) {
   const identifier = tokenIdentifier(purpose, email);
   const token = randomBytes(32).toString("base64url");
+  const storedToken = hashToken(token);
+  const expires = new Date(Date.now() + TTL_MS[purpose]);
   const prisma = getPrisma();
 
-  await prisma.verificationToken.deleteMany({ where: { identifier } });
-  await prisma.verificationToken.create({
-    data: {
+  await prisma.verificationToken.upsert({
+    where: { identifier },
+    create: {
       identifier,
-      token: hashToken(token),
-      expires: new Date(Date.now() + TTL_MS[purpose]),
+      token: storedToken,
+      expires,
+    },
+    update: {
+      token: storedToken,
+      expires,
     },
   });
 
   return token;
 }
 
-export async function consumeToken(
+export async function consumeTokenWithUserUpdate(
   purpose: TokenPurpose,
   email: string,
   token: string,
+  data: Prisma.UserUpdateManyMutationInput,
+  now = new Date(),
 ): Promise<boolean> {
   const identifier = tokenIdentifier(purpose, email);
-  try {
-    const row = await getPrisma().verificationToken.delete({
-      where: {
-        identifier_token: { identifier, token: hashToken(token) },
-      },
+  const hashed = hashToken(token);
+  return runSerializable(getPrisma(), async (transaction) => {
+    const consumed = await transaction.verificationToken.deleteMany({
+      where: { identifier, token: hashed, expires: { gt: now } },
     });
-    return row.expires.getTime() > Date.now();
-  } catch {
-    return false;
-  }
+    if (consumed.count !== 1) return false;
+
+    const updated = await transaction.user.updateMany({
+      where: { email },
+      data,
+    });
+    return updated.count === 1;
+  });
 }
 
 export function appOrigin() {

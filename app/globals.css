@@ -627,29 +627,6 @@
   }
 }
 
-/*
- * Focus mode (§15.2). During a drill the menu stays put — one glance, one
- * hover — but it stops competing with the question for attention. Set on
- * `body` because the sidebar sits above the drill in the tree.
- */
-body[data-drill="on"] [data-slot="sidebar"] {
-  opacity: 0.4;
-  transition: opacity var(--motion-base) var(--ease-standard);
-}
-
-body[data-drill="on"] [data-slot="sidebar"]:hover,
-body[data-drill="on"] [data-slot="sidebar"]:focus-within {
-  opacity: 1;
-}
-
-/* §15.2: on a touch screen the sidebar is hidden (Sheet) or left alone —
-   dimming it is a hover affordance, and there is no hover. */
-@media (pointer: coarse) {
-  body[data-drill="on"] [data-slot="sidebar"] {
-    opacity: 1;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .study-card,
   .caret-blink,
