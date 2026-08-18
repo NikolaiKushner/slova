@@ -3,7 +3,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
-import { EmptyState } from "@/components/empty-state";
 import {
   ChartContainer,
   ChartTooltip,
@@ -27,16 +26,11 @@ export function ReviewChart({
 }) {
   const t = useTranslations("progress");
   const locale = useLocale();
-  const hasReviews = data.some((row) => row.count > 0);
+  const hasPractice = data.some((row) => row.count > 0);
 
-  if (!hasReviews) {
+  if (!hasPractice) {
     return (
-      <EmptyState
-        variant="panel"
-        title={t("reviewsEmptyTitle")}
-        description={t("reviewsEmptyBody")}
-        className="border-0 bg-transparent py-8"
-      />
+      <p className="text-muted-foreground text-caption">{t("wordsPractisedEmpty")}</p>
     );
   }
 
@@ -44,9 +38,9 @@ export function ReviewChart({
     <ChartContainer
       config={{
         ...chartConfig,
-        count: { ...chartConfig.count, label: t("reviews") },
+        count: { ...chartConfig.count, label: t("wordsPractised") },
       }}
-      className="aspect-[16/7] w-full"
+      className="aspect-auto h-[200px] w-full"
     >
       <BarChart accessibilityLayer data={data}>
         <CartesianGrid vertical={false} />
@@ -55,7 +49,7 @@ export function ReviewChart({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          minTickGap={28}
+          minTickGap={48}
           tickFormatter={(value) => formatTick(String(value), locale, timeZone)}
         />
         <ChartTooltip

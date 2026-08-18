@@ -11,7 +11,7 @@
  */
 
 export type NavItem = {
-  titleKey: "trainings" | "grammar" | "myWords" | "mySets";
+  titleKey: "trainings" | "grammar" | "myProgress" | "myWords" | "mySets";
   href: string;
   /**
    * Paths this item should also light up for, when they sit outside its own
@@ -36,6 +36,11 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         matches: ["/practice/vocabulary", "/study"],
       },
       { titleKey: "grammar", href: "/courses/grammar" },
+      {
+        titleKey: "myProgress",
+        href: "/progress",
+        matches: ["/tasks/progress"],
+      },
     ],
   },
   {

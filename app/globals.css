@@ -179,6 +179,7 @@
   --container-prose: 700px;
   --container-list: 780px;
   --container-wide: 840px;
+  --container-dashboard: 1040px;
   --container-focus: 540px;
   --container-marketing: 1120px;
 
@@ -471,11 +472,12 @@
     backdrop-filter: blur(8px);
   }
 
-  .container-prose     { max-width: var(--container-prose);     margin-inline: auto; }
-  .container-list      { max-width: var(--container-list);      margin-inline: auto; }
-  .container-wide      { max-width: var(--container-wide);      margin-inline: auto; }
-  .container-focus     { max-width: var(--container-focus);     margin-inline: auto; }
-  .container-marketing { max-width: var(--container-marketing); margin-inline: auto; }
+  .container-prose      { max-width: var(--container-prose);      margin-inline: auto; }
+  .container-list       { max-width: var(--container-list);       margin-inline: auto; }
+  .container-wide       { max-width: var(--container-wide);       margin-inline: auto; }
+  .container-dashboard  { max-width: var(--container-dashboard);  margin-inline: auto; }
+  .container-focus      { max-width: var(--container-focus);      margin-inline: auto; }
+  .container-marketing  { max-width: var(--container-marketing);  margin-inline: auto; }
 }
 
 /* --- tablet --- */

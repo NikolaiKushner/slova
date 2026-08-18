@@ -5,6 +5,7 @@ describe("activeNavHref", () => {
   it("matches an item by its own path", () => {
     expect(activeNavHref("/practice")).toBe("/practice");
     expect(activeNavHref("/courses/grammar")).toBe("/courses/grammar");
+    expect(activeNavHref("/progress")).toBe("/progress");
   });
 
   it("gives a nested path to the deeper item, not the section root", () => {
@@ -35,13 +36,16 @@ describe("activeNavHref", () => {
     expect(activeNavHref("/import")).toBe("/dictionary");
   });
 
+  it("gives progress to its own item, including the legacy redirect", () => {
+    expect(activeNavHref("/progress")).toBe("/progress");
+    expect(activeNavHref("/tasks/progress")).toBe("/progress");
+  });
+
   it("does not claim paths that left the menu", () => {
     expect(activeNavHref("/tasks/today")).toBeNull();
     expect(activeNavHref("/tasks")).toBeNull();
     expect(activeNavHref("/home")).toBeNull();
     expect(activeNavHref("/courses/my")).toBeNull();
-    expect(activeNavHref("/progress")).toBeNull();
-    expect(activeNavHref("/tasks/progress")).toBeNull();
   });
 
   it("only matches on a segment boundary", () => {
@@ -67,8 +71,18 @@ describe("NAV_SECTIONS", () => {
     expect(NAV_SECTIONS.flatMap((s) => s.items.map((i) => i.href))).toEqual([
       "/practice",
       "/courses/grammar",
+      "/progress",
       "/dictionary",
       "/dictionary/sets",
+    ]);
+  });
+
+  it("puts My progress third in Study, after Trainings and Grammar", () => {
+    const study = NAV_SECTIONS.find((section) => section.titleKey === "study");
+    expect(study?.items.map((item) => item.titleKey)).toEqual([
+      "trainings",
+      "grammar",
+      "myProgress",
     ]);
   });
 
@@ -89,6 +103,11 @@ describe("NAV_SECTIONS", () => {
       for (const item of section.items) {
         expect(activeNavHref(item.href)).toBe(item.href);
         expect(isNavItemActive(item.href, item.href)).toBe(true);
+        for (const other of NAV_SECTIONS.flatMap((s) => s.items)) {
+          if (other.href !== item.href) {
+            expect(isNavItemActive(item.href, other.href)).toBe(false);
+          }
+        }
       }
     }
   });

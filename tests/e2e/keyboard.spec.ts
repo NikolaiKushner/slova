@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
-async function focusByTab(page: Page, target: Locator) {
-  for (let press = 0; press < 40; press += 1) {
+async function focusByTab(page: Page, target: Locator, maxPresses = 40) {
+  for (let press = 0; press < maxPresses; press += 1) {
     await page.keyboard.press("Tab");
     if (await target.evaluate((element) => element === document.activeElement)) {
       return;
@@ -60,4 +60,25 @@ test("a grammar lesson can enter and answer practice without a pointer", async (
   await expect(
     page.getByRole("button", { name: /^(Next|Дальше)$/ }),
   ).toBeVisible();
+});
+
+test("progress navigation and a course link are reachable by keyboard", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/progress");
+
+  const progressNav = page.getByRole("link", {
+    name: /^(My progress|Мой прогресс)$/,
+  });
+  await expect(progressNav).toBeVisible();
+  await focusByTab(page, progressNav);
+
+  const course = page.getByRole("link", {
+    name: /^(Open Present Simple course|Открыть курс Простое настоящее)$/,
+  });
+  await expect(course).toBeVisible();
+  await focusByTab(page, course, 80);
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/courses\/grammar\/present-simple/);
 });

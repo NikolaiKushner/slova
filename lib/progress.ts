@@ -142,6 +142,28 @@ export function reviewsByDay(
   return [...counts.entries()].map(([day, count]) => ({ day, count }));
 }
 
+/** Monday of the ISO week that contains this YYYY-MM-DD key. */
+export function startOfIsoWeek(day: string): string {
+  const [year, month, date] = day.split("-").map(Number);
+  const weekday = new Date(Date.UTC(year, month - 1, date)).getUTCDay();
+  const fromMonday = weekday === 0 ? 6 : weekday - 1;
+  return shiftCalendarDay(day, -fromMonday);
+}
+
+/**
+ * Distinct studied days from Monday through today, in the learner's zone.
+ * Future days in the same week are not counted.
+ */
+export function studyDaysThisWeek(
+  studiedDayKeys: readonly string[],
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): number {
+  const today = dayKey(now, timeZone);
+  const start = startOfIsoWeek(today);
+  return studiedDayKeys.filter((key) => key >= start && key <= today).length;
+}
+
 /** Review counts for every day in the streak window — calendar tooltips. */
 export function reviewCountsByDay(
   reviewedAt: Date[],
@@ -176,6 +198,7 @@ export type StudyActivity = {
   reviewsByDay: { day: string; count: number }[];
   reviewCountsByDay: Record<string, number>;
   studiedDayKeys: string[];
+  lessonDayKeys: string[];
   stubborn: { id: string; front: string; lapses: number }[];
   courses: {
     slug: string;
@@ -234,12 +257,10 @@ export async function getStudyActivity(
     ]));
 
   const reviewedAt = logs.map((log) => log.createdAt);
-  const studiedAt = [
-    ...reviewedAt,
-    ...lessons.flatMap((lesson) =>
-      lesson.completedAt ? [lesson.completedAt] : [],
-    ),
-  ];
+  const lessonAt = lessons.flatMap((lesson) =>
+    lesson.completedAt ? [lesson.completedAt] : [],
+  );
+  const studiedAt = [...reviewedAt, ...lessonAt];
   const memoryWords = remembered as ScheduledWord[];
 
   const completedByCourse = new Map<string, number>();
@@ -260,6 +281,7 @@ export async function getStudyActivity(
     reviewsByDay: reviewsByDay(reviewedAt, now, timeZone),
     reviewCountsByDay: reviewCountsByDay(reviewedAt, now, timeZone),
     studiedDayKeys: [...daysInWindow(studiedAt, now, timeZone)].sort(),
+    lessonDayKeys: [...daysInWindow(lessonAt, now, timeZone)].sort(),
     stubborn: stubbornRows,
     courses: courseRows.map((row) => ({
       slug: row.courseSlug,

@@ -10,13 +10,14 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * The five content widths from §8. A screen picks one; it does not get to
- * invent a sixth, which is the whole point of naming them.
+ * The named content widths from §8. A screen picks one; it does not get to
+ * invent another, which is the whole point of naming them.
  */
 const CONTAINERS = {
   prose: "container-prose", // 700 — lesson rule, legal pages
   list: "container-list", // 780 — my words, lesson lists, catalog
-  wide: "container-wide", // 840 — trainings, dashboard
+  wide: "container-wide", // 840 — trainings
+  dashboard: "container-dashboard", // 1040 — progress grid only
   focus: "container-focus", // 540 — question screen
   marketing: "container-marketing", // 1120 — landing
 } as const;

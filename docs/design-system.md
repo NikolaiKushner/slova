@@ -283,7 +283,7 @@ Verified: `foreground/background` 14.97 · `muted-foreground/background` 6.13 ·
 | Progress track | `neutral-200` |
 | Incorrect | `danger-600` `#A14B44` |
 
-`/progress` uses shadcn Chart **bars** (reviews over 28 days) and dictionary **segments** (`OverviewStats`). Pie, donut and RadialBar are forbidden — including the 485/1500 ring from mockups. `--chart-1`…`--chart-3` in `globals.css` alias onto learned / learning / untouched so the CLI rainbow never reaches the screen.
+`/progress` uses compact metric tiles for atomic values, shadcn Chart **bars** (words practised over 28 days), and dictionary **segments**. Pie, donut and RadialBar are forbidden — including the 485/1500 ring from mockups. `--chart-1`…`--chart-3` in `globals.css` alias onto learned / learning / untouched so the CLI rainbow never reaches the screen. Metric tiles are allowed on this screen only; they do not become a product-wide dashboard pattern.
 
 ---
 
@@ -413,7 +413,8 @@ The sidebar is `position: sticky; top: 0; height: 100dvh`. Use `dvh`, not `vh`: 
 |---|---|---|
 | `container-prose` | 700px | Lesson rule, legal pages |
 | `container-list` | 780px | My words, lesson list, catalog |
-| `container-wide` | 840px | Practice, dashboard |
+| `container-wide` | 840px | Practice |
+| `container-dashboard` | 1040px | Progress compositional grid only |
 | `container-focus` | 540px | Question screen in practice |
 | `container-marketing` | 1120px | Landing |
 
@@ -585,8 +586,8 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 | Pagination | `Pagination` | |
 | Course progress bar | `Progress` | Height 5px, `radius-full` |
 | Memory forecast on `/progress` | `Progress` | Same track; hide until ≥ 20 words with `stability` |
-| Study calendar | `Calendar` | Display only. `modifiers` paint days with `data-learning`. `timeZone` is the `tz` cookie. `onSelect` does not navigate. Tooltip: date + “N reviews”. |
-| Reviews, 28 days | `Chart` `BarChart` | `ChartContainer` / `ChartTooltip`. Fill `--chart-1` (learned). Not pie. |
+| Study calendar | `Calendar` | Display only, intrinsic `w-fit`. Cells 32px compact / ≤36px wide. A studied day is a green dot, not a filled cell. Never `w-full`. `timeZone` is the `tz` cookie. `onSelect` does not navigate. Tooltip and accessible name: date + “N words practised” and/or “Lesson completed”. |
+| Words practised, 28 days | `Chart` `BarChart` | `ChartContainer` / `ChartTooltip`. Fill `--chart-1` (learned). Short chart (~180–220px). Not pie. |
 | Divider | `Separator` | |
 | Mobile sidebar | `Sheet side="left"` | |
 | Delete confirmation | `Dialog` / `AlertDialog` | |
@@ -716,7 +717,7 @@ Word form: monospace `token`, background `neutral-150`, `radius-sm`, padding 1.5
 └────────────┴──────────────────────────────────────┘
 ```
 
-**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. The account menu includes **Мой прогресс** (`/progress`, `chart-no-axes-column`); it is not a sidebar item. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
+**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`, **Мой прогресс**) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. **Мой прогресс** (`/progress`, `chart-no-axes-column`) is the third Study item and owns its active state; it is not in the account menu. The account menu keeps language and sign-out. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
 
 ### 15.2 Focus mode (practice, brainstorm, lesson)
 
@@ -757,19 +758,15 @@ Container 700. Top bar with `ProgressSteps` and «Урок N из M · ~T мин
 
 ### 15.7 Progress (`/progress`)
 
-Container `container-wide` (840). Entry: account menu, not the sidebar. `/tasks/progress` redirects here.
+Container `container-dashboard` (1040). The wider width is only for this grid; list and lesson containers stay as they are. Entry: third item in Study, after Trainings and Grammar. `/tasks/progress` redirects here.
 
-Order: `PageHeader` (eyebrow «Аккаунт», title «{имя}, ваш прогресс» or «Ваш прогресс») → if the dictionary is empty: `Empty` + «Добавить слова», no grid of zeros → otherwise:
+Order: `PageHeader` (eyebrow «Прогресс», title «Ваш прогресс» — never the learner’s name; one quiet subtitle that describes the page; 24px gap to content on desktop, 20px on mobile) → if the dictionary is empty: `Empty` + «Добавить слова», mention that grammar will appear later, no grid of zeros → otherwise a compact grid (`gap-4`, card `p-4`):
 
-1. `Card` — current streak and record, Literata `numeral`. No hours.
-2. `OverviewStats` — learned / learning / not started. `hitRate` stays off.
-3. `Card` + `Calendar` — days with a word review **or** a finished lesson. Month navigation. Click does not start a training. Tooltip: date and “N отзывов” (or «Урок сдан» if the day is a lesson only). No horizontal scroll at 834 / 1194.
-4. `Card` + `Chart` `BarChart` — reviews for the last 28 days. Empty: `Empty` inside the card. Colors from §5.3.
-5. `Card` + `Progress` — «сейчас помните ≈ N%», caption that this is a forecast, not a grade. **Hidden** until there are ≥ 20 words with `stability`. Optional quiet line: mature retention.
-6. `Card` — up to five words with `lapses > 0`, English name only (the dictionary has no search-by-query). Not shown if none.
-7. `Card` — started grammar courses, lessons done, link to the course. Not a second calendar. Not shown if none.
+1. Up to four metric tiles in one row when the content area is ≥ 960px, two columns on tablet and phone. Default: current streak (record as secondary), words practised today, learned count (dictionary size as secondary), memory forecast when ≥ 20 words have `stability`, otherwise this week’s study days. Literata `numeral`. A 2–3px data accent is allowed; no filled tile backgrounds. Target tile height 132–148px.
+2. Three compact cards on wide screens: Vocabulary (segmented bar, learned / learning / new, `hitRate` stays off, footer link to My words), Study days (intrinsic-width shadcn `Calendar`, 32px cells compact / ≤ 36px wide, green dots, never `w-full`, card ≤ 380px tall, grid ≤ 296px wide), Word practice (28-day bars, chart ~180–220px). No view switch.
+3. Two list cards: Grammar (up to three course rows with a thin `Progress`, in-progress before completed, then most recently started; «View all grammar» if more exist) and Needs attention (up to five words by lapses, English + count). Each hides when empty. Until a stable word-detail route exists, rows are not links; one footer goes to My words. No blank grid cells.
 
-Do not draw hours, weekly stacked bars, a 1500 ring, hex badges, or pie/donut. Sitting minutes are written to Postgres; they appear on this screen only after a later batch, once ≥ 14 days of sittings exist. A single training may still show its own minutes on the summary screen (client).
+Metric tiles are allowed on this screen only. Do not draw hours, weekly stacked bars, a 1500 ring, hex badges, or pie/donut. Sitting minutes are written to Postgres; they appear here only after a later batch, once ≥ 14 days of sittings exist. A single training may still show its own minutes on the summary screen (client).
 
 ---
 
