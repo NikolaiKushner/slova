@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, and 5 complete
+**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, 5, and 4 complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -226,6 +226,20 @@ column, and `ReviewLog` has no uniqueness that would deduplicate an answer.
 
 **Priority:** P1  
 **Estimate:** 2-4 days
+**Status:** implemented 2026-08-18
+
+Implementation decisions:
+
+- Keep the bounded 365-day activity reads for now. The new
+  `server_operation` timings distinguish the lightweight practice line from
+  the full report; add persisted daily aggregates only if production history
+  shows the full report becoming materially expensive.
+- Keep localized public pages dynamic. Locale negotiation uses the locale
+  cookie and `Accept-Language`, while the landing page also redirects an
+  authenticated visitor; forcing static rendering would change both behaviors.
+- Speed Insights remains mounted globally. Query timing comparison starts with
+  the first deployment containing the new structured metrics because the prior
+  deployment emitted no equivalent timing event.
 
 - Split the lightweight practice progress line from the full 365-day activity
   report.

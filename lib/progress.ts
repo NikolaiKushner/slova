@@ -4,6 +4,7 @@ import {
   STUBBORN_LIMIT,
 } from "@/lib/progress-config";
 import { meanRetrievability, type ScheduledWord } from "@/lib/srs";
+import { measureServerOperation } from "@/lib/server-metrics";
 import {
   calendarDay,
   DEFAULT_TIMEZONE,
@@ -192,7 +193,7 @@ export async function getStudyActivity(
   const prisma = getPrisma();
 
   const [logs, lessons, remembered, stubbornRows, courseRows, lessonRows] =
-    await Promise.all([
+    await measureServerOperation("progress.full_report", () => Promise.all([
       prisma.reviewLog.findMany({
         where: { userId, createdAt: { gte: since }, undoneAt: null },
         select: { createdAt: true, rating: true, prevIntervalDays: true },
@@ -230,7 +231,7 @@ export async function getStudyActivity(
         where: { userId, status: "completed" },
         select: { courseSlug: true },
       }),
-    ]);
+    ]));
 
   const reviewedAt = logs.map((log) => log.createdAt);
   const studiedAt = [
@@ -274,10 +275,34 @@ export async function getProgress(
   now: Date,
   timeZone: string = DEFAULT_TIMEZONE,
 ) {
-  const activity = await getStudyActivity(userId, now, timeZone);
+  const since = windowStart(now);
+  const prisma = getPrisma();
+  const [logs, lessons] = await measureServerOperation(
+    "progress.practice_line",
+    () =>
+      Promise.all([
+        prisma.reviewLog.findMany({
+          where: { userId, createdAt: { gte: since }, undoneAt: null },
+          select: { createdAt: true },
+        }),
+        prisma.userLesson.findMany({
+          where: { userId, completedAt: { gte: since } },
+          select: { completedAt: true },
+        }),
+      ]),
+  );
+
+  const reviewedAt = logs.map((log) => log.createdAt);
+  const studiedAt = [
+    ...reviewedAt,
+    ...lessons.flatMap((lesson) =>
+      lesson.completedAt ? [lesson.completedAt] : [],
+    ),
+  ];
+
   return {
-    today: activity.today,
-    streak: activity.streak,
+    today: countOnDay(reviewedAt, now, timeZone),
+    streak: currentStreak(studiedAt, now, timeZone),
   };
 }
 

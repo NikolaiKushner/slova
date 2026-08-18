@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { grammarCatalog } from "@/lib/courses/catalog";
 import { getOverview } from "@/lib/overview";
 import {
@@ -28,7 +28,7 @@ import { MEMORY_MIN_WORDS } from "@/lib/progress-config";
 import { requestTimeZone } from "@/lib/request-timezone";
 
 export default async function ProgressPage() {
-  const session = await auth();
+  const session = await getSession();
   const userId = session?.user?.id;
   if (!userId) return null;
 

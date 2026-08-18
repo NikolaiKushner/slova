@@ -13,6 +13,7 @@ import {
   verifyPassword,
 } from "@/lib/password";
 import { allowFixedWindowAttempt } from "@/lib/rate-limit";
+import { cache } from "react";
 
 class EmailNotVerified extends CredentialsSignin {
   code = "email_not_verified";
@@ -125,3 +126,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+/** Share one verified session result across layouts and pages in a request. */
+export const getSession = cache(async () => auth());

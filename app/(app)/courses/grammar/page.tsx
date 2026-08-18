@@ -6,7 +6,7 @@ import { GrammarCatalog } from "@/components/courses/grammar-catalog";
 import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { grammarCatalog } from "@/lib/courses/catalog";
 import { withProgress } from "@/lib/courses/catalog-view";
 import {
@@ -22,7 +22,7 @@ export default async function CoursesGrammarPage() {
   const store = await cookies();
   const { available, coming } = grammarCatalog();
 
-  const session = await auth();
+  const session = await getSession();
   const progress = session?.user?.id
     ? await loadCourseProgressMap(
         session.user.id,

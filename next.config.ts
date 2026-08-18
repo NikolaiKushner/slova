@@ -20,7 +20,7 @@ const contentSecurityPolicyReportOnly = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["better-sqlite3", "@prisma/client"],
+  serverExternalPackages: ["@prisma/client"],
   async headers() {
     return [
       {

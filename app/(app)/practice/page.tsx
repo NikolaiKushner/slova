@@ -1,12 +1,12 @@
 import { getTranslations } from "next-intl/server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { getProgress, progressLine } from "@/lib/progress";
 import { requestTimeZone } from "@/lib/request-timezone";
 import { PracticePage } from "@/components/practice/practice-page";
 
 export default async function PracticeRoute() {
-  const session = await auth();
+  const session = await getSession();
   const t = await getTranslations("practice");
 
   let line: string | null = null;

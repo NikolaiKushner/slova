@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ChevronRight } from "lucide-react";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import { loadCourse } from "@/lib/courses/load";
 
 export default async function MyCoursesPage() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) redirect("/login");
 
   const t = await getTranslations("courses");

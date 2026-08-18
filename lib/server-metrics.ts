@@ -31,3 +31,28 @@ export function reportServerFailure(
     }),
   );
 }
+
+/** Measure server-side reads without attaching user or content identifiers. */
+export async function measureServerOperation<T>(
+  operation: string,
+  run: () => Promise<T>,
+): Promise<T> {
+  const startedAt = performance.now();
+
+  try {
+    const result = await run();
+    reportServerMetric("server_operation", {
+      operation,
+      durationMs: Math.round((performance.now() - startedAt) * 100) / 100,
+      succeeded: true,
+    });
+    return result;
+  } catch (error) {
+    reportServerFailure("server_operation", error, {
+      operation,
+      durationMs: Math.round((performance.now() - startedAt) * 100) / 100,
+      succeeded: false,
+    });
+    throw error;
+  }
+}

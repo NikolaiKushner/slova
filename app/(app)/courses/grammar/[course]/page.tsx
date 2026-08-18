@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { CourseOutline } from "@/components/courses/course-outline";
 import { PageContainer } from "@/components/layout/app-shell";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { courseOutline } from "@/lib/courses/course-view";
 import { CourseContentError, loadCourse } from "@/lib/courses/load";
 import { getPrisma } from "@/lib/prisma";
@@ -24,7 +24,7 @@ export default async function CoursePage({ params }: Params) {
     throw error;
   }
 
-  const session = await auth();
+  const session = await getSession();
   const lessonRows = session?.user?.id
     ? await getPrisma().userLesson.findMany({
         where: { userId: session.user.id, courseSlug },
