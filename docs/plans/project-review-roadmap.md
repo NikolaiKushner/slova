@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, 5, and 4 complete
+**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, 5, 4, and 9 complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -399,6 +399,7 @@ limited, and reserves character budget atomically. Two problems remain.
 
 **Priority:** P1  
 **Estimate:** 1-2 days
+**Status:** implemented 2026-08-18
 
 The privacy policy tells people to email for export and deletion, so a manual
 operator workflow is the promise, not a self-service feature. But nothing in the

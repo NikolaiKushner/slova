@@ -99,6 +99,8 @@ that checks the lockfile the way CI does, then runs `npm test`.
 | `npm run db:prepare-test` | Migrate the isolated test database and reset its fixture |
 | `npm run db:seed-test-user` | Reset the deterministic user in the isolated test database |
 | `npm run budget:status` | Print today's durable provider-cap status; exits 2 when a cap alert exists |
+| `npm run account:data` | Export or verifiably delete one account through the maintainer workflow |
+| `npm run restore:verify` | Read-only validation of a restored Neon branch and migration history |
 | `npm run lexicon:build` | Translate the frequency list through the Batch API |
 | `npm run db:seed-lexicon` | Load that dataset into the shared base |
 | `npm run lexicon:audio` | Record every word and upload it to R2 |
@@ -109,7 +111,8 @@ records where the word list came from and under what terms.
 Database and browser test setup is documented in `docs/testing.md`. These
 suites are deliberately separate from `npm test`, including in CI and Vercel.
 Paid-provider hard ceilings and their current worst-case cost are documented in
-`docs/provider-spend.md`.
+`docs/provider-spend.md`. Account requests, backups, and restore rehearsals are
+documented in `docs/operations.md`.
 
 ## Stack
 

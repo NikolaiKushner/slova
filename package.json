@@ -24,6 +24,8 @@
     "db:seed-test-user": "tsx scripts/seed-test-user.ts",
     "db:prepare-test": "npm run db:migrate-test && npm run db:seed-test-user",
     "budget:status": "tsx scripts/provider-budget-status.ts",
+    "account:data": "tsx scripts/account-data.ts",
+    "restore:verify": "tsx scripts/verify-restored-database.ts",
     "db:seed-lexicon": "tsx scripts/seed-lexicon.ts",
     "lexicon:build": "tsx scripts/build-lexicon.ts",
     "lexicon:audio": "tsx scripts/build-audio.ts",
