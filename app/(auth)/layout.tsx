@@ -9,6 +9,7 @@ const AUTH_CLIENT_NAMESPACES = [
   "common",
   "errors",
   "locale",
+  "routeStates",
 ] as const;
 
 export default async function AuthLayout({

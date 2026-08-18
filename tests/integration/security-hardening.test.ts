@@ -115,6 +115,10 @@ describe("Auth.js adapter account linking", () => {
 describe("security cleanup", () => {
   test("deletes only expired limiter and token rows", async () => {
     const now = new Date("2098-05-01T12:00:00.000Z");
+    const [existingRateLimits, existingVerificationTokens] = await Promise.all([
+      prisma.rateLimit.count({ where: { expiresAt: { lte: now } } }),
+      prisma.verificationToken.count({ where: { expires: { lte: now } } }),
+    ]);
     await prisma.rateLimit.createMany({
       data: [
         {
@@ -147,8 +151,8 @@ describe("security cleanup", () => {
     });
 
     expect(await cleanupExpiredSecurityState(now, prisma)).toEqual({
-      rateLimits: 1,
-      verificationTokens: 1,
+      rateLimits: existingRateLimits + 1,
+      verificationTokens: existingVerificationTokens + 1,
     });
     expect(
       await prisma.rateLimit.findMany({

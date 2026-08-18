@@ -18,6 +18,17 @@
     "recovered": "Progress saved.",
     "retry": "Try again"
   },
+  "routeStates": {
+    "errorEyebrow": "Temporary problem",
+    "errorTitle": "This page did not open",
+    "errorDescription": "Your data is safe. Try loading the page again, or return to the start.",
+    "tryAgain": "Try again",
+    "goHome": "Go to Slova",
+    "errorCode": "Error code: {code}",
+    "notFoundEyebrow": "404",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The address may be outdated, or the page may have moved."
+  },
   "nav": {
     "tasks": "Tasks",
     "learningMap": "Learning map",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { ChevronLeft } from "lucide-react";
@@ -87,6 +87,7 @@ export function PracticeSession({
   const [seconds, setSeconds] = useState(0);
   const [previewed, setPreviewed] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
   const {
     submit: submitMutation,
     flush: flushMutations,
@@ -227,7 +228,7 @@ export function PracticeSession({
     record(word.id, given, elapsedMs());
   }
 
-  async function next() {
+  const next = useCallback(async () => {
     // Read the clock once, here, rather than during the render of the summary:
     // `Date.now()` in a render body would give a different answer every time
     // React looked at it.
@@ -240,7 +241,44 @@ export function PracticeSession({
     }
     setResult(null);
     setIndex((current) => current + 1);
-  }
+  }, [complete, flushMutations, index, startedAt, words.length]);
+
+  useEffect(() => {
+    if (result === null) return;
+
+    const frame = requestAnimationFrame(() => {
+      nextButtonRef.current?.focus({ preventScroll: true });
+    });
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key !== "Enter" ||
+        event.repeat ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest("button, a, input, textarea, select, [contenteditable]")
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      void next();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [next, result]);
 
   function restart() {
     setLoading(true);
@@ -446,10 +484,10 @@ export function PracticeSession({
               className="min-w-0 flex-1"
             />
             <Button
+              ref={nextButtonRef}
               size="lg"
               onClick={() => void next()}
               disabled={finishing}
-              autoFocus
               className={result === null ? "invisible" : undefined}
             >
               {common("next")}

@@ -18,6 +18,17 @@
     "recovered": "Прогресс сохранён.",
     "retry": "Повторить"
   },
+  "routeStates": {
+    "errorEyebrow": "Временная проблема",
+    "errorTitle": "Страница не открылась",
+    "errorDescription": "Данные в безопасности. Попробуйте загрузить страницу ещё раз или вернитесь в начало.",
+    "tryAgain": "Попробовать ещё раз",
+    "goHome": "Перейти в Slova",
+    "errorCode": "Код ошибки: {code}",
+    "notFoundEyebrow": "404",
+    "notFoundTitle": "Страница не найдена",
+    "notFoundDescription": "Возможно, адрес устарел или страница переехала."
+  },
   "nav": {
     "tasks": "Задания",
     "learningMap": "Карта обучения",

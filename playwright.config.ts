@@ -21,7 +21,8 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Authenticated specs share one seeded learner, so mutations must stay serial.
+  workers: 1,
   reporter: process.env.CI ? "github" : "html",
   use: {
     baseURL,

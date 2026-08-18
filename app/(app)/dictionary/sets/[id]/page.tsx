@@ -14,6 +14,7 @@ import { getNewAllowance, setSummary } from "@/lib/study-queue";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getSetDetail } from "@/lib/set-queries";
+import { requestTimeZone } from "@/lib/request-timezone";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -28,7 +29,8 @@ export default async function SetPage({ params }: Props) {
   const set = await getSetDetail(session.user.id, id, now);
   if (!set) notFound();
 
-  const allowance = await getNewAllowance(session.user.id, now);
+  const timeZone = await requestTimeZone();
+  const allowance = await getNewAllowance(session.user.id, now, timeZone);
   const studiable = set.due + Math.min(set.unseen, allowance);
 
   return (

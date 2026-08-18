@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, 5, 4, 9, and 6 complete
+**Status:** implemented 2026-08-18; all phases complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -347,6 +347,8 @@ Implementation decisions:
 
 **Priority:** P2  
 **Estimate:** 2-3 days
+**Status:** implemented 2026-08-18; the timezone decision is recorded in
+`docs/product-behavior.md`.
 
 - Decide whether the daily-new-word limit resets in UTC or in the learner's
   configured timezone. Implement and document the product decision.

@@ -24,10 +24,11 @@ async function queueSnapshot(
   sourceState: SittingDraft["sourceState"],
   setIds: string[],
   now: Date,
+  timeZone?: string,
 ) {
   if (kind === "grammar") return { dueAtStart: 0, newAtStart: 0 };
   if (kind === "study") {
-    const summary = await getStudySummary(userId, now);
+    const summary = await getStudySummary(userId, now, timeZone);
     return { dueAtStart: summary.dueReviews, newAtStart: summary.unseen };
   }
 
@@ -67,6 +68,7 @@ export async function persistStart(
     sourceState: SittingDraft["sourceState"];
     setIds: string[];
     now?: Date;
+    timeZone?: string;
   },
 ): Promise<string> {
   const now = input.now ?? new Date();
@@ -77,6 +79,7 @@ export async function persistStart(
     input.sourceState,
     input.setIds,
     now,
+    input.timeZone,
   );
   const draft = startSitting({ ...input, ...snapshot, now });
   const created = await getPrisma().studySitting.create({

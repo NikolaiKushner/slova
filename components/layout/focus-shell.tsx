@@ -105,7 +105,7 @@ export function FocusHead({
 }) {
   return (
     <header className="mb-5 text-center">
-      <p className="text-overline text-eyebrow">{task}</p>
+      <h1 className="text-overline text-eyebrow">{task}</h1>
       {step ? (
         <p className="text-disabled-foreground mt-1.5 text-caption tabular-nums">
           {step}
@@ -210,8 +210,7 @@ export function FocusFooter({
 }
 
 /**
- * Wraps the zones. Sets `data-drill` on the body, which is what dims the
- * sidebar to 0.4 on the desktop (globals.css) and what hides it on touch.
+ * Wraps the zones and keeps the question column stable between formats.
  */
 export function FocusShell({
   topBar,
@@ -229,13 +228,6 @@ export function FocusShell({
   align?: "center" | "start";
   children: React.ReactNode;
 }) {
-  React.useEffect(() => {
-    document.body.dataset.drill = "on";
-    return () => {
-      delete document.body.dataset.drill;
-    };
-  }, []);
-
   return (
     /*
      * Bleeds out of the page padding AppShell applies, so the sticky bar runs

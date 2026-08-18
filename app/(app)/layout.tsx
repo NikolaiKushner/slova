@@ -19,6 +19,7 @@ const APP_CLIENT_NAMESPACES = [
   "pagination",
   "practice",
   "progress",
+  "routeStates",
   "study",
   "trainings",
 ] as const;

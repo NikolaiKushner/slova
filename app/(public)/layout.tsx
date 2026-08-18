@@ -8,6 +8,7 @@ const PUBLIC_CLIENT_NAMESPACES = [
   "locale",
   "nav",
   "product",
+  "routeStates",
 ] as const;
 
 export default async function PublicLayout({

@@ -7,19 +7,33 @@ import {
 } from "@/lib/study-queue";
 
 describe("startOfDay", () => {
-  it("drops the time of day", () => {
-    const start = startOfDay(new Date(2026, 7, 10, 23, 59, 59));
-    expect(start.getFullYear()).toBe(2026);
-    expect(start.getMonth()).toBe(7);
-    expect(start.getDate()).toBe(10);
-    expect(start.getHours()).toBe(0);
-    expect(start.getMinutes()).toBe(0);
+  it("uses the learner's midnight rather than the server's", () => {
+    const start = startOfDay(
+      new Date("2026-08-18T00:30:00.000Z"),
+      "Asia/Tbilisi",
+    );
+    expect(start.toISOString()).toBe("2026-08-17T20:00:00.000Z");
   });
 
-  it("is stable across a single day", () => {
-    const morning = startOfDay(new Date(2026, 7, 10, 6, 0, 0));
-    const night = startOfDay(new Date(2026, 7, 10, 22, 0, 0));
+  it("is stable across one learner calendar day", () => {
+    const morning = startOfDay(
+      new Date("2026-08-18T04:00:00.000Z"),
+      "America/New_York",
+    );
+    const night = startOfDay(
+      new Date("2026-08-19T03:59:59.000Z"),
+      "America/New_York",
+    );
     expect(morning.getTime()).toBe(night.getTime());
+  });
+
+  it("falls back to UTC for an invalid cookie value", () => {
+    expect(
+      startOfDay(
+        new Date("2026-08-18T23:59:59.000Z"),
+        "not/a-zone",
+      ).toISOString(),
+    ).toBe("2026-08-18T00:00:00.000Z");
   });
 });
 

@@ -4,6 +4,7 @@ import { jsonError } from "@/lib/i18n/api-error";
 import { buildStudyQueue } from "@/lib/study-queue";
 import { getPrisma } from "@/lib/prisma";
 import { parseOptionalSetId } from "@/lib/request-query";
+import { requestTimeZone } from "@/lib/request-timezone";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -23,8 +24,10 @@ export async function GET(request: Request) {
     if (!owned) return jsonError("notFound", 404);
   }
 
+  const timeZone = await requestTimeZone();
   const { words, reviewCount } = await buildStudyQueue(session.user.id, {
     setId,
+    timeZone,
   });
 
   return NextResponse.json({ words, reviewCount });

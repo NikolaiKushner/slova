@@ -1,4 +1,10 @@
 import { getPrisma } from "@/lib/prisma";
+import { dateFromDayKey } from "@/lib/calendar-date";
+import {
+  calendarDay,
+  DEFAULT_TIMEZONE,
+  readTimeZone,
+} from "@/lib/timezone";
 
 /** Unseen words a user may meet per day before the queue holds the rest back. */
 export const DEFAULT_DAILY_NEW_LIMIT = 20;
@@ -6,9 +12,13 @@ export const DEFAULT_DAILY_NEW_LIMIT = 20;
 /** Most due reviews handed out in one sitting, so a backlog stays finite. */
 export const REVIEW_BATCH_LIMIT = 100;
 
-/** Midnight of the server-local day; the new-word allowance resets here. */
-export function startOfDay(now: Date): Date {
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+/** Midnight of the learner's calendar day, represented as an absolute instant. */
+export function startOfDay(
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): Date {
+  const zone = readTimeZone(timeZone);
+  return new Date(dateFromDayKey(calendarDay(now, zone), zone, 0).getTime());
 }
 
 /** Unseen words still allowed today. Never negative, even if the limit drops. */
@@ -78,14 +88,18 @@ function scopeOf(userId: string, setId?: string) {
 }
 
 /** How many unseen words this user may still be shown today. */
-export async function getNewAllowance(userId: string, now: Date) {
+export async function getNewAllowance(
+  userId: string,
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+) {
   const [user, introducedToday] = await Promise.all([
     getPrisma().user.findUnique({
       where: { id: userId },
       select: { dailyNewLimit: true },
     }),
     getPrisma().userWord.count({
-      where: { userId, introducedAt: { gte: startOfDay(now) } },
+      where: { userId, introducedAt: { gte: startOfDay(now, timeZone) } },
     }),
   ]);
 
@@ -100,13 +114,13 @@ export async function getNewAllowance(userId: string, now: Date) {
  */
 export async function buildStudyQueue(
   userId: string,
-  options: { setId?: string; now?: Date } = {},
+  options: { setId?: string; now?: Date; timeZone?: string } = {},
 ) {
   const now = options.now ?? new Date();
   const scope = scopeOf(userId, options.setId);
 
   const [allowance, reviews] = await Promise.all([
-    getNewAllowance(userId, now),
+    getNewAllowance(userId, now, options.timeZone),
     getPrisma().userWord.findMany({
       where: { ...scope, introducedAt: { not: null }, dueAt: { lte: now } },
       orderBy: { dueAt: "asc" },
@@ -129,9 +143,13 @@ export async function buildStudyQueue(
 }
 
 /** Counts behind the Today headline: reviews back, unseen words, allowance. */
-export async function getStudySummary(userId: string, now: Date) {
+export async function getStudySummary(
+  userId: string,
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+) {
   const [allowance, dueReviews, unseen] = await Promise.all([
-    getNewAllowance(userId, now),
+    getNewAllowance(userId, now, timeZone),
     getPrisma().userWord.count({
       where: { userId, introducedAt: { not: null }, dueAt: { lte: now } },
     }),
