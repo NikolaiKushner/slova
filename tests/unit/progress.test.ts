@@ -8,7 +8,9 @@ import {
   progressLine,
   reviewCountsByDay,
   reviewsByDay,
+  startOfIsoWeek,
   studiedDays,
+  studyDaysThisWeek,
 } from "@/lib/progress";
 
 const TZ = "UTC";
@@ -187,5 +189,32 @@ describe("reviewCountsByDay", () => {
       "2026-08-08": 1,
       "2026-08-10": 2,
     });
+  });
+});
+
+describe("startOfIsoWeek", () => {
+  it("returns Monday for a Monday", () => {
+    expect(startOfIsoWeek("2026-08-10")).toBe("2026-08-10");
+  });
+
+  it("walks Sunday back to the preceding Monday", () => {
+    expect(startOfIsoWeek("2026-08-16")).toBe("2026-08-10");
+  });
+});
+
+describe("studyDaysThisWeek", () => {
+  it("counts Monday through today and ignores the rest of the week", () => {
+    const wednesday = at(12);
+    expect(
+      studyDaysThisWeek(
+        ["2026-08-09", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13"],
+        wednesday,
+        TZ,
+      ),
+    ).toBe(3);
+  });
+
+  it("is zero when nothing this week has been studied", () => {
+    expect(studyDaysThisWeek(["2026-08-09"], at(12), TZ)).toBe(0);
   });
 });

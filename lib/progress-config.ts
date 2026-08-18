@@ -2,3 +2,4 @@
 export const CHART_DAYS = 28;
 export const MEMORY_MIN_WORDS = 20;
 export const STUBBORN_LIMIT = 5;
+export const GRAMMAR_PREVIEW = 3;
