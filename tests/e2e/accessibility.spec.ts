@@ -77,3 +77,56 @@ test("lesson exposes a useful screen-reader structure", async ({ page }) => {
     }),
   ).toBeVisible();
 });
+
+for (const width of VIEWPORT_WIDTHS) {
+  test(`progress has no serious accessibility violations at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/progress");
+    await waitForSettledPage(page);
+    await expect(
+      page.getByRole("heading", { level: 1, name: /^(Your progress|Ваш прогресс)$/ }),
+    ).toBeVisible();
+    await expectNoSeriousAccessibilityViolations(page);
+  });
+}
+
+test("progress exposes a useful screen-reader structure", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/progress");
+  await waitForSettledPage(page);
+
+  await expect(page.getByRole("main")).toHaveCount(1);
+  await expect(
+    page.getByRole("heading", { level: 1, name: /^(Your progress|Ваш прогресс)$/ }),
+  ).toBeVisible();
+
+  const progressNav = page.getByRole("link", {
+    name: /^(My progress|Мой прогресс)$/,
+  });
+  await expect(progressNav).toBeVisible();
+  await expect(progressNav).toHaveAttribute("aria-current", "page");
+
+  await expect(page.getByText(/^(Current run|Текущая серия)$/)).toBeVisible();
+  await expect(page.getByRole("progressbar")).toHaveAccessibleName(/.+/);
+  await expect(
+    page.getByRole("link", {
+      name: /^(Open Present Simple course|Открыть курс Простое настоящее)$/,
+    }),
+  ).toBeVisible();
+});
+
+test("progress is absent from the account menu", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/progress");
+  await waitForSettledPage(page);
+
+  await page.getByRole("button", { name: /E2E Learner/ }).click();
+  await expect(
+    page.getByRole("menuitem", { name: /^(Log out|Выйти)$/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("menuitem", { name: /^(My progress|Мой прогресс)$/ }),
+  ).toHaveCount(0);
+});
