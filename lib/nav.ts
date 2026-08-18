@@ -31,16 +31,16 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     titleKey: "study",
     items: [
       {
-        titleKey: "myProgress",
-        href: "/progress",
-        matches: ["/tasks/progress"],
-      },
-      {
         titleKey: "trainings",
         href: "/practice",
         matches: ["/practice/vocabulary", "/study"],
       },
       { titleKey: "grammar", href: "/courses/grammar" },
+      {
+        titleKey: "myProgress",
+        href: "/progress",
+        matches: ["/tasks/progress"],
+      },
     ],
   },
   {

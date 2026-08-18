@@ -760,7 +760,7 @@ Container 700. Top bar with `ProgressSteps` and «Урок N из M · ~T мин
 
 Container `container-dashboard` (1040). The wider width is only for this grid; list and lesson containers stay as they are. Entry: third item in Study, after Trainings and Grammar. `/tasks/progress` redirects here.
 
-Order: `PageHeader` (eyebrow «Прогресс», title «Ваш прогресс» — never the learner’s name; one quiet subtitle that describes the page) → if the dictionary is empty: `Empty` + «Добавить слова», mention that grammar will appear later, no grid of zeros → otherwise a compact grid (`gap-4`, card `p-4`):
+Order: `PageHeader` (eyebrow «Прогресс», title «Ваш прогресс» — never the learner’s name; one quiet subtitle that describes the page; 24px gap to content on desktop, 20px on mobile) → if the dictionary is empty: `Empty` + «Добавить слова», mention that grammar will appear later, no grid of zeros → otherwise a compact grid (`gap-4`, card `p-4`):
 
 1. Up to four metric tiles in one row when the content area is ≥ 960px, two columns on tablet and phone. Default: current streak (record as secondary), words practised today, learned count (dictionary size as secondary), memory forecast when ≥ 20 words have `stability`, otherwise this week’s study days. Literata `numeral`. A 2–3px data accent is allowed; no filled tile backgrounds. Target tile height 132–148px.
 2. Three compact cards on wide screens: Vocabulary (segmented bar, learned / learning / new, `hitRate` stays off, footer link to My words), Study days (intrinsic-width shadcn `Calendar`, 32px cells compact / ≤ 36px wide, green dots, never `w-full`, card ≤ 380px tall, grid ≤ 296px wide), Word practice (28-day bars, chart ~180–220px). No view switch.

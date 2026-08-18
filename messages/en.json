@@ -321,14 +321,14 @@
     "hitRate": "{percent}% of translations came from the shared dictionary rather than being generated — those were instant and cost nothing."
   },
   "progress": {
-    "eyebrow": "Account",
+    "eyebrow": "Progress",
     "title": "Your progress",
-    "titleNamed": "{name}, your progress",
+    "description": "Your vocabulary, rhythm, and recent practice in one place.",
     "streak": "Streak",
     "record": "Record",
     "days": "{count, plural, one {# day} other {# days}}",
     "emptyTitle": "Nothing to show yet",
-    "emptyBody": "Add a few words and practise. This page fills in from what you actually did — not from a dashboard of zeros.",
+    "emptyBody": "Add a few words and practise. Vocabulary practice and grammar lessons will both appear here later — not a dashboard of zeros.",
     "addWords": "Add words",
     "calendar": "Study days",
     "calendarHint": "A day lights up when you reviewed a word or finished a lesson.",

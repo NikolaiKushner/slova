@@ -42,17 +42,18 @@ export default async function ProgressPage() {
     getStudyActivity(userId, now, tz),
   ]);
 
-  const name = session.user?.name?.trim() || null;
   const showMemory =
     (activity.memory !== null && activity.memoryWords >= MEMORY_MIN_WORDS) ||
     activity.retentionMature !== null;
   const courses = coursesOnProgress(activity, locale === "ru");
 
   return (
-    <PageContainer container="wide">
+    <PageContainer container="dashboard">
       <PageHeader
         eyebrow={t("eyebrow")}
-        title={name ? t("titleNamed", { name }) : t("title")}
+        title={t("title")}
+        description={t("description")}
+        className="mb-5 md:mb-6"
       />
 
       {overview.words === 0 ? (
