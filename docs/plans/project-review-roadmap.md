@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-17  
 **Branch:** `feat/project-review`  
-**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, 5, 4, and 9 complete
+**Status:** implementation in progress; Phases 0, 8, 1, 2, 3, 5, 4, 9, and 6 complete
 **Baseline:** `main` at `3253b8d323cbdd0492e648b0131c9584f37bc709`  
 **Re-verified:** 2026-08-17 against the same baseline. Every finding below was
 re-checked in the code. Phase numbers are stable labels, not the running order;
@@ -304,6 +304,23 @@ Implementation decisions:
 
 **Priority:** P1  
 **Estimate:** 1-2 days
+**Status:** implemented 2026-08-18
+
+Implementation decisions:
+
+- Preview deployments remain disabled until Preview has an isolated Neon
+  branch. The current Vercel integration supplies the same database variables
+  to Production and Preview, so enabling previews now would expose production
+  data to branch code.
+- CI runs the complete quality job but is not a required pull-request gate
+  while the project has one maintainer. Revisit branch protection when another
+  person begins shipping changes.
+- Production migrations run before merge as a separate maintainer operation.
+  Vercel's build performs a read-only migration-status check and refuses an
+  application deploy when the schema is behind.
+- The Prisma `deepmerge-ts` advisory remains tracked upstream. npm's proposed
+  automatic fix downgrades Prisma across a major version and is not compatible
+  remediation.
 
 - Pin Vercel to Node 22 and align npm 10 across local development, CI, package
   metadata, and production. The reviewed deployment used Node 24/npm 11 and

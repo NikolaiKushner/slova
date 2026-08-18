@@ -83,7 +83,7 @@ OpenAI and R2 credentials are required by `npm run check:env` only when
 `TTS_ON_DEMAND_ENABLED=true`; they remain server-only and must never use a
 `NEXT_PUBLIC_*` name.
 
-CI and Vercel install with **npm 10** (Node 22). A lockfile written by npm 11
+CI and Vercel install with **npm 10.9.9** (Node 22). A lockfile written by npm 11
 fails `npm ci` there. After clone, `npm install` turns on a pre-commit hook
 that checks the lockfile the way CI does, then runs `npm test`.
 
@@ -94,7 +94,9 @@ that checks the lockfile the way CI does, then runs `npm test`.
 | `npm test` | Unit tests over `tests/unit` — seconds, and the one check worth its cost |
 | `npm run test:integration` | Database tests against an explicit isolated test branch |
 | `npm run test:e2e` | Reset the test fixture, then run authenticated Playwright tests |
-| `npm run lint` / `npx tsc --noEmit` | Also run in CI |
+| `npm run lint` / `npm run typecheck` | Also run in CI |
+| `npm run db:migrate:deploy` | Apply reviewed migrations separately from an application build |
+| `npm run db:migrate:status` | Read-only check used by the Vercel preflight |
 | `npm run db:seed` | Demo user and a small set |
 | `npm run db:prepare-test` | Migrate the isolated test database and reset its fixture |
 | `npm run db:seed-test-user` | Reset the deterministic user in the isolated test database |
@@ -112,7 +114,8 @@ Database and browser test setup is documented in `docs/testing.md`. These
 suites are deliberately separate from `npm test`, including in CI and Vercel.
 Paid-provider hard ceilings and their current worst-case cost are documented in
 `docs/provider-spend.md`. Account requests, backups, and restore rehearsals are
-documented in `docs/operations.md`.
+documented in `docs/operations.md`. Runtime pins, CI gates, previews, and the
+production migration sequence are documented in `docs/deployment.md`.
 
 ## Stack
 

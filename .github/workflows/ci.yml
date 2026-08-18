@@ -6,7 +6,8 @@ on:
   pull_request:
 
 jobs:
-  test:
+  quality:
+    name: Quality gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -16,8 +17,9 @@ jobs:
           node-version: 22
           cache: npm
 
-      # Node 22 ships npm 10; a lockfile written by npm 11 fails `npm ci` here.
-      # package.json pins packageManager to npm 10 so this stays the same.
+      - name: Pin npm
+        run: npm install --global npm@10.9.9
+
       - name: Install dependencies
         run: npm ci
 
@@ -28,6 +30,9 @@ jobs:
       # one of them was hiding a race. Cheap to run, so it runs on every push.
       - name: Lint
         run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
 
       # No database is reachable here, and none is needed: the build only
       # constructs the Prisma client, which connects lazily on first query.
@@ -55,6 +60,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - name: Pin npm
+        run: npm install --global npm@10.9.9
 
       - name: Install dependencies
         run: npm ci
