@@ -1,0 +1,107 @@
+{
+  "slug": "wrong-room",
+  "schemaVersion": 1,
+  "level": "A2",
+  "topic": "travel",
+  "blueprint": "wrong-room",
+  "title": "The Wrong Room",
+  "descriptionRu": "Дэвид случайно попадает не в тот номер отеля, и это быстро исправляют.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "David arrived at the hotel late at night after a long flight, tired and eager to sleep. He checked in quickly at the front desk, thanked the receptionist, and took the lift up to the fourth floor without really reading the room number twice."
+    },
+    {
+      "id": "p2",
+      "text": "He slid the key card into the door of room 412, and to his surprise it opened easily. Inside, however, someone else's suitcase lay open on the bed, and a jacket hung over the chair. David froze, realizing immediately that something was wrong."
+    },
+    {
+      "id": "p3",
+      "text": "Embarrassed, he apologized quietly to the empty room and hurried back down to reception. The receptionist checked the system, found the mistake, and corrected it in seconds — his actual room was 421, not 412. David laughed at himself and finally went to bed."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-checked-in",
+      "paragraphId": "p1",
+      "surface": "checked in",
+      "occurrence": 1,
+      "lemma": "check in",
+      "glossRu": "заселиться",
+      "role": "focus"
+    },
+    {
+      "id": "a-key-card",
+      "paragraphId": "p2",
+      "surface": "key card",
+      "occurrence": 1,
+      "lemma": "key card",
+      "glossRu": "карта-ключ",
+      "role": "focus"
+    },
+    {
+      "id": "a-embarrassed",
+      "paragraphId": "p3",
+      "surface": "Embarrassed",
+      "occurrence": 1,
+      "lemma": "embarrassed",
+      "glossRu": "смущённый",
+      "role": "focus"
+    },
+    {
+      "id": "a-reception",
+      "paragraphId": "p3",
+      "surface": "reception",
+      "occurrence": 1,
+      "lemma": "reception",
+      "glossRu": "стойка регистрации",
+      "role": "focus"
+    },
+    {
+      "id": "a-mistake",
+      "paragraphId": "p3",
+      "surface": "mistake",
+      "occurrence": 1,
+      "lemma": "mistake",
+      "glossRu": "ошибка",
+      "role": "focus"
+    },
+    {
+      "id": "a-corrected",
+      "paragraphId": "p3",
+      "surface": "corrected",
+      "occurrence": 1,
+      "lemma": "correct",
+      "glossRu": "исправлять",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-what-discovered",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "What did David discover when he opened room 412?",
+      "options": ["It belonged to someone else.", "It was empty and clean.", "The door wouldn't open."],
+      "answer": "It belonged to someone else."
+    },
+    {
+      "type": "exercise",
+      "id": "q-how-solved",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How was the problem finally solved?",
+      "options": ["The receptionist corrected the room number.", "David paid for a new room.", "He shared the room for the night."],
+      "answer": "The receptionist corrected the room number."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "The receptionist quickly found the ___ and gave David the correct room.",
+      "answer": "mistake"
+    }
+  ]
+}

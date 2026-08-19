@@ -1,0 +1,107 @@
+{
+  "slug": "missing-key",
+  "schemaVersion": 1,
+  "level": "A1",
+  "topic": "daily-life",
+  "blueprint": "missing-key",
+  "title": "The Missing Key",
+  "descriptionRu": "Анна опаздывает на поезд и не может найти ключ.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Anna woke up late on a rainy Monday morning in October. She looked at the clock on the wall and could not believe her eyes. It was already half past eight, and her train left at nine. In a hurry, she jumped out of bed, grabbed some clothes, and ran to the bathroom without turning on the light."
+    },
+    {
+      "id": "p2",
+      "text": "In the kitchen she found her bag but could not find her key anywhere. She searched the table, the sofa, and even the pockets of her old coat. Her flatmate was still asleep, so she did not want to shout. She felt her heart beating faster with every passing minute."
+    },
+    {
+      "id": "p3",
+      "text": "Finally she remembered leaving the key on the shelf by the front door the night before, next to a small green plant. She grabbed it, locked the door behind her, and ran down the stairs two at a time. She reached the station just as the train doors began to close."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-late",
+      "paragraphId": "p1",
+      "surface": "late",
+      "occurrence": 1,
+      "lemma": "late",
+      "glossRu": "поздно",
+      "role": "focus"
+    },
+    {
+      "id": "a-hurry",
+      "paragraphId": "p1",
+      "surface": "hurry",
+      "occurrence": 1,
+      "lemma": "hurry",
+      "glossRu": "спешка",
+      "role": "focus"
+    },
+    {
+      "id": "a-key",
+      "paragraphId": "p2",
+      "surface": "key",
+      "occurrence": 1,
+      "lemma": "key",
+      "glossRu": "ключ",
+      "role": "focus"
+    },
+    {
+      "id": "a-searched",
+      "paragraphId": "p2",
+      "surface": "searched",
+      "occurrence": 1,
+      "lemma": "search",
+      "glossRu": "искать",
+      "role": "focus"
+    },
+    {
+      "id": "a-remembered",
+      "paragraphId": "p3",
+      "surface": "remembered",
+      "occurrence": 1,
+      "lemma": "remember",
+      "glossRu": "вспомнить",
+      "role": "focus"
+    },
+    {
+      "id": "a-locked",
+      "paragraphId": "p3",
+      "surface": "locked",
+      "occurrence": 1,
+      "lemma": "lock",
+      "glossRu": "запереть",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-hurry",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Why was Anna in a hurry?",
+      "options": ["She woke up late.", "She missed breakfast.", "She lost her phone."],
+      "answer": "She woke up late."
+    },
+    {
+      "type": "exercise",
+      "id": "q-key-location",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Where did Anna find her key?",
+      "options": ["On the shelf by the door.", "In her coat pocket.", "On the kitchen table."],
+      "answer": "On the shelf by the door."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "Anna could not find her ___ before running to catch the train.",
+      "answer": "key"
+    }
+  ]
+}

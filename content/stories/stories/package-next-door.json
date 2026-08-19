@@ -1,0 +1,116 @@
+{
+  "slug": "package-next-door",
+  "schemaVersion": 1,
+  "level": "A2",
+  "topic": "daily-life",
+  "blueprint": "package-next-door",
+  "title": "The Package Next Door",
+  "descriptionRu": "Сэм не решается постучать к соседу, у которого оставили его посылку.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Sam came home late from work and found a small note taped to his door. It said that a parcel had been delivered while he was out and left with the neighbor in flat 4B. He had lived in the building for months but had never once spoken to them."
+    },
+    {
+      "id": "p2",
+      "text": "Standing outside flat 4B, Sam suddenly felt awkward, unsure what to say to a complete stranger. He raised his hand to knock, hesitated, then finally knocked twice, quietly hoping no one would answer so he could just leave."
+    },
+    {
+      "id": "p3",
+      "text": "A friendly man opened the door, already holding the parcel with a smile. He said he was happy to help and hoped Sam didn't mind the short delay collecting it. Sam thanked him warmly, and they even agreed to say hello more often from now on."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-note",
+      "paragraphId": "p1",
+      "surface": "note",
+      "occurrence": 1,
+      "lemma": "note",
+      "glossRu": "записка",
+      "role": "focus"
+    },
+    {
+      "id": "a-parcel",
+      "paragraphId": "p1",
+      "surface": "parcel",
+      "occurrence": 1,
+      "lemma": "parcel",
+      "glossRu": "посылка",
+      "role": "focus"
+    },
+    {
+      "id": "a-delivered",
+      "paragraphId": "p1",
+      "surface": "delivered",
+      "occurrence": 1,
+      "lemma": "deliver",
+      "glossRu": "доставлять",
+      "role": "focus"
+    },
+    {
+      "id": "a-neighbor",
+      "paragraphId": "p1",
+      "surface": "neighbor",
+      "occurrence": 1,
+      "lemma": "neighbor",
+      "glossRu": "сосед",
+      "role": "focus"
+    },
+    {
+      "id": "a-awkward",
+      "paragraphId": "p2",
+      "surface": "awkward",
+      "occurrence": 1,
+      "lemma": "awkward",
+      "glossRu": "неловкий",
+      "role": "focus"
+    },
+    {
+      "id": "a-knocked",
+      "paragraphId": "p2",
+      "surface": "knocked",
+      "occurrence": 1,
+      "lemma": "knock",
+      "glossRu": "стучать",
+      "role": "focus"
+    },
+    {
+      "id": "a-collecting",
+      "paragraphId": "p3",
+      "surface": "collecting",
+      "occurrence": 1,
+      "lemma": "collect",
+      "glossRu": "забирать",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-why-awkward",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Why did Sam feel awkward outside flat 4B?",
+      "options": ["He had never met the neighbor before.", "He was late for work.", "He forgot his keys."],
+      "answer": "He had never met the neighbor before."
+    },
+    {
+      "type": "exercise",
+      "id": "q-neighbor-reaction",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How did the neighbor react when he opened the door?",
+      "options": ["He was friendly and helpful.", "He was annoyed.", "He didn't answer."],
+      "answer": "He was friendly and helpful."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "Sam stood outside the door, too nervous to ___ at first.",
+      "answer": "knock"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "slug": "bus-is-gone",
+  "schemaVersion": 1,
+  "level": "A1",
+  "topic": "transport",
+  "blueprint": "bus-is-gone",
+  "title": "The Bus Is Gone",
+  "descriptionRu": "Эмма опаздывает на автобус и решает, что делать дальше.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Emma left home a little later than usual and had to walk fast to reach the bus stop on time. As she turned the last corner, she saw the number 12 bus already at the stop, its doors starting to close."
+    },
+    {
+      "id": "p2",
+      "text": "She started to run, waving her arm and calling out, but the driver did not see her. The bus pulled away just as she reached the stop. She had missed it by seconds, and stood there catching her breath, feeling annoyed at herself for leaving late."
+    },
+    {
+      "id": "p3",
+      "text": "She checked the timetable and saw the next bus would arrive in twelve minutes. Emma sighed, sat down on the bench to wait, and decided that tomorrow she would leave five minutes earlier so this would not happen again."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-run",
+      "paragraphId": "p2",
+      "surface": "run",
+      "occurrence": 1,
+      "lemma": "run",
+      "glossRu": "бежать",
+      "role": "focus"
+    },
+    {
+      "id": "a-pulled-away",
+      "paragraphId": "p2",
+      "surface": "pulled away",
+      "occurrence": 1,
+      "lemma": "pull away",
+      "glossRu": "отъезжать",
+      "role": "focus"
+    },
+    {
+      "id": "a-missed",
+      "paragraphId": "p2",
+      "surface": "missed",
+      "occurrence": 1,
+      "lemma": "miss",
+      "glossRu": "пропустить",
+      "role": "focus"
+    },
+    {
+      "id": "a-annoyed",
+      "paragraphId": "p2",
+      "surface": "annoyed",
+      "occurrence": 1,
+      "lemma": "annoyed",
+      "glossRu": "раздражённый",
+      "role": "focus"
+    },
+    {
+      "id": "a-next",
+      "paragraphId": "p3",
+      "surface": "next",
+      "occurrence": 1,
+      "lemma": "next",
+      "glossRu": "следующий",
+      "role": "focus"
+    },
+    {
+      "id": "a-wait",
+      "paragraphId": "p3",
+      "surface": "wait",
+      "occurrence": 1,
+      "lemma": "wait",
+      "glossRu": "ждать",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-what-happened",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "What happened just as Emma reached the bus stop?",
+      "options": ["The bus pulled away.", "The bus broke down.", "The driver waited for her."],
+      "answer": "The bus pulled away."
+    },
+    {
+      "type": "exercise",
+      "id": "q-fix-next-time",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How did Emma decide to fix the problem next time?",
+      "options": ["Leave five minutes earlier.", "Take a taxi instead.", "Walk to work."],
+      "answer": "Leave five minutes earlier."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "Emma had to wait twelve minutes for the ___ bus to arrive.",
+      "answer": "next"
+    }
+  ]
+}

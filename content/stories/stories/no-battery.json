@@ -1,0 +1,116 @@
+{
+  "slug": "no-battery",
+  "schemaVersion": 1,
+  "level": "A2",
+  "topic": "daily-life",
+  "blueprint": "no-battery",
+  "title": "No Battery",
+  "descriptionRu": "У Прии садится телефон посреди дел, и незнакомое кафе выручает её.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Priya left home in the morning with a long list of errands: the pharmacy, the post office, and finally the bank before it closed. She checked her phone battery quickly, saw it was at twenty percent, and decided it would probably be enough."
+    },
+    {
+      "id": "p2",
+      "text": "By early afternoon, right after leaving the pharmacy, her phone suddenly died completely. She had no map, no messages, and no way to contact her sister, who was waiting to meet her outside the bank at three o'clock. Priya began to worry that she would be late."
+    },
+    {
+      "id": "p3",
+      "text": "She walked into a small café and asked kindly if she could charge her phone for a few minutes. The owner agreed and even let her borrow a charger cable. Ten minutes later, with just enough battery, Priya messaged her sister and hurried off to the bank, relieved."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-battery",
+      "paragraphId": "p1",
+      "surface": "battery",
+      "occurrence": 1,
+      "lemma": "battery",
+      "glossRu": "батарея",
+      "role": "focus"
+    },
+    {
+      "id": "a-errands",
+      "paragraphId": "p1",
+      "surface": "errands",
+      "occurrence": 1,
+      "lemma": "errand",
+      "glossRu": "поручение, дело",
+      "role": "focus"
+    },
+    {
+      "id": "a-died",
+      "paragraphId": "p2",
+      "surface": "died",
+      "occurrence": 1,
+      "lemma": "die",
+      "glossRu": "разрядиться, умереть",
+      "role": "focus"
+    },
+    {
+      "id": "a-contact",
+      "paragraphId": "p2",
+      "surface": "contact",
+      "occurrence": 1,
+      "lemma": "contact",
+      "glossRu": "связаться",
+      "role": "focus"
+    },
+    {
+      "id": "a-worry",
+      "paragraphId": "p2",
+      "surface": "worry",
+      "occurrence": 1,
+      "lemma": "worry",
+      "glossRu": "волноваться",
+      "role": "focus"
+    },
+    {
+      "id": "a-charge",
+      "paragraphId": "p3",
+      "surface": "charge",
+      "occurrence": 1,
+      "lemma": "charge",
+      "glossRu": "заряжать",
+      "role": "focus"
+    },
+    {
+      "id": "a-borrow",
+      "paragraphId": "p3",
+      "surface": "borrow",
+      "occurrence": 1,
+      "lemma": "borrow",
+      "glossRu": "одолжить",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-why-no-contact",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Why couldn't Priya contact her sister?",
+      "options": ["Her phone battery died.", "She lost her sister's number.", "She had no signal."],
+      "answer": "Her phone battery died."
+    },
+    {
+      "type": "exercise",
+      "id": "q-how-solved",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How did Priya solve the problem?",
+      "options": ["A café let her charge her phone.", "She bought a new phone.", "She went home to charge it."],
+      "answer": "A café let her charge her phone."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "When her phone died, Priya began to ___ about being late.",
+      "answer": "worry"
+    }
+  ]
+}

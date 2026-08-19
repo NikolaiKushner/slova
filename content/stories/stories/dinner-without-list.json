@@ -1,0 +1,116 @@
+{
+  "slug": "dinner-without-list",
+  "schemaVersion": 1,
+  "level": "A2",
+  "topic": "daily-life",
+  "blueprint": "dinner-without-list",
+  "title": "Dinner Without a List",
+  "descriptionRu": "Мария забыла список покупок и вспоминает рецепт по памяти.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Maria arrived at the supermarket after work, ready to buy everything for tonight's dinner. As she picked up a basket by the entrance, she suddenly realized she had left her shopping list on the kitchen table. She sighed and decided to trust her memory instead."
+    },
+    {
+      "id": "p2",
+      "text": "She walked slowly through each aisle, trying to remember the recipe her mother had taught her. In the vegetable aisle she paused, unsure whether the dish needed onions or garlic, and had to guess. Further along she completely forgot the name of the cheese she needed."
+    },
+    {
+      "id": "p3",
+      "text": "By the final aisle her basket was nearly full, but she still felt unsure about one ingredient. She called her mother, who reminded her about the cheese in seconds. Relieved, Maria smiled, grabbed the last item, and headed happily to the checkout."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-basket",
+      "paragraphId": "p1",
+      "surface": "basket",
+      "occurrence": 1,
+      "lemma": "basket",
+      "glossRu": "корзина",
+      "role": "focus"
+    },
+    {
+      "id": "a-remember",
+      "paragraphId": "p2",
+      "surface": "remember",
+      "occurrence": 1,
+      "lemma": "remember",
+      "glossRu": "вспоминать",
+      "role": "focus"
+    },
+    {
+      "id": "a-aisle",
+      "paragraphId": "p2",
+      "surface": "aisle",
+      "occurrence": 1,
+      "lemma": "aisle",
+      "glossRu": "проход (в магазине)",
+      "role": "focus"
+    },
+    {
+      "id": "a-recipe",
+      "paragraphId": "p2",
+      "surface": "recipe",
+      "occurrence": 1,
+      "lemma": "recipe",
+      "glossRu": "рецепт",
+      "role": "focus"
+    },
+    {
+      "id": "a-guess",
+      "paragraphId": "p2",
+      "surface": "guess",
+      "occurrence": 1,
+      "lemma": "guess",
+      "glossRu": "угадывать",
+      "role": "focus"
+    },
+    {
+      "id": "a-forgot",
+      "paragraphId": "p2",
+      "surface": "forgot",
+      "occurrence": 1,
+      "lemma": "forget",
+      "glossRu": "забывать",
+      "role": "focus"
+    },
+    {
+      "id": "a-ingredient",
+      "paragraphId": "p3",
+      "surface": "ingredient",
+      "occurrence": 1,
+      "lemma": "ingredient",
+      "glossRu": "ингредиент",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-why-guess",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Why did Maria have to rely on her memory?",
+      "options": ["She forgot her shopping list.", "She lost her phone.", "The store had no pen."],
+      "answer": "She forgot her shopping list."
+    },
+    {
+      "type": "exercise",
+      "id": "q-who-helped",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Who helped Maria remember the last ingredient?",
+      "options": ["Her mother, by phone.", "A store employee.", "Her neighbor."],
+      "answer": "Her mother, by phone."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "Maria couldn't remember if the recipe needed onions, so she had to ___ instead.",
+      "answer": "guess"
+    }
+  ]
+}
