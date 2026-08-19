@@ -63,7 +63,16 @@ export const blueprintSchema = z.object({
   notes: nonEmpty.optional(),
 });
 
+/**
+ * Reading order: catalog position is the tie-break in
+ * docs/plans/stories.md §5.3, after "yours" count. A story's level comes
+ * from the story file itself — the catalog does not repeat it, so the two
+ * can't drift apart.
+ */
+export const catalogSchema = z.array(nonEmpty).min(1);
+
 export type Paragraph = z.infer<typeof paragraphSchema>;
 export type Annotation = z.infer<typeof annotationSchema>;
 export type StoryFile = z.infer<typeof storyFileSchema>;
 export type Blueprint = z.infer<typeof blueprintSchema>;
+export type Catalog = z.infer<typeof catalogSchema>;

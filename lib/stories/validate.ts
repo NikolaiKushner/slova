@@ -55,7 +55,8 @@ export function validateStory(story: StoryFile): void {
   assertCloze(story);
 }
 
-function wordCount(story: StoryFile): number {
+/** Also used by `lib/stories/load.ts` to derive the catalog's word count. */
+export function storyWordCount(story: StoryFile): number {
   return story.paragraphs.reduce(
     (total, paragraph) =>
       total + paragraph.text.trim().split(/\s+/).filter(Boolean).length,
@@ -64,7 +65,7 @@ function wordCount(story: StoryFile): number {
 }
 
 function assertWordCount(story: StoryFile): void {
-  const count = wordCount(story);
+  const count = storyWordCount(story);
   if (count < MIN_WORDS || count > MAX_WORDS) {
     throw new StoryContentError(
       `${story.slug}: expected ${MIN_WORDS}-${MAX_WORDS} words, got ${count}.`,
