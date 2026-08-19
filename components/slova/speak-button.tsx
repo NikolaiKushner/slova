@@ -20,12 +20,15 @@ export function SpeakButton({
   normalUrl,
   slowUrl,
   disabled = false,
+  disabledLabel,
   className,
 }: {
   text: string;
   normalUrl?: string | null;
   slowUrl?: string | null;
   disabled?: boolean;
+  /** §16: "Word has no sound" — overrides both tooltips while `disabled`. */
+  disabledLabel?: string;
   className?: string;
 }) {
   const t = useTranslations("courses");
@@ -82,7 +85,7 @@ export function SpeakButton({
     >
       <SpeakControl
         mode="normal"
-        label={t("listenNormal")}
+        label={disabled && disabledLabel ? disabledLabel : t("listenNormal")}
         errorLabel={t("audioError")}
         playing={playing === "normal"}
         error={error === "normal"}
@@ -91,7 +94,7 @@ export function SpeakButton({
       />
       <SpeakControl
         mode="slow"
-        label={t("listenSlow")}
+        label={disabled && disabledLabel ? disabledLabel : t("listenSlow")}
         errorLabel={t("audioError")}
         playing={playing === "slow"}
         error={error === "slow"}

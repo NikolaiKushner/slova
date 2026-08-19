@@ -588,6 +588,27 @@
   }
 }
 
+/*
+ * §11's phase change (text replaced by questions, questions by summary):
+ * the incoming phase rises in over motion-page. There is no animation
+ * library in this app, so only the entrant is animated — the outgoing phase
+ * simply unmounts, the same simplification `.study-card` already makes.
+ */
+.story-phase-enter {
+  animation: story-phase-in var(--motion-page) var(--ease-emphasized);
+}
+
+@keyframes story-phase-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* The only motion on the landing: the caret in the “type the word” still. */
 .caret-blink {
   animation: caret-blink 1.1s steps(1, end) infinite;
