@@ -37,6 +37,7 @@
     "practice": "Практика",
     "trainings": "Тренировки",
     "grammar": "Грамматика",
+    "stories": "Истории",
     "reading": "Чтение",
     "courses": "Курсы",
     "topics": "Темы",
@@ -345,6 +346,7 @@
     "calendar": "Дни занятий",
     "wordsPractisedOnDay": "{count, plural, one {# слово повторено} few {# слова повторено} many {# слов повторено} other {# слова повторено}}",
     "lessonCompleted": "Урок пройден",
+    "storyRead": "История прочитана",
     "wordsPractisedTitle": "Практика слов",
     "wordsPractisedHint": "Слова, повторенные за последние 28 дней",
     "wordsPractisedEmpty": "Потренируйте несколько слов — здесь появятся последние 28 дней.",
@@ -627,6 +629,38 @@
     "taskTransform": "Преобразуйте предложение",
     "formCue": "форма слова"
   },
+  "stories": {
+    "eyebrow": "Истории",
+    "title": "Истории",
+    "description": "Короткие тексты из слов, которые вы учите.",
+    "continueReading": "Читать дальше",
+    "readButton": "Читать",
+    "allStories": "Все истории",
+    "finished": "Прочитанные",
+    "minutesShort": "~{minutes} мин",
+    "yourWordsCount": "{count, plural, one {# ваше слово} few {# ваших слова} many {# ваших слов} other {# ваших слов}}",
+    "newWordsCount": "{count, plural, one {# новое} few {# новых} many {# новых} other {# новых}}",
+    "openStory": "Открыть историю «{title}»",
+    "backToStories": "К историям",
+    "tapHint": "нажмите подчёркнутое слово, чтобы увидеть перевод",
+    "answerQuestions": "Ответить на вопросы",
+    "dictionaryAbsent": "Нет в словаре",
+    "dictionaryLearning": "Учите",
+    "dictionaryKnown": "В вашем словаре · выучено",
+    "addWord": "Добавить",
+    "wordAdded": "Добавлено",
+    "questionOf": "Вопрос {current} из {total}",
+    "summaryTitle": "История прочитана",
+    "summaryCaption": "Теперь можно потренировать слова из этой истории.",
+    "factQuestions": "Вопросы",
+    "factQuestionsValue": "{right} из {total}",
+    "factWordsInContext": "Слова в контексте",
+    "factAdded": "Добавлено",
+    "trainWords": "Тренировать эти слова",
+    "readAgain": "Прочитать снова",
+    "backToSummary": "К результату",
+    "addWordFailed": "Не удалось добавить. Попробуйте ещё раз."
+  },
   "dictionary": {
     "eyebrow": "Словарь",
     "myWordsTitle": "Мои слова",
@@ -760,16 +794,6 @@
         "Тот же планировщик, что и у словаря"
       ]
     },
-    "readingPractice": {
-      "eyebrow": "Практика",
-      "title": "Практика чтения",
-      "description": "Короткие тексты из слов, которые вы уже знаете, плюс несколько новых.",
-      "planned": [
-        "Тексты под ваш текущий словарь",
-        "Нажмите незнакомое слово, чтобы добавить его",
-        "Новые слова входят понемногу"
-      ]
-    },
     "topicCourses": {
       "eyebrow": "Курсы",
       "title": "Тематические курсы",
@@ -797,6 +821,7 @@
     "whichWord": "Какое слово?",
     "whichWords": "Какие слова?",
     "whichWordsWhere": "Какие слова и куда?",
+    "invalidAnnotation": "Некорректная аннотация",
     "invalidProgress": "Некорректный прогресс",
     "invalidUndo": "Некорректная отмена",
     "invalidReview": "Некорректная оценка",

@@ -30,6 +30,7 @@ model User {
   courses    UserCourse[]
   sittings   StudySitting[]
   reviewLogs ReviewLog[]
+  stories    StoryProgress[]
 }
 
 /// A login method attached to a User. Google stores the OAuth tokens here;
@@ -489,4 +490,26 @@ model LessonAttempt {
   lesson UserLesson @relation(fields: [userId, courseSlug, lessonSlug], references: [userId, courseSlug, lessonSlug], onDelete: Cascade)
 
   @@index([userId, courseSlug, lessonSlug])
+}
+
+/// A learner's place in one story — docs/plans/stories.md §5.4. Content
+/// lives in the repository, not here: this row references a story by slug
+/// with no foreign key, the same deliberate looseness `UserWord.lexemeId`
+/// has, so content can move without touching a single progress row.
+model StoryProgress {
+  id           String    @id @default(cuid())
+  userId       String
+  storySlug    String
+  /// Keyed by question id: { "q-main": { answer, correct, answeredAt } }
+  answers      Json
+  correctCount Int       @default(0)
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, storySlug])
+  @@index([userId, completedAt])
 }

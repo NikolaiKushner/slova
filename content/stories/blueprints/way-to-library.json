@@ -1,0 +1,8 @@
+{
+  "slug": "way-to-library",
+  "level": "A1",
+  "topic": "city",
+  "premise": "A student new to the city gets lost looking for the public library and has to stop a stranger on the street to ask for directions.",
+  "focusLemmas": ["lost", "direction", "stranger", "corner", "turn", "map"],
+  "notes": "Keep the directions themselves simple — one or two turns — so the exchange with the stranger, not the route, carries the story."
+}

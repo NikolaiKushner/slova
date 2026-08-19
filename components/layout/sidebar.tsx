@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bookmark,
+  BookOpenText,
   ChartNoAxesColumn,
   ChevronsUpDown,
   LibraryBig,
@@ -54,6 +55,7 @@ import { LocaleSwitcher } from "@/components/locale-switcher";
 const NAV_ICONS: Record<string, LucideIcon> = {
   "/practice": Repeat2,
   "/courses/grammar": PenLine,
+  "/stories": BookOpenText,
   "/progress": ChartNoAxesColumn,
   "/dictionary": LibraryBig,
   "/dictionary/sets": Bookmark,

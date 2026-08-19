@@ -1,0 +1,107 @@
+{
+  "slug": "rainy-weekend",
+  "schemaVersion": 1,
+  "level": "A1",
+  "topic": "leisure",
+  "blueprint": "rainy-weekend",
+  "title": "A Rainy Weekend",
+  "descriptionRu": "Дождь ломает планы Джека на выходные, но день всё равно проходит хорошо.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Jack had planned a weekend hike in the mountains with his two best friends. They had been talking about it for weeks, checking the weather forecast every day and packing their bags with excitement."
+    },
+    {
+      "id": "p2",
+      "text": "On Saturday morning, heavy rain started falling and did not stop. Jack felt disappointed as he watched the grey sky through the window, knowing the hike would have to be cancelled. His friends texted him, equally unhappy about the change of plans."
+    },
+    {
+      "id": "p3",
+      "text": "Instead of hiking, the three friends decided to spend the day indoors, playing board games and cooking a big lunch together in the small kitchen. By the evening, tired and full, Jack realized the day had turned out to be surprisingly fun, rain or no rain."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-planned",
+      "paragraphId": "p1",
+      "surface": "planned",
+      "occurrence": 1,
+      "lemma": "plan",
+      "glossRu": "планировать",
+      "role": "focus"
+    },
+    {
+      "id": "a-rain",
+      "paragraphId": "p2",
+      "surface": "rain",
+      "occurrence": 1,
+      "lemma": "rain",
+      "glossRu": "дождь",
+      "role": "focus"
+    },
+    {
+      "id": "a-cancelled",
+      "paragraphId": "p2",
+      "surface": "cancelled",
+      "occurrence": 1,
+      "lemma": "cancel",
+      "glossRu": "отменять",
+      "role": "focus"
+    },
+    {
+      "id": "a-disappointed",
+      "paragraphId": "p2",
+      "surface": "disappointed",
+      "occurrence": 1,
+      "lemma": "disappointed",
+      "glossRu": "разочарованный",
+      "role": "focus"
+    },
+    {
+      "id": "a-instead",
+      "paragraphId": "p3",
+      "surface": "Instead",
+      "occurrence": 1,
+      "lemma": "instead",
+      "glossRu": "вместо этого",
+      "role": "focus"
+    },
+    {
+      "id": "a-indoors",
+      "paragraphId": "p3",
+      "surface": "indoors",
+      "occurrence": 1,
+      "lemma": "indoor",
+      "glossRu": "в помещении",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-why-no-hike",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Why couldn't Jack and his friends go hiking?",
+      "options": ["Heavy rain started falling.", "One friend got sick.", "They lost the map."],
+      "answer": "Heavy rain started falling."
+    },
+    {
+      "type": "exercise",
+      "id": "q-how-weekend-ended",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How did the weekend end up, despite the rain?",
+      "options": ["Surprisingly fun.", "Boring and long.", "Very stressful."],
+      "answer": "Surprisingly fun."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "The hike was cancelled because of the heavy ___ that would not stop.",
+      "answer": "rain"
+    }
+  ]
+}

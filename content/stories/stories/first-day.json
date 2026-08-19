@@ -1,0 +1,107 @@
+{
+  "slug": "first-day",
+  "schemaVersion": 1,
+  "level": "A1",
+  "topic": "work",
+  "blueprint": "first-day",
+  "title": "The First Day",
+  "descriptionRu": "Лео нервничает в первый рабочий день, но коллеги помогают ему освоиться.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Leo felt nervous as he walked into the office for his first day. Everything looked new and unfamiliar, from the tall glass doors to the long rows of desks. He took a deep breath and reminded himself that everyone there had once been new too."
+    },
+    {
+      "id": "p2",
+      "text": "A friendly colleague named Sara came over and introduced herself with a warm smile. She showed him where to sit and explained where to find coffee and the printer. Leo relaxed a little, grateful that someone had taken the time to welcome him."
+    },
+    {
+      "id": "p3",
+      "text": "Later that morning, Leo joined his first team meeting and listened carefully, trying to remember every name. By lunchtime he was chatting with two more colleagues as if he had worked there for weeks. His first day, once so frightening, ended better than he expected."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-nervous",
+      "paragraphId": "p1",
+      "surface": "nervous",
+      "occurrence": 1,
+      "lemma": "nervous",
+      "glossRu": "нервный, взволнованный",
+      "role": "focus"
+    },
+    {
+      "id": "a-office",
+      "paragraphId": "p1",
+      "surface": "office",
+      "occurrence": 1,
+      "lemma": "office",
+      "glossRu": "офис",
+      "role": "focus"
+    },
+    {
+      "id": "a-colleague",
+      "paragraphId": "p2",
+      "surface": "colleague",
+      "occurrence": 1,
+      "lemma": "colleague",
+      "glossRu": "коллега",
+      "role": "focus"
+    },
+    {
+      "id": "a-introduced",
+      "paragraphId": "p2",
+      "surface": "introduced",
+      "occurrence": 1,
+      "lemma": "introduce",
+      "glossRu": "представляться",
+      "role": "focus"
+    },
+    {
+      "id": "a-welcome",
+      "paragraphId": "p2",
+      "surface": "welcome",
+      "occurrence": 1,
+      "lemma": "welcome",
+      "glossRu": "приветствовать",
+      "role": "focus"
+    },
+    {
+      "id": "a-meeting",
+      "paragraphId": "p3",
+      "surface": "meeting",
+      "occurrence": 1,
+      "lemma": "meeting",
+      "glossRu": "встреча, собрание",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-feeling",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How did Leo feel walking into the office?",
+      "options": ["Nervous.", "Excited only.", "Bored."],
+      "answer": "Nervous."
+    },
+    {
+      "type": "exercise",
+      "id": "q-who-introduced",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Who introduced herself to Leo?",
+      "options": ["Sara, a colleague.", "His manager.", "The receptionist."],
+      "answer": "Sara, a colleague."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "Sara helped Leo feel ___ on his very first day.",
+      "answer": "welcome"
+    }
+  ]
+}

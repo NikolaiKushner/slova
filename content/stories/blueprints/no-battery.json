@@ -1,0 +1,8 @@
+{
+  "slug": "no-battery",
+  "level": "A2",
+  "topic": "daily-life",
+  "premise": "Priya's phone battery dies while she is out running errands, leaving her without a map or a way to contact anyone she was meeting.",
+  "focusLemmas": ["battery", "die", "errand", "contact", "charge", "borrow", "worry"],
+  "notes": "A2, so let one errand go slightly wrong because of the dead phone before she finds a way to charge it or borrow one — a small chain of consequences, not just the inconvenience."
+}

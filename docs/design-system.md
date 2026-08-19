@@ -138,6 +138,7 @@ The document's base size is `16px`. All sizes in `rem`. Three steps: desktop (`�
 | `h3` | Literata | 500 | 22 | 21 | 20 | 1.20 | −0.005em | Card heading, lesson title |
 | `h4` | Literata | 500 | 18 | 18 | 17 | 1.30 | 0 | List row (word, lesson) |
 | `lead` | Inter | 400 | 18 | 18 | 17 | 1.55 | 0 | Subtitle under h1 |
+| `story` | Literata | 400 | 18 | 18 | 17 | 1.70 | 0 | Story paragraphs — the only continuous reading surface |
 | `body` | Inter | 400 | 16 | 16 | 16 | 1.60 | 0 | Body text, answer options |
 | `body-sm` | Inter | 400 | 15 | 15 | 15 | 1.50 | 0 | Dense lists, table cells, navigation |
 | `caption` | Inter | 400 | 13 | 13 | 13 | 1.45 | 0 | Captions, metadata, key hints |
@@ -411,7 +412,7 @@ The sidebar is `position: sticky; top: 0; height: 100dvh`. Use `dvh`, not `vh`: 
 
 | Token | Maximum | Where |
 |---|---|---|
-| `container-prose` | 700px | Lesson rule, legal pages |
+| `container-prose` | 700px | Lesson rule, legal pages, story reader |
 | `container-list` | 780px | My words, lesson list, catalog |
 | `container-wide` | 840px | Practice |
 | `container-dashboard` | 1040px | Progress compositional grid only |
@@ -487,6 +488,8 @@ For every interactive element all states from the list must be defined. A missin
 | `read-only` | Background `muted`, border `border`, normal cursor |
 
 **About the disabled primary button.** Currently in the product the disabled green button looks like a slightly faded active one — people press it. A disabled button must be **gray**, not pale green.
+
+**Cursor.** Every interactive element — button, link, anything with `role="button"` — shows `cursor: pointer` by default. Tailwind's Preflight stopped forcing this on buttons in v3.3 to match the native default, which otherwise leaves every button reading as inert. `disabled` / `aria-disabled` keep the browser's `not-allowed`, per the row above. Listbox-style items (menu, select, command) are the deliberate exception and keep `cursor: default` — hover highlighting already carries the affordance there, matching the native control they stand in for.
 
 ---
 
@@ -586,7 +589,7 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 | Pagination | `Pagination` | |
 | Course progress bar | `Progress` | Height 5px, `radius-full` |
 | Memory forecast on `/progress` | `Progress` | Same track; hide until ≥ 20 words with `stability` |
-| Study calendar | `Calendar` | Display only, intrinsic `w-fit`. Cells 32px compact / ≤36px wide. A studied day is a green dot, not a filled cell. Never `w-full`. `timeZone` is the `tz` cookie. `onSelect` does not navigate. Tooltip and accessible name: date + “N words practised” and/or “Lesson completed”. |
+| Study calendar | `Calendar` | Display only, stretches to fill its card (flex `justify-between` per week, not intrinsic `w-fit` — a fixed-width calendar in a wide tablet column read as squeezed into a corner). Cells 32px compact / ≤36px wide, `rounded-(--cell-radius)` set explicitly on a studied day (day-picker only rounds a corner for its own range/selected state, which this manual paint never triggers — without it, consecutive studied days read as one merged bar). A studied day is a filled cell in `data-learning`. Card carries no height cap — a 6-week month needs more room than a 5-week one; capping it clips the last row. `timeZone` is the `tz` cookie. `onSelect` does not navigate. Tooltip and accessible name: date + “N words practised” and/or “Lesson completed” and/or “Story read”. |
 | Words practised, 28 days | `Chart` `BarChart` | `ChartContainer` / `ChartTooltip`. Fill `--chart-1` (learned). Short chart (~180–220px). Not pie. |
 | Divider | `Separator` | |
 | Mobile sidebar | `Sheet side="left"` | |
@@ -603,6 +606,11 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 | «где ошибаются» callout | `Alert` | Custom `warning` variant |
 | Session size toggle (6/10/15) | `ToggleGroup type="single"` | |
 | Auth forms | `Form` + `react-hook-form` + `zod` | |
+
+**Every `Popover` keeps `min-w-[200px]`** (set once on `PopoverContent`, not per
+usage) — short content (a single word, one line of gloss) must not collapse
+the panel into a narrow strip. A caller can still cap the top with its own
+`max-w-*`, as the story gloss popover does at 300px.
 
 ### Button variants — exact sizes
 
@@ -717,7 +725,7 @@ Word form: monospace `token`, background `neutral-150`, `radius-sm`, padding 1.5
 └────────────┴──────────────────────────────────────┘
 ```
 
-**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`, **Мой прогресс**) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. **Мой прогресс** (`/progress`, `chart-no-axes-column`) is the third Study item and owns its active state; it is not in the account menu. The account menu keeps language and sign-out. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
+**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`, **Истории**, **Мой прогресс**) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. **Истории** (`/stories`, `book-open-text`) is the third Study item; **Мой прогресс** (`/progress`, `chart-no-axes-column`) is the fourth. Both own their active state; neither is in the account menu. The account menu keeps language and sign-out. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
 
 ### 15.2 Focus mode (practice, brainstorm, lesson)
 
@@ -758,7 +766,7 @@ Container 700. Top bar with `ProgressSteps` and «Урок N из M · ~T мин
 
 ### 15.7 Progress (`/progress`)
 
-Container `container-dashboard` (1040). The wider width is only for this grid; list and lesson containers stay as they are. Entry: third item in Study, after Trainings and Grammar. `/tasks/progress` redirects here.
+Container `container-dashboard` (1040). The wider width is only for this grid; list and lesson containers stay as they are. Entry: fourth item in Study, after Trainings, Grammar and Stories. `/tasks/progress` redirects here.
 
 Order: `PageHeader` (eyebrow «Прогресс», title «Ваш прогресс» — never the learner’s name; one quiet subtitle that describes the page; 24px gap to content on desktop, 20px on mobile) → if the dictionary is empty: `Empty` + «Добавить слова», mention that grammar will appear later, no grid of zeros → otherwise a compact grid (`gap-4`, card `p-4`):
 
@@ -767,6 +775,16 @@ Order: `PageHeader` (eyebrow «Прогресс», title «Ваш прогрес
 3. Two list cards: Grammar (up to three course rows with a thin `Progress`, in-progress before completed, then most recently started; «View all grammar» if more exist) and Needs attention (up to five words by lapses, English + count). Each hides when empty. Until a stable word-detail route exists, rows are not links; one footer goes to My words. No blank grid cells.
 
 Metric tiles are allowed on this screen only. Do not draw hours, weekly stacked bars, a 1500 ring, hex badges, or pie/donut. Sitting minutes are written to Postgres; they appear here only after a later batch, once ≥ 14 days of sittings exist. A single training may still show its own minutes on the summary screen (client).
+
+### 15.8 Stories (`/stories`, `/stories/[slug]`)
+
+The one screen in the app that is a reading surface, not a list, a form, or one question at a time. Full spec: `docs/plans/stories.md` §6.
+
+**Catalog** (`/stories`) — container `container-list` (780), same shell as My words: `PageHeader` → one `LessonRow kind="next"` card for the story to read next (level · minutes · word counts, `Button size="lg"` «Читать») → «Все истории» as divided rows (level chip, Literata `h4` title, `text-caption` description, minutes, chevron) → «Прочитанные» as a collapsed `Accordion` with a count in the trigger. Rows, not cards — a card per story repeats the failure §15.7 already ruled out.
+
+**Reader** (`/stories/[slug]`) — container `container-prose` (700). Phase 1, reading: paragraphs in `text-story`, annotated words underlined (2px, `green-400`, 3px offset, `text-decoration-skip-ink: auto` — never a filled background), sticky bottom bar with «Ответить на вопросы». A tap opens a `Popover` gloss: surface + base form (`<Token>`, only when it differs), `SpeakButton`, the contextual gloss, dictionary state, an add action. Phase 2, questions: the text is replaced, not pushed down (`motion-page`, §11); `ProgressSteps` in the top bar; `OptionButton`/`OptionList` via `GrammarQuestion`, one column, no re-read control. Phase 3, summary: three facts in a row (not `MetricTile` — §15.7 confines those to `/progress`), primary action to `/practice`.
+
+No cover art, reading-time ring, per-word difficulty colouring, or second accent for new-vs-learning words (§20).
 
 ---
 

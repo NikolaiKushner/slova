@@ -1,0 +1,8 @@
+{
+  "slug": "rainy-weekend",
+  "level": "A1",
+  "topic": "leisure",
+  "premise": "Jack planned an outdoor weekend with friends, but heavy rain forces them to change their plans at the last minute.",
+  "focusLemmas": ["plan", "rain", "cancel", "indoor", "disappointed", "instead"],
+  "notes": "The indoor alternative should turn out fine by the end — the story is a small mood shift from disappointed to content, not a ruined weekend."
+}

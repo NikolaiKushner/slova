@@ -400,6 +400,20 @@
 
   button, [role="button"], a { touch-action: manipulation; }
 
+  /*
+   * Tailwind's Preflight stopped forcing `cursor: pointer` on buttons in
+   * v3.3, to match the native default — which leaves every button reading
+   * as inert. `:disabled`/`aria-disabled` keep the browser's `not-allowed`
+   * (§10's `disabled` row); a deliberate `cursor-*` utility elsewhere
+   * (listbox items, `not-allowed` on a disabled control) still wins, since
+   * utilities are a later layer than this one.
+   */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href] {
+    cursor: pointer;
+  }
+
   ::selection { background: var(--accent); color: var(--accent-foreground); }
 }
 
@@ -433,6 +447,11 @@
     font-variation-settings: "opsz" 20;
   }
   .text-lead     { font-size: 1.125rem; line-height: 1.55; }
+  .text-story {
+    font-family: var(--font-display);
+    font-size: 1.125rem; line-height: 1.70; font-weight: 400;
+    font-variation-settings: "opsz" 20;
+  }
   .text-body     { font-size: 1rem;     line-height: 1.60; }
   .text-body-sm  { font-size: 0.9375rem;line-height: 1.50; }
   .text-caption  { font-size: 0.8125rem;line-height: 1.45; }
@@ -497,6 +516,7 @@
   .text-h3      { font-size: 1.25rem; }
   .text-h4      { font-size: 1.0625rem; }
   .text-lead    { font-size: 1.0625rem; }
+  .text-story   { font-size: 1.0625rem; }
   .text-numeral { font-size: 1.75rem; }
 }
 
@@ -575,6 +595,27 @@
   from {
     opacity: 0;
     transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * §11's phase change (text replaced by questions, questions by summary):
+ * the incoming phase rises in over motion-page. There is no animation
+ * library in this app, so only the entrant is animated — the outgoing phase
+ * simply unmounts, the same simplification `.study-card` already makes.
+ */
+.story-phase-enter {
+  animation: story-phase-in var(--motion-page) var(--ease-emphasized);
+}
+
+@keyframes story-phase-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;

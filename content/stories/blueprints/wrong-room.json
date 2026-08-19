@@ -1,0 +1,8 @@
+{
+  "slug": "wrong-room",
+  "level": "A2",
+  "topic": "travel",
+  "premise": "David checks into a hotel late at night and discovers his key card opens someone else's room by mistake, and has to go back down to reception to sort it out.",
+  "focusLemmas": ["check in", "mistake", "key card", "reception", "embarrassed", "correct"],
+  "notes": "A2, so the mistake can involve a brief, mildly embarrassing moment at the wrong door before reception fixes it — resolved calmly, no real conflict."
+}

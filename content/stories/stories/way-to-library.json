@@ -1,0 +1,107 @@
+{
+  "slug": "way-to-library",
+  "schemaVersion": 1,
+  "level": "A1",
+  "topic": "city",
+  "blueprint": "way-to-library",
+  "title": "The Way to the Library",
+  "descriptionRu": "Бен теряется в новом городе и просит незнакомку показать дорогу.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Ben had just moved to the city and wanted to find the public library to get a study card. He left his new flat with only a phone and no real plan, sure he could find it easily. After ten minutes he realized he was completely lost."
+    },
+    {
+      "id": "p2",
+      "text": "Standing on a busy corner, Ben pulled out his phone, but there was no signal for a map. He decided to ask a stranger for help instead. A kind older woman stopped, smiled, and listened patiently to his question about the library."
+    },
+    {
+      "id": "p3",
+      "text": "She gave him clear directions: turn left at the bakery, then walk straight until the second corner. Ben thanked her and followed every direction carefully. Ten minutes later, he saw the library's tall windows and felt proud of himself for finding it alone."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-lost",
+      "paragraphId": "p1",
+      "surface": "lost",
+      "occurrence": 1,
+      "lemma": "lost",
+      "glossRu": "потерявшийся",
+      "role": "focus"
+    },
+    {
+      "id": "a-corner",
+      "paragraphId": "p2",
+      "surface": "corner",
+      "occurrence": 1,
+      "lemma": "corner",
+      "glossRu": "угол",
+      "role": "focus"
+    },
+    {
+      "id": "a-map",
+      "paragraphId": "p2",
+      "surface": "map",
+      "occurrence": 1,
+      "lemma": "map",
+      "glossRu": "карта",
+      "role": "focus"
+    },
+    {
+      "id": "a-stranger",
+      "paragraphId": "p2",
+      "surface": "stranger",
+      "occurrence": 1,
+      "lemma": "stranger",
+      "glossRu": "незнакомец",
+      "role": "focus"
+    },
+    {
+      "id": "a-directions",
+      "paragraphId": "p3",
+      "surface": "directions",
+      "occurrence": 1,
+      "lemma": "direction",
+      "glossRu": "направление",
+      "role": "focus"
+    },
+    {
+      "id": "a-turn",
+      "paragraphId": "p3",
+      "surface": "turn",
+      "occurrence": 1,
+      "lemma": "turn",
+      "glossRu": "поворачивать",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-why-phone",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Why couldn't Ben use his phone to find the way?",
+      "options": ["It had no signal.", "The battery was dead.", "He forgot the address."],
+      "answer": "It had no signal."
+    },
+    {
+      "type": "exercise",
+      "id": "q-how-found",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How did Ben find the library in the end?",
+      "options": ["A stranger gave him directions.", "He called a friend.", "He used a paper map."],
+      "answer": "A stranger gave him directions."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "Ben had to ask a ___ because his phone had no signal for a map.",
+      "answer": "stranger"
+    }
+  ]
+}

@@ -37,6 +37,7 @@
     "practice": "Practice",
     "trainings": "Trainings",
     "grammar": "Grammar",
+    "stories": "Stories",
     "reading": "Reading",
     "courses": "Courses",
     "topics": "Topics",
@@ -345,6 +346,7 @@
     "calendar": "Study days",
     "wordsPractisedOnDay": "{count, plural, one {# word practised} other {# words practised}}",
     "lessonCompleted": "Lesson completed",
+    "storyRead": "Story read",
     "wordsPractisedTitle": "Word practice",
     "wordsPractisedHint": "Words practised over the last 28 days",
     "wordsPractisedEmpty": "Practise a few words and the last 28 days will fill in here.",
@@ -627,6 +629,38 @@
     "taskTransform": "Change the sentence",
     "formCue": "form of"
   },
+  "stories": {
+    "eyebrow": "Stories",
+    "title": "Stories",
+    "description": "Short texts built from the words you're learning.",
+    "continueReading": "Continue reading",
+    "readButton": "Read",
+    "allStories": "All stories",
+    "finished": "Finished",
+    "minutesShort": "~{minutes} min",
+    "yourWordsCount": "{count, plural, one {# word you're learning} other {# words you're learning}}",
+    "newWordsCount": "{count, plural, one {# new} other {# new}}",
+    "openStory": "Open the story {title}",
+    "backToStories": "Back to stories",
+    "tapHint": "tap an underlined word to see what it means",
+    "answerQuestions": "Answer the questions",
+    "dictionaryAbsent": "Not in your dictionary",
+    "dictionaryLearning": "Learning",
+    "dictionaryKnown": "In your dictionary · learned",
+    "addWord": "Add",
+    "wordAdded": "Added",
+    "questionOf": "Question {current} of {total}",
+    "summaryTitle": "Story read",
+    "summaryCaption": "Now practice the words from this story.",
+    "factQuestions": "Questions",
+    "factQuestionsValue": "{right} of {total}",
+    "factWordsInContext": "Words in context",
+    "factAdded": "Added",
+    "trainWords": "Practice these words",
+    "readAgain": "Read again",
+    "backToSummary": "Back to results",
+    "addWordFailed": "Couldn't add the word. Try again."
+  },
   "dictionary": {
     "eyebrow": "Dictionary",
     "myWordsTitle": "My words",
@@ -760,16 +794,6 @@
         "Built from the same review schedule as vocabulary"
       ]
     },
-    "readingPractice": {
-      "eyebrow": "Practice",
-      "title": "Reading practice",
-      "description": "Short texts built from words you already know, plus a few you don't.",
-      "planned": [
-        "Texts sized to your current vocabulary",
-        "Tap an unknown word to add it to your dictionary",
-        "New words are introduced a few at a time"
-      ]
-    },
     "topicCourses": {
       "eyebrow": "Courses",
       "title": "Topic courses",
@@ -797,6 +821,7 @@
     "whichWord": "Which word?",
     "whichWords": "Which words?",
     "whichWordsWhere": "Which words, and where?",
+    "invalidAnnotation": "Invalid annotation",
     "invalidProgress": "Invalid progress",
     "invalidUndo": "Invalid undo",
     "invalidReview": "Invalid review",

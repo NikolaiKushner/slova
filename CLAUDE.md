@@ -9,8 +9,16 @@ there directly.
 
 - Create a branch, and keep committing to it across several changes — it is a
   staging area for a batch of work, not one commit per branch.
+- Name every feature branch `feat/<slug>` (e.g. `feat/stories`). Non-feature
+  work (a fix, a chore) may use its own prefix, but a feature branch is always
+  `feat/`.
 - Verify locally before merging: `npm test`, and a production build if anything
   touched the build, schema or environment.
+- **Do not commit before the maintainer has reviewed the change.** Passing
+  tests are necessary, not sufficient — present the diff and wait for the
+  maintainer to check the implementation themselves before it goes into a
+  commit. This applies per logical unit of work, not just before merging to
+  `main`.
 - Merge to `main` when the batch is genuinely ready to ship, and ask first
   unless the maintainer already said to go.
 - Branches do not get preview deploys until Preview has an isolated Neon

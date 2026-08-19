@@ -1,0 +1,107 @@
+{
+  "slug": "wrong-coffee",
+  "schemaVersion": 1,
+  "level": "A1",
+  "topic": "daily-life",
+  "blueprint": "wrong-coffee",
+  "title": "The Wrong Cup",
+  "descriptionRu": "Тому в кафе дают не тот кофе, и он это исправляет.",
+  "paragraphs": [
+    {
+      "id": "p1",
+      "text": "Tom stopped at his favorite café before work to order a large black coffee. The café was busy, and a long line stretched almost to the door. He waited patiently, checking his watch every few minutes because his break was short."
+    },
+    {
+      "id": "p2",
+      "text": "When his name was finally called, Tom grabbed the cup from the counter and hurried outside. After a few steps he took a sip and stopped in surprise — it was sweet, milky, and definitely not his order. Someone had made a mistake with the cups."
+    },
+    {
+      "id": "p3",
+      "text": "Tom walked back inside and explained politely what had happened. The barista apologized and quickly made a new cup, this time black and strong. Tom thanked her, checked his watch again, and rushed off to work with coffee in hand."
+    }
+  ],
+  "annotations": [
+    {
+      "id": "a-order",
+      "paragraphId": "p1",
+      "surface": "order",
+      "occurrence": 1,
+      "lemma": "order",
+      "glossRu": "заказывать",
+      "role": "focus"
+    },
+    {
+      "id": "a-busy",
+      "paragraphId": "p1",
+      "surface": "busy",
+      "occurrence": 1,
+      "lemma": "busy",
+      "glossRu": "занятый, оживлённый",
+      "role": "focus"
+    },
+    {
+      "id": "a-waited",
+      "paragraphId": "p1",
+      "surface": "waited",
+      "occurrence": 1,
+      "lemma": "wait",
+      "glossRu": "ждать",
+      "role": "focus"
+    },
+    {
+      "id": "a-cup",
+      "paragraphId": "p2",
+      "surface": "cup",
+      "occurrence": 1,
+      "lemma": "cup",
+      "glossRu": "чашка",
+      "role": "focus"
+    },
+    {
+      "id": "a-mistake",
+      "paragraphId": "p2",
+      "surface": "mistake",
+      "occurrence": 1,
+      "lemma": "mistake",
+      "glossRu": "ошибка",
+      "role": "focus"
+    },
+    {
+      "id": "a-apologized",
+      "paragraphId": "p3",
+      "surface": "apologized",
+      "occurrence": 1,
+      "lemma": "apologize",
+      "glossRu": "извиняться",
+      "role": "focus"
+    }
+  ],
+  "questions": [
+    {
+      "type": "exercise",
+      "id": "q-why-back",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "Why did Tom go back inside the café?",
+      "options": ["He got the wrong cup.", "He forgot his wallet.", "He wanted a receipt."],
+      "answer": "He got the wrong cup."
+    },
+    {
+      "type": "exercise",
+      "id": "q-barista-reaction",
+      "ruleId": "story",
+      "kind": "choice",
+      "prompt": "How did the barista react to the mistake?",
+      "options": ["She apologized and fixed it.", "She argued with Tom.", "She ignored him."],
+      "answer": "She apologized and fixed it."
+    },
+    {
+      "type": "exercise",
+      "id": "q-cloze",
+      "ruleId": "story",
+      "kind": "gap",
+      "prompt": "The café was so ___ that Tom had to wait in a long line.",
+      "answer": "busy"
+    }
+  ]
+}

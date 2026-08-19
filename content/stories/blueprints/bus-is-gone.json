@@ -1,0 +1,8 @@
+{
+  "slug": "bus-is-gone",
+  "level": "A1",
+  "topic": "transport",
+  "premise": "Emma runs to the bus stop but arrives just as the bus pulls away without her, and she has to decide what to do next.",
+  "focusLemmas": ["miss", "run", "pull away", "wait", "next", "annoyed"],
+  "notes": "Resolve it plainly — she waits for the next bus, or calls someone — no drama beyond the frustration of missing it by seconds."
+}
