@@ -740,9 +740,13 @@ A separate shell. Required elements:
 
 ### 15.3 Landing
 
-Container 1120. Block order: header → hero (text on the left + mockup on the right, top-aligned) → numbers bar → four features → «Словарь» section → «Практика» section → «Курсы» section → dark CTA bar (`inverse-surface`) + footer inside it.
+Container 1120. Block order: header → hero (text on the left + Trainings mockup on the right, top-aligned) → numbers bar → four-step lifecycle → «Словарь» section → «Практика» section → «Истории» section → «Грамматика» section → dark CTA bar (`inverse-surface`) + footer inside it.
 
-Requirements: at least one block with an inverted background; the last button no weaker than the first; each mockup differs in framing from the neighboring one.
+Словарь → Практика → Истории is one continuous vocabulary narrative; Грамматика is the parallel branch before the close. Only one block has an inverted background — the closing bar. Window chrome appears once, in the hero; every later still is `chrome="panel"`.
+
+Requirements: the last button no weaker than the first; each mockup differs in framing from the neighboring one.
+
+**Stills must not invent a product.** A decorative still renders live data or nothing: the shell's navigation comes from `NAV_SECTIONS` and is highlighted by href, never by a second list of sections or a historical screen name; the story preview comes from `loadMarketingStoryStill()`, which goes through the real loader and segment builder. Do not write English, a translation, or a learner count into marketing JSX — an anonymous visitor has no words, and a fabricated «12 слов готовы» is how the landing came to advertise a screen that had been deleted. Stills stay `aria-hidden` with pointer events off, so pseudo-controls take no `tabIndex`, button semantics, or handlers.
 
 ### 15.4 My words
 
