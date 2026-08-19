@@ -9,6 +9,9 @@ there directly.
 
 - Create a branch, and keep committing to it across several changes — it is a
   staging area for a batch of work, not one commit per branch.
+- Name every feature branch `feat/<slug>` (e.g. `feat/stories`). Non-feature
+  work (a fix, a chore) may use its own prefix, but a feature branch is always
+  `feat/`.
 - Verify locally before merging: `npm test`, and a production build if anything
   touched the build, schema or environment.
 - Merge to `main` when the batch is genuinely ready to ship, and ask first
