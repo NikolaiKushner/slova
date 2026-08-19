@@ -1,4 +1,4 @@
-import { BookOpen, CalendarCheck, ListPlus, Repeat } from "lucide-react";
+import { BookOpenText, CalendarCheck, ListPlus, Repeat } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -6,16 +6,18 @@ import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { SIGNED_IN_HOME } from "@/lib/auth.config";
 import { TRAININGS } from "@/lib/practice/catalog";
+import { loadMarketingStoryStill } from "@/lib/stories/marketing";
 import { redirect } from "next/navigation";
 import {
-  CourseScreen,
   DictionaryScreen,
+  GrammarCourseStill,
   PracticeAudioStill,
   PracticeChoiceStill,
   PracticeTypingStill,
   ProductFrame,
   ProductPanel,
-  TodayScreen,
+  StoryReaderStill,
+  TrainingsOverviewStill,
 } from "@/components/product-frame";
 import { MARKETING, SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { Eyebrow } from "@/components/slova/eyebrow";
@@ -23,14 +25,23 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/**
+ * The lifecycle, not a feature index: add words, practise them, meet them in a
+ * text, get them back on schedule. Grammar is the parallel branch and has its
+ * own section rather than a quarter of this rail.
+ */
 const STEPS: {
   icon: LucideIcon;
-  title: "stepPasteTitle" | "stepStudyTitle" | "stepRuleTitle" | "stepDueTitle";
-  body: "stepPasteBody" | "stepStudyBody" | "stepRuleBody" | "stepDueBody";
+  title:
+    | "stepPasteTitle"
+    | "stepStudyTitle"
+    | "stepContextTitle"
+    | "stepDueTitle";
+  body: "stepPasteBody" | "stepStudyBody" | "stepContextBody" | "stepDueBody";
 }[] = [
   { icon: ListPlus, title: "stepPasteTitle", body: "stepPasteBody" },
   { icon: Repeat, title: "stepStudyTitle", body: "stepStudyBody" },
-  { icon: BookOpen, title: "stepRuleTitle", body: "stepRuleBody" },
+  { icon: BookOpenText, title: "stepContextTitle", body: "stepContextBody" },
   { icon: CalendarCheck, title: "stepDueTitle", body: "stepDueBody" },
 ];
 
@@ -94,6 +105,7 @@ export default async function LandingPage() {
 
   const t = await getTranslations("landing");
   const trainings = await getTranslations("trainings");
+  const story = loadMarketingStoryStill();
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
@@ -134,8 +146,8 @@ export default async function LandingPage() {
           />
         </div>
 
-        <ProductFrame>
-          <TodayScreen />
+        <ProductFrame activeHref="/practice">
+          <TrainingsOverviewStill />
         </ProductFrame>
       </section>
 
@@ -209,7 +221,9 @@ export default async function LandingPage() {
       <section className={cn(MARKETING, BAND)}>
         <div className="max-w-[52ch]">
           <Eyebrow>{t("practiceEyebrow")}</Eyebrow>
-          <h2 className="text-h2">{t("practiceTitle")}</h2>
+          <h2 className="text-h2">
+            {t("practiceTitle", { count: TRAININGS.length })}
+          </h2>
           <p className="text-lead mt-4 text-foreground/80">{t("practiceBody")}</p>
         </div>
         <ul className="mt-6 flex flex-wrap gap-2">
@@ -238,19 +252,42 @@ export default async function LandingPage() {
         className={cn(
           MARKETING,
           BAND,
+          "grid items-start gap-12 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:gap-16",
+        )}
+      >
+        <div>
+          <Eyebrow>{t("storiesEyebrow")}</Eyebrow>
+          <h2 className="text-h2">{t("storiesTitle")}</h2>
+          <p className="text-lead mt-4 max-w-[44ch] text-foreground/80">
+            {t("storiesBody")}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Chip on>{t("storiesPillContext")}</Chip>
+            <Chip>{t("storiesPillQuestions")}</Chip>
+          </div>
+        </div>
+        <ProductFrame chrome="panel">
+          <StoryReaderStill story={story} />
+        </ProductFrame>
+      </section>
+
+      <section
+        className={cn(
+          MARKETING,
+          BAND,
           "grid items-start gap-12 lg:grid-cols-[minmax(0,1.14fr)_minmax(0,0.86fr)] lg:gap-16",
         )}
       >
         <div className="order-2 lg:order-1">
-          <ProductFrame chrome="panel" active="courses">
-            <CourseScreen />
+          <ProductFrame chrome="panel">
+            <GrammarCourseStill />
           </ProductFrame>
         </div>
         <div className="order-1 lg:order-2">
-          <Eyebrow>{t("coursesEyebrow")}</Eyebrow>
-          <h2 className="text-h2">{t("coursesTitle")}</h2>
+          <Eyebrow>{t("grammarEyebrow")}</Eyebrow>
+          <h2 className="text-h2">{t("grammarTitle")}</h2>
           <p className="text-lead mt-4 max-w-[44ch] text-foreground/80">
-            {t("coursesBody")}
+            {t("grammarBody")}
           </p>
         </div>
       </section>

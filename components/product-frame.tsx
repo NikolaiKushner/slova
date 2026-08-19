@@ -1,7 +1,9 @@
-import { Volume2 } from "lucide-react";
+import { RotateCcw, Sparkles, Volume2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { BrandWordmark } from "@/components/brand-mark";
+import { NAV_SECTIONS, type NavItem } from "@/lib/nav";
+import type { MarketingStoryStill } from "@/lib/stories/marketing";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,18 +13,23 @@ import { cn } from "@/lib/utils";
  *
  * `window` is the whole shell (sidebar included) — once, in the hero.
  * `panel` crops to the content column so later stills can be larger.
+ *
+ * The sidebar reads `NAV_SECTIONS`, the same list the real one does. Shared
+ * tokens were not enough: the mockup kept its own sections and advertised a
+ * Today screen for months after the route was removed. There is one navigation
+ * model, and a still that disagrees with it will not compile.
  */
 export function ProductFrame({
   children,
   className,
   compact = false,
-  active = "today",
+  activeHref = "/practice",
   chrome = "window",
 }: {
   children: React.ReactNode;
   className?: string;
   compact?: boolean;
-  active?: "today" | "courses";
+  activeHref?: NavItem["href"];
   chrome?: "window" | "panel";
 }) {
   const t = useTranslations("nav");
@@ -43,42 +50,26 @@ export function ProductFrame({
       <div className="flex bg-card">
         {chrome === "window" ? (
           <aside className="hidden w-[150px] shrink-0 border-r border-border-subtle bg-card p-2.5 sm:block">
-            <p className="text-overline text-muted-foreground px-2">{t("tasks")}</p>
-            <p
-              className={cn(
-                "rounded-sm px-2 py-1.5 text-sm",
-                active === "today"
-                  ? "bg-secondary font-medium text-foreground"
-                  : "text-foreground/80",
-              )}
-            >
-              {t("today")}
-            </p>
-            <p className="text-overline text-muted-foreground mt-3 px-2">
-              {t("practice")}
-            </p>
-            <p className="px-2 py-1.5 text-sm text-foreground/80">
-              {t("trainings")}
-            </p>
-            <p className="text-overline text-muted-foreground mt-3 px-2">
-              {t("courses")}
-            </p>
-            <p
-              className={cn(
-                "rounded-sm px-2 py-1.5 text-sm",
-                active === "courses"
-                  ? "bg-secondary font-medium text-foreground"
-                  : "text-foreground/80",
-              )}
-            >
-              {t("grammar")}
-            </p>
-            <p className="text-overline text-muted-foreground mt-3 px-2">
-              {t("dictionary")}
-            </p>
-            <p className="px-2 py-1.5 text-sm text-foreground/80">
-              {t("myWords")}
-            </p>
+            {NAV_SECTIONS.map((section) => (
+              <section key={section.titleKey} className="mt-3 first:mt-0">
+                <p className="text-overline text-muted-foreground px-2">
+                  {t(section.titleKey)}
+                </p>
+                {section.items.map((item) => (
+                  <p
+                    key={item.href}
+                    className={cn(
+                      "rounded-sm px-2 py-1 text-sm",
+                      item.href === activeHref
+                        ? "bg-secondary font-medium text-foreground"
+                        : "text-foreground/80",
+                    )}
+                  >
+                    {t(item.titleKey)}
+                  </p>
+                ))}
+              </section>
+            ))}
           </aside>
         ) : null}
         <div
@@ -126,38 +117,139 @@ export function ProductPanel({
   );
 }
 
-export function TodayScreen() {
-  const t = useTranslations("product");
+/**
+ * The top of the real Trainings page, which is where signing in lands you.
+ *
+ * Not an embedded `PracticePage`: that one is a client component that fetches
+ * counts and navigates. This is the same information in the same order, with
+ * the numbers left out — an anonymous visitor has no due words, and inventing
+ * "12 due" would be the same fiction the Today still used to tell.
+ */
+export function TrainingsOverviewStill() {
+  const t = useTranslations("practice");
+  const trainings = useTranslations("trainings");
+
   return (
     <div>
-      <p className="text-overline text-muted-foreground">{t("todayEyebrow")}</p>
-      <p className="text-h2 mt-2">{t("todayTitle")}</p>
-      <p className="text-caption mt-1.5 text-muted-foreground">{t("todayBody")}</p>
-      <p className="text-overline text-muted-foreground mt-5">{t("yourWords")}</p>
-      <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-border">
-        <span className="bg-data-learned h-full w-[35%]" />
-        <span className="bg-data-learning h-full w-[40%]" />
+      <p className="text-overline text-muted-foreground">{t("eyebrow")}</p>
+      <p className="text-h2 mt-2">{t("title")}</p>
+
+      {/* The real bar carries a Change control; a still that cannot be changed
+          should not draw one. What it is studying is the part that matters. */}
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 rounded-lg border border-border bg-card px-3.5 py-2.5">
+        <span className="text-caption text-muted-foreground">{t("studying")}</span>
+        <span className="text-sm font-medium">{t("state_due")}</span>
       </div>
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-        <span className="flex items-center gap-1.5">
-          <span className="bg-data-learned size-1.5 rounded-full" />
-          <span className="font-semibold">14</span>
-          <span className="text-foreground/80">{t("learned")}</span>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="bg-data-learning size-1.5 rounded-full" />
-          <span className="font-semibold">16</span>
-          <span className="text-foreground/80">{t("learning")}</span>
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="bg-data-untouched size-1.5 rounded-full" />
-          <span className="font-semibold">10</span>
-          <span className="text-foreground/80">{t("notStarted")}</span>
-        </span>
+
+      <p className="text-overline text-muted-foreground mt-5">{t("startHere")}</p>
+      <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
+        <StillModeCard
+          icon={RotateCcw}
+          title={t("reviewTitle")}
+          action={t("reviewAction")}
+          primary
+        />
+        <StillModeCard
+          icon={Sparkles}
+          title={trainings("brainstorm.title")}
+          action={t("brainstormAction")}
+        />
       </div>
-      <span className="bg-primary text-primary-foreground mt-5 inline-flex min-h-10 items-center rounded-md px-5 text-sm font-medium">
-        {t("studyNow")}
+    </div>
+  );
+}
+
+function StillModeCard({
+  icon: Icon,
+  title,
+  action,
+  primary = false,
+}: {
+  icon: typeof RotateCcw;
+  title: string;
+  action: string;
+  primary?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border border-border-subtle bg-card p-3">
+      <span className="bg-accent text-accent-foreground mb-2.5 flex size-7 items-center justify-center rounded-[8px]">
+        <Icon className="size-3.5" strokeWidth={1.8} aria-hidden />
       </span>
+      <p className="text-h4">{title}</p>
+      <span
+        className={cn(
+          "mt-3 inline-flex min-h-8 items-center rounded-md px-3 text-sm font-medium whitespace-nowrap",
+          primary
+            ? "bg-primary text-primary-foreground"
+            : "border border-border text-foreground/80",
+        )}
+      >
+        {action}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * One reading state from a real story — the interaction that explains why the
+ * stories exist. Content comes from `loadMarketingStoryStill()`; nothing here
+ * writes English or a translation of its own.
+ *
+ * The live `Popover`, `SpeakButton` and add-to-dictionary action are
+ * deliberately not reused: they are client behaviour, and on a frame that is
+ * `aria-hidden` with pointer events off they would look like controls that do
+ * nothing. The gloss is a static card with the same tokens, sitting in flow so
+ * it cannot escape the frame on a narrow screen.
+ */
+export function StoryReaderStill({ story }: { story: MarketingStoryStill }) {
+  const t = useTranslations("stories");
+
+  return (
+    <div>
+      <p className="text-h3" lang="en">
+        {story.title}
+      </p>
+      <p className="text-caption mt-1.5 text-muted-foreground">
+        {[story.level, t("minutesShort", { minutes: story.estimatedMinutes })].join(
+          " · ",
+        )}
+      </p>
+
+      <p className="text-story mt-4" lang="en">
+        {story.segments.map((segment, i) =>
+          segment.kind === "text" ? (
+            <span key={i}>{segment.text}</span>
+          ) : (
+            <span
+              key={i}
+              className="underline decoration-2 decoration-data-learning underline-offset-[3px] [text-decoration-skip-ink:auto]"
+            >
+              {segment.text}
+            </span>
+          ),
+        )}
+      </p>
+
+      <div className="shadow-pop mt-4 max-w-[300px] rounded-lg border border-border bg-popover p-3.5">
+        <p className="text-h4" lang="en">
+          {story.gloss.surface}
+          {story.gloss.lemma.toLowerCase() !== story.gloss.surface.toLowerCase() ? (
+            <>
+              <span className="mx-1.5 text-muted-foreground text-body-sm">→</span>
+              <span className="text-muted-foreground text-body-sm">
+                {story.gloss.lemma}
+              </span>
+            </>
+          ) : null}
+        </p>
+        <p className="text-body-sm mt-1.5 text-foreground">{story.gloss.glossRu}</p>
+      </div>
+
+      <div className="mt-4 flex justify-end border-t border-border-subtle pt-3.5">
+        <span className="bg-primary text-primary-foreground inline-flex min-h-8 items-center rounded-md px-3.5 text-sm font-medium">
+          {t("answerQuestions")}
+        </span>
+      </div>
     </div>
   );
 }
@@ -322,11 +414,11 @@ const LESSONS = [
   ["Test", "Проверка"],
 ] as const;
 
-export function CourseScreen() {
-  const t = useTranslations("product");
+export function GrammarCourseStill() {
+  const t = useTranslations("nav");
   return (
     <div>
-      <p className="text-overline text-muted-foreground">{t("courses")}</p>
+      <p className="text-overline text-muted-foreground">{t("grammar")}</p>
       <p className="text-h2 mt-2" lang="en">
         Present Simple
       </p>

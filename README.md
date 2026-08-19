@@ -2,8 +2,11 @@
 
 A vocabulary app for one direction: **English word, Russian translation.** You
 paste a list, the translations fill themselves in, and then you practise until
-the words stick. Grammar courses sit beside the dictionary: short rules, then
-the same kind of question the trainings use.
+the words stick. Short A1–A2 **Stories** give those words somewhere to happen:
+the catalog puts the ones that overlap your dictionary first, an underlined
+word opens its meaning in that sentence, and three questions close the read.
+Grammar courses sit beside all of it: short rules, then the same kind of
+question the trainings use.
 
 The part worth explaining is the middle one. Translating a pasted list used to
 mean one HTTP request per word to a free translation service, with a deliberate
@@ -53,14 +56,17 @@ grammar explanations.
 |---|---|
 | **Trainings** | Six vocabulary formats, Brainstorm, and irregular-verb forms. The source (sets and due/new/hard) is chosen once, at the top of the page. This is where you land after sign-in. A streak line sits under the header when there is something to say. |
 | **Grammar** | Present Simple, *to be*, and irregular verbs; the rest of the A1–B1 shelf is Coming soon |
+| **Stories** | Ten curated A1–A2 stories, ordered by how much they overlap your dictionary. Annotated words open a gloss for that sentence and can be added to the dictionary; three comprehension questions end each one. |
+| **My progress** | Fourth in Study, after Stories. Streak and record, study calendar, dictionary bar, reviews, memory. Minutes of each sitting are stored; hours wait until there are enough days. |
 | **My words** | Everything you have — search, filter, sort, edit, bulk actions |
 | **My sets** | Sets as tags, not folders |
-| **My progress** | Account menu, not the sidebar. Streak and record, study calendar, dictionary bar, reviews, memory. Minutes of each sitting are stored; hours wait until there are enough days. |
 
-Seven ways to be asked a word: recognise it, recognise it backwards, hear it
-and choose, assemble it from letters, hear it and write it, write it from the
-meaning — and **Brainstorm**, which walks new words up that ladder and does not
-let one go until it has been through cleanly.
+The training catalog covers six ways to be asked a word — recognise it,
+recognise it backwards, hear it and choose, assemble it from letters, hear it
+and write it, write it from the meaning — plus **Brainstorm**, which walks new
+words up that ladder and does not let one go until it has been through cleanly,
+and **verb forms**, which drills the irregular past and third form on the same
+schedule.
 
 Everything runs from the keyboard: `1`–`4` pick an option, letters build a
 word, `Enter` submits and moves on.
