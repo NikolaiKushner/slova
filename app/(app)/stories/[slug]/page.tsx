@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { normalizeKey } from "@/lib/lexicon/key";
 import { getPrisma } from "@/lib/prisma";
 import { loadStory } from "@/lib/stories/load";
+import { loadStoryProgress } from "@/lib/stories/progress";
 import type { DictionaryWord } from "@/lib/stories/select";
 import { StoryContentError } from "@/lib/stories/validate";
 
@@ -29,18 +30,27 @@ export default async function StoryPage({ params }: Params) {
   const userId = session?.user?.id;
 
   const dictionary: Record<string, DictionaryWord> = {};
+  let initialProgress: { correctCount: number } | null = null;
   if (userId) {
     const keys = [
       ...new Set(story.annotations.map((a) => normalizeKey(a.lemma))),
     ];
-    const rows = await getPrisma().userWord.findMany({
-      where: { userId, key: { in: keys } },
-      select: { key: true, introducedAt: true, intervalDays: true },
-    });
+    const [rows, progress] = await Promise.all([
+      getPrisma().userWord.findMany({
+        where: { userId, key: { in: keys } },
+        select: { key: true, introducedAt: true, intervalDays: true },
+      }),
+      loadStoryProgress(userId, slug),
+    ]);
     for (const row of rows) {
       dictionary[row.key] = row;
     }
+    if (progress?.completedAt) {
+      initialProgress = { correctCount: progress.correctCount };
+    }
   }
 
-  return <StoryReader story={story} dictionary={dictionary} />;
+  return (
+    <StoryReader story={story} dictionary={dictionary} initialProgress={initialProgress} />
+  );
 }

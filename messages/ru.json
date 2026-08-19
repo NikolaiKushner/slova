@@ -635,6 +635,7 @@
     "continueReading": "Читать дальше",
     "readButton": "Читать",
     "allStories": "Все истории",
+    "finished": "Прочитанные",
     "minutesShort": "~{minutes} мин",
     "yourWordsCount": "{count, plural, one {# ваше слово} few {# ваших слова} many {# ваших слов} other {# ваших слов}}",
     "newWordsCount": "{count, plural, one {# новое} few {# новых} many {# новых} other {# новых}}",

@@ -635,6 +635,7 @@
     "continueReading": "Continue reading",
     "readButton": "Read",
     "allStories": "All stories",
+    "finished": "Finished",
     "minutesShort": "~{minutes} min",
     "yourWordsCount": "{count, plural, one {# word you're learning} other {# words you're learning}}",
     "newWordsCount": "{count, plural, one {# new} other {# new}}",

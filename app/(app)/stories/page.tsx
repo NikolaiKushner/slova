@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ChevronRight } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { Section } from "@/components/section";
@@ -10,16 +16,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getSession } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
-import { loadAllStories, loadCatalog } from "@/lib/stories/load";
+import { loadAllStories, loadCatalog, type LoadedStory } from "@/lib/stories/load";
+import { loadCompletedStorySlugs, loadStoryProgress } from "@/lib/stories/progress";
 import { orderStories, type OrderedStory } from "@/lib/stories/select";
 
-/**
- * `/stories` catalog — docs/design-system.md §15.8, docs/plans/stories.md §6.2.
- *
- * No "Прочитанные" section yet: `StoryProgress` doesn't exist until Phase 3,
- * so nothing can ever be completed. Building an Accordion that can never
- * show a row would be dead UI, not a feature — it lands with the migration.
- */
+/** `/stories` catalog — docs/design-system.md §15.8, docs/plans/stories.md §6.2. */
 export default async function StoriesPage() {
   const session = await getSession();
   const userId = session?.user?.id;
@@ -27,14 +28,27 @@ export default async function StoriesPage() {
 
   const t = await getTranslations("stories");
   const prisma = getPrisma();
-  const dictionary = await prisma.userWord.findMany({
-    where: { userId },
-    select: { key: true, introducedAt: true, intervalDays: true },
-  });
 
   const stories = loadAllStories();
   const catalog = loadCatalog();
-  const ordered = orderStories(stories, catalog, dictionary);
+
+  const [dictionary, completedSlugs] = await Promise.all([
+    prisma.userWord.findMany({
+      where: { userId },
+      select: { key: true, introducedAt: true, intervalDays: true },
+    }),
+    loadCompletedStorySlugs(userId, catalog),
+  ]);
+
+  const ordered = orderStories(stories, catalog, dictionary, completedSlugs);
+  const completedStories = await Promise.all(
+    stories
+      .filter((story) => completedSlugs.has(story.slug))
+      .map(async (story) => ({
+        story,
+        correctCount: (await loadStoryProgress(userId, story.slug))?.correctCount ?? 0,
+      })),
+  );
 
   // §5.3: the catalog is never empty, so there is no empty state to design.
   const [next, ...rest] = ordered;
@@ -48,7 +62,7 @@ export default async function StoriesPage() {
       />
 
       <div className="space-y-10">
-        <NextStoryCard story={next} />
+        {next ? <NextStoryCard story={next} /> : null}
 
         {rest.length > 0 ? (
           <Section title={t("allStories")}>
@@ -62,6 +76,30 @@ export default async function StoriesPage() {
               </ul>
             </Card>
           </Section>
+        ) : null}
+
+        {completedStories.length > 0 ? (
+          <Accordion>
+            <AccordionItem value="finished" className="border-0">
+              <AccordionTrigger className="hover:bg-muted coarse:min-h-11 items-center gap-3 rounded-lg px-4 py-3 hover:no-underline">
+                <span className="text-overline text-eyebrow">{t("finished")}</span>
+                <span className="text-muted-foreground text-caption font-normal">
+                  {completedStories.length}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pt-4 pb-0 [&_a]:no-underline">
+                <Card className="gap-0 py-0">
+                  <ul className="divide-y divide-border">
+                    {completedStories.map(({ story, correctCount }) => (
+                      <li key={story.slug}>
+                        <CompletedStoryRow story={story} correctCount={correctCount} />
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         ) : null}
       </div>
     </PageContainer>
@@ -120,6 +158,42 @@ async function StoryRow({ story }: { story: OrderedStory }) {
         strokeWidth={1.9}
         aria-hidden
       />
+    </Link>
+  );
+}
+
+async function CompletedStoryRow({
+  story,
+  correctCount,
+}: {
+  story: LoadedStory;
+  correctCount: number;
+}) {
+  const t = await getTranslations("stories");
+
+  return (
+    <Link
+      href={`/stories/${story.slug}`}
+      aria-label={t("openStory", { title: story.title })}
+      className="focus-ring coarse:py-3.5 flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50 focus-visible:bg-muted/50"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-baseline gap-2">
+          <Badge variant="secondary" className="rounded-xs px-1.5 tracking-[0.08em]">
+            {story.level}
+          </Badge>
+          <span className="text-h4" lang="en">
+            {story.title}
+          </span>
+        </span>
+        <span className="text-muted-foreground text-caption mt-1 block">
+          {story.descriptionRu}
+        </span>
+      </span>
+      <span className="text-success text-caption tnum inline-flex shrink-0 items-center gap-1 whitespace-nowrap">
+        <Check className="size-3.5" aria-hidden />
+        {t("factQuestionsValue", { right: correctCount, total: story.questions.length })}
+      </span>
     </Link>
   );
 }

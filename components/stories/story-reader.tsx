@@ -38,34 +38,54 @@ type Phase = "reading" | "questions" | "summary";
 
 /**
  * The three-phase story experience — docs/plans/stories.md §6.3-6.5. All
- * client state: grading is local (§3.4, like courses), and there is nowhere
- * to persist to yet — `StoryProgress` is Phase 3. Reading again after
- * completion does not reset the quiz; it only shows the text again (3.4: no
- * re-read control until completion, and even then it is read-only).
+ * grading is local (§3.4, like courses); each answer and the completion are
+ * then posted to /api/stories/[slug]/progress best-effort — a failed save
+ * never blocks the session, since this screen's value is the reading and
+ * the questions, not the row about them. Reading again after completion
+ * does not reset the quiz; it only shows the text again (3.4: no re-read
+ * control until completion, and even then it is read-only). Revisiting an
+ * already-completed story opens straight to the summary, since a completed
+ * row cannot be re-answered.
  */
 export function StoryReader({
   story,
   dictionary: initialDictionary,
+  initialProgress,
 }: {
   story: LoadedStory;
   dictionary: Record<string, DictionaryWord>;
+  initialProgress: { correctCount: number } | null;
 }) {
   const t = useTranslations("stories");
   const coursesT = useTranslations("courses");
   const common = useTranslations("common");
 
-  const [phase, setPhase] = useState<Phase>("reading");
-  const [completed, setCompleted] = useState(false);
+  const [phase, setPhase] = useState<Phase>(
+    initialProgress ? "summary" : "reading",
+  );
+  const [completed, setCompleted] = useState(initialProgress !== null);
   const [dictionary, setDictionary] = useState(initialDictionary);
   const [justAdded, setJustAdded] = useState<Set<string>>(new Set());
 
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState<GrammarAnswered | null>(null);
-  const [right, setRight] = useState(0);
+  const [right, setRight] = useState(initialProgress?.correctCount ?? 0);
 
   const focusLemmaCount = story.annotations.filter(
     (a) => a.role === "focus",
   ).length;
+
+  async function postProgress(body: Record<string, unknown>) {
+    try {
+      await fetch(`/api/stories/${story.slug}/progress`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } catch {
+      // Best-effort: the session's own state is what the UI shows either way.
+    }
+  }
 
   function handleWordAdded(annotation: Annotation, word: DictionaryWord) {
     setDictionary((prev) => ({ ...prev, [normalizeKey(annotation.lemma)]: word }));
@@ -75,6 +95,12 @@ export function StoryReader({
   function answerQuestion(result: GrammarAnswered) {
     setAnswered(result);
     if (result.verdict === "correct") setRight((count) => count + 1);
+    void postProgress({
+      action: "answer",
+      questionId: story.questions[index]!.id,
+      answer: result.given,
+      correct: result.verdict === "correct",
+    });
   }
 
   function nextQuestion() {
@@ -82,6 +108,7 @@ export function StoryReader({
     if (index + 1 >= story.questions.length) {
       setCompleted(true);
       setPhase("summary");
+      void postProgress({ action: "complete" });
       return;
     }
     setIndex((i) => i + 1);
