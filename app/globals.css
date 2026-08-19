@@ -400,6 +400,20 @@
 
   button, [role="button"], a { touch-action: manipulation; }
 
+  /*
+   * Tailwind's Preflight stopped forcing `cursor: pointer` on buttons in
+   * v3.3, to match the native default — which leaves every button reading
+   * as inert. `:disabled`/`aria-disabled` keep the browser's `not-allowed`
+   * (§10's `disabled` row); a deliberate `cursor-*` utility elsewhere
+   * (listbox items, `not-allowed` on a disabled control) still wins, since
+   * utilities are a later layer than this one.
+   */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href] {
+    cursor: pointer;
+  }
+
   ::selection { background: var(--accent); color: var(--accent-foreground); }
 }
 

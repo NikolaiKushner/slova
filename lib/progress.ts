@@ -199,6 +199,7 @@ export type StudyActivity = {
   reviewCountsByDay: Record<string, number>;
   studiedDayKeys: string[];
   lessonDayKeys: string[];
+  storyDayKeys: string[];
   stubborn: { id: string; front: string; lapses: number }[];
   courses: {
     slug: string;
@@ -215,7 +216,7 @@ export async function getStudyActivity(
   const since = windowStart(now);
   const prisma = getPrisma();
 
-  const [logs, lessons, remembered, stubbornRows, courseRows, lessonRows] =
+  const [logs, lessons, storyRows, remembered, stubbornRows, courseRows, lessonRows] =
     await measureServerOperation("progress.full_report", () => Promise.all([
       prisma.reviewLog.findMany({
         where: { userId, createdAt: { gte: since }, undoneAt: null },
@@ -224,6 +225,10 @@ export async function getStudyActivity(
       prisma.userLesson.findMany({
         where: { userId, completedAt: { gte: since } },
         select: { completedAt: true },
+      }),
+      prisma.storyProgress.findMany({
+        where: { userId, startedAt: { gte: since } },
+        select: { startedAt: true, completedAt: true },
       }),
       prisma.userWord.findMany({
         where: { userId, stability: { not: null } },
@@ -260,7 +265,13 @@ export async function getStudyActivity(
   const lessonAt = lessons.flatMap((lesson) =>
     lesson.completedAt ? [lesson.completedAt] : [],
   );
-  const studiedAt = [...reviewedAt, ...lessonAt];
+  // Reading and answering a story never touch UserWord or ReviewLog (the
+  // FSRS boundary — docs/plans/stories.md §4/§7), so without this the
+  // calendar would show no activity at all on a day spent only on stories.
+  const storyAt = storyRows.flatMap((row) =>
+    row.completedAt ? [row.startedAt, row.completedAt] : [row.startedAt],
+  );
+  const studiedAt = [...reviewedAt, ...lessonAt, ...storyAt];
   const memoryWords = remembered as ScheduledWord[];
 
   const completedByCourse = new Map<string, number>();
@@ -282,6 +293,7 @@ export async function getStudyActivity(
     reviewCountsByDay: reviewCountsByDay(reviewedAt, now, timeZone),
     studiedDayKeys: [...daysInWindow(studiedAt, now, timeZone)].sort(),
     lessonDayKeys: [...daysInWindow(lessonAt, now, timeZone)].sort(),
+    storyDayKeys: [...daysInWindow(storyAt, now, timeZone)].sort(),
     stubborn: stubbornRows,
     courses: courseRows.map((row) => ({
       slug: row.courseSlug,

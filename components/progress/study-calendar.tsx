@@ -16,11 +16,13 @@ export function StudyCalendar({
   studiedDayKeys,
   reviewCountsByDay,
   lessonDayKeys,
+  storyDayKeys,
   timeZone,
 }: {
   studiedDayKeys: string[];
   reviewCountsByDay: Record<string, number>;
   lessonDayKeys: string[];
+  storyDayKeys: string[];
   timeZone: string;
 }) {
   const t = useTranslations("progress");
@@ -28,6 +30,7 @@ export function StudyCalendar({
   const dayPickerLocale = locale === "ru" ? ru : enUS;
   const studiedKeys = new Set(studiedDayKeys);
   const lessonDays = new Set(lessonDayKeys);
+  const storyDays = new Set(storyDayKeys);
 
   return (
     <Calendar
@@ -37,16 +40,16 @@ export function StudyCalendar({
       showOutsideDays={false}
       disabled={{ after: new Date() }}
       onDayClick={() => {}}
-      className="mx-auto w-fit [--cell-size:--spacing(8)] @min-[960px]:[--cell-size:--spacing(9)]"
+      className="w-full [--cell-size:--spacing(8)] @min-[960px]:[--cell-size:--spacing(9)]"
       classNames={{
-        root: "w-fit",
-        months: "relative w-fit",
-        month: "flex w-fit flex-col gap-4",
-        month_grid: "flex w-fit flex-col",
-        weekdays: "flex w-fit gap-1",
+        root: "w-full",
+        months: "relative w-full",
+        month: "flex w-full flex-col gap-4",
+        month_grid: "flex w-full flex-col",
+        weekdays: "flex w-full justify-between",
         weekday:
           "flex size-(--cell-size) items-center justify-center text-[0.8rem] font-normal text-muted-foreground select-none",
-        week: "mt-2 flex w-fit gap-1",
+        week: "mt-2 flex w-full justify-between",
         day: "group/day relative flex size-(--cell-size) items-center justify-center p-0 text-center select-none",
       }}
       components={{
@@ -54,8 +57,9 @@ export function StudyCalendar({
           const key = calendarDay(day.date, timeZone);
           const count = reviewCountsByDay[key] ?? 0;
           const hadLesson = lessonDays.has(key);
+          const hadStory = storyDays.has(key);
           const isStudied = studiedKeys.has(key);
-          const summary = daySummary(t, count, hadLesson);
+          const summary = daySummary(t, count, hadLesson, hadStory);
           const label = isStudied
             ? `${formatDay(day.date, locale, timeZone)}. ${summary}`
             : undefined;
@@ -68,8 +72,13 @@ export function StudyCalendar({
               {...(label ? { "aria-label": label } : {})}
               className={cn(
                 "relative overflow-visible",
+                // Explicit rounding, not inherited: CalendarDayButton only
+                // rounds a corner for day-picker's own range/selected data
+                // attributes, none of which this manual "studied" paint
+                // sets — without it, consecutive studied days read as one
+                // merged bar instead of separate days.
                 isStudied &&
-                  "bg-data-learning text-primary-foreground hover:bg-data-learning hover:text-primary-foreground",
+                  "rounded-(--cell-radius) bg-data-learning text-primary-foreground hover:bg-data-learning hover:text-primary-foreground",
                 className,
               )}
             >
@@ -96,13 +105,18 @@ export function StudyCalendar({
 }
 
 function daySummary(
-  t: (key: "wordsPractisedOnDay" | "lessonCompleted", values?: { count: number }) => string,
+  t: (
+    key: "wordsPractisedOnDay" | "lessonCompleted" | "storyRead",
+    values?: { count: number },
+  ) => string,
   count: number,
   hadLesson: boolean,
+  hadStory: boolean,
 ): string {
   const parts: string[] = [];
   if (count > 0) parts.push(t("wordsPractisedOnDay", { count }));
   if (hadLesson) parts.push(t("lessonCompleted"));
+  if (hadStory) parts.push(t("storyRead"));
   return parts.join(" · ");
 }
 

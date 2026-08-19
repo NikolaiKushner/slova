@@ -160,7 +160,7 @@ export default async function ProgressPage() {
 
             {hasActivity ? (
               <>
-                <Card className="max-h-[380px] w-fit max-w-full min-w-0 justify-self-center @min-[680px]:justify-self-start">
+                <Card className="min-w-0">
                   <CardHeader>
                     <CardTitle className="text-h4">{t("calendar")}</CardTitle>
                   </CardHeader>
@@ -169,12 +169,13 @@ export default async function ProgressPage() {
                       studiedDayKeys={activity.studiedDayKeys}
                       reviewCountsByDay={activity.reviewCountsByDay}
                       lessonDayKeys={activity.lessonDayKeys}
+                      storyDayKeys={activity.storyDayKeys}
                       timeZone={tz}
                     />
                   </CardContent>
                 </Card>
 
-                <Card className="min-w-0">
+                <Card className="min-w-0 @min-[680px]:col-span-2 @min-[960px]:col-span-1">
                   <CardHeader>
                     <CardTitle className="text-h4">
                       {t("wordsPractisedTitle")}

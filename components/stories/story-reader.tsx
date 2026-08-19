@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, LoaderCircle } from "lucide-react";
 
 import type { Annotation } from "@/content/stories/schema";
 import {
@@ -387,22 +387,16 @@ function GlossContent({
 
   return (
     <div className="flex flex-col gap-2.5 p-1">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-h4" lang="en">
-          {annotation.surface}
-          {showsBaseForm ? (
-            <>
-              <span className="mx-1.5 text-muted-foreground text-body-sm">→</span>
-              <Token>{annotation.lemma}</Token>
-            </>
-          ) : null}
-        </p>
-        <SpeakButton
-          text={annotation.surface}
-          disabled
-          disabledLabel={t("soundComingSoon")}
-        />
-      </div>
+      <p className="text-h4" lang="en">
+        {annotation.surface}
+        {showsBaseForm ? (
+          <>
+            <span className="mx-1.5 text-muted-foreground text-body-sm">→</span>
+            <Token>{annotation.lemma}</Token>
+          </>
+        ) : null}
+      </p>
+      <SpeakButton text={annotation.surface} />
 
       <p className="text-body-sm text-foreground">{annotation.glossRu}</p>
 
@@ -417,6 +411,7 @@ function GlossContent({
       {state === "absent" ? (
         <>
           <Button size="sm" className="w-full" onClick={() => void add()} disabled={pending}>
+            {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : null}
             {t("addWord")}
           </Button>
           {failed ? (

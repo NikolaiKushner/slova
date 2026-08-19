@@ -489,6 +489,8 @@ For every interactive element all states from the list must be defined. A missin
 
 **About the disabled primary button.** Currently in the product the disabled green button looks like a slightly faded active one — people press it. A disabled button must be **gray**, not pale green.
 
+**Cursor.** Every interactive element — button, link, anything with `role="button"` — shows `cursor: pointer` by default. Tailwind's Preflight stopped forcing this on buttons in v3.3 to match the native default, which otherwise leaves every button reading as inert. `disabled` / `aria-disabled` keep the browser's `not-allowed`, per the row above. Listbox-style items (menu, select, command) are the deliberate exception and keep `cursor: default` — hover highlighting already carries the affordance there, matching the native control they stand in for.
+
 ---
 
 ## 11. Motion
@@ -587,7 +589,7 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 | Pagination | `Pagination` | |
 | Course progress bar | `Progress` | Height 5px, `radius-full` |
 | Memory forecast on `/progress` | `Progress` | Same track; hide until ≥ 20 words with `stability` |
-| Study calendar | `Calendar` | Display only, intrinsic `w-fit`. Cells 32px compact / ≤36px wide. A studied day is a green dot, not a filled cell. Never `w-full`. `timeZone` is the `tz` cookie. `onSelect` does not navigate. Tooltip and accessible name: date + “N words practised” and/or “Lesson completed”. |
+| Study calendar | `Calendar` | Display only, stretches to fill its card (flex `justify-between` per week, not intrinsic `w-fit` — a fixed-width calendar in a wide tablet column read as squeezed into a corner). Cells 32px compact / ≤36px wide, `rounded-(--cell-radius)` set explicitly on a studied day (day-picker only rounds a corner for its own range/selected state, which this manual paint never triggers — without it, consecutive studied days read as one merged bar). A studied day is a filled cell in `data-learning`. Card carries no height cap — a 6-week month needs more room than a 5-week one; capping it clips the last row. `timeZone` is the `tz` cookie. `onSelect` does not navigate. Tooltip and accessible name: date + “N words practised” and/or “Lesson completed” and/or “Story read”. |
 | Words practised, 28 days | `Chart` `BarChart` | `ChartContainer` / `ChartTooltip`. Fill `--chart-1` (learned). Short chart (~180–220px). Not pie. |
 | Divider | `Separator` | |
 | Mobile sidebar | `Sheet side="left"` | |
@@ -604,6 +606,11 @@ npx shadcn@latest add button input textarea label select checkbox radio-group \
 | «где ошибаются» callout | `Alert` | Custom `warning` variant |
 | Session size toggle (6/10/15) | `ToggleGroup type="single"` | |
 | Auth forms | `Form` + `react-hook-form` + `zod` | |
+
+**Every `Popover` keeps `min-w-[200px]`** (set once on `PopoverContent`, not per
+usage) — short content (a single word, one line of gloss) must not collapse
+the panel into a narrow strip. A caller can still cap the top with its own
+`max-w-*`, as the story gloss popover does at 300px.
 
 ### Button variants — exact sizes
 

@@ -20,15 +20,12 @@ export function SpeakButton({
   normalUrl,
   slowUrl,
   disabled = false,
-  disabledLabel,
   className,
 }: {
   text: string;
   normalUrl?: string | null;
   slowUrl?: string | null;
   disabled?: boolean;
-  /** §16: "Word has no sound" — overrides both tooltips while `disabled`. */
-  disabledLabel?: string;
   className?: string;
 }) {
   const t = useTranslations("courses");
@@ -85,7 +82,7 @@ export function SpeakButton({
     >
       <SpeakControl
         mode="normal"
-        label={disabled && disabledLabel ? disabledLabel : t("listenNormal")}
+        label={t("listenNormal")}
         errorLabel={t("audioError")}
         playing={playing === "normal"}
         error={error === "normal"}
@@ -94,7 +91,7 @@ export function SpeakButton({
       />
       <SpeakControl
         mode="slow"
-        label={disabled && disabledLabel ? disabledLabel : t("listenSlow")}
+        label={t("listenSlow")}
         errorLabel={t("audioError")}
         playing={playing === "slow"}
         error={error === "slow"}
@@ -127,30 +124,36 @@ function SpeakControl({
 
   return (
     <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={tooltip}
-            aria-invalid={error || undefined}
-            aria-pressed={playing}
-            disabled={disabled || playing}
-            onClick={onClick}
-            className={cn(
-              "text-muted-foreground hover:text-foreground",
-              error && "text-destructive hover:text-destructive",
-              playing && "bg-secondary text-foreground",
-            )}
-          />
-        }
-      >
-        {playing ? (
-          <LoaderCircle className="animate-spin" aria-hidden="true" />
-        ) : (
-          <Icon aria-hidden="true" />
-        )}
+      {/*
+       * The trigger is a plain span, not the button itself: a disabled
+       * Button carries `disabled:pointer-events-none` (button.tsx), which
+       * makes the browser drop hover on it entirely — including the hover
+       * that would open this tooltip and explain why it's disabled. Hit
+       * testing falls through a `pointer-events-none` element to whatever
+       * sits behind it in the same box, which is this span.
+       */}
+      <TooltipTrigger render={<span className="inline-flex" />}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={tooltip}
+          aria-invalid={error || undefined}
+          aria-pressed={playing}
+          disabled={disabled || playing}
+          onClick={onClick}
+          className={cn(
+            "text-muted-foreground hover:text-foreground",
+            error && "text-destructive hover:text-destructive",
+            playing && "bg-secondary text-foreground",
+          )}
+        >
+          {playing ? (
+            <LoaderCircle className="animate-spin" aria-hidden="true" />
+          ) : (
+            <Icon aria-hidden="true" />
+          )}
+        </Button>
       </TooltipTrigger>
       <TooltipContent className="coarse:hidden">{tooltip}</TooltipContent>
     </Tooltip>

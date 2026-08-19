@@ -478,16 +478,21 @@ rather than every word in the text.
 - `touch-action: manipulation` on the spans.
 
 **The gloss popover.** shadcn `Popover`, `popover` background, `radius-lg`,
-`shadow-lifted`, max-width 300px, `motion-base` (240ms):
+`shadow-lifted`, min-width 200px (every `Popover`'s default — design-system.md
+§13), max-width 300px, `motion-base` (240ms):
 
 1. **Row 1** — the surface as it appears, `text-h4` Literata `lang="en"`; then
    the base form in `<Token>` *only when it differs from the surface*. That is
    what `<Token>` is for (`work → works`), and it is how the learner discovers
    that `found` is `find` — the one thing this popover teaches that a
    translation cannot.
-2. **Sound** — `SpeakButton` at icon size, right-aligned in row 1. With no
-   audio on the shared lexeme: `disabled` plus a `Tooltip` reading
-   "Произношение появится позже". §16 specifies that exact behaviour already.
+2. **Sound** — `SpeakButton` at icon size, its own row under row 1, not
+   `disabled`. There is no recording on the shared lexeme for these words, but
+   none is needed: `speak()` (`lib/practice/speech.ts`) already falls back to
+   the browser's Web Speech API whenever `audioUrl` is empty, which is exactly
+   this case, and it is what every other untranslated word in the app already
+   plays through. §16's "no sound" row is for a device with no speech
+   synthesis at all, not for an unrecorded word.
 3. **Row 2** — the contextual gloss, `text-body-sm` in `foreground`. Not muted:
    it is the payload.
 4. **Row 3** — dictionary state, one `text-caption` line in `muted-foreground`:
