@@ -433,6 +433,11 @@
     font-variation-settings: "opsz" 20;
   }
   .text-lead     { font-size: 1.125rem; line-height: 1.55; }
+  .text-story {
+    font-family: var(--font-display);
+    font-size: 1.125rem; line-height: 1.70; font-weight: 400;
+    font-variation-settings: "opsz" 20;
+  }
   .text-body     { font-size: 1rem;     line-height: 1.60; }
   .text-body-sm  { font-size: 0.9375rem;line-height: 1.50; }
   .text-caption  { font-size: 0.8125rem;line-height: 1.45; }
@@ -497,6 +502,7 @@
   .text-h3      { font-size: 1.25rem; }
   .text-h4      { font-size: 1.0625rem; }
   .text-lead    { font-size: 1.0625rem; }
+  .text-story   { font-size: 1.0625rem; }
   .text-numeral { font-size: 1.75rem; }
 }
 

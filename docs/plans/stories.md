@@ -104,8 +104,9 @@ Three activities, then the report about them. This needs the §15.1 amendment in
 the same branch — the sidebar sentence names its items, and per `CLAUDE.md` the
 document outranks the code.
 
-`app/(app)/practice/reading/page.tsx` is a `ComingSoon` stub today. It becomes a
-redirect to `/stories`, is listed in the nav item's `matches`, and the
+`app/(app)/practice/reading/page.tsx`, a `ComingSoon` stub today, is deleted
+outright rather than redirected — Stories gets its own nav item and its own
+route, so nothing points at the old one any more. The
 `comingSoon.readingPractice` copy is deleted from both message files.
 
 ### 3.4 Five defects, and why four of them are now moot
@@ -631,7 +632,7 @@ counts; duplicate ids; annotation occurrence resolution and phrase overlap; the
 cloze prompt not appearing in the text; `gradeExercise` over every shipped
 question; focus-lemma classification against `ratingOf`; ordering with words
 being learned, an empty dictionary and completed stories; `activeNavHref` for
-`/stories`, `/stories/[slug]` and `/practice/reading`.
+`/stories` and `/stories/[slug]`.
 
 **Integration** — the migration on a clean and on the current schema; progress
 upsert scoped to the authenticated user; a completed row rejecting changes;

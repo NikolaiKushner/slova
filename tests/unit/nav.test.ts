@@ -32,6 +32,11 @@ describe("activeNavHref", () => {
     );
   });
 
+  it("gives Stories its own item, and the story reader inside it", () => {
+    expect(activeNavHref("/stories")).toBe("/stories");
+    expect(activeNavHref("/stories/missing-key")).toBe("/stories");
+  });
+
   it("routes legacy import to My words", () => {
     expect(activeNavHref("/import")).toBe("/dictionary");
   });
@@ -71,17 +76,19 @@ describe("NAV_SECTIONS", () => {
     expect(NAV_SECTIONS.flatMap((s) => s.items.map((i) => i.href))).toEqual([
       "/practice",
       "/courses/grammar",
+      "/stories",
       "/progress",
       "/dictionary",
       "/dictionary/sets",
     ]);
   });
 
-  it("puts My progress third in Study, after Trainings and Grammar", () => {
+  it("orders Study as Trainings, Grammar, Stories, My progress", () => {
     const study = NAV_SECTIONS.find((section) => section.titleKey === "study");
     expect(study?.items.map((item) => item.titleKey)).toEqual([
       "trainings",
       "grammar",
+      "stories",
       "myProgress",
     ]);
   });

@@ -37,6 +37,7 @@
     "practice": "Practice",
     "trainings": "Trainings",
     "grammar": "Grammar",
+    "stories": "Stories",
     "reading": "Reading",
     "courses": "Courses",
     "topics": "Topics",
@@ -758,16 +759,6 @@
         "Pick a rule, get ten questions on it",
         "Mistakes come back later, the way due words do",
         "Built from the same review schedule as vocabulary"
-      ]
-    },
-    "readingPractice": {
-      "eyebrow": "Practice",
-      "title": "Reading practice",
-      "description": "Short texts built from words you already know, plus a few you don't.",
-      "planned": [
-        "Texts sized to your current vocabulary",
-        "Tap an unknown word to add it to your dictionary",
-        "New words are introduced a few at a time"
       ]
     },
     "topicCourses": {
