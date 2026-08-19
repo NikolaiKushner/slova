@@ -14,6 +14,11 @@ there directly.
   `feat/`.
 - Verify locally before merging: `npm test`, and a production build if anything
   touched the build, schema or environment.
+- **Do not commit before the maintainer has reviewed the change.** Passing
+  tests are necessary, not sufficient — present the diff and wait for the
+  maintainer to check the implementation themselves before it goes into a
+  commit. This applies per logical unit of work, not just before merging to
+  `main`.
 - Merge to `main` when the batch is genuinely ready to ship, and ask first
   unless the maintainer already said to go.
 - Branches do not get preview deploys until Preview has an isolated Neon

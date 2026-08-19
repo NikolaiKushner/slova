@@ -1,0 +1,8 @@
+{
+  "slug": "missing-key",
+  "level": "A1",
+  "topic": "daily-life",
+  "premise": "Anna wakes up late on a rainy Monday and cannot find her front door key before she has to leave for the train.",
+  "focusLemmas": ["late", "search", "key", "remember", "hurry", "lock"],
+  "notes": "Keep the search itself short — two or three places checked, not a full inventory of the flat. End on the train doors closing, not on getting home."
+}

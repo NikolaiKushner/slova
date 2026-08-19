@@ -1,0 +1,8 @@
+{
+  "slug": "dinner-without-list",
+  "level": "A2",
+  "topic": "daily-life",
+  "premise": "Maria goes to the supermarket to buy ingredients for dinner but realizes at the entrance that she left her shopping list at home, and has to reconstruct the recipe from memory.",
+  "focusLemmas": ["forget", "ingredient", "remember", "aisle", "recipe", "guess", "basket"],
+  "notes": "A2, so allow one small setback — she guesses wrong on an ingredient and has to go back for it — rather than a single clean pass through the shop."
+}
