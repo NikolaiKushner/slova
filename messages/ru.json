@@ -628,6 +628,18 @@
     "taskTransform": "Преобразуйте предложение",
     "formCue": "форма слова"
   },
+  "stories": {
+    "eyebrow": "Истории",
+    "title": "Истории",
+    "description": "Короткие тексты из слов, которые вы учите.",
+    "continueReading": "Читать дальше",
+    "readButton": "Читать",
+    "allStories": "Все истории",
+    "minutesShort": "~{minutes} мин",
+    "yourWordsCount": "{count, plural, one {# ваше слово} few {# ваших слова} many {# ваших слов} other {# ваших слов}}",
+    "newWordsCount": "{count, plural, one {# новое} few {# новых} many {# новых} other {# новых}}",
+    "openStory": "Открыть историю «{title}»"
+  },
   "dictionary": {
     "eyebrow": "Словарь",
     "myWordsTitle": "Мои слова",

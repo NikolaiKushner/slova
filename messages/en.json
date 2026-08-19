@@ -628,6 +628,18 @@
     "taskTransform": "Change the sentence",
     "formCue": "form of"
   },
+  "stories": {
+    "eyebrow": "Stories",
+    "title": "Stories",
+    "description": "Short texts built from the words you're learning.",
+    "continueReading": "Continue reading",
+    "readButton": "Read",
+    "allStories": "All stories",
+    "minutesShort": "~{minutes} min",
+    "yourWordsCount": "{count, plural, one {# word you're learning} other {# words you're learning}}",
+    "newWordsCount": "{count, plural, one {# new} other {# new}}",
+    "openStory": "Open the story {title}"
+  },
   "dictionary": {
     "eyebrow": "Dictionary",
     "myWordsTitle": "My words",
