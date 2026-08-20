@@ -11,7 +11,6 @@
     "switcher": "Language"
   },
   "mutations": {
-    "saving": "Saving progress…",
     "retrying": "Connection interrupted. Retrying…",
     "offline": "You are offline. Progress is waiting on this page.",
     "failed": "Some progress was not saved. Keep this page open and try again.",
