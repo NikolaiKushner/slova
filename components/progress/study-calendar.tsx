@@ -17,12 +17,14 @@ export function StudyCalendar({
   reviewCountsByDay,
   lessonDayKeys,
   storyDayKeys,
+  grammarReviewDayKeys,
   timeZone,
 }: {
   studiedDayKeys: string[];
   reviewCountsByDay: Record<string, number>;
   lessonDayKeys: string[];
   storyDayKeys: string[];
+  grammarReviewDayKeys: string[];
   timeZone: string;
 }) {
   const t = useTranslations("progress");
@@ -31,6 +33,7 @@ export function StudyCalendar({
   const studiedKeys = new Set(studiedDayKeys);
   const lessonDays = new Set(lessonDayKeys);
   const storyDays = new Set(storyDayKeys);
+  const grammarReviewDays = new Set(grammarReviewDayKeys);
 
   return (
     <Calendar
@@ -58,8 +61,15 @@ export function StudyCalendar({
           const count = reviewCountsByDay[key] ?? 0;
           const hadLesson = lessonDays.has(key);
           const hadStory = storyDays.has(key);
+          const hadGrammarReview = grammarReviewDays.has(key);
           const isStudied = studiedKeys.has(key);
-          const summary = daySummary(t, count, hadLesson, hadStory);
+          const summary = daySummary(
+            t,
+            count,
+            hadLesson,
+            hadStory,
+            hadGrammarReview,
+          );
           const label = isStudied
             ? `${formatDay(day.date, locale, timeZone)}. ${summary}`
             : undefined;
@@ -104,18 +114,28 @@ export function StudyCalendar({
   );
 }
 
+/**
+ * Reviewing grammar is not completing a lesson, and the tooltip must not say
+ * it was: a day spent correcting old mistakes reads back as exactly that.
+ */
 function daySummary(
   t: (
-    key: "wordsPractisedOnDay" | "lessonCompleted" | "storyRead",
+    key:
+      | "wordsPractisedOnDay"
+      | "lessonCompleted"
+      | "storyRead"
+      | "grammarReviewed",
     values?: { count: number },
   ) => string,
   count: number,
   hadLesson: boolean,
   hadStory: boolean,
+  hadGrammarReview: boolean,
 ): string {
   const parts: string[] = [];
   if (count > 0) parts.push(t("wordsPractisedOnDay", { count }));
   if (hadLesson) parts.push(t("lessonCompleted"));
+  if (hadGrammarReview) parts.push(t("grammarReviewed"));
   if (hadStory) parts.push(t("storyRead"));
   return parts.join(" · ");
 }

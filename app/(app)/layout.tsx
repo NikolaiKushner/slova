@@ -12,6 +12,7 @@ const APP_CLIENT_NAMESPACES = [
   "common",
   "courses",
   "dictionary",
+  "grammarReview",
   "locale",
   "mutations",
   "nav",

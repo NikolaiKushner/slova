@@ -11,6 +11,7 @@ import {
   persistGrammarReview,
 } from "@/lib/courses/review-store";
 import { getPrisma } from "@/lib/prisma";
+import { getProgress, getStudyActivity } from "@/lib/progress";
 
 const prisma = getPrisma();
 const USER_ID = "__grammar_review_user__";
@@ -599,5 +600,66 @@ describe("persisting one review answer", () => {
         })
       ).sittingId,
     ).toBeNull();
+  });
+});
+
+describe("a review-only day is a study day", () => {
+  async function completedReviewSitting(endedAt: Date) {
+    return prisma.studySitting.create({
+      data: {
+        userId: USER_ID,
+        kind: "grammar",
+        label: "review",
+        sourceState: "all",
+        startedAt: endedAt,
+        lastAt: endedAt,
+        endedAt,
+        endedReason: "completed",
+        reviews: 3,
+        goods: 2,
+        agains: 1,
+        score: 67,
+      },
+    });
+  }
+
+  test("the full report counts it and marks the calendar day", async () => {
+    await resetUsers();
+    await completedReviewSitting(NOW);
+
+    const activity = await getStudyActivity(USER_ID, NOW, ZONE);
+    expect(activity.streak).toBe(1);
+    expect(activity.grammarReviewDayKeys).toEqual(["2098-04-12"]);
+    // The tooltip must be able to tell the two apart.
+    expect(activity.lessonDayKeys).toEqual([]);
+    expect(activity.studiedDayKeys).toContain("2098-04-12");
+  });
+
+  test("the compact progress line counts it too", async () => {
+    await resetUsers();
+    await completedReviewSitting(NOW);
+    expect(await getProgress(USER_ID, NOW, ZONE)).toMatchObject({
+      today: 0,
+      streak: 1,
+    });
+  });
+
+  test("an abandoned sitting is not a study day", async () => {
+    await resetUsers();
+    await prisma.studySitting.create({
+      data: {
+        userId: USER_ID,
+        kind: "grammar",
+        label: "review",
+        sourceState: "all",
+        startedAt: NOW,
+        lastAt: NOW,
+        endedAt: NOW,
+        endedReason: "abandoned",
+      },
+    });
+    const activity = await getStudyActivity(USER_ID, NOW, ZONE);
+    expect(activity.grammarReviewDayKeys).toEqual([]);
+    expect(activity.streak).toBe(0);
   });
 });

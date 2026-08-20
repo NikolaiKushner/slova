@@ -218,3 +218,25 @@ describe("studyDaysThisWeek", () => {
     expect(studyDaysThisWeek(["2026-08-09"], at(12), TZ)).toBe(0);
   });
 });
+
+/**
+ * The streak reads one list of timestamps, whatever produced them. Grammar
+ * Review sittings join that list in `getStudyActivity`; this is the guarantee
+ * they rely on — a day whose only activity is a review still counts, and a
+ * gap it fills keeps a run unbroken.
+ */
+describe("a study day that was only Grammar Review", () => {
+  it("keeps the streak alive on its own", () => {
+    const reviewOnly = [at(10, 9)];
+    expect(currentStreak(reviewOnly, now, TZ)).toBe(1);
+  });
+
+  it("joins vocabulary and lesson days into one unbroken run", () => {
+    const vocabularyDay = at(8);
+    const grammarReviewDay = at(9, 22);
+    const lessonDay = at(10, 7);
+    expect(
+      currentStreak([vocabularyDay, grammarReviewDay, lessonDay], now, TZ),
+    ).toBe(3);
+  });
+});

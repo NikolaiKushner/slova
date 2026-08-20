@@ -338,6 +338,7 @@
     "calendar": "Дни занятий",
     "wordsPractisedOnDay": "{count, plural, one {# слово повторено} few {# слова повторено} many {# слов повторено} other {# слова повторено}}",
     "lessonCompleted": "Урок пройден",
+    "grammarReviewed": "Грамматика повторена",
     "storyRead": "История прочитана",
     "wordsPractisedTitle": "Практика слов",
     "wordsPractisedHint": "Слова, повторенные за последние 28 дней",
@@ -620,6 +621,24 @@
     "taskGapQuestion": "Впишите вспомогательный глагол",
     "taskTransform": "Преобразуйте предложение",
     "formCue": "форма слова"
+  },
+  "grammarReview": {
+    "eyebrow": "Повторение",
+    "cardTitle": "Повторить слабые правила",
+    "cardBody": "{rules, plural, one {# правило} few {# правила} many {# правил} other {# правила}} из {courses, plural, one {# курса} few {# курсов} many {# курсов} other {# курса}} · ~{minutes, plural, one {# минута} few {# минуты} many {# минут} other {# минуты}}",
+    "start": "Начать повторение",
+    "title": "Повторение грамматики",
+    "progressLabel": "Правило {current} из {total}",
+    "backToGrammar": "К грамматике",
+    "summaryAllRight": "Слабые правила закрепились",
+    "summaryMissed": "Эти правила ещё вернутся",
+    "missedReturnTomorrow": "То, что не получилось, вернётся завтра.",
+    "caughtUpTitle": "На сегодня всё",
+    "caughtUpBody": "Следующее правило вернётся {date}.",
+    "caughtUpBodyNoDate": "Сейчас ничего не ждёт повторения.",
+    "emptyTitle": "Слабых правил пока нет",
+    "emptyBody": "Ошибки из уроков грамматики появятся здесь для повторения.",
+    "lessonMissesReturn": "Эти правила вернутся на повторение завтра."
   },
   "stories": {
     "eyebrow": "Истории",

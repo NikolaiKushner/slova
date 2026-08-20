@@ -170,6 +170,7 @@ export default async function ProgressPage() {
                       reviewCountsByDay={activity.reviewCountsByDay}
                       lessonDayKeys={activity.lessonDayKeys}
                       storyDayKeys={activity.storyDayKeys}
+                      grammarReviewDayKeys={activity.grammarReviewDayKeys}
                       timeZone={tz}
                     />
                   </CardContent>
