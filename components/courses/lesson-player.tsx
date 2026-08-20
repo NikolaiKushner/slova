@@ -327,6 +327,7 @@ export function LessonSession({
         <LessonSummary
           right={right}
           total={exercises.length}
+          missedRules={missedRuleIds.length}
           onRestart={startPractice}
           courseHref={courseHref}
         />
@@ -533,16 +534,20 @@ function LessonChrome({
 function LessonSummary({
   right,
   total,
+  missedRules,
   onRestart,
   courseHref,
 }: {
   right: number;
   total: number;
+  /** Distinct rules missed here — they become due tomorrow, not now. */
+  missedRules: number;
   onRestart: () => void;
   courseHref: string;
 }) {
   const t = useTranslations("courses");
   const practiceT = useTranslations("practice");
+  const reviewT = useTranslations("grammarReview");
   const missed = total - right;
 
   return (
@@ -554,6 +559,16 @@ function LessonSummary({
       <p className="text-muted-foreground mt-3">
         {practiceT("progressOf", { current: right, total })}
       </p>
+      {/*
+        A sentence, not a button. The rules just missed are deliberately not
+        due yet — offering to review them now would undo the spacing that
+        makes the return worth anything.
+      */}
+      {missedRules > 0 ? (
+        <p className="text-muted-foreground mt-1.5 text-body-sm">
+          {reviewT("lessonMissesReturn")}
+        </p>
+      ) : null}
       <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
         <Button type="button" size="lg" onClick={onRestart}>
           {practiceT("restart")}

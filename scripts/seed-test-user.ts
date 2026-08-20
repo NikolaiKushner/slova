@@ -18,7 +18,7 @@ async function main() {
   prisma = getPrisma();
   const summary = await seedTestUserFixture(prisma, environment);
   console.log(
-    `Reset E2E fixture for ${summary.email}: ${summary.sets} sets, ${summary.words} words, ${summary.lessons} lessons.`,
+    `Reset E2E fixture for ${summary.email}: ${summary.sets} sets, ${summary.words} words, ${summary.lessons} lessons, ${summary.weakRules} weak rules.`,
   );
 }
 

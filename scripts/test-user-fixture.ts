@@ -14,6 +14,10 @@ const IDS = {
   course: "e2e-course-present-simple",
   completedLesson: "e2e-lesson-forms",
   currentLesson: "e2e-lesson-use",
+  weakHabits: "e2e-rule-ps-use-habits",
+  weakThirdPerson: "e2e-rule-ps-third-person-s",
+  weakSameForm: "e2e-rule-iv-same",
+  weakNoEd: "e2e-rule-iv-no-ed",
 } as const;
 
 const VERIFIED_AT = new Date("2025-01-01T00:00:00.000Z");
@@ -28,6 +32,7 @@ export type TestUserFixtureSummary = {
   sets: number;
   words: number;
   lessons: number;
+  weakRules: number;
 };
 
 export async function seedTestUserFixture(
@@ -94,6 +99,9 @@ export async function seedTestUserFixture(
     await tx.wordSet.deleteMany({ where: { userId: user.id } });
     await tx.userWord.deleteMany({ where: { userId: user.id } });
     await tx.userCourse.deleteMany({ where: { userId: user.id } });
+    // Cascades the review log. Without it a reset would leave weak rules from
+    // the previous run due, and the review card would count them.
+    await tx.grammarRuleMemory.deleteMany({ where: { userId: user.id } });
 
     await tx.wordSet.createMany({
       data: [
@@ -224,12 +232,35 @@ export async function seedTestUserFixture(
       ],
     });
 
+    /*
+     * Weak grammar rules, due in the past so Grammar Review has something to
+     * ask. Two courses, so the catalog card has a plural to render, and one
+     * of them is the rule the in-progress lesson above already records as
+     * missed — the fixture reads as one learner's history, not two.
+     */
+    await tx.grammarRuleMemory.createMany({
+      data: [
+        { id: IDS.weakHabits, courseSlug: "present-simple", ruleId: "ps-use-habits", stage: 0 },
+        { id: IDS.weakThirdPerson, courseSlug: "present-simple", ruleId: "ps-third-person-s", stage: 1 },
+        { id: IDS.weakSameForm, courseSlug: "irregular-verbs", ruleId: "iv-same", stage: 0 },
+        { id: IDS.weakNoEd, courseSlug: "irregular-verbs", ruleId: "iv-no-ed", stage: 2 },
+      ].map((rule) => ({
+        ...rule,
+        userId: user.id,
+        dueAt: DUE_AT,
+        lastMissedAt: LAST_REVIEW_AT,
+        createdAt: VERIFIED_AT,
+        updatedAt: VERIFIED_AT,
+      })),
+    });
+
     return {
       userId: user.id,
       email: user.email,
       sets: 2,
       words: 4,
       lessons: 2,
+      weakRules: 4,
     };
   }, { maxWait: 10_000, timeout: 30_000 });
 }

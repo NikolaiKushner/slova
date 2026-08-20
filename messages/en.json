@@ -11,7 +11,6 @@
     "switcher": "Language"
   },
   "mutations": {
-    "saving": "Saving progress…",
     "retrying": "Connection interrupted. Retrying…",
     "offline": "You are offline. Progress is waiting on this page.",
     "failed": "Some progress was not saved. Keep this page open and try again.",
@@ -338,6 +337,7 @@
     "calendar": "Study days",
     "wordsPractisedOnDay": "{count, plural, one {# word practised} other {# words practised}}",
     "lessonCompleted": "Lesson completed",
+    "grammarReviewed": "Grammar reviewed",
     "storyRead": "Story read",
     "wordsPractisedTitle": "Word practice",
     "wordsPractisedHint": "Words practised over the last 28 days",
@@ -621,6 +621,24 @@
     "taskTransform": "Change the sentence",
     "formCue": "form of"
   },
+  "grammarReview": {
+    "eyebrow": "Review",
+    "cardTitle": "Review weak rules",
+    "cardBody": "{rules, plural, one {# rule} other {# rules}} from {courses, plural, one {# course} other {# courses}} · ~{minutes, plural, one {# minute} other {# minutes}}",
+    "start": "Start review",
+    "title": "Grammar Review",
+    "progressLabel": "Rule {current} of {total}",
+    "backToGrammar": "Back to Grammar",
+    "summaryAllRight": "Weak rules reinforced",
+    "summaryMissed": "These rules will come back",
+    "missedReturnTomorrow": "What you missed comes back tomorrow.",
+    "caughtUpTitle": "Caught up for today",
+    "caughtUpBody": "The next rule comes back on {date}.",
+    "caughtUpBodyNoDate": "Nothing is due right now.",
+    "emptyTitle": "No weak rules yet",
+    "emptyBody": "Mistakes from grammar lessons will appear here for review.",
+    "lessonMissesReturn": "These rules will return for review tomorrow."
+  },
   "stories": {
     "eyebrow": "Stories",
     "title": "Stories",
@@ -817,6 +835,7 @@
     "invalidProgress": "Invalid progress",
     "invalidUndo": "Invalid undo",
     "invalidReview": "Invalid review",
+    "invalidGrammarReview": "Invalid grammar review",
     "invalidSitting": "Invalid sitting",
     "invalidSet": "Invalid set",
     "invalidResult": "Invalid result",

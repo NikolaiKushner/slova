@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import Link from "next/link";
 import { ArrowRight, BookOpen, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -25,19 +26,26 @@ export function PracticeRuleCard({
   markedRuleId,
   onToggle,
   onOpenLesson,
+  lessonHref,
 }: {
   open: boolean;
   auto: boolean;
   courseTitle: string;
-  lessonTitle: string;
+  /** Null in Grammar Review, where a rule may have no canonical lesson. */
+  lessonTitle: string | null;
   card: RuleCard | undefined;
   rule: Rule | undefined;
   markedRuleId: string | null;
   onToggle: () => void;
+  /** Lessons switch view in place; Grammar Review navigates — pass one. */
   onOpenLesson?: () => void;
+  lessonHref?: string;
 }) {
   const t = useTranslations("courses");
-  const note = auto && rule ? rule.anchorMd : card?.note;
+  // Without a lesson rule card there is nothing else to explain the rule
+  // with, so the anchor stops being the after-a-miss note and becomes the
+  // body: that is the Grammar Review case.
+  const note = rule && (auto || !card) ? rule.anchorMd : card?.note;
   const bodyId = useId();
 
   return (
@@ -83,8 +91,12 @@ export function PracticeRuleCard({
           <div className="bg-card border-border mt-2 rounded-lg border px-4.5 py-4">
             <p className="text-overline text-muted-foreground mb-3">
               <span lang="en">{courseTitle}</span>
-              {" · "}
-              <span lang="en">{lessonTitle}</span>
+              {lessonTitle ? (
+                <>
+                  {" · "}
+                  <span lang="en">{lessonTitle}</span>
+                </>
+              ) : null}
             </p>
 
             {card ? (
@@ -116,19 +128,48 @@ export function PracticeRuleCard({
               </p>
             ) : null}
 
-            {onOpenLesson ? (
-              <button
-                type="button"
-                className="text-primary mt-2.5 inline-flex items-center gap-1.5 text-body-sm hover:underline"
-                onClick={onOpenLesson}
-              >
+            {onOpenLesson || lessonHref ? (
+              <OpenLesson href={lessonHref} onOpenLesson={onOpenLesson}>
                 {t("openFullLesson")}
                 <ArrowRight className="size-[13px]" strokeWidth={2} aria-hidden />
-              </button>
+              </OpenLesson>
             ) : null}
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+const OPEN_LESSON_CLASS =
+  "text-primary mt-2.5 inline-flex items-center gap-1.5 text-body-sm hover:underline";
+
+/**
+ * A lesson reachable from the rule panel.
+ *
+ * Inside a lesson this is a view switch — the theory is already loaded and the
+ * sitting is meant to be resumed. In Grammar Review it is a real navigation:
+ * the lesson belongs to another course, and leaving abandons the sitting.
+ */
+function OpenLesson({
+  href,
+  onOpenLesson,
+  children,
+}: {
+  href?: string;
+  onOpenLesson?: () => void;
+  children: React.ReactNode;
+}) {
+  if (href) {
+    return (
+      <Link href={href} className={OPEN_LESSON_CLASS}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <button type="button" className={OPEN_LESSON_CLASS} onClick={onOpenLesson}>
+      {children}
+    </button>
   );
 }

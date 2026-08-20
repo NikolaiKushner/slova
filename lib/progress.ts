@@ -14,6 +14,17 @@ import {
 /** How far back the streak is allowed to reach. */
 export const STREAK_WINDOW_DAYS = 365;
 
+/**
+ * A finished Grammar Review sitting. It is an ordinary grammar sitting with
+ * its own label rather than a fourth `kind`, so nothing that already sums
+ * sittings has to learn a new word for it.
+ */
+const GRAMMAR_REVIEW_SITTING = {
+  kind: "grammar",
+  label: "review",
+  endedReason: "completed",
+} as const;
+
 /** Local calendar day of a timestamp, as a sortable YYYY-MM-DD key. */
 export function dayKey(
   date: Date,
@@ -200,6 +211,7 @@ export type StudyActivity = {
   studiedDayKeys: string[];
   lessonDayKeys: string[];
   storyDayKeys: string[];
+  grammarReviewDayKeys: string[];
   stubborn: { id: string; front: string; lapses: number }[];
   courses: {
     slug: string;
@@ -216,7 +228,16 @@ export async function getStudyActivity(
   const since = windowStart(now);
   const prisma = getPrisma();
 
-  const [logs, lessons, storyRows, remembered, stubbornRows, courseRows, lessonRows] =
+  const [
+    logs,
+    lessons,
+    storyRows,
+    grammarReviewRows,
+    remembered,
+    stubbornRows,
+    courseRows,
+    lessonRows,
+  ] =
     await measureServerOperation("progress.full_report", () => Promise.all([
       prisma.reviewLog.findMany({
         where: { userId, createdAt: { gte: since }, undoneAt: null },
@@ -229,6 +250,14 @@ export async function getStudyActivity(
       prisma.storyProgress.findMany({
         where: { userId, startedAt: { gte: since } },
         select: { startedAt: true, completedAt: true },
+      }),
+      prisma.studySitting.findMany({
+        where: {
+          userId,
+          ...GRAMMAR_REVIEW_SITTING,
+          endedAt: { gte: since },
+        },
+        select: { endedAt: true },
       }),
       prisma.userWord.findMany({
         where: { userId, stability: { not: null } },
@@ -271,7 +300,18 @@ export async function getStudyActivity(
   const storyAt = storyRows.flatMap((row) =>
     row.completedAt ? [row.startedAt, row.completedAt] : [row.startedAt],
   );
-  const studiedAt = [...reviewedAt, ...lessonAt, ...storyAt];
+  // A grammar day is otherwise recognised through UserLesson.completedAt,
+  // which a day spent only in Grammar Review never writes. Without this the
+  // streak would break on a day the learner did exactly what was asked.
+  const grammarReviewAt = grammarReviewRows.flatMap((row) =>
+    row.endedAt ? [row.endedAt] : [],
+  );
+  const studiedAt = [
+    ...reviewedAt,
+    ...lessonAt,
+    ...storyAt,
+    ...grammarReviewAt,
+  ];
   const memoryWords = remembered as ScheduledWord[];
 
   const completedByCourse = new Map<string, number>();
@@ -294,6 +334,9 @@ export async function getStudyActivity(
     studiedDayKeys: [...daysInWindow(studiedAt, now, timeZone)].sort(),
     lessonDayKeys: [...daysInWindow(lessonAt, now, timeZone)].sort(),
     storyDayKeys: [...daysInWindow(storyAt, now, timeZone)].sort(),
+    grammarReviewDayKeys: [
+      ...daysInWindow(grammarReviewAt, now, timeZone),
+    ].sort(),
     stubborn: stubbornRows,
     courses: courseRows.map((row) => ({
       slug: row.courseSlug,
@@ -311,7 +354,7 @@ export async function getProgress(
 ) {
   const since = windowStart(now);
   const prisma = getPrisma();
-  const [logs, lessons] = await measureServerOperation(
+  const [logs, lessons, grammarReviews] = await measureServerOperation(
     "progress.practice_line",
     () =>
       Promise.all([
@@ -323,6 +366,14 @@ export async function getProgress(
           where: { userId, completedAt: { gte: since } },
           select: { completedAt: true },
         }),
+        prisma.studySitting.findMany({
+          where: {
+            userId,
+            ...GRAMMAR_REVIEW_SITTING,
+            endedAt: { gte: since },
+          },
+          select: { endedAt: true },
+        }),
       ]),
   );
 
@@ -332,6 +383,7 @@ export async function getProgress(
     ...lessons.flatMap((lesson) =>
       lesson.completedAt ? [lesson.completedAt] : [],
     ),
+    ...grammarReviews.flatMap((row) => (row.endedAt ? [row.endedAt] : [])),
   ];
 
   return {

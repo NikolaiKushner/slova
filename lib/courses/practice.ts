@@ -69,7 +69,11 @@ function queuesByRule(pool: readonly Exercise[], rng: Rng): Exercise[][] {
   );
 }
 
-function shuffleOptions(exercise: Exercise, rng: Rng): Exercise {
+/**
+ * Choice order is part of the prompt, not of the item. Grammar Review deals
+ * single bank exercises rather than a lesson pool, so it needs this by itself.
+ */
+export function shuffleOptions(exercise: Exercise, rng: Rng): Exercise {
   if (exercise.kind !== "choice" && exercise.kind !== "pick-sentence") {
     return exercise;
   }

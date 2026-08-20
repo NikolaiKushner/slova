@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
 import { jsonError } from "@/lib/i18n/api-error";
+import { requestTimeZone } from "@/lib/request-timezone";
 import { CourseContentError } from "@/lib/courses/load";
 import {
   CourseProgressConflictError,
@@ -30,10 +31,15 @@ export async function POST(request: Request) {
     return jsonError("invalidProgress", 400);
   }
 
+  // The zone comes from the cookie beside the session, not from the body:
+  // when a rule comes back is not the client's to declare.
+  const timeZone = await requestTimeZone();
+
   try {
     const record = await saveLessonProgress({
       userId: session.user.id,
       ...parsed.data,
+      timeZone,
     });
     return NextResponse.json({ record });
   } catch (error) {

@@ -13,8 +13,10 @@ import {
   lessonPool,
   practiceSessionSize,
 } from "@/lib/courses/practice";
+import { recordGrammarLessonMiss } from "@/lib/courses/review-store";
 import { persistEnd } from "@/lib/sitting-store";
 import { runSerializable } from "@/lib/serializable-transaction";
+import { DEFAULT_TIMEZONE } from "@/lib/timezone";
 
 export const LESSON_PASS_PERCENT = 80;
 export const TEST_PASS_PERCENT = 90;
@@ -102,6 +104,8 @@ export async function saveLessonProgress(input: {
   missedRuleIds: string[];
   sittingId?: string;
   now?: Date;
+  /** The learner's zone, read from the request — never from the body. */
+  timeZone?: string;
 }): Promise<LessonRecord> {
   const loaded = loadCourse(input.courseSlug);
   const lesson = loaded.lessons.find((item) => item.slug === input.lessonSlug);
@@ -133,6 +137,7 @@ export async function saveLessonProgress(input: {
   ];
 
   const now = input.now ?? new Date();
+  const timeZone = input.timeZone ?? DEFAULT_TIMEZONE;
   const percent = scorePercent(right, total);
   const prisma = getPrisma();
 
@@ -243,6 +248,19 @@ export async function saveLessonProgress(input: {
           completedAt: null,
         },
         data: { completedAt: now },
+      });
+    }
+
+    // Every rule missed here becomes reviewable tomorrow. Inside the same
+    // transaction as the attempt: a lesson result that was recorded while its
+    // weak rules were not would quietly lose the mistakes.
+    for (const ruleId of missedRuleIds) {
+      await recordGrammarLessonMiss(transaction, {
+        userId: input.userId,
+        courseSlug: input.courseSlug,
+        ruleId,
+        now,
+        timeZone,
       });
     }
 

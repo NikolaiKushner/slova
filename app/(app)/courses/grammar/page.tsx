@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
 import { GrammarCatalog } from "@/components/courses/grammar-catalog";
+import { GrammarReviewCard } from "@/components/courses/grammar-review-card";
 import { PageContainer } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
   parseLevelSource,
 } from "@/lib/courses/cefr";
 import { loadCourseProgressMap } from "@/lib/courses/progress";
+import { loadGrammarReviewSummary } from "@/lib/courses/review-store";
 
 export default async function CoursesGrammarPage() {
   const t = await getTranslations("courses");
@@ -23,12 +25,16 @@ export default async function CoursesGrammarPage() {
   const { available, coming } = grammarCatalog();
 
   const session = await getSession();
-  const progress = session?.user?.id
-    ? await loadCourseProgressMap(
-        session.user.id,
-        available.map((course) => course.slug),
-      )
-    : new Map();
+  const userId = session?.user?.id;
+  const [progress, review] = userId
+    ? await Promise.all([
+        loadCourseProgressMap(
+          userId,
+          available.map((course) => course.slug),
+        ),
+        loadGrammarReviewSummary(userId, new Date()),
+      ])
+    : [new Map(), null];
 
   const courses = available.map((course) =>
     withProgress(course, progress.get(course.slug)),
@@ -48,6 +54,12 @@ export default async function CoursesGrammarPage() {
           </Link>
         }
       />
+      {review ? (
+        <GrammarReviewCard
+          dueCount={review.dueCount}
+          courseCount={review.dueCourseTitles.length}
+        />
+      ) : null}
       <GrammarCatalog
         courses={courses}
         coming={coming}

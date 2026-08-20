@@ -31,8 +31,8 @@ That command includes `db:prepare-test`. Run `npm run db:prepare-test` by itself
 when an agent or maintainer wants the same fixture for manual browser work.
 
 The seed is a reset, not an append. It restores one empty set, one populated
-set, due and new words, a partially studied word, and partial Present Simple
-course progress. The account is email-verified and its password is hashed by
+set, due and new words, a partially studied word, partial Present Simple
+course progress, and four weak grammar rules that are due for Grammar Review. The account is email-verified and its password is hashed by
 the same helper as normal registration. Playwright signs in through `/login`
 and writes reusable authenticated state only to the gitignored
 `playwright/.auth` directory.
