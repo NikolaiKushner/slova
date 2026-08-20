@@ -1,8 +1,24 @@
 # Operations runbook
 
-This runbook covers manual account-data requests and Lakebase Postgres recovery.
+This runbook covers session-replay lookups, manual account-data requests, and
+Lakebase Postgres recovery.
 Commands that read or administer a database use the direct Neon connection
 (`DATABASE_URL_UNPOOLED`), never the pooled application URL.
+
+## Identifying a session replay
+
+LogRocket receives a user id and nothing else, so a replay names an account the
+database can resolve but LogRocket cannot. Read-only, and it runs in either
+direction:
+
+```bash
+npm run account:whois -- --id cmsxphye100005cy0htg9b9q3
+npm run account:whois -- --email person@example.com
+```
+
+The second form produces the id to paste into LogRocket's session search when a
+complaint arrives from an address. Treat the output as personal data: it belongs
+in the operator's environment, not in an issue or a chat.
 
 ## Account data requests
 

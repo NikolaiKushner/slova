@@ -107,7 +107,9 @@ function SidebarUserMenu() {
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+        {/* data-private: name and email are the only personal data on screen,
+            and LogRocket never sends the contents of a private node. */}
+        <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden" data-private>
           <p className="truncate text-base leading-tight font-medium text-sidebar-foreground">
             {name}
           </p>
@@ -131,7 +133,7 @@ function SidebarUserMenu() {
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid min-w-0 flex-1 leading-tight">
+              <div className="grid min-w-0 flex-1 leading-tight" data-private>
                 <span className="truncate text-sm font-medium text-foreground">
                   {name}
                 </span>
