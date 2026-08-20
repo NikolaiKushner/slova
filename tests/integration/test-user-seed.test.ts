@@ -11,6 +11,7 @@ import { resolveTestUserEnvironment } from "@/scripts/test-user-env";
 test("the E2E fixture is deterministic and idempotent", async () => {
   const environment = resolveTestUserEnvironment(process.env);
   const prisma = getPrisma();
+  const now = new Date();
 
   const first = await seedTestUserFixture(prisma, environment);
   const second = await seedTestUserFixture(prisma, environment);
@@ -22,6 +23,7 @@ test("the E2E fixture is deterministic and idempotent", async () => {
       sets: { include: { items: true }, orderBy: { title: "asc" } },
       words: { orderBy: { front: "asc" } },
       courses: { include: { lessons: { orderBy: { lessonSlug: "asc" } } } },
+      grammarRules: { orderBy: { ruleId: "asc" } },
     },
   });
 
@@ -53,4 +55,15 @@ test("the E2E fixture is deterministic and idempotent", async () => {
     "completed",
     "in_progress",
   ]);
+
+  // Grammar Review needs something due, and seeding twice must not double it.
+  expect(user.grammarRules.map((rule) => rule.ruleId)).toEqual([
+    "iv-no-ed",
+    "iv-same",
+    "ps-third-person-s",
+    "ps-use-habits",
+  ]);
+  expect(
+    user.grammarRules.every((rule) => rule.dueAt !== null && rule.dueAt < now),
+  ).toBe(true);
 });

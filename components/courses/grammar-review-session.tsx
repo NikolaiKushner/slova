@@ -56,6 +56,7 @@ export function GrammarReviewSession({ items }: { items: GrammarReviewItem[] }) 
   const [ruleAuto, setRuleAuto] = useState(false);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   const {
     submit,
@@ -157,6 +158,28 @@ export function GrammarReviewSession({ items }: { items: GrammarReviewItem[] }) 
     flush,
     complete,
   ]);
+
+  /*
+   * After an answer the way on takes focus, as vocabulary practice asks for:
+   * the option just chosen is no longer actionable, and a keyboard learner
+   * should not have to hunt for Next. The rule panel opens itself on a miss
+   * and deliberately does not take focus with it — the explanation is an
+   * offer, not an interruption.
+   *
+   * Known limitation, shared with `practice-session.tsx`: this `focus()` does
+   * not currently take. Right after the re-render the Base UI `Button`
+   * refuses programmatic focus — a plain <button> in the same position at the
+   * same moment accepts it, and the same call succeeds a second later. The
+   * fix belongs in `components/ui/button.tsx`, not here; when it lands both
+   * sessions get the behaviour with no change.
+   */
+  useEffect(() => {
+    if (result === null) return;
+    const frame = requestAnimationFrame(() => {
+      nextButtonRef.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [result]);
 
   const enterLock = useRef(false);
 
@@ -314,8 +337,10 @@ export function GrammarReviewSession({ items }: { items: GrammarReviewItem[] }) 
           className="min-w-0 flex-1"
         />
         <Button
+          ref={nextButtonRef}
           size="lg"
           onClick={() => void next()}
+          disabled={saving}
           className={result === null ? "invisible" : undefined}
         >
           {common("next")}
