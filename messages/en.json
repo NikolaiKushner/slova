@@ -817,6 +817,7 @@
     "invalidProgress": "Invalid progress",
     "invalidUndo": "Invalid undo",
     "invalidReview": "Invalid review",
+    "invalidGrammarReview": "Invalid grammar review",
     "invalidSitting": "Invalid sitting",
     "invalidSet": "Invalid set",
     "invalidResult": "Invalid result",

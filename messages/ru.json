@@ -817,6 +817,7 @@
     "invalidProgress": "Некорректный прогресс",
     "invalidUndo": "Некорректная отмена",
     "invalidReview": "Некорректная оценка",
+    "invalidGrammarReview": "Некорректный повтор правила",
     "invalidSitting": "Некорректная посадка",
     "invalidSet": "Некорректный набор",
     "invalidResult": "Некорректный результат",

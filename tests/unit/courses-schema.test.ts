@@ -486,3 +486,38 @@ describe("invariants", () => {
     ).toThrow(/at least 16 exercises/);
   });
 });
+
+/**
+ * Grammar Review deals one bank prompt per due rule and never repeats an
+ * exercise inside a sitting, so "at least two bank exercises per lesson rule"
+ * stopped being reserved capacity when that feature shipped: with one, a rule
+ * missed twice would drill the prompt the learner just saw. The anchor is the
+ * other runtime dependency — it is the whole explanation after a review miss,
+ * where no lesson rule card is on screen.
+ */
+describe("review bank as a runtime dependency", () => {
+  it("gives every missable rule a second prompt to come back with", () => {
+    for (const slug of listedAvailableSlugs()) {
+      const loaded = loadCourse(slug);
+      const missable = new Set(
+        loaded.lessons.flatMap((lesson) =>
+          lesson.blocks
+            .filter((block) => block.type === "exercise")
+            .map((block) => block.ruleId),
+        ),
+      );
+      for (const ruleId of missable) {
+        const bank = loaded.bank.filter((item) => item.ruleId === ruleId);
+        expect(bank.length, `${slug}/${ruleId}`).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+
+  it("gives every rule an anchor to explain a review miss with", () => {
+    for (const slug of listedAvailableSlugs()) {
+      for (const rule of loadCourse(slug).rules) {
+        expect(rule.anchorMd.trim(), `${slug}/${rule.id}`).not.toBe("");
+      }
+    }
+  });
+});

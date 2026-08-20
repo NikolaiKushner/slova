@@ -24,13 +24,15 @@ model User {
 
   createdAt DateTime @default(now())
 
-  accounts   Account[]
-  words      UserWord[]
-  sets       WordSet[]
-  courses    UserCourse[]
-  sittings   StudySitting[]
-  reviewLogs ReviewLog[]
-  stories    StoryProgress[]
+  accounts       Account[]
+  words          UserWord[]
+  sets           WordSet[]
+  courses        UserCourse[]
+  sittings       StudySitting[]
+  reviewLogs     ReviewLog[]
+  stories        StoryProgress[]
+  grammarRules   GrammarRuleMemory[]
+  grammarReviews GrammarRuleReviewLog[]
 }
 
 /// A login method attached to a User. Google stores the OAuth tokens here;
@@ -258,8 +260,9 @@ model StudySitting {
   /// Missed rules of this attempt, not the accumulated UserLesson list.
   missedRuleIds String[] @default([])
 
-  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  logs ReviewLog[]
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs           ReviewLog[]
+  grammarReviews GrammarRuleReviewLog[]
 
   @@index([userId, startedAt])
 }
@@ -512,4 +515,87 @@ model StoryProgress {
 
   @@unique([userId, storySlug])
   @@index([userId, completedAt])
+}
+
+/// A grammar rule this learner got wrong, and where it is in coming back.
+///
+/// Rule-level, not exercise-level: a miss schedules the point, and Grammar
+/// Review asks a fresh `bank.json` prompt for it — never the sentence just
+/// seen. `courseSlug` and `ruleId` reference repository content with no
+/// foreign key, the same deliberate looseness StoryProgress has: content can
+/// be renamed or dropped and the queue simply skips the row.
+model GrammarRuleMemory {
+  id         String @id @default(cuid())
+  userId     String
+  courseSlug String
+  ruleId     String
+
+  /// Consecutive successful review appearances since the latest miss: 0..3.
+  stage Int @default(0)
+  /// Null only after stage 3 clears the rule for now. A later miss reopens it.
+  dueAt DateTime?
+
+  lastMissedAt   DateTime
+  lastReviewedAt DateTime?
+  clearedAt      DateTime?
+  /// So the next return prefers a prompt other than the one just answered.
+  lastExerciseId String?
+
+  reps    Int @default(0)
+  lapses  Int @default(0)
+  version Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs GrammarRuleReviewLog[]
+
+  @@unique([userId, courseSlug, ruleId])
+  @@index([userId, dueAt])
+  @@index([userId, lastMissedAt])
+}
+
+/// One answered Grammar Review prompt.
+///
+/// Not analytics: it makes a retry idempotent, stops two tabs from advancing
+/// the same due rule twice, and keeps enough of the previous state to explain
+/// a schedule that feels wrong. There is no undo here, so the old values are
+/// scalar columns rather than a JSON snapshot.
+model GrammarRuleReviewLog {
+  id          String  @id @default(cuid())
+  operationId String  @unique
+  memoryId    String
+  userId      String
+  sittingId   String?
+
+  courseSlug String
+  ruleId     String
+  exerciseId String
+  correct    Boolean
+  elapsedMs  Int?
+
+  /// False means another request had already moved this rule out of the due
+  /// queue. Recording the no-op makes retries idempotent.
+  applied Boolean @default(true)
+
+  /// GrammarRuleMemory version this write produced; null for a stale no-op,
+  /// which produced none. Orders reviews exactly, as ReviewLog.wordVersion does.
+  ruleVersion   Int?
+  previousStage Int?
+  /// Resulting stage for an applied write, or the observed current stage for
+  /// a stale no-op. Kept non-null so an idempotent retry returns the same DTO.
+  nextStage     Int
+  previousDueAt DateTime?
+  nextDueAt     DateTime?
+
+  createdAt DateTime @default(now())
+
+  memory  GrammarRuleMemory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sitting StudySitting?     @relation(fields: [sittingId], references: [id], onDelete: SetNull)
+
+  @@unique([memoryId, ruleVersion])
+  @@index([userId, createdAt])
+  @@index([sittingId])
 }
