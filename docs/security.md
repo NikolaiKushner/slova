@@ -28,6 +28,19 @@ logs. Review those reports before enforcing the policy. A strict nonce policy
 would force dynamic rendering in Next.js 16.3, so nonce and static-rendering
 tradeoffs belong in a separate rollout.
 
+The policy names LogRocket's CDN and ingest hosts, and allows a blob worker,
+because session replay runs a third-party recorder in the browser. It records
+the signed-in application only, and only in a production build with
+`NEXT_PUBLIC_LOGROCKET_APP_ID` set — `/login`, `/register` and the marketing
+pages are outside the recorded tree. `lib/logrocket.ts` drops every
+`/api/auth/*` request and response pair before it is sent, strips
+`authorization`, `cookie`, `set-cookie` and `x-csrf-token` from the rest, and
+identifies the session by user id alone. The account name and email in the
+sidebar carry `data-private`, so their contents never leave the browser.
+Unsetting the environment variable stops recording without a code change.
+`npm run account:whois` resolves a replay's user id to the account behind it;
+see `docs/operations.md`.
+
 ## HTTPS transport
 
 On 2026-08-18, the Vercel project listed `slova.study` and `www.slova.study`,
