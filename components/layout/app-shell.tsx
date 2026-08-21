@@ -7,6 +7,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useViewportInset } from "@/hooks/use-viewport-inset";
 import { cn } from "@/lib/utils";
 
 /**
@@ -50,8 +51,10 @@ export function PageContainer({
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  useViewportInset();
+
   return (
-    <SidebarProvider className="h-dvh min-h-dvh overflow-hidden">
+    <SidebarProvider className="h-(--vv-height) min-h-0 overflow-hidden">
       <AppSidebar />
       {/*
         Scroll lives here, not on the document. iOS Safari hides its URL bar

@@ -10,6 +10,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  interactiveWidget: "resizes-content",
   // neutral-100, the application background. Kept as hex because the browser
   // chrome reads this before any stylesheet, so it cannot be a token.
   themeColor: "#F1F3F2",

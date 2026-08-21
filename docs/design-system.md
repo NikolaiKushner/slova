@@ -452,10 +452,33 @@ Implementation: `@media (pointer: coarse)` increases paddings, not fonts.
 
 - **All `input` and `textarea` — minimum `16px`.** Smaller — Safari on iOS automatically zooms the page on focus. This is not a recommendation, this is a bug-fix.
 - `inputmode` and `autocapitalize="none"`, `autocorrect="off"`, `spellcheck="false"` on English-word input fields — otherwise iPad substitutes its own suggestions and breaks checking.
-- In «написать слово» practice do not open the keyboard automatically on the first question — focus on tap instead. Autofocus on iPad covers half the screen.
+- In «написать слово» practice do not open the keyboard automatically — focus on tap instead. Autofocus on iPad covers half the screen. Implemented as `useAutoFocus` (`hooks/use-fine-pointer.ts`), which focuses only under `(pointer: fine)`; the `autoFocus` attribute must not come back, it cannot ask where it is firing.
+- `enterKeyHint="go"` on an answer field — the return key then says what Enter does, «Go» rather than «return».
 
 ### Layout
 
+- **The session frame is sized from the *visual* viewport, never from `dvh`.**
+  iOS does not resize the layout viewport when the keyboard opens — it shrinks
+  only the visual one — so `100dvh` keeps the height the window had before the
+  keyboard, the scroller hides its lower half behind it, and Safari, reaching
+  the focused field, scrolls the question off the top. `use-viewport-inset`
+  measures `visualViewport` and publishes it on `<html>`:
+
+  | Published | Meaning |
+  |---|---|
+  | `--vv-height` | the visible strip; the shell's height. Defaults to `100dvh` |
+  | `--kb-inset` | what the keyboard covers; anything `fixed` to the bottom adds it |
+  | `--vv-offset-top` | diagnosis only — nothing is positioned from it |
+  | `data-keyboard` | `open` / `closed` |
+  | `data-vh` | `short` / `tiny`, absent when there is room |
+
+  It is mounted once, in `AppShell`. `/dev/viewport` shows every number live
+  and is how they are re-checked on a device.
+- **A `max-height` media query cannot see the keyboard** — media queries are
+  answered by the layout viewport. Anything that must react to the keyboard
+  reads `data-vh` / `data-keyboard`, not `@media`.
+- The manifest is `display: standalone`. Added to the Home screen, an iPad
+  session gets back the 100–150px Safari spends on its tab and favourites bars.
 - Screen rotation must not lose practice session state.
 - In iPad portrait (768–834) the sidebar is hidden, content takes the width with 32 padding.
 - Bottom sticky panel (lesson) on touch: height 64px + `env(safe-area-inset-bottom)`.
@@ -725,7 +748,7 @@ Word form: monospace `token`, background `neutral-150`, `radius-sm`, padding 1.5
 └────────────┴──────────────────────────────────────┘
 ```
 
-**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`, **Истории**, **Мой прогресс**) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. **Истории** (`/stories`, `book-open-text`) is the third Study item; **Мой прогресс** (`/progress`, `chart-no-axes-column`) is the fourth. Both own their active state; neither is in the account menu. The account menu keeps language and sign-out. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
+**Sidebar:** header (logo `h3` Literata 600 + search + collapse), sections `Занятия` (`Тренировки`, `Грамматика`, **Истории**, **Мой прогресс**) and `Словарь` (`Мои слова`, `Мои наборы`), footer with the user. **Истории** (`/stories`, `book-open-text`) is the third Study item; **Мой прогресс** (`/progress`, `chart-no-axes-column`) is the fourth. Both own their active state; neither is in the account menu. The account menu keeps language and sign-out, and — on iPad Safari only, and only until the site is installed — one quiet line saying that «Поделиться» → «На экран „Домой"» gives a session the whole screen (§9). A sentence rather than a control: there is no API that adds a site to the Home screen, so the most the interface can do is say where the button is. Section heading — `caption`/`500` color `eyebrow`, **not in caps**. Item: 8×10, `radius-sm`, icon 17px.
 
 ### 15.2 Focus mode (practice, brainstorm, lesson)
 
@@ -737,6 +760,34 @@ A separate shell. Required elements:
 4. **Answer zone** — minimum 240px, always on the same vertical regardless of format.
 5. **Result footer** — 44px, always occupies space, even when empty.
 6. Container `container-focus` (540px), vertically centered in the area.
+
+**The zones are equal, not constant.** Points 3–5 exist so that changing the
+format does not move anything; they do not require one number each. An iPad in
+landscape with the keyboard up leaves ~300px where the tall set of zones asks
+for ~700, and a scene that cannot be seen has not been kept from jumping — it
+has been lost. So the heights are `--focus-*` in `app/globals.css` at three
+sizes, chosen by `data-vh` (§9):
+
+| | tall | `short` | `tiny` |
+|---|---|---|---|
+| top bar | 64 | 52 | 48 |
+| task line margin | 20 | 12 | 8 |
+| task zone | 150 / 96 compact | 104 / 76 | 76 / 60 |
+| answer zone | 232 / 132 compact | 168 / 104 | 120 / 88 |
+| result footer | 52 | 48 | 44 |
+| scene padding | 32 / 72 | 16 | 12 |
+
+Every size keeps the equality between formats. Two further rules follow from
+the same place:
+
+- On `short` and `tiny` the scene packs from the top and the answer zone drops
+  its vertical centring. Centring a scene taller than the strip puts its top
+  above the scroll origin, where nothing reaches it.
+- While `data-keyboard="open"` the task zone is `sticky` under the top bar with
+  a `scrim-panel` behind it. Safari scrolls the focused field into view and
+  takes everything above it along; sticky is the one arrangement that a scroll
+  cannot undo. The task *line* may still leave — it says what to do, the task
+  zone is what is being asked.
 
 ### 15.3 Landing
 

@@ -49,6 +49,7 @@
     "createAccount": "Create an account",
     "logOut": "Log out",
     "account": "Account",
+    "installHint": "On iPad: Share → Add to Home Screen. A session then gets the whole screen.",
     "privacy": "Privacy",
     "terms": "Terms",
     "agree": "By continuing you agree to the <terms>Terms</terms> and <privacy>Privacy</privacy>.",

@@ -10,6 +10,7 @@ import { SpeakButton } from "@/components/slova/speak-button";
 import { TokenMark } from "@/components/slova/token";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAutoFocus } from "@/hooks/use-fine-pointer";
 import { gradeExercise, type GrammarVerdict } from "@/lib/courses/answer";
 import { resolveCourseAudio } from "@/lib/courses/audio";
 import { endingAgainst, gapCue, splitGapPrompt } from "@/lib/courses/prompt";
@@ -260,6 +261,7 @@ function Typed({
   onAnswered: (result: GrammarAnswered) => void;
 }) {
   const [value, setValue] = useState("");
+  const inputRef = useAutoFocus<HTMLInputElement>();
   const t = useTranslations("courses");
   const practice = useTranslations("practice");
   const common = useTranslations("common");
@@ -288,6 +290,7 @@ function Typed({
   return (
     <div className="flex items-center justify-center gap-2.5">
       <Input
+        ref={inputRef}
         value={value}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={(event) => {
@@ -300,7 +303,7 @@ function Typed({
           exercise.kind === "transform" ? t("typeSentence") : t("typeForm")
         }
         aria-label={practice("yourAnswer")}
-        autoFocus
+        enterKeyHint="go"
         autoCapitalize="off"
         autoCorrect="off"
         spellCheck={false}

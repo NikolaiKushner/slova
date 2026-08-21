@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { useViewportInset } from "@/hooks/use-viewport-inset";
 import { cn } from "@/lib/utils";
 
 /**
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
  * changing the question format changes the contents and never the geometry.
  * The answer options therefore start on the same line in all seven formats.
  *
- * Heights come from the drill mockup: prompt 150, answer 158, footer 52.
+ * Heights come from `--focus-*` in globals.css.
  */
 
 /**
@@ -37,7 +38,7 @@ export function FocusTopBar({
   return (
     <header
       className={cn(
-        "scrim-panel border-border sticky top-0 z-20 flex min-h-16 shrink-0 items-center gap-6 border-b px-4 md:px-8",
+        "scrim-panel border-border sticky top-0 z-20 flex min-h-(--focus-topbar-h) shrink-0 items-center gap-6 border-b px-4 md:px-8",
         className,
       )}
     >
@@ -104,7 +105,7 @@ export function FocusHead({
   step?: React.ReactNode;
 }) {
   return (
-    <header className="mb-5 text-center">
+    <header className="mb-(--focus-head-mb) text-center">
       <h1 className="text-overline text-eyebrow">{task}</h1>
       {step ? (
         <p className="text-disabled-foreground mt-1.5 text-caption tabular-nums">
@@ -133,12 +134,15 @@ export function FocusPrompt({
   compact?: boolean;
   children: React.ReactNode;
 }) {
+  const { keyboard } = useViewportInset();
+
   return (
     <div
       data-slot="focus-prompt"
       className={cn(
         "flex shrink-0 flex-col items-center justify-center gap-3.5 text-center",
-        compact ? "min-h-24" : "min-h-[150px]",
+        compact ? "min-h-(--focus-prompt-compact-h)" : "min-h-(--focus-prompt-h)",
+        keyboard && "bg-background sticky top-(--focus-topbar-h) z-10",
         className,
       )}
     >
@@ -171,12 +175,15 @@ export function FocusAnswer({
   compact?: boolean;
   children: React.ReactNode;
 }) {
+  const short = useViewportInset().size !== "tall";
+
   return (
     <div
       data-slot="focus-answer"
       className={cn(
         "mt-5 flex flex-col",
-        compact ? "min-h-[132px] justify-start" : "min-h-[232px] justify-center",
+        compact ? "min-h-(--focus-answer-compact-h)" : "min-h-(--focus-answer-h)",
+        compact || short ? "justify-start" : "justify-center",
         className,
       )}
     >
@@ -200,7 +207,7 @@ export function FocusFooter({
     <div
       data-slot="focus-footer"
       className={cn(
-        "mt-5 flex min-h-[52px] items-center justify-between gap-4",
+        "mt-5 flex min-h-(--focus-footer-h) items-center justify-between gap-4",
         className,
       )}
     >
@@ -228,6 +235,8 @@ export function FocusShell({
   align?: "center" | "start";
   children: React.ReactNode;
 }) {
+  const short = useViewportInset().size !== "tall";
+
   return (
     /*
      * Bleeds out of the page padding AppShell applies, so the sticky bar runs
@@ -244,9 +253,11 @@ export function FocusShell({
       <div
         className={cn(
           "flex flex-1 justify-center px-4 md:px-8",
-          align === "start"
-            ? "items-start pt-11 pb-10"
-            : "items-center pt-8 pb-18",
+          short
+            ? "items-start py-(--focus-pad-y)"
+            : align === "start"
+              ? "items-start pt-11 pb-10"
+              : "items-center pt-8 pb-18",
         )}
       >
         <div className="container-focus w-full">{children}</div>

@@ -34,7 +34,7 @@ export function MutationStatus({
     <div
       role={phase === "failed" ? "alert" : "status"}
       aria-live={phase === "failed" ? "assertive" : "polite"}
-      className="bg-card border-border fixed right-4 bottom-4 left-4 z-50 mx-auto flex max-w-xl items-center justify-between gap-4 rounded-xl border px-4 py-3 shadow-lg"
+      className="bg-card border-border fixed right-4 bottom-[calc(1rem+var(--kb-inset))] left-4 z-50 mx-auto flex max-w-xl items-center justify-between gap-4 rounded-xl border px-4 py-3 shadow-lg"
     >
       <p className="text-body-sm">{t(phase)}</p>
       {canRetry ? (

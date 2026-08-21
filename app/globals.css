@@ -190,6 +190,21 @@
   --page-pt: 28px;
   --page-pb: 56px;
 
+  /* visual viewport — set by use-viewport-inset */
+  --vv-height: 100dvh;
+  --vv-offset-top: 0px;
+  --kb-inset: 0px;
+
+  /* §15.2 focus zones */
+  --focus-topbar-h: 64px;
+  --focus-head-mb: 20px;
+  --focus-prompt-h: 150px;
+  --focus-prompt-compact-h: 96px;
+  --focus-answer-h: 232px;
+  --focus-answer-compact-h: 132px;
+  --focus-footer-h: 52px;
+  --focus-pad-y: 32px;
+
   /* ----------------------------------------------------------
      4. SHADOWS
      ---------------------------------------------------------- */
@@ -211,6 +226,29 @@
   --motion-base:    240ms;
   --motion-slow:    320ms;
   --motion-page:    400ms;
+}
+
+/* §15.2 focus zones — short viewport, `data-vh` from use-viewport-inset */
+:root[data-vh="short"] {
+  --focus-topbar-h: 52px;
+  --focus-head-mb: 12px;
+  --focus-prompt-h: 104px;
+  --focus-prompt-compact-h: 76px;
+  --focus-answer-h: 168px;
+  --focus-answer-compact-h: 104px;
+  --focus-footer-h: 48px;
+  --focus-pad-y: 16px;
+}
+
+:root[data-vh="tiny"] {
+  --focus-topbar-h: 48px;
+  --focus-head-mb: 8px;
+  --focus-prompt-h: 76px;
+  --focus-prompt-compact-h: 60px;
+  --focus-answer-h: 120px;
+  --focus-answer-compact-h: 88px;
+  --focus-footer-h: 44px;
+  --focus-pad-y: 12px;
 }
 
 @media (min-width: 768px) {
