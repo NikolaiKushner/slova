@@ -291,6 +291,29 @@ export function BrainstormSession({ source }: { source: Source }) {
           }
         />
       }
+      head={
+        /* Same head as a single-format session: what is being asked, then
+           where you are. The rung replaces the word count; nothing else
+           differs. */
+        <FocusHead
+          task={trainings(`${task.step}.task` as "typing.task")}
+          step={t("stageOf", {
+            stage: (current?.pos ?? 0) + 1,
+            total: current?.ladder.length ?? 0,
+          })}
+        />
+      }
+      prompt={
+        <FocusPrompt>
+          <QuestionView
+            question={question}
+            answered={result !== null}
+            onAnswered={() => {}}
+            part="prompt"
+            onDemandAudioEnabled={data.onDemandAudioEnabled}
+          />
+        </FocusPrompt>
+      }
     >
       <MutationStatus
         phase={mutationPhase}
@@ -298,25 +321,6 @@ export function BrainstormSession({ source }: { source: Source }) {
         online={online}
         onRetry={() => void retryFailed()}
       />
-      {/* Same head as a single-format session: what is being asked, then where
-          you are. The rung replaces the word count; nothing else differs. */}
-      <FocusHead
-        task={trainings(`${task.step}.task` as "typing.task")}
-        step={t("stageOf", {
-          stage: (current?.pos ?? 0) + 1,
-          total: current?.ladder.length ?? 0,
-        })}
-      />
-
-      <FocusPrompt>
-        <QuestionView
-          question={question}
-          answered={result !== null}
-          onAnswered={() => {}}
-          part="prompt"
-          onDemandAudioEnabled={data.onDemandAudioEnabled}
-        />
-      </FocusPrompt>
 
       <FocusAnswer>
         <QuestionView

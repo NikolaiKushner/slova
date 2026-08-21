@@ -339,6 +339,7 @@ function Typed({
     setDone(true);
     setRight(passed(verdict));
     onAnswered({ verdict, given: value });
+    inputRef.current?.blur();
   }
 
   /*
@@ -422,6 +423,7 @@ function VerbForms({
     );
     setDone(true);
     onAnswered({ verdict, given: `${past} / ${participle}` });
+    (document.activeElement as HTMLElement | null)?.blur();
   }
 
   if (done) {

@@ -251,6 +251,17 @@
   --focus-pad-y: 12px;
 }
 
+/* §15.2 — the keyboard is up: one format on screen, nothing to compare it
+   to, so the zones that keep formats aligned at rest collapse instead. */
+:root[data-keyboard="open"] {
+  --focus-topbar-h: 44px;
+  --focus-head-mb: 6px;
+  --focus-answer-h: 0px;
+  --focus-answer-compact-h: 0px;
+  --focus-footer-h: 0px;
+  --focus-pad-y: 8px;
+}
+
 @media (min-width: 768px) {
   :root { --page-px: 32px; --page-pt: 32px; --page-pb: 64px; }
 }
@@ -409,6 +420,12 @@
   html {
     -webkit-text-size-adjust: 100%;   /* iPad: do not change type size on rotate */
     scroll-behavior: smooth;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   body {

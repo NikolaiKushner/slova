@@ -104,10 +104,14 @@ export function FocusHead({
   task: string;
   step?: React.ReactNode;
 }) {
+  const { keyboard } = useViewportInset();
+
   return (
     <header className="mb-(--focus-head-mb) text-center">
       <h1 className="text-overline text-eyebrow">{task}</h1>
-      {step ? (
+      {/* The top bar's progress already carries the count while the
+          keyboard is open — saying it twice is what §15.2 forbids. */}
+      {step && !keyboard ? (
         <p className="text-disabled-foreground mt-1.5 text-caption tabular-nums">
           {step}
         </p>
@@ -134,15 +138,12 @@ export function FocusPrompt({
   compact?: boolean;
   children: React.ReactNode;
 }) {
-  const { keyboard } = useViewportInset();
-
   return (
     <div
       data-slot="focus-prompt"
       className={cn(
         "flex shrink-0 flex-col items-center justify-center gap-3.5 text-center",
         compact ? "min-h-(--focus-prompt-compact-h)" : "min-h-(--focus-prompt-h)",
-        keyboard && "bg-background sticky top-(--focus-topbar-h) z-10",
         className,
       )}
     >
@@ -203,6 +204,9 @@ export function FocusFooter({
   className?: string;
   children?: React.ReactNode;
 }) {
+  const { keyboard } = useViewportInset();
+  if (keyboard) return null;
+
   return (
     <div
       data-slot="focus-footer"
@@ -221,11 +225,17 @@ export function FocusFooter({
  */
 export function FocusShell({
   topBar,
+  head,
+  prompt,
   className,
   align = "center",
   children,
 }: {
   topBar?: React.ReactNode;
+  /** The task line — see `FocusHead`. */
+  head?: React.ReactNode;
+  /** The prompt — see `FocusPrompt`. */
+  prompt?: React.ReactNode;
   className?: string;
   /**
    * Drills centre the scene so every format lands on the same line.
@@ -235,7 +245,8 @@ export function FocusShell({
   align?: "center" | "start";
   children: React.ReactNode;
 }) {
-  const short = useViewportInset().size !== "tall";
+  const { keyboard, size } = useViewportInset();
+  const short = size !== "tall";
 
   return (
     /*
@@ -260,7 +271,25 @@ export function FocusShell({
               : "items-center pt-8 pb-18",
         )}
       >
-        <div className="container-focus w-full">{children}</div>
+        <div className="container-focus w-full">
+          {head || prompt ? (
+            /*
+             * One sticky container, not two: head and prompt pinned at the
+             * same offset would fight for the same line once both had
+             * scrolled up to it. Together they are the only thing WebKit's
+             * scroll-into-view is not allowed to carry off screen.
+             */
+            <div
+              className={cn(
+                keyboard && "bg-background sticky top-(--focus-topbar-h) z-10",
+              )}
+            >
+              {head}
+              {prompt}
+            </div>
+          ) : null}
+          {children}
+        </div>
       </div>
     </div>
   );

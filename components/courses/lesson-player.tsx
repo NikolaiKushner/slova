@@ -414,6 +414,25 @@ export function LessonSession({
           }
         />
       }
+      head={
+        <FocusHead
+          task={
+            current.kind === "pick-sentence" || current.kind === "transform"
+              ? current.prompt
+              : t(taskKey(current))
+          }
+        />
+      }
+      prompt={
+        <FocusPrompt compact>
+          <GrammarQuestion
+            exercise={current}
+            answered={result}
+            onAnswered={answer}
+            part="prompt"
+          />
+        </FocusPrompt>
+      }
     >
       <MutationStatus
         phase={mutationPhase}
@@ -421,22 +440,6 @@ export function LessonSession({
         online={online}
         onRetry={() => void retryFailed()}
       />
-      <FocusHead
-        task={
-          current.kind === "pick-sentence" || current.kind === "transform"
-            ? current.prompt
-            : t(taskKey(current))
-        }
-      />
-
-      <FocusPrompt compact>
-        <GrammarQuestion
-          exercise={current}
-          answered={result}
-          onAnswered={answer}
-          part="prompt"
-        />
-      </FocusPrompt>
 
       <FocusAnswer compact>
         <GrammarQuestion

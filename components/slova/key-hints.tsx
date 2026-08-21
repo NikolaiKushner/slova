@@ -2,6 +2,7 @@
 
 import { Fragment } from "react";
 
+import { useViewportInset } from "@/hooks/use-viewport-inset";
 import { cn } from "@/lib/utils";
 
 export type KeyHint = {
@@ -25,6 +26,9 @@ export function KeyHints({
   hints: KeyHint[];
   className?: string;
 }) {
+  const { keyboard } = useViewportInset();
+  if (keyboard) return null;
+
   return (
     <div
       className={cn(

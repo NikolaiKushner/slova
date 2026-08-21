@@ -429,19 +429,9 @@ export function PracticeSession({
           }
         />
       }
-    >
-      <MutationStatus
-        phase={mutationPhase}
-        failedCount={failedCount}
-        online={online}
-        onRetry={() => void retryFailed()}
-      />
-      {/* No count here: the top bar's progress bar already carries it, and
-          printing "word 3 of 10" under "3 of 10" says nothing twice (§15.2). */}
-      <FocusHead task={trainings(`${kind}.task` as "typing.task")} />
-
-      {question && (
-        <>
+      head={<FocusHead task={trainings(`${kind}.task` as "typing.task")} />}
+      prompt={
+        question ? (
           <FocusPrompt>
             <QuestionView
               question={question}
@@ -451,7 +441,18 @@ export function PracticeSession({
               onDemandAudioEnabled={onDemandAudioEnabled}
             />
           </FocusPrompt>
+        ) : null
+      }
+    >
+      <MutationStatus
+        phase={mutationPhase}
+        failedCount={failedCount}
+        online={online}
+        onRetry={() => void retryFailed()}
+      />
 
+      {question && (
+        <>
           <FocusAnswer>
             <QuestionView
               question={question}

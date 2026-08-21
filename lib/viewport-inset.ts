@@ -8,6 +8,7 @@ export type ViewportInset = {
   height: number;
   inset: number;
   offsetTop: number;
+  keyboardHeight: number;
   keyboard: boolean;
   size: ViewportSize;
 };
@@ -26,6 +27,10 @@ export function viewportSize(height: number): ViewportSize {
 
 export function readViewport(reading: ViewportReading): ViewportInset {
   const height = Math.round(reading.height);
+  const keyboardHeight = Math.max(
+    0,
+    Math.round(reading.innerHeight - reading.height),
+  );
   const inset = Math.max(
     0,
     Math.round(reading.innerHeight - reading.height - reading.offsetTop),
@@ -35,7 +40,8 @@ export function readViewport(reading: ViewportReading): ViewportInset {
     height,
     inset,
     offsetTop: Math.round(reading.offsetTop),
-    keyboard: inset >= KEYBOARD_MIN,
+    keyboardHeight,
+    keyboard: keyboardHeight >= KEYBOARD_MIN,
     size: viewportSize(height),
   };
 }
@@ -45,6 +51,7 @@ export function sameViewport(a: ViewportInset, b: ViewportInset) {
     a.height === b.height &&
     a.inset === b.inset &&
     a.offsetTop === b.offsetTop &&
+    a.keyboardHeight === b.keyboardHeight &&
     a.keyboard === b.keyboard &&
     a.size === b.size
   );

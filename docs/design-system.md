@@ -457,19 +457,26 @@ Implementation: `@media (pointer: coarse)` increases paddings, not fonts.
 
 ### Layout
 
-- **The session frame is sized from the *visual* viewport, never from `dvh`.**
-  iOS does not resize the layout viewport when the keyboard opens — it shrinks
-  only the visual one — so `100dvh` keeps the height the window had before the
-  keyboard, the scroller hides its lower half behind it, and Safari, reaching
-  the focused field, scrolls the question off the top. `use-viewport-inset`
-  measures `visualViewport` and publishes it on `<html>`:
+- **The session frame is sized *and positioned* from the *visual* viewport,
+  never from `dvh`.** iOS does not resize the layout viewport when the
+  keyboard opens — it *offsets* it, shifting the visible strip down by
+  `visualViewport.offsetTop` while `innerHeight` stays put. Sizing alone is
+  not enough: a shell sized to the visual viewport but left sitting at
+  layout-viewport top still slides off screen by that same offset. So
+  `AppShell`'s `SidebarProvider` is `fixed` and carries both —
+  `h-(--vv-height)` for the size, `translateY(var(--vv-offset-top))` for the
+  position — and `transform`, not `top`, so it becomes the containing block
+  for its `fixed` descendants (the sidebar, `MutationStatus`), which then
+  follow the visual viewport for free instead of each needing its own
+  correction. `use-viewport-inset` measures `visualViewport` and publishes it
+  on `<html>`:
 
   | Published | Meaning |
   |---|---|
   | `--vv-height` | the visible strip; the shell's height. Defaults to `100dvh` |
-  | `--kb-inset` | what the keyboard covers; anything `fixed` to the bottom adds it |
-  | `--vv-offset-top` | diagnosis only — nothing is positioned from it |
-  | `data-keyboard` | `open` / `closed` |
+  | `--vv-offset-top` | the shell's `translateY`; keeps the app pinned to the visible strip, not just sized to it |
+  | `--kb-inset` | the bottom-pinned-fixed correction (`innerHeight − height − offsetTop`); no consumer today now that the shell itself tracks the offset, kept published for `/dev/viewport` |
+  | `data-keyboard` | `open` / `closed`, from `innerHeight − height` (the keyboard's own shrink) — not `--kb-inset`, which collapses toward 0 on a large offset and would report the keyboard closed while it is up |
   | `data-vh` | `short` / `tiny`, absent when there is room |
 
   It is mounted once, in `AppShell`. `/dev/viewport` shows every number live
@@ -482,7 +489,8 @@ Implementation: `@media (pointer: coarse)` increases paddings, not fonts.
 - Screen rotation must not lose practice session state.
 - In iPad portrait (768–834) the sidebar is hidden, content takes the width with 32 padding.
 - Bottom sticky panel (lesson) on touch: height 64px + `env(safe-area-inset-bottom)`.
-- `overscroll-behavior: none` on `<html>` and on scrolling panels (`overscroll-none` / `overscroll-y-none`), so a Mac rubber-band does not stretch the pane or drag the page.
+<!-- TODO investigate -->
+<!-- - `overscroll-behavior: none` on `<html>` and on scrolling panels (`overscroll-none` / `overscroll-y-none`), so a Mac rubber-band does not stretch the pane or drag the page. -->
 
 ### Other
 
@@ -768,26 +776,34 @@ for ~700, and a scene that cannot be seen has not been kept from jumping — it
 has been lost. So the heights are `--focus-*` in `app/globals.css` at three
 sizes, chosen by `data-vh` (§9):
 
-| | tall | `short` | `tiny` |
-|---|---|---|---|
-| top bar | 64 | 52 | 48 |
-| task line margin | 20 | 12 | 8 |
-| task zone | 150 / 96 compact | 104 / 76 | 76 / 60 |
-| answer zone | 232 / 132 compact | 168 / 104 | 120 / 88 |
-| result footer | 52 | 48 | 44 |
-| scene padding | 32 / 72 | 16 | 12 |
+| | tall | `short` | `tiny` | `data-keyboard="open"` |
+|---|---|---|---|---|
+| top bar | 64 | 52 | 48 | 44 |
+| task line margin | 20 | 12 | 8 | 6 |
+| task zone | 150 / 96 compact | 104 / 76 | 76 / 60 | *(content-sized)* |
+| answer zone | 232 / 132 compact | 168 / 104 | 120 / 88 | 0 |
+| result footer | 52 | 48 | 44 | 0 |
+| scene padding | 32 / 72 | 16 | 12 | 8 |
 
-Every size keeps the equality between formats. Two further rules follow from
-the same place:
+Every size at rest keeps the equality between formats — the three columns
+before the last one are a promise about comparing questions side by side.
+With the keyboard up there is one format on screen and nothing to compare it
+to, so `data-keyboard="open"` does not add a fourth size to that promise, it
+suspends it: the answer zone and result footer collapse to nothing, `FocusFooter`
+and `KeyHints` render null outright, and the scene shrinks to exactly what the
+learner is looking at — the task line and the prompt.
+
+Two further rules follow from the same place:
 
 - On `short` and `tiny` the scene packs from the top and the answer zone drops
   its vertical centring. Centring a scene taller than the strip puts its top
   above the scroll origin, where nothing reaches it.
-- While `data-keyboard="open"` the task zone is `sticky` under the top bar with
-  a `scrim-panel` behind it. Safari scrolls the focused field into view and
-  takes everything above it along; sticky is the one arrangement that a scroll
-  cannot undo. The task *line* may still leave — it says what to do, the task
-  zone is what is being asked.
+- While `data-keyboard="open"` the task line and the prompt share one `sticky`
+  container under the top bar, with a `scrim-panel` behind it — not the prompt
+  alone. Safari scrolls the focused field into view and takes everything above
+  it along, including the line that says what to do; pinning both together in
+  a single sticky box is the one arrangement a scroll cannot pull apart without
+  also pulling the two sticky boxes on top of each other.
 
 ### 15.3 Landing
 

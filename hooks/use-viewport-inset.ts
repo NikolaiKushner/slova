@@ -10,6 +10,7 @@ const UNMEASURED: ViewportInset = {
   height: 0,
   inset: 0,
   offsetTop: 0,
+  keyboardHeight: 0,
   keyboard: false,
   size: "tall",
 }
@@ -52,9 +53,17 @@ function measure() {
   const next = read()
   if (sameViewport(next, snapshot)) return
 
+  const closed = snapshot.keyboard && !next.keyboard
   snapshot = next
   publish(next)
   for (const listener of listeners) listener()
+
+  if (closed) {
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0)
+      schedule()
+    })
+  }
 }
 
 function schedule() {

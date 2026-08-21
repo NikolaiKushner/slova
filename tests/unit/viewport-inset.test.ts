@@ -63,6 +63,17 @@ describe("readViewport", () => {
     expect(reading.height).toBe(453);
     expect(reading.inset).toBe(381);
   });
+
+  it("still detects the keyboard when a large offsetTop collapses the inset (IMG_0261)", () => {
+    const reading = readViewport({
+      innerHeight: 820,
+      height: 279,
+      offsetTop: 541,
+    });
+    expect(reading.keyboardHeight).toBe(541);
+    expect(reading.inset).toBe(0);
+    expect(reading.keyboard).toBe(true);
+  });
 });
 
 describe("viewportSize", () => {
