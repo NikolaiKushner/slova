@@ -47,6 +47,7 @@ import {
 import { NAV_SECTIONS, isNavItemActive } from "@/lib/nav";
 import { SIGNED_IN_HOME } from "@/lib/auth.config";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { useInstallHint } from "@/hooks/use-install-hint";
 
 /**
  * Icons are keyed by href instead of living in `lib/nav.ts`, so the nav model
@@ -93,6 +94,7 @@ function SidebarUserMenu() {
   const { data } = useSession();
   const { isMobile } = useSidebar();
   const t = useTranslations("chrome");
+  const installable = useInstallHint();
   const email = data?.user?.email ?? "";
   const name = data?.user?.name || email.split("@")[0] || t("account");
   const initials = userInitials(data?.user?.name, email);
@@ -150,6 +152,21 @@ function SidebarUserMenu() {
         <div className="px-1 py-1">
           <LocaleSwitcher variant="plain" />
         </div>
+        {/*
+          §15.1 · A third thing in a menu that holds language and sign-out, and
+          only on the browser it is about: iPad Safari, not yet installed. It
+          is a sentence rather than a control because there is no API to add a
+          site to the Home screen — Safari's own Share sheet is the only way in,
+          so the most the interface can do is say where it is.
+        */}
+        {installable ? (
+          <>
+            <DropdownMenuSeparator />
+            <p className="text-muted-foreground px-2 py-1.5 text-caption">
+              {t("installHint")}
+            </p>
+          </>
+        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"

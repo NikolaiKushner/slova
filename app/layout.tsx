@@ -10,6 +10,14 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  /*
+   * Ask the browser to shrink the *layout* viewport for the keyboard, which
+   * is what makes `dvh` honest and this whole problem disappear. Chromium and
+   * Firefox do it; WebKit has not implemented it (bug 259770), so on the iPad
+   * `use-viewport-inset` does the same job by hand. The line costs nothing and
+   * retires itself the day Safari ships it.
+   */
+  interactiveWidget: "resizes-content",
   // neutral-100, the application background. Kept as hex because the browser
   // chrome reads this before any stylesheet, so it cannot be a token.
   themeColor: "#F1F3F2",

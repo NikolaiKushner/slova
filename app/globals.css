@@ -190,6 +190,29 @@
   --page-pt: 28px;
   --page-pb: 56px;
 
+  /* The visible strip of the window, written here by `use-viewport-inset` on
+     every visual-viewport change. The defaults are what the application did
+     before the hook existed, so anything the hook does not reach — an auth
+     screen, the landing, a browser without `visualViewport` — is unchanged. */
+  --vv-height: 100dvh;
+  --vv-offset-top: 0px;
+  --kb-inset: 0px;
+
+  /* §15.2 zone heights. In variables rather than in `focus-shell.tsx` because
+     they are no longer one number each: iOS does not shrink the layout
+     viewport for the keyboard, so on an iPad in landscape a drill's ~700px of
+     zones is asked to fit in ~300px. The zones keep their equality across
+     formats — that is the actual principle — at three sizes instead of one.
+     `data-vh` below picks the size; the numbers are still said once. */
+  --focus-topbar-h: 64px;
+  --focus-head-mb: 20px;
+  --focus-prompt-h: 150px;
+  --focus-prompt-compact-h: 96px;
+  --focus-answer-h: 232px;
+  --focus-answer-compact-h: 132px;
+  --focus-footer-h: 52px;
+  --focus-pad-y: 32px;
+
   /* ----------------------------------------------------------
      4. SHADOWS
      ---------------------------------------------------------- */
@@ -211,6 +234,32 @@
   --motion-base:    240ms;
   --motion-slow:    320ms;
   --motion-page:    400ms;
+}
+
+/* §15.2 · The strip is short — a laptop window in half, or an iPad with the
+   keyboard up. Set from JS, not from `@media (max-height:)`, because a media
+   query is answered by the *layout* viewport and the keyboard never touches
+   that: the query would be blind to the one case these numbers exist for. */
+:root[data-vh="short"] {
+  --focus-topbar-h: 52px;
+  --focus-head-mb: 12px;
+  --focus-prompt-h: 104px;
+  --focus-prompt-compact-h: 76px;
+  --focus-answer-h: 168px;
+  --focus-answer-compact-h: 104px;
+  --focus-footer-h: 48px;
+  --focus-pad-y: 16px;
+}
+
+:root[data-vh="tiny"] {
+  --focus-topbar-h: 48px;
+  --focus-head-mb: 8px;
+  --focus-prompt-h: 76px;
+  --focus-prompt-compact-h: 60px;
+  --focus-answer-h: 120px;
+  --focus-answer-compact-h: 88px;
+  --focus-footer-h: 44px;
+  --focus-pad-y: 12px;
 }
 
 @media (min-width: 768px) {

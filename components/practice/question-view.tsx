@@ -11,6 +11,7 @@ import { OptionButton, OptionList } from "@/components/slova/option-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAutoFocus } from "@/hooks/use-fine-pointer";
 import { judge, judgeForms, passed, type Verdict } from "@/lib/practice/answer";
 import type { Question } from "@/lib/practice/question";
 import { speak } from "@/lib/practice/speech";
@@ -328,6 +329,7 @@ function Typed({
   const [value, setValue] = useState("");
   const [done, setDone] = useState(false);
   const [right, setRight] = useState(false);
+  const inputRef = useAutoFocus<HTMLInputElement>();
   const t = useTranslations("practice");
   const common = useTranslations("common");
 
@@ -364,6 +366,7 @@ function Typed({
     <div className="w-full">
       <div className="flex items-center justify-center gap-2.5">
         <Input
+          ref={inputRef}
           value={value}
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={(event) => {
@@ -374,7 +377,7 @@ function Typed({
           }}
           placeholder={question.kind === "listening" ? t("heardWord") : t("typeEnglish")}
           aria-label={t("yourAnswer")}
-          autoFocus
+          enterKeyHint="go"
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
@@ -451,7 +454,7 @@ function VerbForms({
           value={past}
           onChange={setPast}
           onSubmit={submit}
-          autoFocus
+          focusOnMount
         />
         <FormField
           id="verb-participle"
@@ -482,15 +485,22 @@ function FormField({
   value,
   onChange,
   onSubmit,
-  autoFocus,
+  focusOnMount,
 }: {
   id: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
-  autoFocus?: boolean;
+  /**
+   * Not `autoFocus`: the attribute is gone from both fields, because on a
+   * touch screen the keyboard it opens covers the question (§9). This asks
+   * `useAutoFocus` to focus the field where a pointer says it is safe.
+   */
+  focusOnMount?: boolean;
 }) {
+  const inputRef = useAutoFocus<HTMLInputElement>(focusOnMount === true);
+
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <Label htmlFor={id} className="text-muted-foreground text-caption justify-center">
@@ -498,6 +508,7 @@ function FormField({
       </Label>
       <Input
         id={id}
+        ref={inputRef}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={(event) => {
@@ -506,7 +517,7 @@ function FormField({
             onSubmit();
           }
         }}
-        autoFocus={autoFocus}
+        enterKeyHint="go"
         autoCapitalize="off"
         autoCorrect="off"
         spellCheck={false}
