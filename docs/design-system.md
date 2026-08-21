@@ -489,8 +489,7 @@ Implementation: `@media (pointer: coarse)` increases paddings, not fonts.
 - Screen rotation must not lose practice session state.
 - In iPad portrait (768–834) the sidebar is hidden, content takes the width with 32 padding.
 - Bottom sticky panel (lesson) on touch: height 64px + `env(safe-area-inset-bottom)`.
-<!-- TODO investigate -->
-<!-- - `overscroll-behavior: none` on `<html>` and on scrolling panels (`overscroll-none` / `overscroll-y-none`), so a Mac rubber-band does not stretch the pane or drag the page. -->
+- `overscroll-behavior: none` on `<html>` and on scrolling panels (`overscroll-none` / `overscroll-y-none`), so a Mac rubber-band does not stretch the pane or drag the page.
 
 ### Other
 

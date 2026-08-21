@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Clock, RotateCcw } from "lucide-react";
+import { Clock, RotateCcw, Volume2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { PlayButton } from "@/components/slova/play-button";
 import { Button } from "@/components/ui/button";
+import { useViewportInset } from "@/hooks/use-viewport-inset";
 import { speak } from "@/lib/practice/speech";
+import { cn } from "@/lib/utils";
 
 /** How much slower "Slowly" is. Under about 0.5 the voice stops being speech. */
 const SLOW_RATE = 0.6;
@@ -47,6 +49,7 @@ export function AudioPrompt({
 }) {
   const t = useTranslations("practice");
   const [speaking, setSpeaking] = useState(false);
+  const { keyboard } = useViewportInset();
 
   const say = useCallback(
     async (slow = false, source: "auto" | "manual" = "manual") => {
@@ -112,13 +115,36 @@ export function AudioPrompt({
   }, [say]);
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <PlayButton
-        size="lg"
-        playing={speaking}
-        onClick={() => void say()}
-        aria-label={t("playWord")}
-      />
+    <div
+      className={cn(
+        "flex items-center",
+        keyboard ? "flex-row justify-center gap-2" : "flex-col gap-4",
+      )}
+    >
+      {/*
+        The 96px circle is the question when there is room for it. With the
+        keyboard up there is 279px total and the circle alone was most of the
+        budget it left for the field — a pressed icon beside Again/Slowly
+        says the same thing in the line it shares with them.
+      */}
+      {keyboard ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => void say()}
+          aria-label={t("playWord")}
+        >
+          <Volume2 className="size-4" />
+        </Button>
+      ) : (
+        <PlayButton
+          size="lg"
+          playing={speaking}
+          onClick={() => void say()}
+          aria-label={t("playWord")}
+        />
+      )}
 
       <div className="flex items-center gap-2">
         <Button
