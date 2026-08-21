@@ -54,7 +54,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useViewportInset();
 
   return (
-    <SidebarProvider className="h-(--vv-height) min-h-0 overflow-hidden">
+    <SidebarProvider
+      className="fixed inset-x-0 top-0 h-(--vv-height) min-h-0 overflow-hidden"
+      style={{ transform: "translateY(var(--vv-offset-top))" }}
+    >
       <AppSidebar />
       {/*
         Scroll lives here, not on the document. iOS Safari hides its URL bar

@@ -272,6 +272,7 @@ function Typed({
       verdict: gradeExercise(exercise, value),
       given: value,
     });
+    inputRef.current?.blur();
   }
 
   if (answered) {

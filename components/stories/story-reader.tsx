@@ -19,6 +19,7 @@ import {
   FocusTopBar,
 } from "@/components/layout/focus-shell";
 import { AnswerFeedback } from "@/components/slova/answer-feedback";
+import { useViewportInset } from "@/hooks/use-viewport-inset";
 import { PageBack } from "@/components/page-back";
 import { ProgressSteps } from "@/components/slova/progress-steps";
 import { SpeakButton } from "@/components/slova/speak-button";
@@ -60,6 +61,7 @@ export function StoryReader({
   const coursesT = useTranslations("courses");
   const common = useTranslations("common");
 
+  const { keyboard } = useViewportInset();
   const [phase, setPhase] = useState<Phase>(
     initialProgress ? "summary" : "reading",
   );
@@ -142,15 +144,22 @@ export function StoryReader({
         />
         <div className="flex flex-1 justify-center px-4 pt-11 pb-10 md:px-8">
           <div className="container-prose w-full">
-            <FocusHead task={coursesT(taskKey(current))} />
-            <FocusPrompt compact>
-              <GrammarQuestion
-                exercise={current}
-                answered={answered}
-                onAnswered={answerQuestion}
-                part="prompt"
-              />
-            </FocusPrompt>
+            {/* One sticky container, not two — see FocusShell. */}
+            <div
+              className={cn(
+                keyboard && "bg-background sticky top-(--focus-topbar-h) z-10",
+              )}
+            >
+              <FocusHead task={coursesT(taskKey(current))} />
+              <FocusPrompt compact>
+                <GrammarQuestion
+                  exercise={current}
+                  answered={answered}
+                  onAnswered={answerQuestion}
+                  part="prompt"
+                />
+              </FocusPrompt>
+            </div>
             <FocusAnswer compact>
               <GrammarQuestion
                 key={current.id}

@@ -285,6 +285,26 @@ export function GrammarReviewSession({ items }: { items: GrammarReviewItem[] }) 
           }
         />
       }
+      head={
+        <FocusHead
+          task={
+            current.exercise.kind === "pick-sentence" ||
+            current.exercise.kind === "transform"
+              ? current.exercise.prompt
+              : courses(taskKey(current.exercise))
+          }
+        />
+      }
+      prompt={
+        <FocusPrompt compact>
+          <GrammarQuestion
+            exercise={current.exercise}
+            answered={result}
+            onAnswered={answer}
+            part="prompt"
+          />
+        </FocusPrompt>
+      }
     >
       <MutationStatus
         phase={mutationPhase}
@@ -292,23 +312,6 @@ export function GrammarReviewSession({ items }: { items: GrammarReviewItem[] }) 
         online={online}
         onRetry={() => void retryFailed()}
       />
-      <FocusHead
-        task={
-          current.exercise.kind === "pick-sentence" ||
-          current.exercise.kind === "transform"
-            ? current.exercise.prompt
-            : courses(taskKey(current.exercise))
-        }
-      />
-
-      <FocusPrompt compact>
-        <GrammarQuestion
-          exercise={current.exercise}
-          answered={result}
-          onAnswered={answer}
-          part="prompt"
-        />
-      </FocusPrompt>
 
       <FocusAnswer compact>
         <GrammarQuestion

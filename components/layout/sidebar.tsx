@@ -178,7 +178,7 @@ export function AppSidebar() {
   const t = useTranslations("nav");
 
   return (
-    <Sidebar collapsible="icon" className="h-dvh border-sidebar-border">
+    <Sidebar collapsible="icon" className="h-full border-sidebar-border">
       <SidebarBrandHeader />
 
       <SidebarContent>

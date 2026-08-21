@@ -68,7 +68,7 @@ type Payload = {
  * box above and the pagination below both have to stay reachable, and the
  * column heading has to stay readable, which is what the sticky header is for.
  */
-const PANE = "max-h-[65vh] min-h-[280px] overflow-y-auto overscroll-none";
+const PANE = "max-h-[65vh] min-h-[280px] overflow-y-auto";
 
 const SORTABLE: SortField[] = ["word", "translation"];
 
