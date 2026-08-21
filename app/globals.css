@@ -259,7 +259,7 @@
   --focus-answer-h: 0px;
   --focus-answer-compact-h: 0px;
   --focus-footer-h: 0px;
-  --focus-pad-y: 8px;
+  --focus-pad-y: 12px;
 }
 
 @media (min-width: 768px) {
