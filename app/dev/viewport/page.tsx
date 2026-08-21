@@ -6,20 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useViewportInset } from "@/hooks/use-viewport-inset";
 
-/**
- * What the browser says about the window, live (§9, development only).
- *
- * It exists because the iPad keyboard problem cannot be reasoned about from a
- * laptop: `visualViewport` is the only thing that reports the strip that is
- * actually visible, and its numbers on a real iPad — with the tab bar, with
- * the favourites bar, in portrait and in landscape, in Safari and after «на
- * экран Домой» — are what `--focus-*` in globals.css is tuned against.
- *
- * Open it on the device (`npm run dev -- -H 0.0.0.0`, then the machine's LAN
- * address), tap the field at the bottom, and read the two rows that matter:
- * «клавиатура» and «полоса».
- */
-
 type Probe = {
   innerWidth: number;
   innerHeight: number;
@@ -68,14 +54,11 @@ export default function ViewportProbePage() {
   const inset = useViewportInset();
   const safeAreaRef = useRef<HTMLDivElement>(null);
   const [probe, setProbe] = useState<Probe | null>(null);
-  /* The peak of the keyboard's animation, which the final resting value hides. */
   const [peak, setPeak] = useState(0);
 
   const sample = useCallback(() => {
     const next = readProbe(safeAreaRef.current);
     setProbe(next);
-    // Tracked here rather than off `inset`, so the peak is written by the
-    // event that caused it instead of by an effect chasing a render.
     setPeak((seen) =>
       Math.max(
         seen,
@@ -114,7 +97,6 @@ export default function ViewportProbePage() {
         </p>
       </header>
 
-      {/* Measured, not guessed: `env()` is only readable through a real box. */}
       <div
         ref={safeAreaRef}
         aria-hidden
@@ -131,16 +113,18 @@ export default function ViewportProbePage() {
           value={`${inset.keyboard ? "открыта" : "закрыта"} · ${inset.inset}px (пик ${peak}px)`}
           loud
         />
-        <Row
-          label="полоса"
-          value={`${inset.height}px · режим ${inset.size}`}
-          loud
-        />
+        <Row label="полоса" value={`${inset.height}px · режим ${inset.size}`} loud />
         <Row label="окно (layout)" value={size(probe?.innerWidth, probe?.innerHeight)} />
         <Row label="visualViewport" value={size(probe?.visualWidth, probe?.visualHeight)} />
-        <Row label="offsetTop / offsetLeft" value={`${probe?.offsetTop ?? "—"} / ${probe?.offsetLeft ?? "—"}`} />
+        <Row
+          label="offsetTop / offsetLeft"
+          value={`${probe?.offsetTop ?? "—"} / ${probe?.offsetLeft ?? "—"}`}
+        />
         <Row label="scale" value={String(probe?.scale ?? "—")} />
-        <Row label="safe-area верх / низ" value={`${probe?.safeTop ?? "—"} / ${probe?.safeBottom ?? "—"}`} />
+        <Row
+          label="safe-area верх / низ"
+          value={`${probe?.safeTop ?? "—"} / ${probe?.safeBottom ?? "—"}`}
+        />
         <Row label="screen" value={size(probe?.screenWidth, probe?.screenHeight)} />
         <Row label="devicePixelRatio" value={String(probe?.dpr ?? "—")} />
         <Row label="standalone (PWA)" value={probe?.standalone ? "да" : "нет"} />
@@ -173,7 +157,6 @@ export default function ViewportProbePage() {
         Сбросить пик
       </Button>
 
-      {/* Marks where the visible strip ends, so a screenshot shows the edge. */}
       <div
         aria-hidden
         className="bg-primary pointer-events-none fixed right-0 left-0 z-50 h-0.5"
@@ -197,9 +180,7 @@ function Row({
       <span className="text-muted-foreground text-caption">{label}</span>
       <span
         className={
-          loud
-            ? "font-display text-body tabular-nums"
-            : "text-body-sm tabular-nums"
+          loud ? "font-display text-body tabular-nums" : "text-body-sm tabular-nums"
         }
       >
         {value}
@@ -209,16 +190,9 @@ function Row({
 }
 
 function size(width?: number, height?: number) {
-  return width === undefined || height === undefined
-    ? "—"
-    : `${width} × ${height}`;
+  return width === undefined || height === undefined ? "—" : `${width} × ${height}`;
 }
 
-/**
- * The height a drill asks for at each set of `--focus-*`: top bar + padding ×2
- * + task line + prompt + 20 + answer + 20 + footer. Kept in step with
- * globals.css by hand — it is a readout, not a source of truth.
- */
 function scene(size: "tall" | "short" | "tiny") {
   if (size === "tiny") return 48 + 12 * 2 + 24 + 76 + 20 + 120 + 20 + 44;
   if (size === "short") return 52 + 16 * 2 + 28 + 104 + 20 + 168 + 20 + 48;

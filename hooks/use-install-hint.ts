@@ -2,11 +2,6 @@ import * as React from "react"
 
 import { showInstallHint } from "@/lib/install-hint"
 
-/**
- * Nothing here changes while the tab is open — a browser does not become
- * Safari, and installing the site opens a new window rather than converting
- * this one — so the store never notifies and the answer is worked out once.
- */
 let cached: boolean | null = null
 
 function compute() {
@@ -26,9 +21,6 @@ function getSnapshot() {
   return cached
 }
 
-/** Is this the browser that should be told about «На экран „Домой"»? */
 export function useInstallHint() {
-  // The server cannot know, and a wrong guess would render a line and then
-  // take it away; `false` renders nothing until the client has looked.
   return React.useSyncExternalStore(subscribe, getSnapshot, () => false)
 }

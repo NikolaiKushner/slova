@@ -492,11 +492,6 @@ function FormField({
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
-  /**
-   * Not `autoFocus`: the attribute is gone from both fields, because on a
-   * touch screen the keyboard it opens covers the question (§9). This asks
-   * `useAutoFocus` to focus the field where a pointer says it is safe.
-   */
   focusOnMount?: boolean;
 }) {
   const inputRef = useAutoFocus<HTMLInputElement>(focusOnMount === true);

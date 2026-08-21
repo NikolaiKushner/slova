@@ -3,7 +3,6 @@ import { isAppleTouchSafari, showInstallHint } from "@/lib/install-hint";
 
 const IPAD_MOBILE =
   "Mozilla/5.0 (iPad; CPU OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1";
-/* iPadOS 13+ asks for the desktop site by default and says «Macintosh». */
 const IPAD_DESKTOP =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15";
 const CHROME_IOS =
@@ -42,7 +41,6 @@ describe("showInstallHint", () => {
   });
 
   it("tells a Mac nothing, however much its user agent looks like an iPad", () => {
-    // The string is the same one iPadOS sends; only the pointer separates them.
     expect(
       showInstallHint({
         userAgent: IPAD_DESKTOP,

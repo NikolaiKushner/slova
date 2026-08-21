@@ -51,23 +51,9 @@ export function PageContainer({
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  /*
-   * Mounted here and nowhere else: this is the frame every study screen is
-   * drawn in, so measuring it once covers all of them. It publishes the
-   * visible strip onto `<html>` — `--vv-height`, `--kb-inset`, `data-vh`,
-   * `data-keyboard` — and everything below reads those rather than the hook.
-   */
   useViewportInset();
 
   return (
-    /*
-     * `--vv-height`, not `dvh`. iOS shrinks only the visual viewport when the
-     * keyboard opens, so `100dvh` keeps the height the window had before it —
-     * and this frame, being the scroller, then hides its bottom half behind
-     * the keyboard while Safari scrolls the question off the top to reach the
-     * field. The variable falls back to `100dvh` (globals.css) wherever the
-     * hook has nothing to say, so nothing changes on a desktop.
-     */
     <SidebarProvider className="h-(--vv-height) min-h-0 overflow-hidden">
       <AppSidebar />
       {/*

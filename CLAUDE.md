@@ -71,6 +71,21 @@ shadcn/ui already has, are not accepted.
   and never write custom CSS to fake one. Missing primitive? Install it with
   `npx shadcn@latest add <name>`.
 
+## Comments
+
+Write code that reads without them. No file-header essays, no paragraph above
+a function restating its name, no note explaining a line that is already
+plain, no §-references to the design system beside every class name.
+
+A comment earns its place only where the code cannot say the thing itself: a
+workaround for someone else's bug, a constant whose value came from a
+measurement, an order of operations that looks wrong and is not. One line
+then, not a paragraph.
+
+**Do not take the density of comments in existing files as the target.** Much
+of this repo is over-commented; that is history, not house style. Reasoning
+that explains a decision belongs in `docs/`, where it can be read on its own.
+
 ## Project notes
 
 - Next.js App Router + Route Handlers + Prisma over Neon Postgres; see README.md.

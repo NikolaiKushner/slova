@@ -24,9 +24,6 @@ export function MutationStatus({
     <div
       role={phase === "failed" ? "alert" : "status"}
       aria-live={phase === "failed" ? "assertive" : "polite"}
-      /* `fixed` is anchored to the layout viewport, which iOS does not shrink
-         for the keyboard — pinned to `bottom-4` this sits underneath it.
-         `--kb-inset` is 0 whenever there is no keyboard. */
       className="bg-card border-border fixed right-4 bottom-[calc(1rem+var(--kb-inset))] left-4 z-50 mx-auto flex max-w-xl items-center justify-between gap-4 rounded-xl border px-4 py-3 shadow-lg"
     >
       <p className="text-body-sm">{t(phase)}</p>

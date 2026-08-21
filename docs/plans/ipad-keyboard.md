@@ -186,6 +186,18 @@ In iOS/iPadOS 26, "Add to Home Screen" makes any site standalone by default;
 the manifest is what makes the name, icon and start route ours instead of
 guessed.
 
+The tile itself is `app/apple-icon.tsx`, drawn from `brandIconSvg()` in
+`lib/brand.ts`: the brand S on a pane of light glass, sized to half the square
+the way iOS 26's own icons are. Full bleed — iOS applies the squircle — and
+SVG rather than Satori layout, because the shadow under the S is a Gaussian
+blur and `next/og` rasterises through resvg, which has filters where Satori's
+CSS subset does not.
+
+The manifest keeps `/icon.svg` alongside it. A launcher that prefers the
+vector gets a bare green S on the white backdrop it draws itself, which is the
+flat variant of the same mark — worth a real 512px PNG one day, not worth a
+route today.
+
 Then one quiet line, not a nagging banner: in the account menu (or on the
 session summary) an «Установить на iPad» hint explaining Share → «На экран
 "Домой"», shown only when `navigator.standalone === false` on an iPad, gone

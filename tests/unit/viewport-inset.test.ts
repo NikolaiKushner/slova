@@ -6,9 +6,7 @@ import {
   viewportSize,
 } from "@/lib/viewport-inset";
 
-/* iPad 11″ landscape with Safari's tab and favourites bars. */
 const IPAD_LANDSCAPE = { innerHeight: 690, height: 690, offsetTop: 0 };
-/* The same window with the software keyboard up. */
 const WITH_KEYBOARD = { innerHeight: 690, height: 310, offsetTop: 0 };
 
 describe("readViewport", () => {
@@ -27,9 +25,6 @@ describe("readViewport", () => {
   });
 
   it("counts the offset of the visual viewport as covered", () => {
-    // Safari slid the visual viewport down to reach the field: the part of the
-    // layout viewport below it is hidden just as surely as the part behind the
-    // keyboard, and both have to come off the frame's height.
     const reading = readViewport({
       innerHeight: 690,
       height: 310,
@@ -40,9 +35,6 @@ describe("readViewport", () => {
   });
 
   it("reads a stuck offsetTop as no keyboard rather than a negative one", () => {
-    // iOS 26 leaves `offsetTop` where the keyboard left it after dismissal.
-    // Naively that is a keyboard of negative height, which would stretch the
-    // frame past the window; it has to clamp to nothing at all.
     const reading = readViewport({
       innerHeight: 690,
       height: 690,
