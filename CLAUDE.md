@@ -111,6 +111,18 @@ then, not a paragraph.
 of this repo is over-commented; that is history, not house style. Reasoning
 that explains a decision belongs in `docs/`, where it can be read on its own.
 
+**One line each, and few of them.** A comment longer than one line needs a
+reason it could not be one; a file needing more than two or three is telling
+you the code is unclear, and the fix is the code. Before writing one, ask what
+a reader would get wrong without it — if the answer is "nothing", delete it.
+Explaining what a module is for is never that case: that is the plan's job.
+
+This rule is aimed at agents in particular, and it does not hold on its own —
+the microphone probe was written the same day this section was last edited and
+still arrived with a ten-line header and twenty-two lines of commentary.
+**Re-read the diff for comments before presenting it**, and cut there rather
+than trusting that the habit stayed away.
+
 ## Project notes
 
 - Next.js App Router + Route Handlers + Prisma over Neon Postgres; see README.md.

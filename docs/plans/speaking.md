@@ -92,11 +92,18 @@ same file, same defensive posture, same reason. It exposes a promise-shaped
 failure, never a throw. `maxAlternatives` is raised so grading sees the
 recogniser's runner-up guesses, not only its first.
 
-Grading reuses `lib/practice/answer.ts`: the transcripts are normalised the
-same way a typed answer is (articles dropped, case folded) and any one of them
-matching is a pass. A spoken answer then goes through the ordinary
-`/api/study/review` path with the ordinary FSRS grade, because a word produced
-out loud is at least as good evidence as a word typed.
+Grading builds on `lib/practice/answer.ts` — articles dropped, case folded,
+any one transcript matching is a pass — but **not on it alone.** The step 1
+run showed why: `judge` keeps apostrophes on purpose, so a correctly spoken
+*"I am going to Paris"* transcribed as *"I'm going to Paris"* is graded wrong
+(§8). A speaker cannot pronounce an apostrophe, and which form the engine
+writes down is the engine's choice. Spoken answers therefore pass through a
+contraction fold before `judge` sees them; the typed formats keep the strict
+rule, which is correct for them.
+
+A spoken answer then goes through the ordinary `/api/study/review` path with
+the ordinary FSRS grade, because a word produced out loud is at least as good
+evidence as a word typed.
 
 **Why over the alternatives:**
 
@@ -165,17 +172,26 @@ predicate, i18n, and a privacy line.
 - **Files:** `lib/practice/catalog.ts` (a `speaking` entry, and `audio` grows a
   sibling `mic` flag), `lib/practice/audio-capability.ts` (a `micAvailable`
   beside `audioAvailable`), `lib/practice/question.ts` (the new
-  `ExerciseKind`), `components/practice/question-view.tsx`,
+  `ExerciseKind`), `lib/practice/spoken-answer.ts` (new — the contraction
+  fold), `components/practice/question-view.tsx`,
   `components/practice/mic-prompt.tsx` (new, modelled on
-  `components/practice/audio-prompt.tsx`), `components/practice/practice-page.tsx`.
-- **Does:** shows the Russian meaning, one big press-and-speak control, and
-  grades the transcript through `lib/practice/answer.ts`. **A recognition
-  failure surfaces as "не расслышал" with a retry, and never as a wrong
-  answer** — a false negative here would both demoralise and corrupt the FSRS
-  state, which is the one damage this feature can actually do.
-- **Verify:** `npm test` for the grading and capability units; then the drill
-  run by hand on all three platforms from step 1, 20 words, and the hit rate
-  recorded against the §4 criterion.
+  `components/practice/audio-prompt.tsx`), `components/practice/practice-page.tsx`,
+  `tests/unit/practice-spoken-answer.test.ts` (new).
+- **Does:** shows the Russian meaning, one big press-and-speak control, folds
+  contractions in the transcript, then grades through
+  `lib/practice/answer.ts`. **A recognition failure surfaces as "не расслышал"
+  with a retry, and never as a wrong answer** — a false negative here would
+  both demoralise and corrupt the FSRS state, which is the one damage this
+  feature can actually do.
+- **The cold start is the drill's problem, not the engine's.** §8 measured
+  2318 ms to `onstart` on the first attempt and 5–19 ms on every one after.
+  The control must not sit dead for two seconds on the first word of a
+  session.
+- **Verify:** `npm test` — the contraction fixtures come straight from §8
+  (`"I'm going to Paris"` against `"I am going to Paris"` must pass, and the
+  typed formats must keep failing `dont` for `don't`). Then the drill run by
+  hand on all three platforms from step 1, 20 words, and the hit rate recorded
+  against the §4 criterion.
 
 ### 4. Permission, privacy, and the gate — S · `[ ]`
 
@@ -219,9 +235,90 @@ migrate back.
 
 ## 8. Spike findings
 
-*(Fill in during step 1 — platform, browser version, works / fails, error
-codes seen, gesture behaviour. This section is the deliverable of step 1 and
-the input to the go/no-go on the rest.)*
+**In progress. One platform of three answered; the decisive one is still
+open. The recogniser looks good; §4's bar is not met, and the reason is
+mostly on our side.**
+
+### macOS Safari 26.5.2, tab — 2026-08-22, 20 attempts
+
+| | |
+|---|---|
+| API | `webkitSpeechRecognition` — prefixed, as expected |
+| `standalone` | no (tab) |
+| Returned a transcript | **20 of 20** — the engine never failed to answer |
+| Hit rate, first guess | **15/20 = 75%** |
+| With alternatives | 15/20 = 75% — not one verdict changed |
+| Confidence on hits | mostly 0.95–1.00 |
+| Time to `onstart` | 5–19 ms, except the very first attempt at **2318 ms** |
+| Total per attempt | 3.2–6.1 s |
+| Interim results | arrived on 19 of 20 |
+| Fresh gesture for attempt 2+ | not needed; every attempt started |
+
+**§4 asks for at least 18 of 20. This run gives 15.** But the five that missed
+are not five recogniser failures, and the difference matters more than the
+percentage.
+
+#### The finding that changes the plan: contractions are graded wrong
+
+Attempt #11 — target *"I am going to Paris"*, heard **"I'm going to Paris"** at
+0.98 confidence — was marked **wrong**. The speaker said the sentence
+correctly and the engine transcribed it correctly. `judge` failed it, and it
+does so deterministically:
+
+```
+judge("I'm going to Paris", "I am going to Paris")  →  wrong
+judge("I will make it",     "i'll make it")         →  wrong
+```
+
+This is by design in the typed formats: `lib/lexicon/key.ts` deliberately
+keeps apostrophes, because `don't` and `dont` are different dictionary
+entries and a learner typing one for the other should know. **Speech has no
+such distinction.** A speaker cannot pronounce the apostrophe, and which of
+the two forms the engine writes down is the engine's choice, not the
+learner's.
+
+So §5's claim that grading can simply reuse `answer.ts` is **wrong as
+written**, and this is exactly the damage §7 names — a false negative that
+both demoralises and corrupts the FSRS state. Step 3 gains a requirement:
+spoken answers are folded through a contraction pass before `judge` sees
+them, and the fixture for it is this attempt.
+
+#### The rest of the misses
+
+- **#13** — target *"We will see big lake"*, heard *"I will see big lake"* at
+  0.98. A genuine recogniser error, on the unstressed function word. This is
+  the honest kind of miss and there is nothing to do about it.
+- **#3** — target *"nedd help"* (a typo), heard *"Need help"*. Scored
+  **почти**, which is the three-verdict design working exactly as intended.
+- **#18** — target *"teather"*, not an English word. Every alternative came
+  back at 0.07 confidence (*Ciro, Citro, Citra, Sit*) and it was the **only
+  attempt of twenty where interim results never arrived** — the engine
+  signalling it had nothing. Not a fair test item.
+- Two rows (#9, #10) were not legible in the captures and are unaccounted for.
+
+Excluding the invalid target and the grading bug, the recogniser missed once
+on a valid item in eighteen.
+
+#### Three other things worth keeping
+
+- **Multi-word phrases are strong**: *"I will go to Japan"* 1.00, *"weather is
+  good"* 1.00, *"How are you"* 1.00, *"I am going to Paris"* 1.00. That is
+  direct evidence for the read-aloud drill in step 5, which the 5-attempt
+  sample could say nothing about.
+- **The alternatives still rescued nothing** — 15/20 both ways, twice now.
+  They do carry sensible variants (#3 offered *Need help / I need help / You
+  need help*), they just never flipped a verdict. `maxAlternatives` stays as
+  insurance, not as a feature to design around.
+- **The first attempt costs 2.3 seconds to start**, every later one 5–19 ms.
+  The engine warms up once. The drill should absorb that cold start rather
+  than show a two-second dead button on the first word.
+
+### iOS Safari, tab — not yet run
+
+### iOS Safari, installed to the home screen — not yet run
+
+**This is the one that decides the section.** Until it is run, steps 2–5 stay
+unstarted.
 
 ## 9. Progress
 

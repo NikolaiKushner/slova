@@ -37,10 +37,12 @@ and the third makes an already-shipped course worth more.
 
 ## Shipped
 
-`shipped/` holds twelve plans behind the current app — Stories, Grammar
+`shipped/` holds thirteen plans behind the current app — Stories, Grammar
 Review, the nav rebuild, the lexicon expansion, the iPad keyboard work, the
-landing page, and the pre-release cleanup. They are the reasoning behind code
-that is live, and several are cited directly from source comments.
+landing page, the pre-release cleanup, and the project-review roadmap whose
+seven phases produced much of the reliability work. They are the reasoning
+behind code that is live, and several are cited directly from source
+comments.
 
 ## Conventions worth copying
 
