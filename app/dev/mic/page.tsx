@@ -219,8 +219,7 @@ export default function MicProbePage() {
   const hitsAny = attempts.filter((row) => row.verdictAny === "correct").length;
 
   return (
-    // html and body are overflow:hidden for the iPad keyboard.
-    <div className="mx-auto flex h-(--vv-height) max-w-xl flex-col gap-6 overflow-y-auto overscroll-y-none p-4">
+    <div data-page-scroll className="mx-auto flex max-w-xl flex-col gap-6 p-4">
       <header className="flex flex-col gap-2">
         <p className="text-eyebrow text-overline">dev · распознавание речи</p>
         <h1 className="font-display text-title">Проба микрофона</h1>

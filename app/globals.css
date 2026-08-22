@@ -428,6 +428,13 @@
     overscroll-behavior: none;
   }
 
+  /* The app scrolls inside the shell, not the document. Pages rendered
+     outside it opt back into an ordinary page scroll with `data-page-scroll`. */
+  html:has([data-page-scroll]), body:has([data-page-scroll]) {
+    height: auto;
+    overflow: visible;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     font-size: 1rem;
