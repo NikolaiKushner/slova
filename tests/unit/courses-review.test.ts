@@ -57,7 +57,6 @@ function course(input: {
       title: `Course ${input.slug}`,
       titleRu: `Курс ${input.slug}`,
       level: "A1",
-      order: 1,
       estMinutes: 20,
       lessons: (input.lessons ?? []).map((item) => item.slug),
     },

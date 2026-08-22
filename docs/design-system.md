@@ -826,7 +826,7 @@ Container 780. The screen’s job is **continue or start**, not “browse the li
 
 **Full catalog** (after the threshold). Order: `PageHeader` → level bar → on the first visit a «Что такое курс» card → toolbar (search, sorting, «Все / Мой уровень») → list grouped by CEFR (own level open, below — collapsed; above are marked «выше вашего уровня») → «Скоро» at the selected level, collapsed. On search, sort by title/started, and the «Мой уровень» filter the list is flat, without shelves. Empty search — `Empty` + «Сбросить».
 
-**Grammar Review card.** One compact `Card` at the catalog width, above the level bar: `overline` «Повторение», `h4` «Повторить слабые правила», one `text-caption` line with the rule count, course count and estimated minutes, a restrained rotate icon, and one primary «Начать повторение» to `/courses/grammar/review`. It is absent when nothing is due — no disabled card, no «всё повторено» state, no tab, dashboard grid, score ring, or per-course review card. Spec: `docs/plans/grammar-review.md` §14.
+**Grammar Review card.** One compact `Card` at the catalog width, above the level bar: `overline` «Повторение», `h4` «Повторить слабые правила», one `text-caption` line with the rule count, course count and estimated minutes, a restrained rotate icon, and one primary «Начать повторение» to `/courses/grammar/review`. It is absent when nothing is due — no disabled card, no «всё повторено» state, no tab, dashboard grid, score ring, or per-course review card. Spec: `docs/plans/shipped/grammar-review.md` §14.
 
 A course row is one action with a verb: not started → «Начать» to the table of contents; in progress → «Продолжить» to the next lesson; completed → «Пройден» to the table of contents. There is no separate “you are taking” card and no separate page for that: started ones sit on top. If the selected level has no live courses — `Empty` + an action to go to a level where they exist, not a grid of someone else’s «Скоро».
 
@@ -850,7 +850,7 @@ Metric tiles are allowed on this screen only. Do not draw hours, weekly stacked 
 
 ### 15.8 Stories (`/stories`, `/stories/[slug]`)
 
-The one screen in the app that is a reading surface, not a list, a form, or one question at a time. Full spec: `docs/plans/stories.md` §6.
+The one screen in the app that is a reading surface, not a list, a form, or one question at a time. Full spec: `docs/plans/shipped/stories.md` §6.
 
 **Catalog** (`/stories`) — container `container-list` (780), same shell as My words: `PageHeader` → one `LessonRow kind="next"` card for the story to read next (level · minutes · word counts, `Button size="lg"` «Читать») → «Все истории» as divided rows (level chip, Literata `h4` title, `text-caption` description, minutes, chevron) → «Прочитанные» as a collapsed `Accordion` with a count in the trigger. Rows, not cards — a card per story repeats the failure §15.7 already ruled out.
 

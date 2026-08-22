@@ -12,7 +12,7 @@ import { StoryContentError } from "@/lib/stories/validate";
 import { addWords } from "@/lib/words/add";
 
 /**
- * Add one glossed word from a story to the dictionary — docs/plans/stories.md
+ * Add one glossed word from a story to the dictionary — docs/plans/shipped/stories.md
  * §3.4/§5.5. Translation resolution order: the shared base first, the
  * contextual gloss only as fallback — a contextual gloss is deliberately
  * narrow ("running late" in this sentence) and must never become the

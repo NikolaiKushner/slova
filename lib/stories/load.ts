@@ -23,7 +23,7 @@ import { StoryContentError, storyWordCount, validateStory } from "@/lib/stories/
  * it travels with the serverless bundle.
  */
 
-/** Conservative for a learner pausing on glosses — see docs/plans/stories.md §6.2's "~2 мин" example on a ~150-word story. */
+/** Conservative for a learner pausing on glosses — see docs/plans/shipped/stories.md §6.2's "~2 мин" example on a ~150-word story. */
 const READING_WORDS_PER_MINUTE = 100;
 
 const STORIES: Record<string, unknown> = {

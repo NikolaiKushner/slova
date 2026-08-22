@@ -5,7 +5,7 @@ import { storyFileSchema } from "@/content/stories/schema";
 import { validateStory } from "@/lib/stories/validate";
 
 /**
- * docs/plans/stories.md §8/§11 Phase 0 exit: "ten stories in the repository,
+ * docs/plans/shipped/stories.md §8/§11 Phase 0 exit: "ten stories in the repository,
  * green". This reads the files directly with fs rather than importing them,
  * because nothing at runtime needs these ten JSON files bundled yet — that
  * static-import wiring is `lib/stories/load.ts`, Phase 1.

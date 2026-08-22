@@ -20,7 +20,7 @@ import { loadAllStories, loadCatalog, type LoadedStory } from "@/lib/stories/loa
 import { loadCompletedStorySlugs, loadStoryProgress } from "@/lib/stories/progress";
 import { orderStories, type OrderedStory } from "@/lib/stories/select";
 
-/** `/stories` catalog — docs/design-system.md §15.8, docs/plans/stories.md §6.2. */
+/** `/stories` catalog — docs/design-system.md §15.8, docs/plans/shipped/stories.md §6.2. */
 export default async function StoriesPage() {
   const session = await getSession();
   const userId = session?.user?.id;

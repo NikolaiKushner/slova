@@ -3,7 +3,6 @@
   "title": "to be",
   "titleRu": "am / is / are",
   "level": "A1",
-  "order": 2,
   "estMinutes": 30,
   "lessons": ["forms", "use", "negatives", "questions", "test"],
   "outcomes": [

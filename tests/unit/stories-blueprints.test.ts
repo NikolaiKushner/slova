@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { blueprintSchema } from "@/content/stories/schema";
 
 /**
- * docs/plans/stories.md §8: ten blueprints, six A1 and four A2. Nothing at
+ * docs/plans/shipped/stories.md §8: ten blueprints, six A1 and four A2. Nothing at
  * runtime reads these files, so this test — not a static import list — is
  * what would catch a malformed or missing brief.
  */

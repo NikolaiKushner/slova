@@ -3,7 +3,7 @@
  *
  * A rule missed in a lesson comes back the next local day. Three correct
  * returns, spaced 3 then 7 days, clear it for now; any miss puts it back to
- * the start. That is the whole model — docs/plans/grammar-review.md §7.
+ * the start. That is the whole model — docs/plans/shipped/grammar-review.md §7.
  *
  * Vocabulary has FSRS because it has thousands of independently scheduled
  * items and a recall model worth fitting. Twenty-five live rules being
