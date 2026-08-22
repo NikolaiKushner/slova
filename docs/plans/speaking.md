@@ -8,8 +8,8 @@ decision. Read-aloud may come back as its own, ungraded feature.
 
 Branch: `feat/speaking`.
 Source: brainstorm session 2026-08-22, second of four candidate sections.
-Siblings: [Reader](reader.md), [Phrases](phrases.md), [Dialogues](dialogues.md).
-Prerequisite: [one activity spine for Progress](progress-activity.md).
+Siblings: [Reader](shipped/reader.md), [Phrases](phrases.md), [Dialogues](dialogues.md).
+Prerequisite: [one activity spine for Progress](shipped/progress-activity.md).
 
 ## 1. Why this one
 
@@ -412,7 +412,7 @@ day and it answered the question it was built for.
 a training format, not a parallel world: it runs through the existing session
 engine, so it writes a `StudySitting` and `ReviewLog` rows like every other
 format, and it therefore lands on the calendar, in the streak, in minutes and
-in retention **with no work at all**. Contrast [Reader](reader.md) and
+in retention **with no work at all**. Contrast [Reader](shipped/reader.md) and
 [Dialogues](dialogues.md), which touch neither table and have to earn their
 square.
 
@@ -421,7 +421,7 @@ Two things do need deciding:
 - **A per-format split** — "which of the seven formats do you actually use" —
   becomes worth showing once there are seven. `StudySitting.label` already
   stores the format slug, so this is an aggregate, not a schema change. It
-  belongs to [progress-activity.md](progress-activity.md) step 4, not here.
+  belongs to [progress-activity.md](shipped/progress-activity.md) step 4, not here.
 - **A recognition rate must not be shown as a score.** The share of attempts
   the recogniser accepted is a property of the microphone, the room and the
   browser at least as much as of the speaker. Putting it on Progress as a
@@ -434,7 +434,7 @@ Progress shows the sitting and its minutes like any other format's.
 
 ## 10. Deferred, captured on purpose
 
-- **Read-aloud over a user's own text**, once [Reader](reader.md) ships — the
+- **Read-aloud over a user's own text**, once [Reader](shipped/reader.md) ships — the
   sentence source becomes `UserText` instead of a Story paragraph, and the two
   features multiply.
 - **Minimal pairs** (`ship`/`sheep`) as a third drill. Attractive, and exactly

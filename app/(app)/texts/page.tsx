@@ -17,7 +17,7 @@ import { ASSUMED_KNOWN_WORDS, knownKeys } from "@/lib/texts/known-words";
 import { lemmatize } from "@/lib/texts/lemma";
 import { parseText } from "@/lib/texts/tokenize";
 
-/** `/texts` — docs/plans/reader.md §6.2, rows not cards as in docs/design-system.md §15.8. */
+/** `/texts` — docs/plans/shipped/reader.md §6.2, rows not cards as in docs/design-system.md §15.8. */
 export default async function TextsPage() {
   const session = await getSession();
   const userId = session?.user?.id;

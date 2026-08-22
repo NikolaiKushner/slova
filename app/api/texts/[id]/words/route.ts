@@ -12,7 +12,7 @@ import { parseText } from "@/lib/texts/tokenize";
 import { addWords } from "@/lib/words/add";
 
 /**
- * Add one word from a text to the dictionary — docs/plans/reader.md §5.2,
+ * Add one word from a text to the dictionary — docs/plans/shipped/reader.md §5.2,
  * mirroring app/api/stories/[slug]/words/route.ts, contextual-gloss fallback
  * and all. The client names a token, never a word.
  */

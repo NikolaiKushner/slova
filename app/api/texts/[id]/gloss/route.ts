@@ -19,7 +19,7 @@ import { lemmatize } from "@/lib/texts/lemma";
 import { parseText, sentenceAround } from "@/lib/texts/tokenize";
 
 /**
- * What one word means in one sentence — docs/plans/reader.md §6.5. The only
+ * What one word means in one sentence — docs/plans/shipped/reader.md §6.5. The only
  * paid path here, and one sentence is all that ever leaves the account.
  */
 

@@ -1,10 +1,9 @@
 # Plan — Reader, the "My texts" section
 
-Status: steps 1–8 done on `feat/word-phrase-split`, not yet merged. The
-migration is applied to development and to the E2E fixture; production is
-still to do, per `docs/deployment.md`.
+**Status:** shipped 2026-08-22. Kept because code comments cite it — see `CLAUDE.md` → Plans.
+
 Source: brainstorm session 2026-08-22, first of four candidate sections.
-Siblings: [Speaking](speaking.md), [Phrases](phrases.md), [Dialogues](dialogues.md).
+Siblings: [Speaking](../speaking.md), [Phrases](../phrases.md), [Dialogues](../dialogues.md).
 Prerequisite: [one activity spine for Progress](progress-activity.md).
 
 ## 1. Why this one

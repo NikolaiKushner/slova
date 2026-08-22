@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { postJsonWithRetry } from "@/lib/client-mutation";
 import { MAX_TEXT_CHARS, titleFrom } from "@/lib/texts/draft";
 
-/** Paste something to read — docs/plans/reader.md §6.2. */
+/** Paste something to read — docs/plans/shipped/reader.md §6.2. */
 export function TextComposer({ atLimit }: { atLimit: boolean }) {
   const t = useTranslations("texts");
   const router = useRouter();

@@ -1,9 +1,10 @@
 # Plan — one activity spine for Progress
 
-Status: complete. Steps 1–4 shipped in #55, step 5 on `feat/word-phrase-split`.
+**Status:** shipped 2026-08-22. Kept because code comments cite it — see `CLAUDE.md` → Plans.
+
 Source: brainstorm session 2026-08-22. Prerequisite for
-[Reader](reader.md), [Speaking](speaking.md), [Phrases](phrases.md) and
-[Dialogues](dialogues.md).
+[Reader](reader.md), [Speaking](../speaking.md), [Phrases](../phrases.md) and
+[Dialogues](../dialogues.md).
 
 ## 1. Why this one, before the others
 
@@ -178,7 +179,7 @@ No migration for the spine; none for the phrase split either, since
 - **Files:** `lib/overview.ts`, `components/overview-stats.tsx`, i18n,
   `tests/unit/overview.test.ts`.
 - **Does:** `getOverview` counts `UserWord` by `kindOf(front)`. Without this,
-  [Phrases](phrases.md) silently inflates "words learned" — forty phrases
+  [Phrases](../phrases.md) silently inflates "words learned" — forty phrases
   would read as forty words, and the one number a person uses to judge their
   own progress would quietly stop meaning what it says.
 - **Verify:** unit test over a fixture with both; browser.

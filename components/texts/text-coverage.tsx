@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { type Coverage, readabilityOf } from "@/lib/texts/coverage";
 import { cn } from "@/lib/utils";
 
-/** How much of a text the reader already has — docs/plans/reader.md §6.6. */
+/** How much of a text the reader already has — docs/plans/shipped/reader.md §6.6. */
 export function TextCoverage({
   coverage,
   /** On a list row, where the count of words to look up is not the question. */

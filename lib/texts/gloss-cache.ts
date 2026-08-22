@@ -2,7 +2,7 @@ import type { Prisma } from "@/app/generated/prisma/client";
 
 /**
  * `UserText.glosses` — one contextual translation per token id, so the second
- * tap on a word costs nothing. docs/plans/reader.md §5.1.
+ * tap on a word costs nothing. docs/plans/shipped/reader.md §5.1.
  */
 
 export type GlossCache = Record<string, string>;

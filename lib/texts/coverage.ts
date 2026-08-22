@@ -1,7 +1,7 @@
 import type { ParsedText, TextToken } from "@/lib/texts/tokenize";
 
 /**
- * The share of a text's running words the reader already has — docs/plans/reader.md
+ * The share of a text's running words the reader already has — docs/plans/shipped/reader.md
  * §1. Comprehension tracks this number, so it is counted over every running
  * word, not only over the ones the shared base happens to know.
  */

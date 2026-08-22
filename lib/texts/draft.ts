@@ -1,7 +1,7 @@
 import { splitParagraphs } from "@/lib/texts/tokenize";
 
 /**
- * What a paste has to satisfy before it becomes a row — docs/plans/reader.md
+ * What a paste has to satisfy before it becomes a row — docs/plans/shipped/reader.md
  * §5.1. Two constants and a title, not a quota system.
  */
 

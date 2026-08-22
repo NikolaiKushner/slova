@@ -14,7 +14,7 @@ import {
 import { parseText } from "@/lib/texts/tokenize";
 
 /**
- * Keep a pasted text — docs/plans/reader.md §5.2. Tokenizing here is only for
+ * Keep a pasted text — docs/plans/shipped/reader.md §5.2. Tokenizing here is only for
  * the counts; the reader tokenizes again, which beat storing the answer.
  */
 

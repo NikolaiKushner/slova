@@ -245,7 +245,7 @@ export function buildTranslationRequest(
 }
 
 /**
- * A word's meaning in one sentence — docs/plans/reader.md §6.5.
+ * A word's meaning in one sentence — docs/plans/shipped/reader.md §6.5.
  *
  * Separate from the translation prompt because it asks for the opposite
  * thing: not the dictionary form of a word, but what it means *here*, which

@@ -16,7 +16,7 @@ import { parseText } from "@/lib/texts/tokenize";
 
 type Params = { params: Promise<{ id: string }> };
 
-/** `/texts/[id]` — docs/plans/reader.md §6.3. */
+/** `/texts/[id]` — docs/plans/shipped/reader.md §6.3. */
 export default async function TextPage({ params }: Params) {
   const session = await getSession();
   const userId = session?.user?.id;

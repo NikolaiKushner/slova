@@ -6,7 +6,7 @@ import { parseText } from "@/lib/texts/tokenize";
 import { MIN_READING_SEC } from "@/lib/progress";
 
 /**
- * What reading adds to Progress — docs/plans/reader.md §8. Kept out of
+ * What reading adds to Progress — docs/plans/shipped/reader.md §8. Kept out of
  * `lib/progress.ts` so the rest of the page need not load a language model.
  */
 

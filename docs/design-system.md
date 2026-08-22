@@ -860,7 +860,7 @@ No cover art, reading-time ring, per-word difficulty colouring, or second accent
 
 ### 15.9 My texts (`/texts`, `/texts/[id]`)
 
-The reader's own texts, pasted. Full spec: `docs/plans/reader.md` §5–6.
+The reader's own texts, pasted. Full spec: `docs/plans/shipped/reader.md` §5–6.
 
 **List** (`/texts`) — container `container-list` (780), the same shell as §15.8: `PageHeader` → the paste field immediately below it, as §16 requires of an empty vocabulary → «Ваши тексты» as divided rows (title, word count, chevron, a `ghost` delete). The paste field is a `Textarea`, `min-h-40`, and the title input appears only once something has been pasted, offering the first line as its placeholder.
 

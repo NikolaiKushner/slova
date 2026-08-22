@@ -8,7 +8,7 @@ import { parseVerbTable } from "@/lib/lexicon/forms";
 import type { Lemmatizer, TokenSpan } from "@/lib/texts/tokenize";
 
 /**
- * Dictionary form for every token of a paragraph — docs/plans/reader.md §5.
+ * Dictionary form for every token of a paragraph — docs/plans/shipped/reader.md §5.
  * Server-side only: the model is 3.8 MB on disk and must never reach the
  * client bundle.
  */

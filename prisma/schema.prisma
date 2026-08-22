@@ -602,7 +602,7 @@ model GrammarRuleReviewLog {
 }
 
 /// A text this person pasted, read through a tokenization that is recomputed
-/// on open rather than stored — docs/plans/reader.md §5.1.
+/// on open rather than stored — docs/plans/shipped/reader.md §5.1.
 model UserText {
   id     String @id @default(cuid())
   userId String

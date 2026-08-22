@@ -5,7 +5,7 @@ import { normalizeKey } from "@/lib/lexicon/key";
 /**
  * The words a coverage figure may assume without being told. A dictionary
  * never holds `the` or `and`, so counted against it alone an A2 narrative
- * scores 12% and the thresholds mean nothing — docs/plans/reader.md §10.
+ * scores 12% and the thresholds mean nothing — docs/plans/shipped/reader.md §10.
  */
 
 export const ASSUMED_KNOWN_WORDS = 500;

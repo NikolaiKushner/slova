@@ -4,7 +4,7 @@ import type { RatedWord } from "@/lib/word-rating";
 
 /**
  * Turning tokenizer output into what the text reader shows —
- * docs/plans/reader.md §6.3. Pure, so the dictionary matching is testable
+ * docs/plans/shipped/reader.md §6.3. Pure, so the dictionary matching is testable
  * without a database.
  */
 

@@ -1,7 +1,7 @@
 import { normalizeKey } from "@/lib/lexicon/key";
 
 /**
- * Turning a pasted text into what the reader screen shows — docs/plans/reader.md
+ * Turning a pasted text into what the reader screen shows — docs/plans/shipped/reader.md
  * §5. Pure and dependency-free: the lemmatizer is injected, so the spans and
  * the counts are testable without loading a language model.
  */
@@ -99,7 +99,7 @@ const SENTENCE_END = /[.!?]["'”’)\]]*\s/gu;
 
 /**
  * The one sentence a token sits in, for the gloss request. Never the whole
- * text: docs/plans/reader.md §7 makes that the rule rather than an accident.
+ * text: docs/plans/shipped/reader.md §7 makes that the rule rather than an accident.
  */
 export function sentenceAround(text: string, span: TokenSpan): string {
   let start = 0;
