@@ -1,6 +1,12 @@
 # Plan — Speaking, the fourth modality
 
-Status: proposed, not started. Branch: `feat/speaking`.
+**Status: step 1 done, steps 2–5 shelved on its evidence — 2026-08-22.** The
+spike was built and run; the browser recogniser scores 58% on the single words
+the drill would ask for, which is not a bar that care in the interface can
+lift. See [§8](#8-spike-findings) for the runs and [§8a](#8a-verdict) for the
+decision. Read-aloud may come back as its own, ungraded feature.
+
+Branch: `feat/speaking`.
 Source: brainstorm session 2026-08-22, second of four candidate sections.
 Siblings: [Reader](reader.md), [Phrases](phrases.md), [Dialogues](dialogues.md).
 Prerequisite: [one activity spine for Progress](progress-activity.md).
@@ -313,12 +319,92 @@ on a valid item in eighteen.
   The engine warms up once. The drill should absorb that cold start rather
   than show a two-second dead button on the first word.
 
-### iOS Safari, tab — not yet run
+### iPadOS Safari 26.5.2, tab — 2026-08-22, 21 attempts
 
-### iOS Safari, installed to the home screen — not yet run
+Run against production (`slova.study`). The user agent reads `Macintosh` —
+iPadOS Safari sends a desktop UA by default — but the device is an iPad.
 
-**This is the one that decides the section.** Until it is run, steps 2–5 stay
-unstarted.
+| | |
+|---|---|
+| API | `webkitSpeechRecognition` |
+| `standalone` | no (tab) |
+| Returned a transcript | **21 of 21** |
+| Hit rate | **12/21 = 57%**, first guess and with alternatives alike |
+| Time to `onstart` | 3–13 ms, except the first attempt at 3008 ms |
+| Total per attempt | 2.9–6.7 s |
+| Interim results | arrived on all 21 |
+| Fresh gesture for attempt 2+ | not needed |
+
+**Technically the API is fine on iPad.** It starts, it streams interim
+results, it never needs a second gesture, it always answers. Nothing about the
+platform is broken.
+
+**The accuracy is what fails.** 57% against the 90% §4 asks for, and worse
+than the 75% the same probe got on macOS.
+
+#### The failures cluster, and they cluster on exactly what the drill does
+
+| | Correct |
+|---|---|
+| Single words | **7 of 12 = 58%** |
+| Multi-word phrases | **5 of 7 = 71%** |
+
+*(`nintendo` scored «почти» and `teather` is not an English word; both
+excluded.)*
+
+The single-word misses are not noise, they are systematic:
+
+- **`returned` → *"Return it"*, twice**, at 0.99 and 0.94 confidence. Near
+  homophones, and the recogniser prefers the commoner phrase. It will do this
+  every time.
+- **`class` → *"Cloth"* (0.52), then → *"Pause"* (0.71)**. Same target, two
+  different wrong answers.
+- **`clothes` → *"Close"* (0.09)**.
+- **`i need help` → *"Annika"* (0.37)** — a total miss.
+
+Meanwhile *"Good job"* came back at 1.00, *"Bring me water"* at 0.88,
+*"I want candy"* at 0.99, *"Great idea"* at 0.99. **Context is what the
+recogniser runs on, and a single word out of context gives it none.**
+
+This inverts the plan's own ordering. Step 3 is the word drill — show the
+Russian meaning, say the English word — and that is the weakest possible task
+for this technology. Step 5's read-aloud, filed as the later and lesser
+addition, is the one the evidence supports.
+
+#### Confidence is not a usable gate
+
+The obvious rescue — reject low-confidence transcripts instead of failing the
+learner — does not work on this data. *"Return it"* was wrong at 0.99 and
+0.94; *"I would want candy"* wrong at 0.99. And *"Cinema"* was **right** at
+0.43, *"Forget"* right at 0.67. There is no threshold that separates them.
+
+### iOS/iPadOS Safari, installed to the home screen — not run
+
+**And it no longer decides anything.** It was the decisive question while the
+open question was *"does the API work there"*. It is not: the API works fine
+in the tab and fails on accuracy, so a standalone run can only discover that
+it also works fine and also fails on accuracy. Testing it would not change the
+recommendation below.
+
+## 8a. Verdict
+
+**Do not build the word drill.** At 58% on single words, a learner who says
+the word correctly is told they are wrong roughly four times in ten. §7 names
+that as the one real damage this feature can do — it demoralises and it
+corrupts the FSRS state — and no amount of care in the interface repairs a
+grader that is wrong that often. §5's escape hatch said the honest outcome
+might be to drop the section rather than to weaken it; this is that outcome.
+
+**Read-aloud is the survivor, and it is a different feature.** Sentences hit
+71% here and near-1.00 on macOS, and more importantly the task itself is
+different: reading a sentence aloud and being told the recogniser followed you
+is useful feedback even when it is imperfect, because nothing is being
+graded, nothing is scheduled, and a miss costs a retry rather than a lapse. If
+Speaking is revived, it is revived as that — no FSRS, no verdicts, no place in
+the review queue.
+
+Steps 2–5 as written are shelved. The probe stays in the tree; it cost half a
+day and it answered the question it was built for.
 
 ## 9. Progress
 

@@ -15,25 +15,28 @@ dictionary bar starts lying.
 
 | # | Plan | Size | Depends on |
 |---|---|---|---|
-| 1 | [speaking.md](speaking.md) — **step 1 only**, the device spike | S | — |
-| 2 | [progress-activity.md](progress-activity.md) steps 1–4 | M | — |
-| 3 | [reader.md](reader.md) | L | 2 |
-| 4 | [past-simple.md](past-simple.md) | L, content | — |
-| 5 | [phrases.md](phrases.md) | M, content | progress-activity step 5 |
-| 6 | [present-continuous.md](present-continuous.md) | L, content | row 4 merged first |
-| 7 | [comparatives.md](comparatives.md) | L, content | row 6 merged first. **Owns the six-course catalog threshold** |
-| 8 | [speaking.md](speaking.md) steps 2–5 | M | row 1 said yes |
-| 9 | [dialogues.md](dialogues.md) | L | rows 2 and 3, and the budget decision in its §2.1 |
+| 1 | [progress-activity.md](progress-activity.md) steps 1–4 | M | — |
+| 2 | [reader.md](reader.md) | L | 1 |
+| 3 | [past-simple.md](past-simple.md) | L, content | — |
+| 4 | [phrases.md](phrases.md) | M, content | progress-activity step 5 |
+| 5 | [present-continuous.md](present-continuous.md) | L, content | row 3 merged first |
+| 6 | [comparatives.md](comparatives.md) | L, content | row 5 merged first. **Owns the six-course catalog threshold** |
+| 7 | [dialogues.md](dialogues.md) | L | rows 1 and 2, and the budget decision in its §2.1 |
 
-Rows 4, 6 and 7 are three ~2 100-line JSON courses. Phrases sits between the
+Rows 3, 5 and 6 are three ~2 100-line JSON courses. Phrases sits between the
 first and second of them on purpose: back-to-back course writing is the
 "quality goes stale around item 60" risk those plans name, at three times the
 scale.
 
-If only three things get done: the speaking spike, `progress-activity` steps
-4–5, and Past Simple. The first costs half a day and settles a question
-permanently, the second spends measurement already sitting in the database,
-and the third makes an already-shipped course worth more.
+If only two things get done: `progress-activity` steps 4–5, and Past Simple.
+The first spends measurement already sitting in the database; the second makes
+an already-shipped course worth more.
+
+[speaking.md](speaking.md) is **closed, not open**: its spike ran, the browser
+recogniser scored 58% on the single words the drill would have asked for, and
+steps 2–5 are shelved on that evidence. The plan stays here rather than in
+`shipped/` because nothing shipped — read its §8a before anyone proposes
+speech again.
 
 ## Shipped
 
