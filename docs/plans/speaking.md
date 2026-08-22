@@ -219,9 +219,46 @@ migrate back.
 
 ## 8. Spike findings
 
-*(Fill in during step 1 — platform, browser version, works / fails, error
-codes seen, gesture behaviour. This section is the deliverable of step 1 and
-the input to the go/no-go on the rest.)*
+**In progress. One platform of three answered; the decisive one is still
+open.**
+
+### macOS Safari, tab — 2026-08-22
+
+| | |
+|---|---|
+| API | `webkitSpeechRecognition` — prefixed, as expected |
+| `standalone` | no (tab) |
+| Attempts | 5, of which 4 returned a transcript |
+| Hit rate | **4/5 = 80%**, first guess |
+| With alternatives | 4/5 = 80% — no attempt was rescued by a runner-up |
+| Confidence on hits | 1.00, 0.99 |
+| Time to `onstart` | 8–12 ms |
+| Total per attempt | ~3.2–3.5 s |
+| Interim results | **arrived** |
+| Second and later attempts | started normally; no fresh gesture needed |
+
+Three things worth keeping:
+
+- **`interimResults` worked here**, against the expectation in step 1's
+  question 2. That expectation came from reports about WebKit on iOS, so it is
+  not yet contradicted — it is untested on the platform it was about.
+- **The alternatives bought nothing on this sample.** Both rates are 80%. If
+  that holds at twenty words, the `maxAlternatives` handling in step 2 is
+  cheap insurance rather than a feature, and the drill's grading can stay
+  simple.
+- **~3.4 s per attempt** is the number to design the drill's pacing around.
+  Most of it is the recogniser deciding the utterance ended, not the speaking.
+
+**Not evidence of a pass yet:** five attempts, one word (`water`), and macOS
+rather than iOS. The §4 criterion asks for 20 words, and 4/5 is the same
+figure as 16/20 only by coincidence of arithmetic.
+
+### iOS Safari, tab — not yet run
+
+### iOS Safari, installed to the home screen — not yet run
+
+**This is the one that decides the section.** Until it is run, steps 2–5 stay
+unstarted.
 
 ## 9. Progress
 
