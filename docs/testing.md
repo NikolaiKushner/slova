@@ -62,6 +62,31 @@ production smoke account, seed it explicitly with `db:seed-test-user`, set
 `E2E_BASE_URL`, and invoke `npx playwright test` directly instead of
 `npm run test:e2e` so the migration command cannot target production.
 
+## Looking at an authenticated screen
+
+A screen behind the login is checked against the E2E fixture, not the personal
+development database, and never by typing a password by hand:
+
+```bash
+npm run db:prepare-test          # migrate and reset the fixture learner
+npm run dev:test                 # next dev against TEST_DATABASE_URL
+npx playwright test --project=setup
+```
+
+`dev:test` exists because `npm run dev` serves the development branch, where
+the fixture learner does not exist. The setup project reuses the server already
+listening on 3000, signs in through the credentials form, and writes cookies to
+`playwright/.auth/user.json`; an agent driving its own browser sets those
+cookies on `localhost:3000` and reloads. `.claude/launch.json` has the matching
+`slova-dev-test` configuration.
+
+The fixture has words, sets and partial course progress, but no study days.
+Sittings, review logs and story progress have to be written for the screen
+under test; `npm run db:seed-test-user` puts the fixture back afterwards.
+
+**Stop the server when the check is done.** A dev server left running holds
+port 3000 and a Neon connection, and the next session starts by fighting it.
+
 ## GitHub Actions
 
 The `integration-and-e2e` job creates a fresh Neon branch for every run, applies

@@ -11,6 +11,7 @@ import {
   startOfIsoWeek,
   studiedDays,
   studyDaysThisWeek,
+  studyTime,
 } from "@/lib/progress";
 
 const TZ = "UTC";
@@ -238,5 +239,67 @@ describe("a study day that was only Grammar Review", () => {
     expect(
       currentStreak([vocabularyDay, grammarReviewDay, lessonDay], now, TZ),
     ).toBe(3);
+  });
+});
+
+describe("studyTime", () => {
+  // The fixed `now` above is a Monday; a week needs days before today in it.
+  const saturday = at(15, 20);
+  const sitting = (
+    day: number,
+    durationSec: number,
+    extra: { kind?: string; label?: string; endedAt?: Date | null } = {},
+  ) => ({
+    kind: extra.kind ?? "practice",
+    label: extra.label ?? "all",
+    endedAt: extra.endedAt === undefined ? at(day, 10) : extra.endedAt,
+    endedReason: "completed",
+    durationSec,
+    reviews: 4,
+    introduced: 0,
+  });
+
+  const week = [
+    sitting(15, 600),
+    sitting(13, 900, { kind: "grammar", label: "present-simple/lesson-1" }),
+    sitting(11, 300, { kind: "grammar", label: "review" }),
+  ];
+
+  it("sums today and the week from durationSec", () => {
+    const time = studyTime(week, saturday, TZ);
+
+    expect(time.todayMinutes).toBe(10);
+    expect(time.weekMinutes).toBe(30);
+  });
+
+  it("splits the week by kind", () => {
+    expect(studyTime(week, saturday, TZ).weekByKind).toEqual({
+      reviews: 10,
+      lesson: 15,
+      grammarReview: 5,
+      story: 0,
+    });
+  });
+
+  it("leaves last week out of the week, but counts its day", () => {
+    const time = studyTime([...week, sitting(9, 1200)], saturday, TZ);
+
+    expect(time.weekMinutes).toBe(30);
+    expect(time.recordedDays).toBe(4);
+  });
+
+  it("ignores a sitting still open and one with no time on it", () => {
+    const time = studyTime(
+      [sitting(15, 999, { endedAt: null }), sitting(14, 0)],
+      saturday,
+      TZ,
+    );
+
+    expect(time).toEqual({
+      todayMinutes: 0,
+      weekMinutes: 0,
+      weekByKind: { reviews: 0, lesson: 0, grammarReview: 0, story: 0 },
+      recordedDays: 0,
+    });
   });
 });

@@ -1,0 +1,146 @@
+{
+  "now": "2026-08-22T20:00:00Z",
+  "timeZone": "UTC",
+  "rows": {
+    "reviewLog": [
+      { "createdAt": "2026-08-22T12:00:00Z", "rating": "good", "prevIntervalDays": 4 },
+      { "createdAt": "2026-08-22T12:05:00Z", "rating": "again", "prevIntervalDays": 6 },
+      { "createdAt": "2026-08-22T12:10:00Z", "rating": "good", "prevIntervalDays": 0 },
+      { "createdAt": "2026-08-18T19:00:00Z", "rating": "good", "prevIntervalDays": 2 },
+      { "createdAt": "2026-08-18T19:02:00Z", "rating": "good", "prevIntervalDays": null },
+      { "createdAt": "2026-08-12T08:00:00Z", "rating": "good", "prevIntervalDays": 1 },
+      { "createdAt": "2026-08-11T08:00:00Z", "rating": "good", "prevIntervalDays": 1 },
+      { "createdAt": "2026-08-10T08:00:00Z", "rating": "good", "prevIntervalDays": 1 },
+      { "createdAt": "2026-08-09T08:00:00Z", "rating": "again", "prevIntervalDays": 3 },
+      { "createdAt": "2026-08-08T08:00:00Z", "rating": "good", "prevIntervalDays": 1 },
+      { "createdAt": "2026-08-07T08:00:00Z", "rating": "good", "prevIntervalDays": 1 }
+    ],
+    "userLesson": [
+      {
+        "courseSlug": "present-simple",
+        "lessonSlug": "lesson-1",
+        "status": "completed",
+        "completedAt": "2026-08-19T10:00:00Z"
+      },
+      {
+        "courseSlug": "present-simple",
+        "lessonSlug": "lesson-2",
+        "status": "completed",
+        "completedAt": "2026-08-18T20:30:00Z"
+      },
+      {
+        "courseSlug": "present-simple",
+        "lessonSlug": "lesson-3",
+        "status": "in_progress",
+        "completedAt": null
+      }
+    ],
+    "storyProgress": [
+      { "startedAt": "2026-08-21T09:00:00Z", "completedAt": null },
+      { "startedAt": "2026-08-18T15:00:00Z", "completedAt": "2026-08-18T15:20:00Z" }
+    ],
+    "studySitting": [
+      {
+        "kind": "grammar",
+        "label": "review",
+        "startedAt": "2026-08-20T17:53:00Z",
+        "lastAt": "2026-08-20T18:00:00Z",
+        "endedAt": "2026-08-20T18:00:00Z",
+        "endedReason": "completed",
+        "durationSec": 420,
+        "reviews": 12,
+        "introduced": 0
+      },
+      {
+        "kind": "grammar",
+        "label": "present-simple/lesson-1",
+        "startedAt": "2026-08-19T09:50:00Z",
+        "lastAt": "2026-08-19T10:00:00Z",
+        "endedAt": "2026-08-19T10:00:00Z",
+        "endedReason": "completed",
+        "durationSec": 600,
+        "reviews": 10,
+        "introduced": 0
+      },
+      {
+        "kind": "grammar",
+        "label": "present-simple/lesson-2",
+        "startedAt": "2026-08-18T20:22:00Z",
+        "lastAt": "2026-08-18T20:30:00Z",
+        "endedAt": "2026-08-18T20:30:00Z",
+        "endedReason": "completed",
+        "durationSec": 480,
+        "reviews": 9,
+        "introduced": 0
+      },
+      {
+        "kind": "practice",
+        "label": "all",
+        "startedAt": "2026-08-18T19:00:00Z",
+        "lastAt": "2026-08-18T19:05:00Z",
+        "endedAt": "2026-08-18T19:05:00Z",
+        "endedReason": "completed",
+        "durationSec": 300,
+        "reviews": 2,
+        "introduced": 0
+      },
+      {
+        "kind": "practice",
+        "label": "all",
+        "startedAt": "2026-08-17T20:58:30Z",
+        "lastAt": "2026-08-17T21:00:00Z",
+        "endedAt": "2026-08-17T21:00:00Z",
+        "endedReason": "abandoned",
+        "durationSec": 90,
+        "reviews": 0,
+        "introduced": 0
+      },
+      {
+        "kind": "grammar",
+        "label": "present-simple/lesson-3",
+        "startedAt": "2026-08-16T11:00:00Z",
+        "lastAt": "2026-08-16T11:04:00Z",
+        "endedAt": null,
+        "endedReason": null,
+        "durationSec": 240,
+        "reviews": 3,
+        "introduced": 0
+      }
+    ]
+  },
+  "expected": {
+    "today": 3,
+    "streak": 5,
+    "longest": 6,
+    "weekDays": 5,
+    "reviewsCharted": 11,
+    "studiedDayKeys": [
+      "2026-08-07",
+      "2026-08-08",
+      "2026-08-09",
+      "2026-08-10",
+      "2026-08-11",
+      "2026-08-12",
+      "2026-08-18",
+      "2026-08-19",
+      "2026-08-20",
+      "2026-08-21",
+      "2026-08-22"
+    ],
+    "dayKeysByKind": {
+      "reviews": [
+        "2026-08-07",
+        "2026-08-08",
+        "2026-08-09",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-18",
+        "2026-08-22"
+      ],
+      "lesson": ["2026-08-18", "2026-08-19"],
+      "grammarReview": ["2026-08-20"],
+      "story": ["2026-08-18", "2026-08-21"]
+    }
+  }
+}

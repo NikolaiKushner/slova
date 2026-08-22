@@ -1,6 +1,7 @@
 # Plan — one activity spine for Progress
 
-Status: proposed, not started. Branch: `feat/progress-activity`.
+Status: in progress on `feat/progress-activity`. Steps 1–4 done; step 5 waits
+on [Phrases](phrases.md).
 Source: brainstorm session 2026-08-22. Prerequisite for
 [Reader](reader.md), [Speaking](speaking.md), [Phrases](phrases.md) and
 [Dialogues](dialogues.md).
@@ -128,7 +129,7 @@ No migration for the spine; none for the phrase split either, since
 
 ## 5. Steps
 
-### 1. Lock the current behaviour in a test — S · `[ ]`
+### 1. Lock the current behaviour in a test — S · `[x]`
 
 - **Why first:** this is a refactor of the number a person's motivation is
   attached to. Nothing else may start until the old behaviour is pinned.
@@ -140,7 +141,7 @@ No migration for the spine; none for the phrase split either, since
 - **Verify:** `npm test` green **against the unchanged code**. A test that only
   passes after the rewrite proves nothing.
 
-### 2. Make `StudySitting` the spine — M · `[ ]`
+### 2. Make `StudySitting` the spine — M · `[x]`
 
 - **Files:** `lib/sitting.ts` (`SittingKind` grows), `lib/progress.ts`
   (`getStudyActivity`, `getProgress`), `tests/unit/progress-activity.test.ts`.
@@ -151,7 +152,7 @@ No migration for the spine; none for the phrase split either, since
   or logged via `measureServerOperation("progress.full_report", …)`, which
   already wraps this call.
 
-### 3. One prop for the calendar, legend from data — S · `[ ]`
+### 3. One prop for the calendar, legend from data — S · `[x]`
 
 - **Files:** `components/progress/study-calendar.tsx`,
   `app/(app)/progress/page.tsx`, i18n.
@@ -160,7 +161,7 @@ No migration for the spine; none for the phrase split either, since
 - **Verify:** browser, phone and desktop width, against an account with story
   and grammar days.
 
-### 4. Spend the minutes that are already stored — M · `[ ]`
+### 4. Spend the minutes that are already stored — M · `[x]`
 
 - **Files:** `lib/progress.ts`, `components/progress/metric-tile.tsx`,
   `app/(app)/progress/page.tsx`, `lib/progress-config.ts`, i18n.

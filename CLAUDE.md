@@ -65,8 +65,12 @@ checks catch errors before a round trip to CI:
 - **Running the dev server and driving a browser is allowed** — and expected
   for UI work. A screen that has only been type-checked has not been checked:
   the layout, the keyboard and the sound all fail in ways `tsc` cannot see.
-  Start `npm run dev`, open the screen, and look at it before saying it works.
-  Automated e2e suites still belong in CI, not in a session.
+  Open the screen and look at it before saying it works, then **stop the
+  server**. Anything behind the login is reached through the Playwright
+  fixture — `npm run dev:test` plus `npx playwright test --project=setup`,
+  which signs in for you; see "Looking at an authenticated screen" in
+  `docs/testing.md`. Never type credentials into the form by hand. Automated
+  e2e suites still belong in CI, not in a session.
 - CI (`.github/workflows/ci.yml`) runs unit tests, lint, TypeScript, and a
   production build. The database-backed job remains isolated from the fast
   quality job. Reconsider making it a required status check when another person

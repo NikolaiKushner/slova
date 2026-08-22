@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/page-header";
 import { MetricTile } from "@/components/progress/metric-tile";
 import { ReviewChart } from "@/components/progress/review-chart";
 import { StudyCalendar } from "@/components/progress/study-calendar";
+import { TimeSplit } from "@/components/progress/time-split";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,6 +38,7 @@ import {
 import {
   GRAMMAR_PREVIEW,
   MEMORY_MIN_WORDS,
+  TIME_MIN_DAYS,
 } from "@/lib/progress-config";
 import { requestTimeZone } from "@/lib/request-timezone";
 
@@ -59,6 +61,7 @@ export default async function ProgressPage() {
     activity.memory !== null && activity.memoryWords >= MEMORY_MIN_WORDS;
   const weekDays = studyDaysThisWeek(activity.studiedDayKeys, now, tz);
   const hasActivity = activity.studiedDayKeys.length > 0;
+  const showTime = activity.time.recordedDays >= TIME_MIN_DAYS;
   const courses = coursesOnProgress(activity, locale === "ru");
   const previewCourses = courses.slice(0, GRAMMAR_PREVIEW);
   const memoryPercent =
@@ -168,9 +171,7 @@ export default async function ProgressPage() {
                     <StudyCalendar
                       studiedDayKeys={activity.studiedDayKeys}
                       reviewCountsByDay={activity.reviewCountsByDay}
-                      lessonDayKeys={activity.lessonDayKeys}
-                      storyDayKeys={activity.storyDayKeys}
-                      grammarReviewDayKeys={activity.grammarReviewDayKeys}
+                      dayKeysByKind={activity.dayKeysByKind}
                       timeZone={tz}
                     />
                   </CardContent>
@@ -206,7 +207,7 @@ export default async function ProgressPage() {
             )}
           </section>
 
-          {previewCourses.length > 0 || activity.stubborn.length > 0 ? (
+          {previewCourses.length > 0 || activity.stubborn.length > 0 || showTime ? (
             <section className="flex flex-col gap-3 @min-[680px]:flex-row @min-[680px]:flex-wrap md:gap-4">
               {previewCourses.length > 0 ? (
                 <Card className="min-w-0 flex-1 basis-[min(100%,20rem)] pb-0">
@@ -318,6 +319,17 @@ export default async function ProgressPage() {
                       {t("openMyWords")}
                     </Button>
                   </CardFooter>
+                </Card>
+              ) : null}
+
+              {showTime ? (
+                <Card className="min-w-0 flex-1 basis-[min(100%,20rem)]">
+                  <CardHeader>
+                    <CardTitle className="text-h4">{t("timeTitle")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <TimeSplit time={activity.time} />
+                  </CardContent>
                 </Card>
               ) : null}
             </section>
