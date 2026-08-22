@@ -6,16 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { judge, type Verdict } from "@/lib/practice/answer";
 
-/**
- * Throwaway probe for docs/plans/speaking.md §6 step 1. Four questions, on
- * hardware: does recognition work in Chrome, in iOS Safari as a tab, in iOS
- * Safari installed to the home screen, and does a second attempt in the same
- * page need a fresh gesture.
- *
- * It grades through `judge`, the same function the typed formats use, so the
- * hit rate here is the number the plan's §4 criterion is about — not a
- * friendlier one invented for the probe.
- */
+/** Throwaway probe for docs/plans/speaking.md §6 step 1. */
 
 type RecognitionAlternative = { transcript: string; confidence: number };
 
@@ -48,11 +39,7 @@ type RecognitionLike = {
 
 type RecognitionConstructor = new () => RecognitionLike;
 
-/**
- * The engine is dropped the moment the closure holding it is collected, and
- * the symptom is silence with no events — the same failure
- * `lib/practice/speech.ts` documents for utterances. Module-level reference.
- */
+/** Module-level: a collected engine goes silent with no events. */
 let live: RecognitionLike | null = null;
 
 function constructorOf(): { ctor: RecognitionConstructor | null; prefixed: boolean } {
@@ -76,7 +63,6 @@ type Attempt = {
   target: string;
   alternatives: RecognitionAlternative[];
   verdict: Verdict | null;
-  /** Verdict against the recogniser's runner-up guesses, not only its first. */
   verdictAny: Verdict | null;
   started: boolean;
   interim: boolean;
@@ -137,8 +123,7 @@ export default function MicProbePage() {
     let sawInterim = false;
     let settled = false;
 
-    // A previous engine still holding the microphone makes the next start()
-    // fail silently on some builds; let it go first.
+    // A previous engine still on the microphone makes start() fail silently.
     live?.abort();
 
     const recognition = new ctor();
