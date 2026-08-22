@@ -9,31 +9,42 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ACTIVITY_KINDS, type ActivityKind } from "@/lib/progress-config";
 import { calendarDay } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
+
+type ActivityMessage =
+  | "wordsPractisedOnDay"
+  | "lessonCompleted"
+  | "grammarReviewed"
+  | "storyRead";
+
+/** Reviewing grammar is not completing a lesson; the tooltip must not say it was. */
+const ACTIVITY_MESSAGE: Record<ActivityKind, ActivityMessage> = {
+  reviews: "wordsPractisedOnDay",
+  lesson: "lessonCompleted",
+  grammarReview: "grammarReviewed",
+  story: "storyRead",
+};
 
 export function StudyCalendar({
   studiedDayKeys,
   reviewCountsByDay,
-  lessonDayKeys,
-  storyDayKeys,
-  grammarReviewDayKeys,
+  dayKeysByKind,
   timeZone,
 }: {
   studiedDayKeys: string[];
   reviewCountsByDay: Record<string, number>;
-  lessonDayKeys: string[];
-  storyDayKeys: string[];
-  grammarReviewDayKeys: string[];
+  dayKeysByKind: Record<ActivityKind, string[]>;
   timeZone: string;
 }) {
   const t = useTranslations("progress");
   const locale = useLocale();
   const dayPickerLocale = locale === "ru" ? ru : enUS;
   const studiedKeys = new Set(studiedDayKeys);
-  const lessonDays = new Set(lessonDayKeys);
-  const storyDays = new Set(storyDayKeys);
-  const grammarReviewDays = new Set(grammarReviewDayKeys);
+  const daysByKind = new Map(
+    ACTIVITY_KINDS.map((kind) => [kind, new Set(dayKeysByKind[kind])]),
+  );
 
   return (
     <Calendar
@@ -58,18 +69,8 @@ export function StudyCalendar({
       components={{
         DayButton: ({ className, day, children, ...props }) => {
           const key = calendarDay(day.date, timeZone);
-          const count = reviewCountsByDay[key] ?? 0;
-          const hadLesson = lessonDays.has(key);
-          const hadStory = storyDays.has(key);
-          const hadGrammarReview = grammarReviewDays.has(key);
           const isStudied = studiedKeys.has(key);
-          const summary = daySummary(
-            t,
-            count,
-            hadLesson,
-            hadStory,
-            hadGrammarReview,
-          );
+          const summary = daySummary(t, key, daysByKind, reviewCountsByDay);
           const label = isStudied
             ? `${formatDay(day.date, locale, timeZone)}. ${summary}`
             : undefined;
@@ -114,29 +115,22 @@ export function StudyCalendar({
   );
 }
 
-/**
- * Reviewing grammar is not completing a lesson, and the tooltip must not say
- * it was: a day spent correcting old mistakes reads back as exactly that.
- */
 function daySummary(
-  t: (
-    key:
-      | "wordsPractisedOnDay"
-      | "lessonCompleted"
-      | "storyRead"
-      | "grammarReviewed",
-    values?: { count: number },
-  ) => string,
-  count: number,
-  hadLesson: boolean,
-  hadStory: boolean,
-  hadGrammarReview: boolean,
+  t: (key: ActivityMessage, values?: { count: number }) => string,
+  key: string,
+  daysByKind: Map<ActivityKind, Set<string>>,
+  reviewCountsByDay: Record<string, number>,
 ): string {
   const parts: string[] = [];
-  if (count > 0) parts.push(t("wordsPractisedOnDay", { count }));
-  if (hadLesson) parts.push(t("lessonCompleted"));
-  if (hadGrammarReview) parts.push(t("grammarReviewed"));
-  if (hadStory) parts.push(t("storyRead"));
+  for (const kind of ACTIVITY_KINDS) {
+    if (!daysByKind.get(kind)?.has(key)) continue;
+    if (kind !== "reviews") {
+      parts.push(t(ACTIVITY_MESSAGE[kind]));
+      continue;
+    }
+    const count = reviewCountsByDay[key] ?? 0;
+    if (count > 0) parts.push(t(ACTIVITY_MESSAGE[kind], { count }));
+  }
   return parts.join(" · ");
 }
 

@@ -1,0 +1,63 @@
+{
+  "now": "2026-08-22T21:30:00Z",
+  "timeZone": "Asia/Dubai",
+  "rows": {
+    "reviewLog": [
+      { "createdAt": "2026-08-22T21:00:00Z", "rating": "good", "prevIntervalDays": 2 }
+    ],
+    "userLesson": [
+      {
+        "courseSlug": "present-simple",
+        "lessonSlug": "lesson-1",
+        "status": "completed",
+        "completedAt": "2026-08-20T21:00:00Z"
+      }
+    ],
+    "storyProgress": [
+      { "startedAt": "2026-08-20T19:00:00Z", "completedAt": null }
+    ],
+    "studySitting": [
+      {
+        "kind": "grammar",
+        "label": "review",
+        "startedAt": "2026-08-21T20:20:00Z",
+        "lastAt": "2026-08-21T20:30:00Z",
+        "endedAt": "2026-08-21T20:30:00Z",
+        "endedReason": "completed",
+        "durationSec": 600,
+        "reviews": 11,
+        "introduced": 0
+      },
+      {
+        "kind": "grammar",
+        "label": "present-simple/lesson-1",
+        "startedAt": "2026-08-20T20:50:00Z",
+        "lastAt": "2026-08-20T21:00:00Z",
+        "endedAt": "2026-08-20T21:00:00Z",
+        "endedReason": "completed",
+        "durationSec": 600,
+        "reviews": 10,
+        "introduced": 0
+      }
+    ]
+  },
+  "expected": {
+    "today": 1,
+    "streak": 4,
+    "longest": 4,
+    "weekDays": 4,
+    "reviewsCharted": 1,
+    "studiedDayKeys": [
+      "2026-08-20",
+      "2026-08-21",
+      "2026-08-22",
+      "2026-08-23"
+    ],
+    "dayKeysByKind": {
+      "reviews": ["2026-08-23"],
+      "lesson": ["2026-08-21"],
+      "grammarReview": ["2026-08-22"],
+      "story": ["2026-08-20"]
+    }
+  }
+}

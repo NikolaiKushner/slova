@@ -1,8 +1,11 @@
 import { getPrisma } from "@/lib/prisma";
 import {
+  ACTIVITY_KINDS,
   CHART_DAYS,
   STUBBORN_LIMIT,
+  type ActivityKind,
 } from "@/lib/progress-config";
+import type { SittingKind } from "@/lib/sitting";
 import { meanRetrievability, type ScheduledWord } from "@/lib/srs";
 import { measureServerOperation } from "@/lib/server-metrics";
 import {
@@ -14,16 +17,111 @@ import {
 /** How far back the streak is allowed to reach. */
 export const STREAK_WINDOW_DAYS = 365;
 
+/** Grammar Review is a grammar sitting with its own label, not a fourth kind. */
+const GRAMMAR_REVIEW_LABEL = "review";
+
 /**
- * A finished Grammar Review sitting. It is an ordinary grammar sitting with
- * its own label rather than a fourth `kind`, so nothing that already sums
- * sittings has to learn a new word for it.
+ * Which square a finished sitting colours, and whose minutes it adds to.
+ * Exhaustive: a new `SittingKind` must name its square to compile.
  */
-const GRAMMAR_REVIEW_SITTING = {
-  kind: "grammar",
-  label: "review",
-  endedReason: "completed",
-} as const;
+const ACTIVITY_OF_SITTING: Record<SittingKind, ActivityKind> = {
+  practice: "reviews",
+  brainstorm: "reviews",
+  study: "reviews",
+  grammar: "lesson",
+};
+
+type SittingRow = {
+  kind: string;
+  label: string;
+  endedAt: Date | null;
+  endedReason: string | null;
+  durationSec: number;
+  reviews: number;
+  introduced: number;
+};
+
+function activityKindOf(row: SittingRow): ActivityKind | null {
+  if (row.kind === "grammar" && row.label === GRAMMAR_REVIEW_LABEL) {
+    return "grammarReview";
+  }
+  return ACTIVITY_OF_SITTING[row.kind as SittingKind] ?? null;
+}
+
+function emptyMinutes(): Record<ActivityKind, number> {
+  const minutes = {} as Record<ActivityKind, number>;
+  for (const kind of ACTIVITY_KINDS) minutes[kind] = 0;
+  return minutes;
+}
+
+export type StudyTime = {
+  todayMinutes: number;
+  weekMinutes: number;
+  weekByKind: Record<ActivityKind, number>;
+  recordedDays: number;
+};
+
+/** Time spent. Only ended sittings, so the one open right now cannot inflate it. */
+export function studyTime(
+  sittings: SittingRow[],
+  now: Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): StudyTime {
+  const today = dayKey(now, timeZone);
+  const weekStart = startOfIsoWeek(today);
+  const oldest = shiftCalendarDay(today, -STREAK_WINDOW_DAYS);
+  const seconds = { today: 0, week: 0 };
+  const byKind = emptyMinutes();
+  const days = new Set<string>();
+
+  for (const row of sittings) {
+    if (!row.endedAt || row.durationSec <= 0) continue;
+    const key = dayKey(row.endedAt, timeZone);
+    if (key < oldest || key > today) continue;
+    days.add(key);
+    if (key === today) seconds.today += row.durationSec;
+    if (key < weekStart) continue;
+    seconds.week += row.durationSec;
+    const kind = activityKindOf(row);
+    if (kind) byKind[kind] += row.durationSec;
+  }
+
+  for (const kind of ACTIVITY_KINDS) {
+    byKind[kind] = Math.round(byKind[kind] / 60);
+  }
+  return {
+    todayMinutes: Math.round(seconds.today / 60),
+    weekMinutes: Math.round(seconds.week / 60),
+    weekByKind: byKind,
+    recordedDays: days.size,
+  };
+}
+
+/** Opening a screen is not studying; answering in it, or finishing it, is. */
+function didWork(row: SittingRow): boolean {
+  return (
+    row.endedReason === "completed" || row.reviews > 0 || row.introduced > 0
+  );
+}
+
+function emptyDays(): Record<ActivityKind, Date[]> {
+  const times = {} as Record<ActivityKind, Date[]>;
+  for (const kind of ACTIVITY_KINDS) times[kind] = [];
+  return times;
+}
+
+/** Days each kind was studied, as one keyed map of sorted YYYY-MM-DD keys. */
+function dayKeysByKind(
+  times: Record<ActivityKind, Date[]>,
+  now: Date,
+  timeZone: string,
+): Record<ActivityKind, string[]> {
+  const keys = {} as Record<ActivityKind, string[]>;
+  for (const kind of ACTIVITY_KINDS) {
+    keys[kind] = [...daysInWindow(times[kind], now, timeZone)].sort();
+  }
+  return keys;
+}
 
 /** Local calendar day of a timestamp, as a sortable YYYY-MM-DD key. */
 export function dayKey(
@@ -209,9 +307,8 @@ export type StudyActivity = {
   reviewsByDay: { day: string; count: number }[];
   reviewCountsByDay: Record<string, number>;
   studiedDayKeys: string[];
-  lessonDayKeys: string[];
-  storyDayKeys: string[];
-  grammarReviewDayKeys: string[];
+  dayKeysByKind: Record<ActivityKind, string[]>;
+  time: StudyTime;
   stubborn: { id: string; front: string; lapses: number }[];
   courses: {
     slug: string;
@@ -219,6 +316,39 @@ export type StudyActivity = {
     completedLessons: number;
   }[];
 };
+
+const SITTING_ACTIVITY_SELECT = {
+  kind: true,
+  label: true,
+  endedAt: true,
+  endedReason: true,
+  durationSec: true,
+  reviews: true,
+  introduced: true,
+} as const;
+
+function activityTimes(input: {
+  reviewedAt: Date[];
+  sittings: SittingRow[];
+  storyRows: { startedAt: Date; completedAt: Date | null }[];
+  legacyLessonAt: Date[];
+}): Record<ActivityKind, Date[]> {
+  const times = emptyDays();
+  times.reviews.push(...input.reviewedAt);
+  // Stories, and lessons finished before sittings existed (migration
+  // 20260817142019), have no sitting of their own to be read from yet.
+  times.lesson.push(...input.legacyLessonAt);
+  for (const row of input.storyRows) {
+    times.story.push(row.startedAt);
+    if (row.completedAt) times.story.push(row.completedAt);
+  }
+  for (const row of input.sittings) {
+    if (!row.endedAt || !didWork(row)) continue;
+    const kind = activityKindOf(row);
+    if (kind) times[kind].push(row.endedAt);
+  }
+  return times;
+}
 
 export async function getStudyActivity(
   userId: string,
@@ -230,9 +360,9 @@ export async function getStudyActivity(
 
   const [
     logs,
-    lessons,
+    sittings,
     storyRows,
-    grammarReviewRows,
+    legacyLessons,
     remembered,
     stubbornRows,
     courseRows,
@@ -243,21 +373,17 @@ export async function getStudyActivity(
         where: { userId, createdAt: { gte: since }, undoneAt: null },
         select: { createdAt: true, rating: true, prevIntervalDays: true },
       }),
-      prisma.userLesson.findMany({
-        where: { userId, completedAt: { gte: since } },
-        select: { completedAt: true },
+      prisma.studySitting.findMany({
+        where: { userId, endedAt: { gte: since } },
+        select: SITTING_ACTIVITY_SELECT,
       }),
       prisma.storyProgress.findMany({
         where: { userId, startedAt: { gte: since } },
         select: { startedAt: true, completedAt: true },
       }),
-      prisma.studySitting.findMany({
-        where: {
-          userId,
-          ...GRAMMAR_REVIEW_SITTING,
-          endedAt: { gte: since },
-        },
-        select: { endedAt: true },
+      prisma.userLesson.findMany({
+        where: { userId, completedAt: { gte: since } },
+        select: { completedAt: true },
       }),
       prisma.userWord.findMany({
         where: { userId, stability: { not: null } },
@@ -291,27 +417,15 @@ export async function getStudyActivity(
     ]));
 
   const reviewedAt = logs.map((log) => log.createdAt);
-  const lessonAt = lessons.flatMap((lesson) =>
-    lesson.completedAt ? [lesson.completedAt] : [],
-  );
-  // Reading and answering a story never touch UserWord or ReviewLog (the
-  // FSRS boundary — docs/plans/shipped/stories.md §4/§7), so without this the
-  // calendar would show no activity at all on a day spent only on stories.
-  const storyAt = storyRows.flatMap((row) =>
-    row.completedAt ? [row.startedAt, row.completedAt] : [row.startedAt],
-  );
-  // A grammar day is otherwise recognised through UserLesson.completedAt,
-  // which a day spent only in Grammar Review never writes. Without this the
-  // streak would break on a day the learner did exactly what was asked.
-  const grammarReviewAt = grammarReviewRows.flatMap((row) =>
-    row.endedAt ? [row.endedAt] : [],
-  );
-  const studiedAt = [
-    ...reviewedAt,
-    ...lessonAt,
-    ...storyAt,
-    ...grammarReviewAt,
-  ];
+  const times = activityTimes({
+    reviewedAt,
+    sittings,
+    storyRows,
+    legacyLessonAt: legacyLessons.flatMap((lesson) =>
+      lesson.completedAt ? [lesson.completedAt] : [],
+    ),
+  });
+  const studiedAt = ACTIVITY_KINDS.flatMap((kind) => times[kind]);
   const memoryWords = remembered as ScheduledWord[];
 
   const completedByCourse = new Map<string, number>();
@@ -332,11 +446,8 @@ export async function getStudyActivity(
     reviewsByDay: reviewsByDay(reviewedAt, now, timeZone),
     reviewCountsByDay: reviewCountsByDay(reviewedAt, now, timeZone),
     studiedDayKeys: [...daysInWindow(studiedAt, now, timeZone)].sort(),
-    lessonDayKeys: [...daysInWindow(lessonAt, now, timeZone)].sort(),
-    storyDayKeys: [...daysInWindow(storyAt, now, timeZone)].sort(),
-    grammarReviewDayKeys: [
-      ...daysInWindow(grammarReviewAt, now, timeZone),
-    ].sort(),
+    dayKeysByKind: dayKeysByKind(times, now, timeZone),
+    time: studyTime(sittings, now, timeZone),
     stubborn: stubbornRows,
     courses: courseRows.map((row) => ({
       slug: row.courseSlug,
@@ -354,7 +465,7 @@ export async function getProgress(
 ) {
   const since = windowStart(now);
   const prisma = getPrisma();
-  const [logs, lessons, grammarReviews] = await measureServerOperation(
+  const [logs, sittings, legacyLessons] = await measureServerOperation(
     "progress.practice_line",
     () =>
       Promise.all([
@@ -362,33 +473,34 @@ export async function getProgress(
           where: { userId, createdAt: { gte: since }, undoneAt: null },
           select: { createdAt: true },
         }),
+        prisma.studySitting.findMany({
+          where: { userId, endedAt: { gte: since } },
+          select: SITTING_ACTIVITY_SELECT,
+        }),
         prisma.userLesson.findMany({
           where: { userId, completedAt: { gte: since } },
           select: { completedAt: true },
-        }),
-        prisma.studySitting.findMany({
-          where: {
-            userId,
-            ...GRAMMAR_REVIEW_SITTING,
-            endedAt: { gte: since },
-          },
-          select: { endedAt: true },
         }),
       ]),
   );
 
   const reviewedAt = logs.map((log) => log.createdAt);
-  const studiedAt = [
-    ...reviewedAt,
-    ...lessons.flatMap((lesson) =>
+  const times = activityTimes({
+    reviewedAt,
+    sittings,
+    storyRows: [],
+    legacyLessonAt: legacyLessons.flatMap((lesson) =>
       lesson.completedAt ? [lesson.completedAt] : [],
     ),
-    ...grammarReviews.flatMap((row) => (row.endedAt ? [row.endedAt] : [])),
-  ];
+  });
 
   return {
     today: countOnDay(reviewedAt, now, timeZone),
-    streak: currentStreak(studiedAt, now, timeZone),
+    streak: currentStreak(
+      ACTIVITY_KINDS.flatMap((kind) => times[kind]),
+      now,
+      timeZone,
+    ),
   };
 }
 

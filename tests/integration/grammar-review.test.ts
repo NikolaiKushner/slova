@@ -629,9 +629,9 @@ describe("a review-only day is a study day", () => {
 
     const activity = await getStudyActivity(USER_ID, NOW, ZONE);
     expect(activity.streak).toBe(1);
-    expect(activity.grammarReviewDayKeys).toEqual(["2098-04-12"]);
+    expect(activity.dayKeysByKind.grammarReview).toEqual(["2098-04-12"]);
     // The tooltip must be able to tell the two apart.
-    expect(activity.lessonDayKeys).toEqual([]);
+    expect(activity.dayKeysByKind.lesson).toEqual([]);
     expect(activity.studiedDayKeys).toContain("2098-04-12");
   });
 
@@ -659,7 +659,7 @@ describe("a review-only day is a study day", () => {
       },
     });
     const activity = await getStudyActivity(USER_ID, NOW, ZONE);
-    expect(activity.grammarReviewDayKeys).toEqual([]);
+    expect(activity.dayKeysByKind.grammarReview).toEqual([]);
     expect(activity.streak).toBe(0);
   });
 });
