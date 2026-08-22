@@ -10,6 +10,7 @@
   "packageManager": "npm@10.9.9",
   "scripts": {
     "dev": "next dev",
+    "dev:test": "node scripts/dev-test-server.mjs",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
