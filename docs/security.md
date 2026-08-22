@@ -12,6 +12,21 @@ Credential login is limited independently by normalized email and client IP.
 Only syntactically valid addresses from Vercel's forwarding headers become
 limiter keys; malformed values share the bounded `unknown` key.
 
+Reading a text adds three of these: `texts-create` (20/hour), `texts-words`
+(40/hour) and `texts-gloss` (60/hour). The last one is the section's only paid
+path, and it is bounded twice — by that window and by the durable LLM budget it
+reserves against before the call.
+
+## What leaves the account
+
+A pasted text is private to the account that pasted it: no sharing, no library,
+no route that reads another user's `UserText`. One thing crosses the boundary,
+and only when the reader asks for it — the contextual gloss sends the tapped
+word and **the single sentence it stands in** to Anthropic, never the paragraph
+and never the text. `lib/texts/tokenize.ts:sentenceAround` is what enforces the
+boundary, and `tests/unit/texts-gloss.test.ts` asserts it. The privacy page
+says so in the same words.
+
 ## Scheduled cleanup
 
 Vercel calls `GET /api/cron/cleanup` daily at 03:17 UTC. The route requires the

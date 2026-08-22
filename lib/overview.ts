@@ -12,7 +12,11 @@ import { getPrisma } from "@/lib/prisma";
  */
 
 export type Overview = {
+  /** Everything in the dictionary: words plus phrases. */
+  entries: number;
+  /** Single-word entries. Never inflated by a phrase pack. */
   words: number;
+  phrases: number;
   /** Never studied. */
   fresh: number;
   /** Studied, not yet settled. */
@@ -28,11 +32,15 @@ export type Overview = {
   hitRate: number | null;
 };
 
+/** `lib/lexicon/dataset.ts:kindOf` in SQL: a front with a space is a phrase. */
+const PHRASE_FRONT = { contains: " " };
+
 export async function getOverview(userId: string): Promise<Overview> {
   const prisma = getPrisma();
 
-  const [words, fresh, learned, sets, usage] = await Promise.all([
+  const [entries, phrases, fresh, learned, sets, usage] = await Promise.all([
     prisma.userWord.count({ where: { userId } }),
+    prisma.userWord.count({ where: { userId, front: PHRASE_FRONT } }),
     prisma.userWord.count({ where: { userId, introducedAt: null } }),
     prisma.userWord.count({
       where: { userId, intervalDays: { gte: LEARNED_INTERVAL_DAYS } },
@@ -49,9 +57,11 @@ export async function getOverview(userId: string): Promise<Overview> {
   const asked = hits + misses;
 
   return {
-    words,
+    entries,
+    words: entries - phrases,
+    phrases,
     fresh,
-    learning: Math.max(0, words - fresh - learned),
+    learning: Math.max(0, entries - fresh - learned),
     learned,
     sets,
     hitRate: asked === 0 ? null : hits / asked,

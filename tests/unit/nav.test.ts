@@ -77,18 +77,20 @@ describe("NAV_SECTIONS", () => {
       "/practice",
       "/courses/grammar",
       "/stories",
+      "/texts",
       "/progress",
       "/dictionary",
       "/dictionary/sets",
     ]);
   });
 
-  it("orders Study as Trainings, Grammar, Stories, My progress", () => {
+  it("orders Study as Trainings, Grammar, Stories, My texts, My progress", () => {
     const study = NAV_SECTIONS.find((section) => section.titleKey === "study");
     expect(study?.items.map((item) => item.titleKey)).toEqual([
       "trainings",
       "grammar",
       "stories",
+      "myTexts",
       "myProgress",
     ]);
   });

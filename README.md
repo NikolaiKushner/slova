@@ -57,7 +57,8 @@ grammar explanations.
 | **Trainings** | Six vocabulary formats, Brainstorm, and irregular-verb forms. The source (sets and due/new/hard) is chosen once, at the top of the page. This is where you land after sign-in. A streak line sits under the header when there is something to say. |
 | **Grammar** | Present Simple, *to be*, and irregular verbs; the rest of the A1–B1 shelf is Coming soon. A rule you get wrong in a lesson comes back the next day in Grammar Review — a short mixed sitting of fresh prompts for exactly the rules you missed. |
 | **Stories** | Ten curated A1–A2 stories, ordered by how much they overlap your dictionary. Annotated words open a gloss for that sentence and can be added to the dictionary; three comprehension questions end each one. |
-| **My progress** | Fourth in Study, after Stories. Streak and record, study calendar, dictionary bar, reviews, memory. Minutes of each sitting are stored; hours wait until there are enough days. |
+| **My texts** | Anything you paste — an article, a chapter, a letter. Words already in your dictionary are underlined, tapping any word opens its translation and files it in one tap, and a coverage figure says whether the text reads on its own yet. Private to the account. |
+| **My progress** | Fifth in Study, after My texts. Streak and record, study calendar, dictionary bar, reviews, memory. Minutes of each sitting are stored; hours wait until there are enough days. |
 | **My words** | Everything you have — search, filter, sort, edit, bulk actions |
 | **My sets** | Sets as tags, not folders |
 

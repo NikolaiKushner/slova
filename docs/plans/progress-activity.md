@@ -1,7 +1,6 @@
 # Plan — one activity spine for Progress
 
-Status: in progress on `feat/progress-activity`. Steps 1–4 done; step 5 waits
-on [Phrases](phrases.md).
+Status: complete. Steps 1–4 shipped in #55, step 5 on `feat/word-phrase-split`.
 Source: brainstorm session 2026-08-22. Prerequisite for
 [Reader](reader.md), [Speaking](speaking.md), [Phrases](phrases.md) and
 [Dialogues](dialogues.md).
@@ -70,18 +69,19 @@ Progress; the dictionary bar stops conflating words with phrases.
 
 ## 3. Success criteria
 
-- [ ] `getStudyActivity` runs **no more queries after this than before**, and
-      adding a fifth activity kind adds **zero**.
-- [ ] Streak, longest streak and calendar output are **byte-identical** before
+- [x] `getStudyActivity` runs **no more queries after this than before**, and
+      adding a fifth activity kind adds **zero** — proved by `reading`, added
+      for [Reader](reader.md) §8 without touching a query.
+- [x] Streak, longest streak and calendar output are **byte-identical** before
       and after the refactor over a fixture spanning stories, lessons, grammar
       review and reviews. This is the test that makes the refactor safe.
-- [ ] A day spent only on a new kind keeps the streak — asserted by a test
+- [x] A day spent only on a new kind keeps the streak — asserted by a test
       parameterised over kinds, so a future section inherits the assertion
       instead of having to remember it.
-- [ ] Minutes studied appear on Progress, sourced from `durationSec`, matching
+- [x] Minutes studied appear on Progress, sourced from `durationSec`, matching
       the sum of the day's sittings.
-- [ ] The dictionary bar reports words and phrases separately.
-- [ ] `npm test`, lint, typecheck green; Progress opened in a browser at phone
+- [x] The dictionary bar reports words and phrases separately.
+- [x] `npm test`, lint, typecheck green; Progress opened in a browser at phone
       and desktop width.
 
 ## 4. Design
@@ -173,7 +173,7 @@ No migration for the spine; none for the phrase split either, since
 - **Verify:** unit tests for the aggregation and the not-enough-days gate;
   browser check that the minutes match a sitting just finished.
 
-### 5. Split words from phrases in the dictionary bar — S · `[ ]`
+### 5. Split words from phrases in the dictionary bar — S · `[x]`
 
 - **Files:** `lib/overview.ts`, `components/overview-stats.tsx`, i18n,
   `tests/unit/overview.test.ts`.

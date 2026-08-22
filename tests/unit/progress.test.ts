@@ -278,6 +278,7 @@ describe("studyTime", () => {
       lesson: 15,
       grammarReview: 5,
       story: 0,
+      reading: 0,
     });
   });
 
@@ -298,7 +299,13 @@ describe("studyTime", () => {
     expect(time).toEqual({
       todayMinutes: 0,
       weekMinutes: 0,
-      weekByKind: { reviews: 0, lesson: 0, grammarReview: 0, story: 0 },
+      weekByKind: {
+        reviews: 0,
+        lesson: 0,
+        grammarReview: 0,
+        story: 0,
+        reading: 0,
+      },
       recordedDays: 0,
     });
   });

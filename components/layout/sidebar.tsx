@@ -11,6 +11,7 @@ import {
   LogOut,
   PenLine,
   Repeat2,
+  ScrollText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
@@ -57,6 +58,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/practice": Repeat2,
   "/courses/grammar": PenLine,
   "/stories": BookOpenText,
+  "/texts": ScrollText,
   "/progress": ChartNoAxesColumn,
   "/dictionary": LibraryBig,
   "/dictionary/sets": Bookmark,

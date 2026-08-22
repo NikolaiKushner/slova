@@ -3,7 +3,11 @@
   "timeZone": "Asia/Dubai",
   "rows": {
     "reviewLog": [
-      { "createdAt": "2026-08-22T21:00:00Z", "rating": "good", "prevIntervalDays": 2 }
+      {
+        "createdAt": "2026-08-22T21:00:00Z",
+        "rating": "good",
+        "prevIntervalDays": 2
+      }
     ],
     "userLesson": [
       {
@@ -14,7 +18,10 @@
       }
     ],
     "storyProgress": [
-      { "startedAt": "2026-08-20T19:00:00Z", "completedAt": null }
+      {
+        "startedAt": "2026-08-20T19:00:00Z",
+        "completedAt": null
+      }
     ],
     "studySitting": [
       {
@@ -54,10 +61,19 @@
       "2026-08-23"
     ],
     "dayKeysByKind": {
-      "reviews": ["2026-08-23"],
-      "lesson": ["2026-08-21"],
-      "grammarReview": ["2026-08-22"],
-      "story": ["2026-08-20"]
+      "reviews": [
+        "2026-08-23"
+      ],
+      "lesson": [
+        "2026-08-21"
+      ],
+      "grammarReview": [
+        "2026-08-22"
+      ],
+      "story": [
+        "2026-08-20"
+      ],
+      "reading": []
     }
   }
 }

@@ -55,6 +55,7 @@ export default async function PrivacyPage() {
           <LegalItem>{t.rich("store2", rich)}</LegalItem>
           <LegalItem>{t.rich("store3", rich)}</LegalItem>
           <LegalItem>{t.rich("store4", rich)}</LegalItem>
+          <LegalItem>{t.rich("store5", rich)}</LegalItem>
         </LegalList>
         <p>{t("storeElse")}</p>
       </LegalSection>

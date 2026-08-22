@@ -7,6 +7,9 @@ plan by section number; that only works because shipped plans stay readable.
 
 ## Open, in the order they should land
 
+Rows 1 and 2 are written and waiting on review in `feat/word-phrase-split`;
+everything below them is untouched.
+
 Ordering is not a preference. Three constraints force most of it: the three
 grammar courses share five files and a paid audio manifest and must never run
 in parallel; the reader's tokenizer is what the dialogue plan measures with;
@@ -15,7 +18,7 @@ dictionary bar starts lying.
 
 | # | Plan | Size | Depends on |
 |---|---|---|---|
-| 1 | [progress-activity.md](progress-activity.md) steps 1–4 | M | — |
+| 1 | [progress-activity.md](progress-activity.md) step 5 | S | — |
 | 2 | [reader.md](reader.md) | L | 1 |
 | 3 | [past-simple.md](past-simple.md) | L, content | — |
 | 4 | [phrases.md](phrases.md) | M, content | progress-activity step 5 |

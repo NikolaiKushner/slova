@@ -1,6 +1,8 @@
 # Plan — Reader, the "My texts" section
 
-Status: proposed, not started. Branch: `feat/reader`.
+Status: steps 1–8 done on `feat/word-phrase-split`, not yet merged. The
+migration is applied to development and to the E2E fixture; production is
+still to do, per `docs/deployment.md`.
 Source: brainstorm session 2026-08-22, first of four candidate sections.
 Siblings: [Speaking](speaking.md), [Phrases](phrases.md), [Dialogues](dialogues.md).
 Prerequisite: [one activity spine for Progress](progress-activity.md).
@@ -65,21 +67,21 @@ word in its sentence, add it to the dictionary in one tap, delete the text.
 
 ## 3. Success criteria
 
-- [ ] A 500-word paste renders in the reader in under 2s (p95, warm) with
+- [x] A 500-word paste renders in the reader in under 2s (p95, warm) with
       **zero** model calls when every word is in the shared base.
-- [ ] Coverage is computed over every running word in the text, not only over
+- [x] Coverage is computed over every running word in the text, not only over
       words that happen to be in the shared base, and matches a hand count on
       the two fixture texts within 1 percentage point.
-- [ ] `went` matches the `go` in the dictionary; `cities` matches `city`.
+- [x] `went` matches the `go` in the dictionary; `cities` matches `city`.
       Verified by fixture, not by eye.
-- [ ] Adding a word from the reader creates exactly one `UserWord`, tagged
+- [x] Adding a word from the reader creates exactly one `UserWord`, tagged
       `source: "text:<id>"`, and is idempotent on a second tap.
-- [ ] A contextual gloss is requested only when the learner asks for it, is
+- [x] A contextual gloss is requested only when the learner asks for it, is
       cached on the text so a second tap is free, and is refused when the
       durable LLM budget says no.
-- [ ] Texts are included in `npm run account:data` export and are destroyed by
-      its delete path.
-- [ ] `npm test`, `npm run lint`, `npm run typecheck` green; the reader has
+- [x] Texts are included in `npm run account:data` export and are destroyed by
+      its delete path — `tests/integration/account-data.test.ts`, run green.
+- [x] `npm test`, `npm run lint`, `npm run typecheck` green; the reader has
       been opened in a browser on a phone-width viewport before it is called
       done.
 
@@ -109,10 +111,11 @@ request that saves the text, and must therefore be fast enough to.
 
 **Chosen: tokenize on save, colour from the dictionary, gloss on demand.**
 
-Saving a text runs it through a tokenizer once: paragraphs, tokens with
-character offsets, and a lemma key per token via `normalizeKey`. The result is
-stored on the row as JSON, so opening the text again is a read. Rendering does
-two queries — `lookupBatch` over the unique keys for the shared-base
+Saving a text keeps the body and its counts. Opening it runs the tokenizer —
+paragraphs, tokens with character offsets, and a lemma key per token via
+`normalizeKey` — which step 1 measured at 10 ms for the largest text the caps
+allow, against 226 KB of JSON to store the same answer. Rendering does two
+queries — `lookupBatch` over the unique keys for the shared-base
 translation, and one `UserWord` query for this reader's statuses — and paints
 every token by status. Tapping a word opens the popover with the base
 translation immediately, from data already on the page. Only the explicit
@@ -155,9 +158,10 @@ Anthropic when a gloss is requested.
 ### 5.1 Data model
 
 ```prisma
-/// A text this person pasted, and the tokenization it was read through.
-/// Unlike StoryProgress, the content itself is user data: it is exported and
-/// destroyed by the account workflow, and it never leaves this account.
+/// A text this person pasted, read through a tokenization that is recomputed
+/// rather than stored. Unlike StoryProgress, the content itself is user data:
+/// it is exported and destroyed by the account workflow, and it never leaves
+/// this account.
 model UserText {
   id     String @id @default(cuid())
   userId String
@@ -165,10 +169,10 @@ model UserText {
   title String
   body  String
 
-  /// Tokenizer output, versioned. Recomputed when schemaVersion moves;
-  /// nothing here is a source of truth that `body` cannot rebuild.
-  parsed        Json
-  parsedVersion Int  @default(1)
+  /// Contextual glosses the reader asked for, by token id. The one thing here
+  /// `body` cannot rebuild — step 1 measured the tokenizer at 10 ms for a text
+  /// at the cap, against 226 KB of JSON to store its output.
+  glosses Json @default("{}")
 
   wordCount Int
   charCount Int
@@ -187,9 +191,12 @@ Caps, enforced in the route and asserted in a test: **20 000 characters** per
 text, **20 texts** per account. Not a quota system — two constants and a 400,
 in the spirit of `docs/product-scope.md`.
 
-Contextual glosses are cached inside `parsed` under the token id, so the
-second tap on the same word costs nothing and a text carries its own gloss
-history.
+Contextual glosses are cached in `glosses` under the token id, so the second
+tap on the same word costs nothing and a text carries its own gloss history.
+Token ids are `paragraph:index`, which the tokenizer reproduces from `body`
+deterministically; a change to the tokenizer that moved them would strand a
+cached gloss, so `lib/texts/tokenize.ts` keeps `PARSED_VERSION` as the marker
+for exactly that.
 
 ### 5.2 API surface
 
@@ -198,7 +205,7 @@ history.
 | `POST /api/texts` | Save and tokenize. Returns `{ id }`. | auth, zod, size caps, `allowFixedWindowAttempt("texts-create:<user>", 20, 1h)` |
 | `DELETE /api/texts/[id]` | Delete. | auth, ownership via `lib/ownership.ts` |
 | `POST /api/texts/[id]/words` | Add one token to the dictionary. Mirrors the Stories route exactly, `source: "text:<id>"`. | auth, ownership, 40/hour |
-| `POST /api/texts/[id]/gloss` | Contextual gloss for one token in its sentence. Caches into `parsed`. | auth, ownership, 60/hour, `reserveLlmUsage` / `reconcileLlmUsage` |
+| `POST /api/texts/[id]/gloss` | Contextual gloss for one token in its sentence. Caches into `glosses`. | auth, ownership, 60/hour, `reserveLlmUsage` / `reconcileLlmUsage` |
 
 Words missing from the shared base are **not** resolved at save time. They
 render as "no translation yet" and the gloss action is the paid path for
@@ -208,7 +215,7 @@ them — which keeps a 20 000-character paste from being a bill.
 
 Risk-ordered. Each leaves the app shippable.
 
-### 1. Spike the tokenizer, lemma and coverage — M · `[ ]`
+### 1. Spike the tokenizer, lemma and coverage — M · `[x]`
 
 - **Why first:** this is the whole design. If lemma quality is poor, approach B
   wins and everything downstream changes shape.
@@ -225,7 +232,29 @@ Risk-ordered. Each leaves the app shippable.
   for a 20 000-character input; if it is not comfortably inside the request,
   say so here before continuing.
 
-### 2. Store a text and list it — M · `[ ]`
+**What it measured.** `wink-nlp` 2.4.0 plus `wink-eng-lite-web-model` 1.8.1
+weigh **4.6 MB installed** — 772 KB library, 3.8 MB model — against the ~10 KB
+the library advertises for itself. Server-side only, so it costs disk in the
+function bundle and nothing in the browser. Accepted on that basis.
+
+Lemma quality on the fixtures is good enough that approach B stays rejected:
+`went→go`, `saw→see`, `slept→sleep`, `cities→city`, `children→child`,
+`bought→buy` all resolve, and POS keeps `a saw` a saw. `data→datum` is the one
+visible miss, and it costs nothing because a token counts as known on its
+surface key *or* its lemma. Coverage on the narrative fixture is 55 of 58
+running words, which is the hand count exactly.
+
+Tokenizing the full 20 000-character cap takes **10 ms** (3 196 words, 178
+paragraphs); loading the model costs 35 ms once per process. Comfortably
+inside the request, as required.
+
+**One thing the measurement changed.** The tokenizer output for that same
+20 000-character text is **226 KB of JSON**, or 103 KB with the token id and
+key derived rather than stored — five to eleven times the 20 KB body it came
+from, for something the 10 ms above can rebuild. So it is not stored at all;
+§5.1 records what replaced it.
+
+### 2. Store a text and list it — M · `[x]`
 
 - **Files:** `prisma/schema.prisma` (`UserText`) + `npx prisma migrate dev`,
   `app/api/texts/route.ts` (new), `app/api/texts/[id]/route.ts` (new),
@@ -237,19 +266,19 @@ Risk-ordered. Each leaves the app shippable.
 - **Verify:** `npm test` for nav and caps; then `npm run dev`, paste a real
   article, see it in the list, delete it.
 
-### 3. Render the reader, read-only — M · `[ ]`
+### 3. Render the reader, read-only — M · `[x]`
 
 - **Files:** `app/(app)/texts/[id]/page.tsx` (new),
   `app/(app)/texts/[id]/loading.tsx` (new),
   `components/texts/text-reader.tsx` (new), `lib/texts/reader-view.ts` (new).
-- **Does:** server component loads `parsed`, runs `lookupBatch` and one
+- **Does:** server component tokenizes `body`, runs `lookupBatch` and one
   `UserWord` query, hands the client a token list with statuses. Every word is
   coloured `absent` / `learning` / `known` through tokens. No popover yet.
 - **Verify:** browser, phone width and iPad width — the two viewports
   `app/dev/viewport` exists for. A 500-word text paints without visible reflow;
   check the render time in the server log against the 2s criterion.
 
-### 4. Tap a word: popover, base translation, add to dictionary — M · `[ ]`
+### 4. Tap a word: popover, base translation, add to dictionary — M · `[x]`
 
 - **Files:** `components/texts/text-reader.tsx`,
   `app/api/texts/[id]/words/route.ts` (new),
@@ -260,7 +289,7 @@ Risk-ordered. Each leaves the app shippable.
 - **Verify:** unit test for idempotence and the ownership 404; browser check
   that the added word appears in My words with the right source.
 
-### 5. Contextual gloss on demand — M · `[ ]`
+### 5. Contextual gloss on demand — M · `[x]`
 
 - **Why here:** the first paid path in the section, and it lands only once the
   free ones work.
@@ -268,12 +297,18 @@ Risk-ordered. Each leaves the app shippable.
   (one prompt beside the translation prompt), `lib/texts/gloss-cache.ts` (new),
   `tests/unit/texts-gloss.test.ts` (new).
 - **Does:** sends one sentence and one target word, stores the answer into
-  `parsed`, returns it. Budget reserved before the call and reconciled after,
+  `glosses`, returns it. Budget reserved before the call and reconciled after,
   the same as `translate-batch`.
 - **Verify:** unit test with a stubbed client for cache-hit / budget-refused /
   provider-error; `npm run budget:status` shows the reservation moving.
 
-### 6. Coverage header and the states around it — S · `[ ]`
+Run against the real provider on 2026-08-22: `saw` in *they saw the old bridge*
+came back **увидели**, not «пила», for 346 input and 11 output tokens, one
+request, reconciled onto both the user's `LlmUsage` row and the global one. The
+second tap after a reload answered `cached: true` with no model call, and
+adding the word from that gloss filed `see → увидели` with `source: text:<id>`.
+
+### 6. Coverage header and the states around it — S · `[x]`
 
 - **Files:** `components/texts/text-coverage.tsx` (new),
   `app/(app)/texts/page.tsx`, `lib/texts/coverage.ts`.
@@ -283,7 +318,7 @@ Risk-ordered. Each leaves the app shippable.
 - **Verify:** unit tests for the threshold wording at 94.9 / 95.0 / 98.0;
   browser check of the empty state.
 
-### 7. Account export, delete, and the privacy line — S · `[ ]`
+### 7. Account export, delete, and the privacy line — S · `[x]`
 
 - **Files:** `lib/account-data.ts`, `docs/security.md`, `app/(public)/privacy`,
   `tests/unit/account-data.test.ts`.
@@ -325,7 +360,7 @@ app can now show *over time*. "The texts you read this month averaged 93% of
 words you know" is a genuinely new statement about a learner, and it is the
 one metric no other section can produce.
 
-### 8. Wire the reader into Progress — S · `[ ]`
+### 8. Wire the reader into Progress — S · `[x]`
 
 - **Why last but not optional:** the section is not finished until this lands;
   see [progress-activity.md §6](progress-activity.md).
@@ -355,3 +390,60 @@ one metric no other section can produce.
   step, out of this batch.
 - **Re-reading and a reading streak.** `lastReadAt` is stored from day one so
   this stays available without a migration.
+
+## 10. What the build found
+
+Three things the plan did not predict, each settled in the code:
+
+**Coverage needed a floor to mean anything.** `UserWord` holds what somebody
+chose to study, which is never `the`, `of` or `and`; counted against it alone
+an A2 narrative scores 12% and the 95/98 thresholds in §1 say nothing. A word
+now counts as known when it is in the dictionary **or** among the first 500 of
+`content/lexicon/en-frequency.txt`, and `/texts` says so in a footnote rather
+than passing the assumption off as a measurement. The same fixture then reads
+72% on the baseline alone and 100% once its content words are in the
+dictionary. That list has no single-letter entries, so `a` and `I` — the first
+and among the commonest words in English — are added by hand in
+`lib/texts/known-words.ts`.
+
+**Marking every absent word underlines the whole page.** §5 says "coloured by
+dictionary status", and the first render showed why that cannot mean three
+marks: with a small dictionary nearly every word is absent, and a page of
+dotted underlines is not a reading surface. Only dictionary words are marked
+now — `data-learned` for learned, `data-learning` for learning, nothing for
+the rest — and `docs/design-system.md` §15.9 records the rule and the reason.
+
+**A reading sitting had no way to record its time.** `durationSec` only
+advances on a patch, and reading sends none, so every reading sitting would
+have closed at zero and coloured nothing. The reader now beats every 30
+seconds while the tab is visible, and `didWork` counts a reading sitting on
+duration alone (20s) since it has no reviews to show for itself. A text left
+open in a hidden tab adds nothing, which is the point.
+
+## 11. What recomputing costs, measured
+
+§5.1 chose to rebuild the tokenization on every read rather than store it. The
+bill, measured on this branch (warm process, one core):
+
+| | |
+|---|---|
+| One text at the 20 000-character cap, tokenize + lemma + coverage | **6.7 ms** |
+| One typical 3 000-character text, same | **0.9 ms** |
+| `/texts` list, 20 texts at the cap — the worst case the caps allow | **124 ms** |
+| `/texts` list, 20 typical texts | **18 ms** |
+| `JSON.parse` of the stored blob it would replace | 0.6 ms |
+
+The last two rows are the argument. Storing would save ~6 ms of CPU per text
+and cost a 226 KB read; across a full list that is **4.5 MB out of Postgres to
+avoid 124 ms of CPU**, which is slower over a serverless connection, not
+faster. Recomputing also has no `parsedVersion`, no regeneration path, and no
+migration the day the tokenizer improves.
+
+The tokenizer itself is 0.8 ms of that; the other 90% is wink. Loading the
+model costs 35 ms once per process, which is the cold-start tail rather than a
+per-request cost.
+
+**If the caps ever rise**, the multiplier is the list page and Progress, the
+two screens that tokenize every text rather than one. The cheapest fix then is
+an in-process memo keyed by `id:updatedAt` — free on a warm instance, nothing
+to invalidate, no column. Not worth the code at 18 ms.

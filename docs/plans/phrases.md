@@ -275,7 +275,7 @@ Worth adding once packs exist, and cheap because the data is already there:
 how many of a pack's entries are learned, on the pack card itself — the same
 "yours" count `lib/stories/select.ts` computes for a story.
 
-### 6. Split words from phrases before the first pack ships — S · `[ ]`
+### 6. Split words from phrases before the first pack ships — S · `[x]`
 
 - **Files:** see [progress-activity.md](progress-activity.md) step 5 —
   `lib/overview.ts`, `components/overview-stats.tsx`, i18n,

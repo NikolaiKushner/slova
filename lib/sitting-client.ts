@@ -6,7 +6,7 @@
 import { reportClientEvent } from "@/lib/client-telemetry";
 
 export type SittingStartBody = {
-  kind: "practice" | "brainstorm" | "study" | "grammar";
+  kind: "practice" | "brainstorm" | "study" | "grammar" | "reading";
   label: string;
   sourceState: "due" | "new" | "hard" | "all";
   setIds?: string[];
