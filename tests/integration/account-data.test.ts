@@ -75,6 +75,16 @@ test("exports personal data and verifiably deletes it while retaining shared tex
           },
         },
       },
+      texts: {
+        create: {
+          id: "account-data-text",
+          title: "A page I pasted",
+          body: "A page I pasted\nIt was mine.",
+          wordCount: 8,
+          charCount: 28,
+          glosses: { "0:1": "страница" },
+        },
+      },
       sittings: {
         create: {
           id: "account-data-sitting",
@@ -141,6 +151,12 @@ test("exports personal data and verifiably deletes it while retaining shared tex
   expect(exported.authentication.pendingTokens[0]).not.toHaveProperty("token");
   expect(exported.dictionary.words).toHaveLength(1);
   expect(exported.progress.reviewLogs).toHaveLength(1);
+  expect(exported.reading.texts).toHaveLength(1);
+  expect(exported.reading.texts[0]).toMatchObject({
+    title: "A page I pasted",
+    body: "A page I pasted\nIt was mine.",
+    glosses: { "0:1": "страница" },
+  });
   expect(exported.dictionary.sharedTranslationConfirmations).toHaveLength(1);
 
   const plan = await planAccountDeletion(prisma, EMAIL);
@@ -149,6 +165,7 @@ test("exports personal data and verifiably deletes it while retaining shared tex
     words: 1,
     sets: 1,
     reviewLogs: 1,
+    texts: 1,
     verificationTokens: 1,
     sharedTranslationLinks: 1,
     llmUsage: 1,

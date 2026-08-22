@@ -196,3 +196,47 @@ describe("a sitting that colours a square", () => {
     expect(activity.streak).toBe(0);
   });
 });
+
+describe("a reading sitting", () => {
+  const now = new Date("2026-08-22T20:00:00Z");
+  const tz = "UTC";
+  const reading = (durationSec: number): Row => ({
+    kind: "reading",
+    label: "text",
+    startedAt: new Date("2026-08-22T11:00:00Z"),
+    lastAt: new Date("2026-08-22T11:06:00Z"),
+    endedAt: new Date("2026-08-22T11:06:00Z"),
+    endedReason: "abandoned",
+    durationSec,
+    reviews: 0,
+    introduced: 0,
+  });
+
+  const activityOf = async (rows: Row[]) => {
+    vi.clearAllMocks();
+    serveFixture({ rows: { studySitting: rows } } as unknown as Fixture);
+    return getStudyActivity("user", now, tz);
+  };
+
+  it("colours its square and keeps the streak on a day spent only reading", async () => {
+    const activity = await activityOf([reading(600)]);
+
+    expect(activity.dayKeysByKind.reading).toEqual(["2026-08-22"]);
+    expect(activity.studiedDayKeys).toEqual(["2026-08-22"]);
+    expect(activity.streak).toBe(1);
+  });
+
+  it("counts on time alone, having no reviews to show for itself", async () => {
+    const activity = await activityOf([reading(600)]);
+
+    expect(activity.time.todayMinutes).toBe(10);
+    expect(activity.time.weekByKind.reading).toBe(10);
+  });
+
+  it("ignores a text opened and closed again", async () => {
+    const activity = await activityOf([reading(4)]);
+
+    expect(activity.dayKeysByKind.reading).toEqual([]);
+    expect(activity.streak).toBe(0);
+  });
+});

@@ -17,7 +17,8 @@ type ActivityMessage =
   | "wordsPractisedOnDay"
   | "lessonCompleted"
   | "grammarReviewed"
-  | "storyRead";
+  | "storyRead"
+  | "textRead";
 
 /** Reviewing grammar is not completing a lesson; the tooltip must not say it was. */
 const ACTIVITY_MESSAGE: Record<ActivityKind, ActivityMessage> = {
@@ -25,6 +26,7 @@ const ACTIVITY_MESSAGE: Record<ActivityKind, ActivityMessage> = {
   lesson: "lessonCompleted",
   grammarReview: "grammarReviewed",
   story: "storyRead",
+  reading: "textRead",
 };
 
 export function StudyCalendar({

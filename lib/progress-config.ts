@@ -13,6 +13,7 @@ export const ACTIVITY_KINDS = [
   "lesson",
   "grammarReview",
   "story",
+  "reading",
 ] as const;
 export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
 
@@ -32,4 +33,5 @@ export const TIME_BAND_OF_KIND: Record<ActivityKind, TimeBand> = {
   lesson: "grammar",
   grammarReview: "grammar",
   story: "reading",
+  reading: "reading",
 };

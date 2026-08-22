@@ -98,6 +98,10 @@ Same for every screen. Still the bar for a visual change.
 - [ ] **Practice screens:** the answer is not visible — not in progress, not
       in tooltips, not in `title`, not in `aria-label`, not in the tab title
 - [ ] Nothing jumps when a state changes (verdict, format change)
+- [ ] **A new section:** a day spent only in it keeps the streak and colours a
+      square on the calendar — `docs/plans/shipped/progress-activity.md` §6.
+      `tests/unit/progress-activity.test.ts` asserts it per kind, so the cost
+      of forgetting is a red test rather than a reset streak
 
 ---
 

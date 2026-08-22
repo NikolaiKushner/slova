@@ -10,7 +10,13 @@
 import { EXERCISE_KINDS } from "@/lib/practice/question";
 import type { SourceState } from "@/lib/practice/source";
 
-export const SITTING_KINDS = ["practice", "brainstorm", "study", "grammar"] as const;
+export const SITTING_KINDS = [
+  "practice",
+  "brainstorm",
+  "study",
+  "grammar",
+  "reading",
+] as const;
 export type SittingKind = (typeof SITTING_KINDS)[number];
 
 export const ENDED_REASONS = ["completed", "abandoned"] as const;

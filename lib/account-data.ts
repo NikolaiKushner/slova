@@ -60,6 +60,7 @@ export async function exportAccountData(
         courses,
         lessons,
         lessonAttempts,
+        texts,
         llmUsage,
         ttsUsage,
         sharedTranslationConfirmations,
@@ -109,6 +110,10 @@ export async function exportAccountData(
           orderBy: [{ courseSlug: "asc" }, { lessonSlug: "asc" }],
         }),
         transaction.lessonAttempt.findMany({
+          where: { userId },
+          orderBy: { createdAt: "asc" },
+        }),
+        transaction.userText.findMany({
           where: { userId },
           orderBy: { createdAt: "asc" },
         }),
@@ -166,6 +171,7 @@ export async function exportAccountData(
           lessons,
           lessonAttempts,
         },
+        reading: { texts },
         providerUsage: { llm: llmUsage, tts: ttsUsage },
       };
     },
@@ -191,6 +197,7 @@ async function deletionCounts(
     db.userCourse.count({ where: { userId } }),
     db.userLesson.count({ where: { userId } }),
     db.lessonAttempt.count({ where: { userId } }),
+    db.userText.count({ where: { userId } }),
     db.verificationToken.count({
       where: { identifier: { in: tokenIdentifiers(email) } },
     }),
@@ -209,6 +216,7 @@ async function deletionCounts(
     "courses",
     "lessons",
     "lessonAttempts",
+    "texts",
     "verificationTokens",
     "sharedTranslationLinks",
     "llmUsage",

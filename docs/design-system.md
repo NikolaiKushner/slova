@@ -858,6 +858,16 @@ The one screen in the app that is a reading surface, not a list, a form, or one 
 
 No cover art, reading-time ring, per-word difficulty colouring, or second accent for new-vs-learning words (§20).
 
+### 15.9 My texts (`/texts`, `/texts/[id]`)
+
+The reader's own texts, pasted. Full spec: `docs/plans/shipped/reader.md` §5–6.
+
+**List** (`/texts`) — container `container-list` (780), the same shell as §15.8: `PageHeader` → the paste field immediately below it, as §16 requires of an empty vocabulary → «Ваши тексты» as divided rows (title, word count, chevron, a `ghost` delete). The paste field is a `Textarea`, `min-h-40`, and the title input appears only once something has been pasted, offering the first line as its placeholder.
+
+**Reader** (`/texts/[id]`) — container `container-prose` (700), paragraphs in `text-story`, exactly as the story reader renders them.
+
+Marks: a word **in the dictionary** is underlined 2px at 3px offset — `data-learned` when learned, `data-learning` while it is being studied. A word that is **not** in the dictionary carries no mark. This is not the LingQ model and the difference is deliberate: this dictionary holds what somebody chose to study, not everything they know, so marking the absent words underlines nearly the whole page and tells the reader nothing. The share is a number, and it belongs in the coverage header, not in the prose. Never a filled background, and never a third colour — §20 stands.
+
 ---
 
 ## 16. Empty states, loading, errors

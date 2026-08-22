@@ -29,6 +29,7 @@ const ACTIVITY_OF_SITTING: Record<SittingKind, ActivityKind> = {
   brainstorm: "reviews",
   study: "reviews",
   grammar: "lesson",
+  reading: "reading",
 };
 
 type SittingRow = {
@@ -98,7 +99,14 @@ export function studyTime(
 }
 
 /** Opening a screen is not studying; answering in it, or finishing it, is. */
+/**
+ * Reading has nothing to complete and nothing to grade, so it is the only kind
+ * whose work is the time itself. Everything else keeps the old rule.
+ */
+export const MIN_READING_SEC = 20;
+
 function didWork(row: SittingRow): boolean {
+  if (row.kind === "reading") return row.durationSec >= MIN_READING_SEC;
   return (
     row.endedReason === "completed" || row.reviews > 0 || row.introduced > 0
   );
@@ -292,7 +300,7 @@ export function reviewCountsByDay(
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-function windowStart(now: Date): Date {
+export function windowStart(now: Date): Date {
   // A couple of extra UTC days so a TZ ahead of UTC does not clip the window.
   return new Date(now.getTime() - (STREAK_WINDOW_DAYS + 2) * MS_PER_DAY);
 }

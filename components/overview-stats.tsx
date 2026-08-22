@@ -25,7 +25,7 @@ export function OverviewStats({ overview }: { overview: Overview }) {
             <span
               key={band.key}
               className={cn("h-full", band.className)}
-              style={{ width: `${(band.value / overview.words) * 100}%` }}
+              style={{ width: `${(band.value / overview.entries) * 100}%` }}
             />
           ))}
       </div>

@@ -15,6 +15,7 @@ export type NavItem = {
     | "trainings"
     | "grammar"
     | "stories"
+    | "myTexts"
     | "myProgress"
     | "myWords"
     | "mySets";
@@ -43,6 +44,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       },
       { titleKey: "grammar", href: "/courses/grammar" },
       { titleKey: "stories", href: "/stories" },
+      { titleKey: "myTexts", href: "/texts" },
       {
         titleKey: "myProgress",
         href: "/progress",

@@ -2,8 +2,8 @@
 
 Status: proposed, not started. Branch: `feat/phrases`.
 Source: brainstorm session 2026-08-22, third of four candidate sections.
-Siblings: [Reader](reader.md), [Speaking](speaking.md), [Dialogues](dialogues.md).
-Prerequisite: [one activity spine for Progress](progress-activity.md).
+Siblings: [Reader](shipped/reader.md), [Speaking](speaking.md), [Dialogues](dialogues.md).
+Prerequisite: [one activity spine for Progress](shipped/progress-activity.md).
 
 ## 1. Why this one, and what it actually needs
 
@@ -267,7 +267,7 @@ no longer means what it says.
 
 `lib/lexicon/dataset.ts:kindOf` already distinguishes the two, and
 `Lexeme.kind` already stores it, so the fix is an aggregate, not a migration —
-it is [progress-activity.md](progress-activity.md) step 5, and this section
+it is [progress-activity.md](shipped/progress-activity.md) step 5, and this section
 **must not ship before it**. That is the only ordering constraint between the
 two plans.
 
@@ -275,9 +275,9 @@ Worth adding once packs exist, and cheap because the data is already there:
 how many of a pack's entries are learned, on the pack card itself — the same
 "yours" count `lib/stories/select.ts` computes for a story.
 
-### 6. Split words from phrases before the first pack ships — S · `[ ]`
+### 6. Split words from phrases before the first pack ships — S · `[x]`
 
-- **Files:** see [progress-activity.md](progress-activity.md) step 5 —
+- **Files:** see [progress-activity.md](shipped/progress-activity.md) step 5 —
   `lib/overview.ts`, `components/overview-stats.tsx`, i18n,
   `tests/unit/overview.test.ts`.
 - **Does:** the dictionary bar reports words and phrases separately.
@@ -291,7 +291,7 @@ how many of a pack's entries are learned, on the pack card itself — the same
 - **Collocations beyond phrasal verbs** (*make a decision*, *heavy rain*) as a
   second pack. Same machinery, different list, and a different sourcing
   question.
-- **Phrases from the [Reader](reader.md)** — a multi-word annotation tapped in
+- **Phrases from the [Reader](shipped/reader.md)** — a multi-word annotation tapped in
   a text is already a phrase, and `role: "phrase"` exists in the story schema
   for exactly this. The two features join up naturally once both exist.
 - **Recorded audio for phrases** in bulk. `lexicon:audio` could do it; it costs

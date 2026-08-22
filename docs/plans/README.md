@@ -7,30 +7,30 @@ plan by section number; that only works because shipped plans stay readable.
 
 ## Open, in the order they should land
 
-Ordering is not a preference. Three constraints force most of it: the three
+Ordering is not a preference. Two constraints force what is left: the three
 grammar courses share five files and a paid audio manifest and must never run
-in parallel; the reader's tokenizer is what the dialogue plan measures with;
-and the word/phrase split has to precede the first phrase pack or the
-dictionary bar starts lying.
+in parallel, and the first phrase pack needed the word/phrase split ahead of
+it or the dictionary bar would start lying.
 
 | # | Plan | Size | Depends on |
 |---|---|---|---|
-| 1 | [progress-activity.md](progress-activity.md) steps 1–4 | M | — |
-| 2 | [reader.md](reader.md) | L | 1 |
-| 3 | [past-simple.md](past-simple.md) | L, content | — |
-| 4 | [phrases.md](phrases.md) | M, content | progress-activity step 5 |
-| 5 | [present-continuous.md](present-continuous.md) | L, content | row 3 merged first |
-| 6 | [comparatives.md](comparatives.md) | L, content | row 5 merged first. **Owns the six-course catalog threshold** |
-| 7 | [dialogues.md](dialogues.md) | L | rows 1 and 2, and the budget decision in its §2.1 |
+| 1 | [past-simple.md](past-simple.md) | L, content | — |
+| 2 | [phrases.md](phrases.md) | M, content | — |
+| 3 | [present-continuous.md](present-continuous.md) | L, content | row 1 merged first |
+| 4 | [comparatives.md](comparatives.md) | L, content | row 3 merged first. **Owns the six-course catalog threshold** |
+| 5 | [dialogues.md](dialogues.md) | L | the budget decision in its §2.1 |
 
-Rows 3, 5 and 6 are three ~2 100-line JSON courses. Phrases sits between the
+Rows 1, 3 and 4 are three ~2 100-line JSON courses. Phrases sits between the
 first and second of them on purpose: back-to-back course writing is the
 "quality goes stale around item 60" risk those plans name, at three times the
 scale.
 
-If only two things get done: `progress-activity` steps 4–5, and Past Simple.
-The first spends measurement already sitting in the database; the second makes
-an already-shipped course worth more.
+Both prerequisites are gone: the activity spine and the Reader shipped
+together, so Phrases no longer waits on anything and Dialogues has both the
+spine and the tokenizer it measures with.
+
+If only one thing gets done: Past Simple. It makes an already-shipped course
+worth more.
 
 [speaking.md](speaking.md) is **closed, not open**: its spike ran, the browser
 recogniser scored 58% on the single words the drill would have asked for, and
@@ -40,12 +40,17 @@ speech again.
 
 ## Shipped
 
-`shipped/` holds thirteen plans behind the current app — Stories, Grammar
-Review, the nav rebuild, the lexicon expansion, the iPad keyboard work, the
-landing page, the pre-release cleanup, and the project-review roadmap whose
-seven phases produced much of the reliability work. They are the reasoning
-behind code that is live, and several are cited directly from source
-comments.
+`shipped/` holds fifteen plans behind the current app — Stories, Grammar
+Review, the Reader and the activity spine it stands on, the nav rebuild, the
+lexicon expansion, the iPad keyboard work, the landing page, the pre-release
+cleanup, and the project-review roadmap whose seven phases produced much of the
+reliability work. They are the reasoning behind code that is live, and several
+are cited directly from source comments.
+
+`shipped/reader.md` carries two sections worth reading before the next
+section is designed: §10 is the three things the build found that the design
+did not predict, and §11 is why the tokenizer output is recomputed rather than
+stored, with the measurements.
 
 ## Conventions worth copying
 

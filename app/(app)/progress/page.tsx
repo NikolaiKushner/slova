@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import {
+  BookOpenCheck,
   CalendarCheck,
   CalendarDays,
   ChartNoAxesColumn,
   ChevronRight,
   LibraryBig,
   Repeat2,
+  ScrollText,
 } from "lucide-react";
 
 import { EmptyState } from "@/components/empty-state";
@@ -33,6 +35,7 @@ import { getOverview } from "@/lib/overview";
 import {
   getStudyActivity,
   studyDaysThisWeek,
+  windowStart,
   type StudyActivity,
 } from "@/lib/progress";
 import {
@@ -41,6 +44,7 @@ import {
   TIME_MIN_DAYS,
 } from "@/lib/progress-config";
 import { requestTimeZone } from "@/lib/request-timezone";
+import { getReadingStats } from "@/lib/texts/reading-stats";
 
 export default async function ProgressPage() {
   const session = await getSession();
@@ -52,9 +56,10 @@ export default async function ProgressPage() {
   const locale = await getLocale();
   const tz = await requestTimeZone();
   const now = new Date();
-  const [overview, activity] = await Promise.all([
+  const [overview, activity, reading] = await Promise.all([
     getOverview(userId),
     getStudyActivity(userId, now, tz),
+    getReadingStats(userId, windowStart(now)),
   ]);
 
   const showMemory =
@@ -82,7 +87,7 @@ export default async function ProgressPage() {
         className="mb-5 md:mb-6"
       />
 
-      {overview.words === 0 ? (
+      {overview.entries === 0 ? (
         <EmptyState
           variant="screen"
           title={t("emptyTitle")}
@@ -113,7 +118,7 @@ export default async function ProgressPage() {
             <MetricTile
               label={t("learned")}
               value={String(overview.learned)}
-              secondary={t("ofWords", { count: overview.words })}
+              secondary={t("ofEntries", { count: overview.entries })}
               icon={LibraryBig}
             />
             {showMemory && memoryPercent !== null ? (
@@ -139,12 +144,36 @@ export default async function ProgressPage() {
             )}
           </section>
 
+          {reading.texts > 0 && reading.meanCoverage !== null ? (
+            <section className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-3 md:gap-4">
+              <MetricTile
+                label={t("wordsRead")}
+                value={String(reading.words)}
+                secondary={t("inTexts", { count: reading.texts })}
+                icon={ScrollText}
+              />
+              <MetricTile
+                label={t("meanCoverage")}
+                value={t("meanPercent", {
+                  percent: Math.round(reading.meanCoverage),
+                })}
+                secondary={t("ofWhatYouRead")}
+                icon={BookOpenCheck}
+              />
+            </section>
+          ) : null}
+
           <section className="grid grid-cols-1 @min-[680px]:grid-cols-2 @min-[960px]:grid-cols-[minmax(0,1fr)_max-content_minmax(0,1fr)] gap-3 md:gap-4">
             <Card className="min-w-0">
               <CardHeader>
                 <CardTitle className="text-h4">{t("vocabulary")}</CardTitle>
                 <CardDescription>
-                  {t("inDictionary", { count: overview.words })}
+                  {overview.phrases === 0
+                    ? t("inDictionary", { words: overview.words })
+                    : t("inDictionaryWithPhrases", {
+                        words: overview.words,
+                        phrases: overview.phrases,
+                      })}
                 </CardDescription>
               </CardHeader>
               <CardContent>

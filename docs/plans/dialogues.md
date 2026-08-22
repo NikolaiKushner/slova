@@ -2,8 +2,8 @@
 
 Status: proposed, not started. Branch: `feat/dialogues`.
 Source: brainstorm session 2026-08-22, fourth of four candidate sections.
-Siblings: [Reader](reader.md), [Speaking](speaking.md), [Phrases](phrases.md).
-Prerequisite: [one activity spine for Progress](progress-activity.md).
+Siblings: [Reader](shipped/reader.md), [Speaking](speaking.md), [Phrases](phrases.md).
+Prerequisite: [one activity spine for Progress](shipped/progress-activity.md).
 
 ## 1. Why this one, and why it is the hardest
 
@@ -27,7 +27,7 @@ cannot be expected to know
 see also [grammar control in learner chatbots](https://arxiv.org/pdf/2502.07544)).
 
 TMR is computable here. The vocabulary set is in Postgres and the tokenizer
-the [Reader](reader.md) plan builds in its step 1 is the same tokenizer this
+the [Reader](shipped/reader.md) plan builds in its step 1 is the same tokenizer this
 needs. That makes the central claim of this feature **measurable rather than
 hoped for**, which is the only basis on which it should be built.
 
@@ -320,7 +320,7 @@ starts.)*
 A dialogue touches neither `UserWord` nor `ReviewLog` — like a story, like a
 text — so **a day spent only on a dialogue would show an empty square and
 break the streak** unless it is wired in deliberately. See
-[progress-activity.md](progress-activity.md), a prerequisite.
+[progress-activity.md](shipped/progress-activity.md), a prerequisite.
 
 There is a second, sharper reason Progress matters here specifically: this is
 the only section with a **budget** a person can hit. Running out of dialogue

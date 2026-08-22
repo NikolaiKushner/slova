@@ -99,6 +99,7 @@ export async function seedTestUserFixture(
     await tx.wordSet.deleteMany({ where: { userId: user.id } });
     await tx.userWord.deleteMany({ where: { userId: user.id } });
     await tx.userCourse.deleteMany({ where: { userId: user.id } });
+    await tx.userText.deleteMany({ where: { userId: user.id } });
     // Cascades the review log. Without it a reset would leave weak rules from
     // the previous run due, and the review card would count them.
     await tx.grammarRuleMemory.deleteMany({ where: { userId: user.id } });
