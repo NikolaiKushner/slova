@@ -4,7 +4,7 @@ import { getPrisma } from "@/lib/prisma";
 /**
  * Reading, glossing, answering and completing a story never touch
  * `UserWord`, `ReviewLog` or any FSRS field — invariant 2,
- * docs/plans/stories.md §4. This module is the only thing that writes
+ * docs/plans/shipped/stories.md §4. This module is the only thing that writes
  * `StoryProgress`, and it writes nothing else.
  */
 

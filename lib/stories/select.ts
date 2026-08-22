@@ -3,7 +3,7 @@ import type { LoadedStory } from "@/lib/stories/load";
 import { ratingOf, type RatedWord } from "@/lib/word-rating";
 
 /**
- * Ordering and the counts the catalog card shows — docs/plans/stories.md
+ * Ordering and the counts the catalog card shows — docs/plans/shipped/stories.md
  * §5.3. Ten stories and one reader need sorting, not a scoring engine: hide
  * completed stories, sort by "yours" descending, break ties by catalog
  * order (A1 before A2).

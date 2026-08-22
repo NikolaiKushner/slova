@@ -25,6 +25,31 @@ there directly.
   database (`vercel.json` allows only `main`). See `docs/deployment.md`.
 - Keep tests in `tests/unit` in step with code changes.
 
+## Plans
+
+Work worth more than a session gets a plan in `docs/plans/<slug>.md` before it
+gets code. `docs/plans/README.md` is the index and the running order.
+
+**A shipped plan moves to `docs/plans/shipped/`. It is never deleted.**
+
+Deleting them was the old habit and it cost something concrete: twenty comments
+across the codebase cite a plan by section — `lib/stories/load.ts` points at
+`docs/plans/shipped/stories.md` §6.2 for a constant, `content/stories/schema.ts`
+at §5.1 for a field-by-field rationale — and for a while every one of those
+pointers led nowhere. A plan is the long-form reasoning the Comments section
+below tells you to keep out of the code; that only works if it stays readable.
+
+So, when a plan ships:
+
+```bash
+git mv docs/plans/<slug>.md docs/plans/shipped/<slug>.md
+grep -rl "docs/plans/<slug>.md" --exclude-dir=node_modules --exclude-dir=.git .
+```
+
+Fix every hit, set `Status: shipped <date>` at the top of the moved file, and
+drop its row from the index. `app/generated` is ignored and regenerates, so
+Prisma doc comments only need fixing in `prisma/schema.prisma`.
+
 ## Verification
 
 `main` auto-deploys to Vercel. The project currently has one maintainer, so CI

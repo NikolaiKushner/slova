@@ -12,7 +12,7 @@ import {
 import { StoryContentError } from "@/lib/stories/validate";
 
 /**
- * Progress for one story — docs/plans/stories.md §5.5. Grading happens on
+ * Progress for one story — docs/plans/shipped/stories.md §5.5. Grading happens on
  * the client (§3.4, like courses): this route only records the verdict it
  * is handed, the same trust boundary `/api/courses/progress` already draws.
  */

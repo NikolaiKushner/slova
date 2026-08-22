@@ -197,7 +197,7 @@ describe("loadCompletedStorySlugs / loadStoryProgress", () => {
 });
 
 /**
- * Invariant 2, docs/plans/stories.md §4: reading, glossing, answering and
+ * Invariant 2, docs/plans/shipped/stories.md §4: reading, glossing, answering and
  * completing a story must never touch UserWord, ReviewLog, stability,
  * difficulty, srsState, intervalDays or dueAt.
  */

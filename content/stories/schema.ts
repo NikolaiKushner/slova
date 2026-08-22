@@ -7,7 +7,7 @@ import { exerciseSchema } from "@/content/courses/schema";
  * `lib/stories/validate.ts`, the same split `content/courses/schema.ts` and
  * `lib/courses/load.ts` use: this file is structure only.
  *
- * See `docs/plans/stories.md` §5.1 for the field-by-field rationale.
+ * See `docs/plans/shipped/stories.md` §5.1 for the field-by-field rationale.
  */
 
 const nonEmpty = z.string().trim().min(1);
@@ -49,7 +49,7 @@ export const storyFileSchema = z.object({
 /**
  * The authoring brief a story is drafted from. Nothing at runtime reads
  * these — they exist so a replacement draft can be regenerated later
- * (docs/plans/stories.md §8) — but they are still structured and tested so a
+ * (docs/plans/shipped/stories.md §8) — but they are still structured and tested so a
  * malformed brief is caught before it costs a drafting round trip.
  */
 export const blueprintSchema = z.object({
@@ -65,7 +65,7 @@ export const blueprintSchema = z.object({
 
 /**
  * Reading order: catalog position is the tie-break in
- * docs/plans/stories.md §5.3, after "yours" count. A story's level comes
+ * docs/plans/shipped/stories.md §5.3, after "yours" count. A story's level comes
  * from the story file itself — the catalog does not repeat it, so the two
  * can't drift apart.
  */

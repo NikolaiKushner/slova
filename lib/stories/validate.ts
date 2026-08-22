@@ -2,7 +2,7 @@ import { acceptedAnswers } from "@/content/courses/schema";
 import type { StoryFile } from "@/content/stories/schema";
 
 /**
- * The deterministic checks from docs/plans/stories.md §5.2 — everything
+ * The deterministic checks from docs/plans/shipped/stories.md §5.2 — everything
  * `content/stories/schema.ts` cannot express as plain structure, because it
  * depends on more than one field. Mirrors `assertCourse` in
  * `lib/courses/load.ts`: takes an already-parsed file, throws on the first

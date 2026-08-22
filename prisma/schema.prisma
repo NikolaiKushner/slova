@@ -495,7 +495,7 @@ model LessonAttempt {
   @@index([userId, courseSlug, lessonSlug])
 }
 
-/// A learner's place in one story — docs/plans/stories.md §5.4. Content
+/// A learner's place in one story — docs/plans/shipped/stories.md §5.4. Content
 /// lives in the repository, not here: this row references a story by slug
 /// with no foreign key, the same deliberate looseness `UserWord.lexemeId`
 /// has, so content can move without touching a single progress row.

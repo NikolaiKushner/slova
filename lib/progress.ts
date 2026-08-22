@@ -295,7 +295,7 @@ export async function getStudyActivity(
     lesson.completedAt ? [lesson.completedAt] : [],
   );
   // Reading and answering a story never touch UserWord or ReviewLog (the
-  // FSRS boundary — docs/plans/stories.md §4/§7), so without this the
+  // FSRS boundary — docs/plans/shipped/stories.md §4/§7), so without this the
   // calendar would show no activity at all on a day spent only on stories.
   const storyAt = storyRows.flatMap((row) =>
     row.completedAt ? [row.startedAt, row.completedAt] : [row.startedAt],

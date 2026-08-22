@@ -3,7 +3,7 @@ import { resolveAnnotationSpan, type AnnotationSpan } from "@/lib/stories/valida
 import { type RatedWord, ratingOf } from "@/lib/word-rating";
 
 /**
- * Turning story data into what the reader screen shows — docs/plans/stories.md
+ * Turning story data into what the reader screen shows — docs/plans/shipped/stories.md
  * §6.3. Pure, so the span math and the popover's dictionary-state text are
  * both testable without mounting anything.
  */

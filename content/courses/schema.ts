@@ -41,7 +41,6 @@ export const courseSchema = z.object({
   title: nonEmpty,
   titleRu: nonEmpty,
   level: z.enum(["A1", "A2", "B1"]),
-  order: z.number().int().positive(),
   estMinutes: z.number().int().positive(),
   lessons: z.array(nonEmpty).min(1),
   /** What the person will be able to do after the course. Markdown, same as lessons. */

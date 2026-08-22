@@ -3,7 +3,6 @@
   "title": "Irregular verbs",
   "titleRu": "Неправильные глаголы",
   "level": "A2",
-  "order": 3,
   "estMinutes": 35,
   "lessons": ["same", "two-alike", "vowel", "en", "special", "test"],
   "outcomes": [

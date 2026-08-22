@@ -38,7 +38,7 @@ import { cn } from "@/lib/utils";
 type Phase = "reading" | "questions" | "summary";
 
 /**
- * The three-phase story experience — docs/plans/stories.md §6.3-6.5. All
+ * The three-phase story experience — docs/plans/shipped/stories.md §6.3-6.5. All
  * grading is local (§3.4, like courses); each answer and the completion are
  * then posted to /api/stories/[slug]/progress best-effort — a failed save
  * never blocks the session, since this screen's value is the reading and
